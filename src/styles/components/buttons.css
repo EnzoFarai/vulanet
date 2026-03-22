@@ -1,4 +1,9 @@
-/* Reusable button system for all Vulanet pages */
+/* ============================================
+   REUSABLE BUTTON SYSTEM
+   Base button styles with color variants
+   All buttons maintain 3D press effect
+   Text colors are manually controlled per instance
+   ============================================ */
 
 .btn {
   display: inline-flex;
@@ -9,17 +14,27 @@
   font-family: var(--headline-font);
   font-weight: 700;
   font-size: 1.1rem;
-  outline: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  height: 52px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+  outline: none;
   border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 52px;
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   white-space: nowrap;
   line-height: 1;
+}
+
+.btn:hover,
+.btn:focus-visible {
+  transform: translateY(-0.125rem);
+}
+
+.btn:active {
+  transform: translateY(0.0625rem);
+  border-bottom-width: 0.125rem;
 }
 
 .btn:focus-visible {
@@ -27,79 +42,51 @@
   outline-offset: 2px;
 }
 
-.btn:active {
-  transform: translateY(0.0625rem);
-}
-
-/* Button Size Variants */
+/* Size variants */
 .btn-sm {
   height: 40px;
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 1rem;
   font-size: 0.9rem;
-}
-
-.btn-md {
-  height: 52px;
-  padding: 1rem 1.5rem;
-  font-size: 1.1rem;
 }
 
 .btn-lg {
   height: 60px;
-  padding: 1.2rem 2rem;
+  padding: 1.25rem;
   font-size: 1.25rem;
 }
 
-/* Button Color Variants - Background Colors */
+/* Color variants - background color only */
 .btn-carpenter-blue {
   background-color: var(--carpenter-blue);
   border-bottom: 0.25rem solid #3a75d9;
 }
 
-.btn-carpenter-blue:hover {
+.btn-carpenter-blue:hover,
+.btn-carpenter-blue:focus-visible {
   background-color: #3a75d9;
   border-bottom-color: #3166c4;
-  transform: translateY(-0.125rem);
-}
-
-.btn-carpenter-blue:active {
-  background-color: #3166c4;
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
 }
 
 .btn-gecko {
   background-color: var(--gecko);
-  border-bottom: 0.25rem solid #0e8bc9;
+  border-bottom: 0.25rem solid #0e8ed9;
 }
 
-.btn-gecko:hover {
-  background-color: #0e8bc9;
-  border-bottom-color: #0c6da0;
-  transform: translateY(-0.125rem);
-}
-
-.btn-gecko:active {
-  background-color: #0c6da0;
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
+.btn-gecko:hover,
+.btn-gecko:focus-visible {
+  background-color: #0e8ed9;
+  border-bottom-color: #0c6eb0;
 }
 
 .btn-ladybug {
   background-color: var(--ladybug);
-  border-bottom: 0.25rem solid #c12d1f;
+  border-bottom: 0.25rem solid #c12d21;
 }
 
-.btn-ladybug:hover {
-  background-color: #c12d1f;
-  border-bottom-color: #9e2419;
-  transform: translateY(-0.125rem);
-}
-
-.btn-ladybug:active {
-  background-color: #9e2419;
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
+.btn-ladybug:hover,
+.btn-ladybug:focus-visible {
+  background-color: #d13b2e;
+  border-bottom-color: #a8261b;
 }
 
 .btn-bee {
@@ -107,16 +94,10 @@
   border-bottom: 0.25rem solid #e6a700;
 }
 
-.btn-bee:hover {
+.btn-bee:hover,
+.btn-bee:focus-visible {
   background-color: #e6a700;
-  border-bottom-color: #c48e00;
-  transform: translateY(-0.125rem);
-}
-
-.btn-bee:active {
-  background-color: #c48e00;
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
+  border-bottom-color: #c48b00;
 }
 
 .btn-tiger {
@@ -124,16 +105,10 @@
   border-bottom: 0.25rem solid #e65c00;
 }
 
-.btn-tiger:hover {
+.btn-tiger:hover,
+.btn-tiger:focus-visible {
   background-color: #e65c00;
-  border-bottom-color: #c44d00;
-  transform: translateY(-0.125rem);
-}
-
-.btn-tiger:active {
-  background-color: #c44d00;
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
+  border-bottom-color: #c24c00;
 }
 
 .btn-beetle {
@@ -141,85 +116,68 @@
   border-bottom: 0.25rem solid #8a00d4;
 }
 
-.btn-beetle:hover {
+.btn-beetle:hover,
+.btn-beetle:focus-visible {
   background-color: #8a00d4;
-  border-bottom-color: #6a00a3;
-  transform: translateY(-0.125rem);
-}
-
-.btn-beetle:active {
-  background-color: #6a00a3;
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
+  border-bottom-color: #6d00aa;
 }
 
 .btn-boa {
   background-color: var(--boa);
-  border-bottom: 0.25rem solid #2c8f4c;
+  border-bottom: 0.25rem solid #2b8a43;
 }
 
-.btn-boa:hover {
-  background-color: #2c8f4c;
-  border-bottom-color: #22723b;
-  transform: translateY(-0.125rem);
-}
-
-.btn-boa:active {
-  background-color: #22723b;
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
+.btn-boa:hover,
+.btn-boa:focus-visible {
+  background-color: #2b8a43;
+  border-bottom-color: #206a33;
 }
 
 .btn-cloud {
   background-color: var(--cloud);
-  border-bottom: 0.25rem solid var(--koala);
   border: 2px solid var(--beluga);
+  border-bottom: 0.25rem solid var(--koala);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.btn-cloud:hover {
+.btn-cloud:hover,
+.btn-cloud:focus-visible {
   background-color: var(--arctic);
   border-bottom-color: var(--hippo);
   transform: translateY(-0.125rem);
 }
 
 .btn-cloud:active {
-  background-color: var(--beluga);
   transform: translateY(0.0625rem);
   border-bottom-width: 0.125rem;
 }
 
-/* Button Disabled State */
-.btn:disabled,
-.btn.disabled {
+/* Disabled state */
+.btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
-  pointer-events: none;
 }
 
-/* Full-width button */
+/* Full width variant */
 .btn-block {
   width: 100%;
   display: flex;
 }
 
-/* Button with icon spacing */
+/* Icon support within buttons */
 .btn i,
-.btn img,
-.btn svg {
-  margin-right: 8px;
+.btn .btn-icon {
+  font-size: 1.2rem;
+  line-height: 1;
 }
 
-.btn:has(img:only-child),
-.btn:has(i:only-child),
-.btn:has(svg:only-child) {
-  padding: 1rem;
+.btn-sm i,
+.btn-sm .btn-icon {
+  font-size: 1rem;
 }
 
-.btn img,
-.btn svg {
-  width: 20px;
-  height: 20px;
-  display: inline-block;
+.btn-lg i,
+.btn-lg .btn-icon {
+  font-size: 1.4rem;
 }
