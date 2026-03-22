@@ -8,9 +8,10 @@
   <!-- Local Fonts -->
   <link rel="stylesheet" href="/assets/fonts/fonts.css">
   
-  <!-- Custom Styles -->
+  <!-- Local Button Styles -->
+  <link rel="stylesheet" href="/assets/css/buttons.css">
+  
   <style>
-    /* CSS Variables - Brand Colors */
     :root {
       /* CORE COLORS */
       --carpenter-blue: #4285F4;
@@ -46,12 +47,6 @@
       --brand-font: 'Bricolage Grotesque', sans-serif;
       --headline-font: 'Atkinson Hyperlegible Next', sans-serif;
       
-      /* BUTTONS */
-      --main-btn: var(--carpenter-blue);
-      --main-btn-hover: #3a75d9;
-      --main-btn-active: #3166c4;
-      --main-btn-text: var(--cloud);
-      
       /* Icon variables */
       --borderwidth: 0.1vw;
       --animationtime: 5s;
@@ -61,6 +56,14 @@
       --footer-text-light: var(--cloud);
       --footer-text-dark: var(--arctic);
     }
+    
+    /* SVG Color Filters - Convert black to brand colors */
+    .filter-carpenter-blue { filter: brightness(0) saturate(100%) invert(38%) sepia(84%) saturate(1549%) hue-rotate(198deg) brightness(96%) contrast(93%); }
+    .filter-gecko { filter: brightness(0) saturate(100%) invert(46%) sepia(91%) saturate(1534%) hue-rotate(171deg) brightness(101%) contrast(96%); }
+    .filter-bee { filter: brightness(0) saturate(100%) invert(77%) sepia(70%) saturate(1901%) hue-rotate(353deg) brightness(99%) contrast(97%); }
+    .filter-boa { filter: brightness(0) saturate(100%) invert(55%) sepia(44%) saturate(1571%) hue-rotate(94deg) brightness(95%) contrast(88%); }
+    .filter-cloud { filter: brightness(0) saturate(100%) invert(100%); }
+    .filter-white { filter: brightness(0) saturate(100%) invert(100%); }
     
     html, body {
       margin: 0;
@@ -74,187 +77,6 @@
       min-height: 100vh;
       scroll-behavior: smooth;
       color: var(--text-main);
-    }
-    
-    /* BUTTON SYSTEM - Reusable Classes */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 28px;
-      border-radius: 0.75rem;
-      font-family: var(--headline-font);
-      font-weight: 700;
-      font-size: 1.1rem;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: none;
-      outline: none;
-      text-decoration: none;
-      white-space: nowrap;
-      height: 52px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      line-height: 1;
-    }
-    
-    /* Button Colors - Backgrounds */
-    .btn-carpenter-blue {
-      background-color: var(--carpenter-blue);
-      border-bottom: 0.25rem solid var(--main-btn-hover);
-    }
-    
-    .btn-carpenter-blue:hover {
-      background-color: var(--main-btn-hover);
-      border-bottom-color: var(--main-btn-active);
-      transform: translateY(-0.125rem);
-    }
-    
-    .btn-carpenter-blue:active {
-      background-color: var(--main-btn-active);
-      transform: translateY(0.0625rem);
-      border-bottom-width: 0.125rem;
-    }
-    
-    .btn-gecko {
-      background-color: var(--gecko);
-      border-bottom: 0.25rem solid #0e8ed9;
-    }
-    
-    .btn-gecko:hover {
-      background-color: #0e8ed9;
-      border-bottom-color: #0c6eb0;
-      transform: translateY(-0.125rem);
-    }
-    
-    .btn-gecko:active {
-      background-color: #0c6eb0;
-      transform: translateY(0.0625rem);
-      border-bottom-width: 0.125rem;
-    }
-    
-    .btn-bee {
-      background-color: var(--bee);
-      border-bottom: 0.25rem solid #e6a800;
-    }
-    
-    .btn-bee:hover {
-      background-color: #e6a800;
-      border-bottom-color: #c48c00;
-      transform: translateY(-0.125rem);
-    }
-    
-    .btn-bee:active {
-      background-color: #c48c00;
-      transform: translateY(0.0625rem);
-      border-bottom-width: 0.125rem;
-    }
-    
-    .btn-boa {
-      background-color: var(--boa);
-      border-bottom: 0.25rem solid #2b8e47;
-    }
-    
-    .btn-boa:hover {
-      background-color: #2b8e47;
-      border-bottom-color: #227238;
-      transform: translateY(-0.125rem);
-    }
-    
-    .btn-boa:active {
-      background-color: #227238;
-      transform: translateY(0.0625rem);
-      border-bottom-width: 0.125rem;
-    }
-    
-    .btn-ladybug {
-      background-color: var(--ladybug);
-      border-bottom: 0.25rem solid #c12d21;
-    }
-    
-    .btn-ladybug:hover {
-      background-color: #c12d21;
-      border-bottom-color: #a1251b;
-      transform: translateY(-0.125rem);
-    }
-    
-    .btn-ladybug:active {
-      background-color: #a1251b;
-      transform: translateY(0.0625rem);
-      border-bottom-width: 0.125rem;
-    }
-    
-    .btn-beetle {
-      background-color: var(--beetle);
-      border-bottom: 0.25rem solid #8a00d4;
-    }
-    
-    .btn-beetle:hover {
-      background-color: #8a00d4;
-      border-bottom-color: #6a00a3;
-      transform: translateY(-0.125rem);
-    }
-    
-    .btn-beetle:active {
-      background-color: #6a00a3;
-      transform: translateY(0.0625rem);
-      border-bottom-width: 0.125rem;
-    }
-    
-    .btn-tiger {
-      background-color: var(--tiger);
-      border-bottom: 0.25rem solid #e65c00;
-    }
-    
-    .btn-tiger:hover {
-      background-color: #e65c00;
-      border-bottom-color: #c44d00;
-      transform: translateY(-0.125rem);
-    }
-    
-    .btn-tiger:active {
-      background-color: #c44d00;
-      transform: translateY(0.0625rem);
-      border-bottom-width: 0.125rem;
-    }
-    
-    .btn-cloud {
-      background-color: var(--cloud);
-      border-bottom: 0.25rem solid var(--koala);
-      border: 2px solid var(--beluga);
-    }
-    
-    .btn-cloud:hover {
-      background-color: var(--arctic);
-      border-bottom-color: var(--hippo);
-      transform: translateY(-0.125rem);
-    }
-    
-    .btn-cloud:active {
-      background-color: var(--beluga);
-      transform: translateY(0.0625rem);
-      border-bottom-width: 0.125rem;
-    }
-    
-    /* Button Sizes */
-    .btn-sm {
-      padding: 8px 20px;
-      height: 40px;
-      font-size: 0.9rem;
-    }
-    
-    .btn-md {
-      padding: 12px 28px;
-      height: 52px;
-      font-size: 1.1rem;
-    }
-    
-    .btn-lg {
-      padding: 16px 36px;
-      height: 64px;
-      font-size: 1.3rem;
     }
     
     /* HEADER */
@@ -316,12 +138,6 @@
       flex-shrink: 0;
     }
     
-    .logo-rabbit img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    
     .brand-name {
       font-family: var(--brand-font);
       font-size: 1.5rem;
@@ -330,16 +146,6 @@
       color: var(--carpenter-blue);
       letter-spacing: -0.02em;
       transition: opacity 0.3s ease;
-    }
-    
-    .header-btn {
-      opacity: 0;
-      visibility: hidden;
-    }
-    
-    .header.scrolled .header-btn {
-      opacity: 1;
-      visibility: visible;
     }
     
     /* WELCOME SECTION */
@@ -423,13 +229,6 @@
       animation: rabbit-bounce 1400ms cubic-bezier(.25,.9,.35,1) infinite;
     }
     
-    .ph-rabbit img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: brightness(0) saturate(100%) invert(41%) sepia(98%) saturate(2529%) hue-rotate(208deg) brightness(97%) contrast(94%);
-    }
-    
     @keyframes rabbit-bounce {
       0% { transform: translateY(0) rotate(0deg); }
       25% { transform: translateY(-22px) rotate(2deg); }
@@ -481,36 +280,16 @@
       margin-left: 30px;
     }
     
-    .icon-el {
+    .icon-box .icon-svg {
       width: 44px;
       height: 44px;
       display: block;
-      transform-origin: center center;
       animation: icon-pulse 1.4s infinite ease-in-out;
     }
     
-    .icon-el img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    
-    /* Icon Colors via CSS Filters */
-    .icon-box:nth-child(1) .icon-el img {
-      filter: brightness(0) saturate(100%) invert(77%) sepia(42%) saturate(1341%) hue-rotate(2deg) brightness(103%) contrast(104%);
-    }
-    
-    .icon-box:nth-child(2) .icon-el img {
-      filter: brightness(0) saturate(100%) invert(53%) sepia(99%) saturate(1998%) hue-rotate(157deg) brightness(97%) contrast(93%);
-    }
-    
-    .icon-box:nth-child(3) .icon-el img {
-      filter: brightness(0) saturate(100%) invert(59%) sepia(56%) saturate(1119%) hue-rotate(99deg) brightness(95%) contrast(89%);
-    }
-    
-    .icon-box:nth-child(1) .icon-el { animation-delay: 0s; }
-    .icon-box:nth-child(2) .icon-el { animation-delay: 0.12s; }
-    .icon-box:nth-child(3) .icon-el { animation-delay: 0.24s; }
+    .icon-box:nth-child(1) .icon-svg { animation-delay: 0s; }
+    .icon-box:nth-child(2) .icon-svg { animation-delay: 0.12s; }
+    .icon-box:nth-child(3) .icon-svg { animation-delay: 0.24s; }
     
     @keyframes icon-pulse {
       0% { transform: scale(1); opacity: 1; }
@@ -549,25 +328,6 @@
       text-align: center;
       letter-spacing: -0.01em;
       line-height: 1.3;
-    }
-    
-    .main-btn, .secondary-btn {
-      display: block;
-      width: 100%;
-      max-width: 380px;
-      margin: 0 auto;
-    }
-    
-    .main-btn {
-      margin-bottom: 1.1rem;
-    }
-    
-    .secondary-btn {
-      margin-bottom: 0.21rem;
-    }
-    
-    .main-btn:focus-visible, .secondary-btn:focus-visible, .icon-box:focus-visible {
-      box-shadow: 0 0 0 2.5px var(--carpenter-blue), 0 2px 11px rgba(66,133,244,0.13);
     }
     
     /* CONTENT SECTIONS */
@@ -621,15 +381,7 @@
     .material-icon {
       width: 120px;
       height: 120px;
-      display: block;
       animation: pulse-main 3s infinite;
-    }
-    
-    .material-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: brightness(0) saturate(100%) invert(41%) sepia(98%) saturate(2529%) hue-rotate(208deg) brightness(97%) contrast(94%);
     }
     
     .custom-icon-container {
@@ -1104,20 +856,13 @@
     }
     
     .bouncing-rabbit {
-      width: 80px;
-      height: 80px;
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
       animation: bounce 0.5s infinite alternate ease-in-out;
       z-index: 10;
-    }
-    
-    .bouncing-rabbit img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: brightness(0) saturate(100%) invert(41%) sepia(98%) saturate(2529%) hue-rotate(208deg) brightness(97%) contrast(94%);
+      width: 80px;
+      height: 80px;
     }
     
     .rabbit-shadow {
@@ -1281,7 +1026,7 @@
       align-items: center;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: 24px;
     }
     
     .footer-social {
@@ -1292,9 +1037,11 @@
     }
     
     .footer-social a {
-      display: inline-block;
-      width: 24px;
-      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
       opacity: 0.9;
       transition: all 0.13s;
     }
@@ -1304,11 +1051,10 @@
       transform: translateY(-2px);
     }
     
-    .footer-social a img {
+    .footer-social img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: brightness(0) invert(1);
     }
     
     @media (max-width: 980px) {
@@ -1341,18 +1087,13 @@
         margin-left: 20px; 
       }
       
-      .icon-el {
+      .icon-box .icon-svg {
         width: 36px;
         height: 36px;
       }
       
       .headline {
         font-size: 1.3rem;
-      }
-      
-      .main-btn, .secondary-btn {
-        font-size: 1.05rem;
-        max-width: 340px;
       }
       
       .tagline {
@@ -1370,12 +1111,6 @@
       .logo-rabbit {
         width: 36px;
         height: 36px;
-      }
-      
-      .header-btn {
-        padding: 10px 20px;
-        font-size: 1rem;
-        height: 46px;
       }
       
       .custom-icon-container,
@@ -1405,10 +1140,6 @@
       .bouncing-rabbit-container {
         height: 180px;
         width: 180px;
-      }
-      
-      .cta-button {
-        max-width: 340px;
       }
     }
     
@@ -1451,11 +1182,6 @@
         font-size: 1.2rem;
       }
       
-      .main-btn, .secondary-btn { 
-        font-size: 1.0rem;
-        max-width: 300px;
-      }
-      
       .phone-wrap {
         width: 120px;
         height: 220px;
@@ -1481,7 +1207,7 @@
         margin-left: 15px; 
       }
       
-      .icon-el {
+      .icon-box .icon-svg {
         width: 28px;
         height: 28px;
       }
@@ -1493,12 +1219,6 @@
       .logo-rabbit {
         width: 32px;
         height: 32px;
-      }
-      
-      .header-btn {
-        padding: 8px 16px;
-        font-size: 0.9rem;
-        height: 42px;
       }
       
       .cta-tagline {
@@ -1513,10 +1233,6 @@
       .bouncing-rabbit-container {
         height: 160px;
         width: 160px;
-      }
-      
-      .cta-button {
-        max-width: 300px;
       }
       
       @keyframes bounce {
@@ -1571,18 +1287,6 @@
         font-size: 1.1rem;
       }
       
-      .main-btn, .secondary-btn { 
-        font-size: 0.95rem;
-        max-width: 280px;
-      }
-      
-      .secondary-btn {
-        white-space: normal;
-        height: auto;
-        min-height: 52px;
-        padding: 0.8rem;
-      }
-      
       .brand-name {
         font-size: 1.1rem;
       }
@@ -1590,12 +1294,6 @@
       .logo-rabbit {
         width: 28px;
         height: 28px;
-      }
-      
-      .header-btn {
-        padding: 8px 16px;
-        font-size: 0.9rem;
-        height: 40px;
       }
       
       .header-inner {
@@ -1616,10 +1314,6 @@
         width: 140px;
       }
       
-      .cta-button {
-        max-width: 280px;
-      }
-      
       @keyframes bounce {
         0% {
           top: 10px;
@@ -1634,8 +1328,8 @@
       }
       
       .footer-social a {
-        width: 20px;
-        height: 20px;
+        width: 28px;
+        height: 28px;
       }
     }
   </style>
@@ -1644,12 +1338,10 @@
   <header class="header" id="main-header">
     <div class="header-inner">
       <div class="logo-container">
-        <div class="logo-rabbit">
-          <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit Logo">
-        </div>
+        <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit" class="logo-rabbit filter-carpenter-blue">
         <span class="brand-name">vulanet</span>
       </div>
-      <button class="btn btn-carpenter-blue header-btn" onclick="scrollToStart()" aria-label="Get Started">GET STARTED</button>
+      <button class="btn btn-carpenter-blue" id="header-cta-btn" onclick="scrollToStart()" style="--btn-text: #FFFFFF;">GET STARTED</button>
     </div>
   </header>
   
@@ -1659,36 +1351,28 @@
         <div class="phone-wrap" aria-hidden="false">
           <div class="phone" role="img" aria-label="phone with rabbit">
             <div class="connection-hint" aria-hidden="true"></div>
-            <div class="ph-rabbit">
-              <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vusi the Rabbit">
-            </div>
+            <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit" class="ph-rabbit filter-carpenter-blue">
           </div>
           
           <div class="floating-icons" aria-hidden="false">
             <div class="icon-box" role="button" aria-label="School">
-              <div class="icon-el">
-                <img src="/assets/icons/material-symbols/outline/school.svg" alt="School">
-              </div>
+              <img src="/assets/icons/material-symbols/outline/school.svg" alt="School" class="icon-svg filter-bee">
             </div>
             
             <div class="icon-box" role="button" aria-label="Cognition">
-              <div class="icon-el">
-                <img src="/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition">
-              </div>
+              <img src="/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition" class="icon-svg filter-gecko">
             </div>
             
             <div class="icon-box" role="button" aria-label="Quiz">
-              <div class="icon-el">
-                <img src="/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz">
-              </div>
+              <img src="/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz" class="icon-svg filter-boa">
             </div>
           </div>
         </div>
       </div>
       
       <h1 class="headline">The free, fun, and proven way to learn!</h1>
-      <button class="btn btn-carpenter-blue main-btn" id="get-started-btn" onclick="handleGetStarted()">GET STARTED</button>
-      <button class="btn btn-cloud secondary-btn" onclick="handleAlreadyAccount()">I ALREADY HAVE AN ACCOUNT</button>
+      <button class="btn btn-carpenter-blue" id="get-started-btn" onclick="handleGetStarted()" style="--btn-text: #FFFFFF;">GET STARTED</button>
+      <button class="btn btn-cloud" id="already-account-btn" onclick="handleAlreadyAccount()" style="--btn-text: #1CB0F6;">I ALREADY HAVE AN ACCOUNT</button>
     </div>
   </section>
   
@@ -1696,9 +1380,7 @@
     <div class="vulanet-description">
       <div class="icon-container">
         <div class="material-icon-container">
-          <div class="material-icon">
-            <img src="/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition">
-          </div>
+          <img src="/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition" class="material-icon filter-carpenter-blue">
         </div>
       </div>
       
@@ -1789,15 +1471,13 @@
 
     <div class="cta-section">
       <div class="bouncing-rabbit-container">
-        <div class="bouncing-rabbit">
-          <img src="/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi the Rabbit">
-        </div>
+        <img src="/assets/icons/phosphor/fill/rabbit.svg" alt="Vulanet Rabbit" class="bouncing-rabbit filter-carpenter-blue">
         <div class="rabbit-shadow"></div>
       </div>
       
       <div class="cta-tagline">learn better with vulanet</div>
       
-      <button class="btn btn-carpenter-blue cta-button" onclick="handleGetStarted()">GET STARTED</button>
+      <button class="btn btn-carpenter-blue" id="cta-bottom-btn" onclick="handleGetStarted()" style="--btn-text: #FFFFFF;">GET STARTED</button>
     </div>
   </div>
 
