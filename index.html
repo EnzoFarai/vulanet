@@ -4,21 +4,309 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vulanet - The free, fun, and proven way to learn!</title>
+  <meta name="description" content="Learn with Vulanet - the free, fun, and proven way to learn. Join millions of learners and start your journey today!">
+  <meta name="keywords" content="learning, education, courses, online learning, study, Vulanet">
+  <meta name="author" content="Vulanet">
+  <meta property="og:title" content="Vulanet - The free, fun, and proven way to learn!">
+  <meta property="og:description" content="Learn with Vulanet - the free, fun, and proven way to learn. Join millions of learners and start your journey today!">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/images/ui/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   
   <!-- Local Fonts -->
-  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/fonts.css">
   
   <!-- Local Styles -->
-  <link rel="stylesheet" href="/src/styles/global.css">
   <link rel="stylesheet" href="/src/styles/variables.css">
-  <link rel="stylesheet" href="/src/styles/typography.css">
-  <link rel="stylesheet" href="/src/styles/components/buttons.css">
-  <link rel="stylesheet" href="/src/styles/components/svg-filters.css">
+  <link rel="stylesheet" href="/src/styles/buttons.css">
+  <link rel="stylesheet" href="/src/styles/icon-filters.css">
   
   <style>
-    /* Additional page-specific styles that don't belong in global CSS */
+    /* ============================================
+       LANDING PAGE SPECIFIC STYLES
+       All CDN dependencies replaced with local assets
+       ============================================ */
     
-    /* Icon Box Styling - Updated for SVG icons */
+    :root {
+      /* CORE COLORS */
+      --carpenter-blue: #4285F4;
+      --belly-blue: #7B9FE0;
+      --basalt: #4B4B4B;
+      --cloud: #FFFFFF;
+      
+      /* SECONDARY COLORS */
+      --gecko: #1CB0F6;
+      --ladybug: #EA4335;
+      --bee: #FBBC05;
+      --tiger: #FF6D01;
+      --beetle: #AA00FF;
+      --boa: #34A853;
+      
+      /* NEUTRALS */
+      --hippo: #777777;
+      --koala: #AFAFAF;
+      --beluga: #E5E5E5;
+      --arctic: #F7F7F7;
+      
+      /* HEADER */
+      --header-height: 70px;
+      --header-bg: var(--cloud);
+      
+      /* FONTS */
+      --brand-font: 'Bricolage Grotesque', sans-serif;
+      --headline-font: 'Atkinson Hyperlegible Next', sans-serif;
+      
+      /* BUTTONS */
+      --main-btn: var(--carpenter-blue);
+      --main-btn-hover: #3a75d9;
+      --main-btn-active: #3166c4;
+      --main-btn-text: var(--cloud);
+      
+      /* Icon variables */
+      --borderwidth: 0.1vw;
+      --animationtime: 5s;
+      
+      /* Footer colors */
+      --footer-bg: var(--carpenter-blue);
+      --footer-text-light: var(--cloud);
+      --footer-text-dark: var(--arctic);
+    }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      min-height: 100vh;
+      background: var(--cloud);
+      font-family: var(--headline-font);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      scroll-behavior: smooth;
+      color: var(--basalt);
+    }
+    
+    /* HEADER */
+    .header {
+      width: 100%;
+      height: var(--header-height);
+      background: var(--header-bg);
+      display: flex;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 0px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .header.scrolled {
+      border-bottom: 1px solid var(--beluga);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .header-inner {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+      position: relative;
+    }
+    
+    .header:not(.scrolled) .logo-container {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .header.scrolled .header-inner {
+      justify-content: space-between;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.3s ease;
+    }
+    
+    .header.scrolled .brand-name {
+      display: none;
+    }
+    
+    .logo-rabbit {
+      width: 42px;
+      height: 42px;
+      display: block;
+      flex-shrink: 0;
+    }
+    
+    .logo-rabbit img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .brand-name {
+      font-family: var(--brand-font);
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-transform: lowercase;
+      color: var(--carpenter-blue);
+      letter-spacing: -0.02em;
+      transition: opacity 0.3s ease;
+    }
+    
+    .header-btn {
+      padding: 12px 28px;
+      font-family: var(--headline-font);
+      font-size: 1.1rem;
+      background: var(--main-btn);
+      color: var(--main-btn-text);
+      border: none;
+      border-radius: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+      opacity: 0;
+      visibility: hidden;
+      height: 52px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-transform: uppercase;
+      border-bottom: 0.25rem solid var(--main-btn-hover);
+    }
+    
+    .header.scrolled .header-btn {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .header-btn:hover,
+    .header-btn:focus-visible {
+      background: var(--main-btn-hover);
+      border-bottom-color: var(--main-btn-active);
+      transform: translateY(-0.125rem);
+    }
+    
+    .header-btn:active {
+      background: var(--main-btn-active);
+      transform: translateY(0.0625rem);
+      border-bottom-width: 0.125rem;
+    }
+    
+    /* WELCOME SECTION */
+    .welcome-section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding-top: var(--header-height);
+      background: var(--cloud);
+      margin-bottom: 0;
+    }
+    
+    .welcome-content {
+      width: 600px;
+      max-width: 93vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: transparent;
+      position: relative;
+      z-index: 3;
+      padding: 2.3rem 2rem 2.0rem 2rem;
+    }
+    
+    .central-illus {
+      width: 100%;
+      margin: 0 0 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+      min-height: 300px;
+    }
+    
+    .phone-wrap {
+      position: relative;
+      width: 190px;
+      height: 360px;
+      margin-left: 6px;
+    }
+    
+    .phone {
+      width: 100%;
+      height: 100%;
+      border-radius: 28px;
+      background: linear-gradient(180deg, var(--cloud), #f2fbff);
+      border: 6px solid rgba(67, 133, 244, 0.08);
+      box-shadow: 0 12px 30px rgba(67, 133, 244, 0.08), inset 0 -14px 30px rgba(0,0,0,0.02);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .phone:hover {
+      border-color: rgba(67, 133, 244, 0.15);
+      box-shadow: 0 15px 35px rgba(67, 133, 244, 0.12), inset 0 -14px 30px rgba(0,0,0,0.02);
+    }
+    
+    .phone::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 46px;
+      height: 6px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.02));
+    }
+    
+    .ph-rabbit {
+      width: 120px;
+      height: 120px;
+      display: block;
+      transform-origin: center bottom;
+      animation: rabbit-bounce 1400ms cubic-bezier(.25,.9,.35,1) infinite;
+    }
+    
+    .ph-rabbit img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    @keyframes rabbit-bounce {
+      0% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-22px) rotate(2deg); }
+      50% { transform: translateY(0) rotate(0deg); }
+      75% { transform: translateY(-11px) rotate(-2deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    
+    .floating-icons {
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 1.6rem;
+      pointer-events: auto;
+      margin-left: -36px;
+    }
+    
     .icon-box {
       width: 80px;
       height: 80px;
@@ -50,84 +338,22 @@
       margin-left: 30px;
     }
     
-    /* Icon containers for SVGs */
-    .icon-el-svg {
+    .icon-box .icon-el {
       width: 44px;
       height: 44px;
       display: block;
-      object-fit: contain;
-      animation: icon-pulse 1.4s infinite ease-in-out;
       transform-origin: center center;
+      animation: icon-pulse 1.4s infinite ease-in-out;
     }
     
-    .icon-box:nth-child(1) .icon-el-svg { animation-delay: 0s; }
-    .icon-box:nth-child(2) .icon-el-svg { animation-delay: 0.12s; }
-    .icon-box:nth-child(3) .icon-el-svg { animation-delay: 0.24s; }
+    .icon-box:nth-child(1) .icon-el { animation-delay: 0s; }
+    .icon-box:nth-child(2) .icon-el { animation-delay: 0.12s; }
+    .icon-box:nth-child(3) .icon-el { animation-delay: 0.24s; }
     
-    /* School icon - Bee Yellow filter */
-    .icon-box:nth-child(1) .icon-el-svg {
-      filter: brightness(0) saturate(100%) invert(70%) sepia(78%) saturate(3076%) hue-rotate(345deg) brightness(98%) contrast(96%);
-    }
-    
-    /* Cognition icon - Gecko Blue filter */
-    .icon-box:nth-child(2) .icon-el-svg {
-      filter: brightness(0) saturate(100%) invert(45%) sepia(78%) saturate(1694%) hue-rotate(160deg) brightness(100%) contrast(95%);
-    }
-    
-    /* Quiz icon - Boa Green filter */
-    .icon-box:nth-child(3) .icon-el-svg {
-      filter: brightness(0) saturate(100%) invert(52%) sepia(53%) saturate(1290%) hue-rotate(82deg) brightness(91%) contrast(91%);
-    }
-    
-    /* Material icon container for main cognition icon */
-    .material-icon-container svg {
-      width: 120px;
-      height: 120px;
-      display: block;
-      animation: pulse-main 3s infinite;
-    }
-    
-    /* Make the main cognition icon Carpenter Blue */
-    .material-icon-container svg {
-      filter: brightness(0) saturate(100%) invert(43%) sepia(81%) saturate(1578%) hue-rotate(202deg) brightness(98%) contrast(96%);
-    }
-    
-    /* Bouncing rabbit - Carpenter Blue */
-    .bouncing-rabbit {
-      width: 80px;
-      height: 80px;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      animation: bounce 0.5s infinite alternate ease-in-out;
-      z-index: 10;
-      filter: brightness(0) saturate(100%) invert(43%) sepia(81%) saturate(1578%) hue-rotate(202deg) brightness(98%) contrast(96%);
-    }
-    
-    /* Logo rabbit in header - Carpenter Blue */
-    .logo-rabbit-img {
-      width: 42px;
-      height: 42px;
-      display: block;
-      filter: brightness(0) saturate(100%) invert(43%) sepia(81%) saturate(1578%) hue-rotate(202deg) brightness(98%) contrast(96%);
-    }
-    
-    /* Phone rabbit - Carpenter Blue */
-    .phone-rabbit-img {
-      width: 120px;
-      height: 120px;
-      display: block;
-      filter: brightness(0) saturate(100%) invert(43%) sepia(81%) saturate(1578%) hue-rotate(202deg) brightness(98%) contrast(96%);
-      transform-origin: center bottom;
-      animation: rabbit-bounce 1400ms cubic-bezier(.25,.9,.35,1) infinite;
-    }
-    
-    @keyframes rabbit-bounce {
-      0% { transform: translateY(0) rotate(0deg); }
-      25% { transform: translateY(-22px) rotate(2deg); }
-      50% { transform: translateY(0) rotate(0deg); }
-      75% { transform: translateY(-11px) rotate(-2deg); }
-      100% { transform: translateY(0) rotate(0deg); }
+    .icon-box .icon-el img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
     
     @keyframes icon-pulse {
@@ -142,35 +368,63 @@
       100% { transform: scale(1); }
     }
     
+    .connection-hint {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(67,133,244,0.2));
+      width: 40px;
+      top: 50%;
+      left: calc(100% - 10px);
+      transform: translateY(-50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .phone:hover .connection-hint {
+      opacity: 1;
+    }
+    
+    .headline {
+      font-family: var(--headline-font);
+      font-size: 1.4rem;
+      color: var(--basalt);
+      font-weight: 700;
+      margin: 12px 0 2.0rem 0;
+      text-align: center;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    
+    /* CONTENT SECTIONS */
+    .content-container {
+      display: flex;
+      flex-direction: column;
+      gap: 80px;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px 80px 20px;
+      flex: 1;
+      background: var(--cloud);
+    }
+    
+    .vulanet-description, .research-section, .track-section, .personalized-section, .cta-section {
+      text-align: center;
+      max-width: 800px;
+      padding: 40px 40px 40px 40px;
+      margin: 0 auto;
+      position: relative;
+      background: var(--cloud);
+    }
+    
+    .vulanet-description {
+      padding-top: 0;
+    }
+    
     @keyframes pulse-main {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.1); }
     }
     
-    @keyframes bounce {
-      0% { top: 10px; }
-      100% { top: 140px; }
-    }
-    
-    @keyframes shadow {
-      0% { width: 70px; height: 20px; opacity: 0.6; }
-      100% { width: 50px; height: 10px; opacity: 0.2; }
-    }
-    
-    @keyframes footer-bounce {
-      0%, 20%, 100% { bottom: 0; }
-      10% { bottom: 10px; }
-    }
-    
-    /* Logo container adjustments */
-    .logo-container {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      transition: all 0.3s ease;
-    }
-    
-    /* Adjust icon container heights for SVGs */
     .icon-container {
       display: flex;
       justify-content: center;
@@ -180,6 +434,28 @@
       align-items: center;
     }
     
+    .material-icon-container {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .material-icon {
+      width: 120px;
+      height: 120px;
+      display: block;
+      animation: pulse-main 3s infinite;
+    }
+    
+    .material-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
     .custom-icon-container {
       position: relative;
       width: 180px;
@@ -187,8 +463,754 @@
       margin: 0 auto;
     }
     
+    .custom-icon {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      overflow: visible;
+    }
+    
+    .custom-icon div {
+      position: absolute;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border: var(--borderwidth) solid;
+      overflow: hidden;
+    }
+    
+    .custom-icon div:before, 
+    .custom-icon div:after {
+      content: '';
+      display: block;
+      position: absolute;
+    }
+    
+    .moon, .planetoid, .planet {
+      border-radius: 50%;
+      background: white;
+    }
+    
+    .icon2 div {
+      border-color: var(--ladybug);
+    }
+    
+    .icon2 .moon.top {
+      top: 15%;
+      left: 10%;
+      width: 8%;
+      height: 8%;
+      animation: icon2moontop var(--animationtime) ease 0s infinite;
+    }
+    
+    .icon2 .moon.bottom {
+      top: 85%;
+      right: 5%;
+      width: 4%;
+      height: 4%;
+      animation: icon2moonbottom var(--animationtime) ease 0s infinite;
+    }
+    
+    .icon2 .planet {
+      top: 25%;
+      left: 24%;
+      width: 63%;
+      height: 63%;
+    }
+    
+    .icon2 .ring {
+      top: 45%;
+      left: 15%;
+      width: 80%;
+      height: 25%;
+      border-radius: 50%;
+      border-color: transparent var(--ladybug) var(--ladybug) var(--ladybug);
+      transform: rotate(17deg);
+      animation: icon2ring var(--animationtime) linear 0s infinite alternate;
+    }
+    
+    .icon2 .ring.planet {
+      top: 62.5%;
+      left: 40%;
+      width: 8%;
+      height: 8%;
+      border-color: var(--ladybug);
+      background: white;
+      z-index: 1;
+      overflow: visible;
+      animation: icon2ringplanet var(--animationtime) ease 0s infinite;
+    }
+    
+    .icon2 .ring.planet:after {
+      top: -55%;
+      left: 80%;
+      width: 4%;
+      height: 4%;
+      border: var(--borderwidth) solid var(--ladybug);
+      border-radius: 50%;
+    }
+    
+    .icon2 .planetoid {
+      top: 25%;
+      left: 70%;
+      width: 20%;
+      height: 20%;
+      overflow: visible;
+      background: white;
+    }
+    
+    .icon2 .planetoid:before {
+      top: -25%;
+      left: -25%;
+      width: 150%;
+      padding-top: 150%;
+      border: var(--borderwidth) solid var(--ladybug);
+      border-radius: 50%;
+      border-color: var(--ladybug) var(--ladybug) transparent transparent;
+      transform: rotate(55deg);
+      background: transparent;
+    }
+    
+    .icon2 .planetoid:after {
+      top: 100%;
+      left: 5%;
+      width: 30%;
+      padding-top: 15%;
+      border: var(--borderwidth) solid var(--ladybug);
+      border-radius: 50%;
+      border-color: transparent transparent var(--ladybug) transparent;
+      transform: rotate(35deg);
+      background: transparent;
+    }
+    
+    .icon3 div {
+      border-color: var(--bee);
+    }
+    
+    .icon3 .telescope {
+      top: 15%;
+      left: 10%;
+      width: 75%;
+      height: 33%;
+      transform: rotate(-17deg);
+      border-color: transparent;
+      animation: icon3telescope var(--animationtime) ease 0s infinite alternate;
+    }
+    
+    .icon3 .telescope:before, 
+    .icon3 .telescope:after {
+      height: 1%;
+      border: var(--borderwidth) solid var(--bee);
+      border-color: var(--bee) transparent transparent transparent;
+    }
+    
+    .icon3 .telescope:before {
+      width: 25%;
+      left: 60%;
+    }
+    
+    .icon3 .telescope:after {
+      bottom: 15%;
+      width: 15%;
+      left: 65%;
+    }
+    
+    .icon3 .telescope .body {
+      top: 20%;
+      left: 10%;
+      width: 75%;
+      height: 45%;
+      overflow: visible;
+    }
+    
+    .icon3 .telescope .line {
+      border-color: var(--bee) transparent transparent transparent;
+      transform: rotate(90deg);
+    }
+    
+    .icon3 .telescope .line1 {
+      top: 45%;
+      left: -5%;
+      width: 40%;
+    }
+    
+    .icon3 .telescope .line2 {
+      top: 45%;
+      left: 20%;
+      width: 28%;
+    }
+    
+    .icon3 .telescope .line3 {
+      top: 45%;
+      left: 45%;
+      width: 28%;
+    }
+    
+    .icon3 .telescope .line4 {
+      top: 45%;
+      left: 65%;
+      width: 28%;
+    }
+    
+    .icon3 .telescope .lens {
+      top: 10%;
+      right: 0;
+      width: 16%;
+      height: 62%;
+    }
+    
+    .icon3 .tripod {
+      top: 35%;
+      left: 30%;
+      width: 45%;
+      height: 45%;
+      border-color: transparent;
+    }
+    
+    .icon3 .tripod .anchor {
+      left: 40%;
+      width: 20%;
+      height: 20%;
+      border-radius: 50%;
+    }
+    
+    .icon3 .tripod .foot {
+      top: 20%;
+      left: 50%;
+      height: 1%;
+      border-color: var(--bee) transparent transparent transparent;
+      transform-origin: top left;
+    }
+    
+    .icon3 .tripod .foot.left {
+      width: 92%;
+      transform: rotate(115deg);
+    }
+    
+    .icon3 .tripod .foot.mid {
+      width: 84%;
+      transform: rotate(90deg);
+    }
+    
+    .icon3 .tripod .foot.right {
+      width: 92%;
+      transform: rotate(65deg);
+    }
+    
+    .icon3 .ground {
+      top: 80%;
+      left: 30%;
+      width: 45%;
+      height: 1%;
+      border-color: var(--bee) transparent transparent transparent;
+      overflow: visible;
+    }
+    
+    .icon3 .ground:after {
+      top: -10%;
+      left: 115%;
+      width: 8%;
+      height: 1%;
+      border: var(--borderwidth) solid var(--bee);
+      border-color: var(--bee) transparent transparent transparent;
+    }
+    
+    .icon4 div {
+      border-color: var(--boa);
+    }
+    
+    .icon4 .planetoid {
+      top: 10%;
+      left: 20%;
+      width: 10%;
+      height: 10%;
+      overflow: visible;
+      animation: icon4planetoid var(--animationtime) linear 0s infinite;
+    }
+    
+    .icon4 .planetoid:before {
+      top: 110%;
+      left: -60%;
+      width: 4%;
+      height: 4%;
+      border: var(--borderwidth) solid var(--boa);
+      border-radius: 50%;
+    }
+    
+    .icon4 .sattelite {
+      top: 20%;
+      left: 10%;
+      width: 100%;
+      height: 70%;
+      transform: rotate(-45deg);
+      border: 0;
+      animation: icon4sattelite var(--animationtime) linear 0s infinite alternate;
+    }
+    
+    .icon4 .sattelite .solarpanel {
+      top: 15%;
+      width: 30%;
+      height: 30%;
+      overflow: visible;
+      animation: icon4solarpanel calc(var(--animationtime) * 2) linear 0s infinite alternate;
+    }
+    
+    .icon4 .sattelite .solarpanel:after {
+      top: 50%;
+      height: 1%;
+      width: 125%;
+      border: var(--borderwidth) solid var(--boa);
+      border-color: var(--boa) transparent transparent transparent;
+    }
+    
+    .icon4 .sattelite .solarpanel.left {
+      left: 0;
+    }
+    
+    .icon4 .sattelite .solarpanel.right {
+      right: 0;
+    }
+    
+    .icon4 .sattelite .solarpanel.right:after {
+      left: -30%;
+    }
+    
+    .icon4 .sattelite .body {
+      top: 0;
+      left: 38%;
+      width: 25%;
+      height: 60%;
+      overflow: visible;
+    }
+    
+    .icon4 .sattelite .body:after {
+      top: 70%;
+      left: calc(-1 * var(--borderwidth));
+      width: 100%;
+      padding-top: 100%;
+      border: var(--borderwidth) solid var(--boa);
+      border-color: transparent var(--boa) var(--boa) transparent;
+      border-radius: 50%;
+      transform: rotate(45deg);
+    }
+    
+    .icon4 .sattelite .dish {
+      top: 76%;
+      left: 40%;
+      width: 20%;
+      padding-top: 20%;
+      border-color: var(--boa) var(--boa) transparent transparent;
+      border-radius: 50%;
+      transform: rotate(-45deg);
+      overflow: visible;
+      animation: icon4dish var(--animationtime) linear 0s infinite alternate;
+    }
+    
+    .icon4 .sattelite .dish:before, 
+    .icon4 .sattelite .dish:after {
+      transform-origin: top left;
+      border: var(--borderwidth) solid var(--boa);
+    }
+    
+    .icon4 .sattelite .dish:before {
+      left: 10%;
+      top: 10%;
+      width: 110%;
+      height: 0;
+      border-color: var(--boa) transparent transparent transparent;
+      transform: rotate(45deg);
+    }
+    
+    .icon4 .sattelite .dish:after {
+      left: 50%;
+      top: 50%;
+      width: 20%;
+      height: 0;
+      border-color: var(--boa) transparent transparent transparent;
+      transform: rotate(135deg);
+    }
+    
+    @keyframes icon2moontop {
+      0% { top: 15%; left: 10%; z-index: 0; }
+      49% { top: 60%; left: 95%; z-index: 0; }
+      50% { top: 60%; left: 95%; z-index: 1; }
+      99% { top: 15%; left: 10%; z-index: 1; }
+      100% { top: 15%; left: 10%; z-index: 0; }
+    }
+    
+    @keyframes icon2moonbottom {
+      0% { top: 85%; left: 95%; z-index: 0; }
+      49% { top: 40%; left: 5%; z-index: 0; }
+      50% { top: 40%; left: 5%; z-index: -1; }
+      99% { top: 85%; left: 95%; z-index: -1; }
+      100% { top: 85%; left: 95%; z-index: 0; }
+    }
+    
+    @keyframes icon2ring {
+      0% { transform: rotate(10deg); }
+      100% { transform: rotate(30deg); }
+    }
+    
+    @keyframes icon2ringplanet {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes icon3telescope {
+      0% { transform: rotate(-10deg); }
+      100% { transform: rotate(-30deg); }
+    }
+    
+    @keyframes icon4planetoid {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes icon4sattelite {
+      0% { transform: rotate(-40deg); }
+      100% { transform: rotate(-50deg); }
+    }
+    
+    @keyframes icon4solarpanel {
+      0% { transform: scaleY(1); }
+      100% { transform: scaleY(0.75); }
+    }
+    
+    @keyframes icon4dish {
+      0% { transform: rotate(-60deg); }
+      100% { transform: rotate(-30deg); }
+    }
+    
+    .tagline {
+      font-family: var(--brand-font);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--carpenter-blue);
+      margin: 20px 0;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      text-transform: lowercase;
+    }
+    
+    .description {
+      font-size: 1.3rem;
+      line-height: 1.5;
+      color: var(--basalt);
+      max-width: 600px;
+      margin: 0 auto;
+      font-family: var(--headline-font);
+      font-weight: 400;
+    }
+    
+    .research-link {
+      color: var(--gecko);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    
+    .research-link:hover {
+      text-decoration: underline;
+    }
+    
+    .cta-section {
+      padding: 60px 20px;
+      text-align: center;
+      background: var(--cloud);
+    }
+    
+    .bouncing-rabbit-container {
+      position: relative;
+      height: 200px;
+      width: 200px;
+      margin: 0 auto 40px;
+    }
+    
+    .bouncing-rabbit {
+      width: 80px;
+      height: 80px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: bounce 0.5s infinite alternate ease-in-out;
+      z-index: 10;
+    }
+    
+    .bouncing-rabbit img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .rabbit-shadow {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 50%;
+      animation: shadow 0.5s infinite alternate ease-in-out;
+      z-index: 5;
+    }
+    
+    @keyframes bounce {
+      0% {
+        top: 10px;
+      }
+      100% {
+        top: 140px;
+      }
+    }
+    
+    @keyframes shadow {
+      0% {
+        width: 70px;
+        height: 20px;
+        opacity: 0.6;
+      }
+      100% {
+        width: 50px;
+        height: 10px;
+        opacity: 0.2;
+      }
+    }
+    
+    .cta-tagline {
+      font-family: var(--brand-font);
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--carpenter-blue);
+      margin: 20px 0 40px;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      text-transform: lowercase;
+    }
+    
+    /* FOOTER STYLES */
+    .footer-wrapper {
+      background-color: var(--footer-bg);
+      width: 100%;
+      padding: 40px 0;
+      margin-top: 40px;
+    }
+    
+    .footer-content {
+      max-width: 950px;
+      margin: 0 auto;
+      padding: 0 20px;
+      color: var(--footer-text-light);
+    }
+    
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 38px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    
+    .footer-col {
+      min-width: 140px;
+    }
+    
+    .footer-col h4 {
+      font-size: 1.07rem;
+      font-weight: 600;
+      color: var(--footer-text-light);
+      margin-bottom: 15px;
+      margin-top: 0;
+      letter-spacing: 0.3px;
+      font-family: var(--headline-font);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 8px;
+    }
+    
+    .footer-col ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .footer-col ul li {
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      color: var(--footer-text-dark);
+      font-family: var(--headline-font);
+    }
+    
+    .footer-col ul li a {
+      color: var(--footer-text-dark);
+      text-decoration: none;
+      transition: color 0.13s;
+      font-family: var(--headline-font);
+    }
+    
+    .footer-col ul li a:hover {
+      color: var(--footer-text-light);
+      text-decoration: underline;
+    }
+    
+    .footer-logo {
+      margin-bottom: 20px;
+    }
+    
+    .footer-logo h1 {
+      font-family: var(--brand-font);
+      color: var(--footer-text-light);
+      font-size: 32px;
+      margin: 0;
+      padding: 0;
+      white-space: nowrap;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      user-select: none;
+      text-transform: lowercase;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    
+    .footer-logo h1 span {
+      display: inline-block;
+      position: relative;
+    }
+    
+    .ud_1 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0s; }
+    .ud_2 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.075s; }
+    .ud_3 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.15s; }
+    .ud_4 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.225s; }
+    .ud_5 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.3s; }
+    .ud_6 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.375s; }
+    .ud_7 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.45s; }
+    
+    @keyframes footer-bounce {
+      0%, 20%, 100% { bottom: 0; }
+      10% { bottom: 10px; }
+    }
+    
+    .footer-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.2);
+      width: 100%;
+      margin: 20px 0;
+    }
+    
+    .footer-bottom {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .footer-social {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    .footer-social a {
+      color: var(--footer-text-dark);
+      background: none;
+      font-size: 0;
+      text-decoration: none;
+      opacity: 0.9;
+      transition: all 0.13s;
+      padding: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+    }
+    
+    .footer-social a img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
+    .footer-social a:hover {
+      opacity: 1;
+      filter: brightness(0) invert(1);
+      transform: translateY(-2px);
+    }
+    
+    /* Responsive */
     @media (max-width: 980px) {
-      .material-icon-container svg {
+      .welcome-content {
+        width: 92vw; 
+        padding: 1.2rem 1.5rem; 
+      }
+      
+      .phone-wrap {
+        width: 150px;
+        height: 280px;
+      }
+      
+      .ph-rabbit {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .floating-icons { 
+        margin-left: -25px; 
+      }
+      
+      .icon-box { 
+        width: 70px; 
+        height: 70px; 
+      }
+      
+      .icon-box .icon-el {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .icon-box:nth-child(1),
+      .icon-box:nth-child(3) { 
+        margin-left: 20px; 
+      }
+      
+      .headline {
+        font-size: 1.3rem;
+      }
+      
+      .tagline {
+        font-size: 2.1rem;
+      }
+      
+      .description {
+        font-size: 1.2rem;
+      }
+      
+      .brand-name {
+        font-size: 1.3rem;
+      }
+      
+      .logo-rabbit {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .header-btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+        height: 46px;
+      }
+      
+      .custom-icon-container,
+      .material-icon-container {
+        width: 150px;
+        height: 150px;
+      }
+      
+      .material-icon {
         width: 100px;
         height: 100px;
       }
@@ -196,10 +1218,43 @@
       .icon-container {
         height: 150px;
       }
+      
+      .cta-tagline {
+        font-size: 2.4rem;
+      }
+      
+      .bouncing-rabbit {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .bouncing-rabbit-container {
+        height: 180px;
+        width: 180px;
+      }
     }
     
     @media (max-width: 768px) {
-      .material-icon-container svg {
+      .content-container {
+        gap: 60px;
+        padding: 0 20px 60px 20px;
+      }
+      
+      .tagline { 
+        font-size: 1.9rem; 
+      }
+      
+      .description { 
+        font-size: 1.1rem; 
+      }
+      
+      .custom-icon-container,
+      .material-icon-container {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .material-icon {
         width: 80px;
         height: 80px;
       }
@@ -208,14 +1263,115 @@
         height: 120px;
       }
       
-      .phone-rabbit-img {
+      .welcome-content { 
+        width: 98vw; 
+        max-width: 99vw; 
+        padding: 1rem 1rem 1.1rem 1rem;
+      }
+      
+      .headline { 
+        font-size: 1.2rem;
+      }
+      
+      .phone-wrap {
+        width: 120px;
+        height: 220px;
+      }
+      
+      .ph-rabbit {
         width: 60px;
         height: 60px;
+      }
+      
+      .floating-icons {
+        gap: 1.2rem;
+        margin-left: -15px;
+      }
+      
+      .icon-box {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .icon-box .icon-el {
+        width: 28px;
+        height: 28px;
+      }
+      
+      .icon-box:nth-child(1),
+      .icon-box:nth-child(3) { 
+        margin-left: 15px; 
+      }
+      
+      .brand-name {
+        font-size: 1.2rem;
+      }
+      
+      .logo-rabbit {
+        width: 32px;
+        height: 32px;
+      }
+      
+      .header-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        height: 42px;
+      }
+      
+      .cta-tagline {
+        font-size: 2.1rem;
+      }
+      
+      .bouncing-rabbit {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .bouncing-rabbit-container {
+        height: 160px;
+        width: 160px;
+      }
+      
+      @keyframes bounce {
+        0% {
+          top: 10px;
+        }
+        100% {
+          top: 120px;
+        }
+      }
+      
+      .footer-row {
+        flex-direction: column;
+        gap: 25px;
+      }
+      
+      .footer-bottom {
+        justify-content: center;
       }
     }
     
     @media (max-width: 480px) {
-      .material-icon-container svg {
+      .content-container {
+        gap: 40px;
+        padding: 0 20px 40px 20px;
+      }
+      
+      .tagline { 
+        font-size: 1.7rem; 
+      }
+      
+      .description { 
+        font-size: 1.0rem; 
+      }
+      
+      .custom-icon-container,
+      .material-icon-container {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .material-icon {
         width: 70px;
         height: 70px;
       }
@@ -224,14 +1380,59 @@
         height: 100px;
       }
       
+      .headline { 
+        font-size: 1.1rem;
+      }
+      
+      .brand-name {
+        font-size: 1.1rem;
+      }
+      
+      .logo-rabbit {
+        width: 28px;
+        height: 28px;
+      }
+      
+      .header-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        height: 40px;
+      }
+      
+      .header-inner {
+        padding: 0 15px;
+      }
+      
+      .cta-tagline {
+        font-size: 1.8rem;
+      }
+      
       .bouncing-rabbit {
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
+      }
+      
+      .bouncing-rabbit-container {
+        height: 140px;
+        width: 140px;
       }
       
       @keyframes bounce {
-        0% { top: 10px; }
-        100% { top: 100px; }
+        0% {
+          top: 10px;
+        }
+        100% {
+          top: 100px;
+        }
+      }
+      
+      .footer-social {
+        gap: 20px;
+      }
+      
+      .footer-social a {
+        width: 24px;
+        height: 24px;
       }
     }
   </style>
@@ -240,10 +1441,12 @@
   <header class="header" id="main-header">
     <div class="header-inner">
       <div class="logo-container">
-        <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet" class="logo-rabbit-img">
+        <div class="logo-rabbit">
+          <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit" width="42" height="42">
+        </div>
         <span class="brand-name">vulanet</span>
       </div>
-      <button class="btn btn-carpenter-blue" onclick="scrollToStart()" aria-label="Get Started">GET STARTED</button>
+      <button class="header-btn" onclick="scrollToStart()" aria-label="Get Started">GET STARTED</button>
     </div>
   </header>
   
@@ -253,20 +1456,28 @@
         <div class="phone-wrap" aria-hidden="false">
           <div class="phone" role="img" aria-label="phone with rabbit">
             <div class="connection-hint" aria-hidden="true"></div>
-            <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit" class="phone-rabbit-img">
+            <div class="ph-rabbit">
+              <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit" width="120" height="120">
+            </div>
           </div>
           
           <div class="floating-icons" aria-hidden="false">
             <div class="icon-box" role="button" aria-label="School">
-              <img src="/assets/icons/material-symbols/outline/school.svg" alt="School" class="icon-el-svg">
+              <div class="icon-el">
+                <img src="/assets/icons/material-symbols/outline/school.svg" alt="School icon" width="44" height="44" class="filter-bee">
+              </div>
             </div>
             
             <div class="icon-box" role="button" aria-label="Cognition">
-              <img src="/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition" class="icon-el-svg">
+              <div class="icon-el">
+                <img src="/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition icon" width="44" height="44" class="filter-gecko">
+              </div>
             </div>
             
             <div class="icon-box" role="button" aria-label="Quiz">
-              <img src="/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz" class="icon-el-svg">
+              <div class="icon-el">
+                <img src="/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz icon" width="44" height="44" class="filter-boa">
+              </div>
             </div>
           </div>
         </div>
@@ -274,7 +1485,7 @@
       
       <h1 class="headline">The free, fun, and proven way to learn!</h1>
       <button class="btn btn-carpenter-blue" id="get-started-btn" onclick="handleGetStarted()">GET STARTED</button>
-      <button class="btn btn-cloud" style="color: var(--gecko);" onclick="handleAlreadyAccount()">I ALREADY HAVE AN ACCOUNT</button>
+      <button class="btn btn-cloud" onclick="handleAlreadyAccount()">I ALREADY HAVE AN ACCOUNT</button>
     </div>
   </section>
   
@@ -282,7 +1493,9 @@
     <div class="vulanet-description">
       <div class="icon-container">
         <div class="material-icon-container">
-          <img src="/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition">
+          <div class="material-icon">
+            <img src="/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition icon" width="120" height="120" class="filter-carpenter-blue">
+          </div>
         </div>
       </div>
       
@@ -373,7 +1586,9 @@
 
     <div class="cta-section">
       <div class="bouncing-rabbit-container">
-        <img src="/assets/icons/phosphor/fill/rabbit.svg" alt="Vulanet Rabbit" class="bouncing-rabbit">
+        <div class="bouncing-rabbit">
+          <img src="/assets/icons/phosphor/fill/rabbit.svg" alt="Vulanet Rabbit" width="80" height="80" class="filter-carpenter-blue">
+        </div>
         <div class="rabbit-shadow"></div>
       </div>
       
@@ -431,19 +1646,19 @@
       <div class="footer-bottom">
         <div class="footer-social">
           <a href="#" title="Instagram" target="_blank">
-            <img src="/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram" width="24" height="24">
+            <img src="/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram" width="28" height="28">
           </a>
           <a href="#" title="TikTok" target="_blank">
-            <img src="/assets/icons/social/tiktok-brands-solid-full.svg" alt="TikTok" width="24" height="24">
+            <img src="/assets/icons/social/tiktok-brands-solid-full.svg" alt="TikTok" width="28" height="28">
           </a>
           <a href="#" title="X" target="_blank">
-            <img src="/assets/icons/social/x-twitter-brands-solid-full.svg" alt="X" width="24" height="24">
+            <img src="/assets/icons/social/x-twitter-brands-solid-full.svg" alt="X" width="28" height="28">
           </a>
           <a href="#" title="Facebook" target="_blank">
-            <img src="/assets/icons/social/facebook-brands-solid-full.svg" alt="Facebook" width="24" height="24">
+            <img src="/assets/icons/social/facebook-brands-solid-full.svg" alt="Facebook" width="28" height="28">
           </a>
           <a href="#" title="YouTube" target="_blank">
-            <img src="/assets/icons/social/youtube-brands-solid-full.svg" alt="YouTube" width="24" height="24">
+            <img src="/assets/icons/social/youtube-brands-solid-full.svg" alt="YouTube" width="28" height="28">
           </a>
         </div>
       </div>
@@ -473,13 +1688,11 @@
     }
     
     function handleGetStarted() {
-      // Redirect to course selector / onboarding
-      window.location.href = '/pages/onboarding/course-selector.html';
+      alert("Proceed to Vulanet onboarding/signup!");
     }
     
     function handleAlreadyAccount() {
-      // Redirect to login page
-      window.location.href = '/pages/auth/login.html';
+      alert("Proceed to Vulanet login!");
     }
   </script>
 </body>
