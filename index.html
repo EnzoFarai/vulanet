@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vulanet - The free, fun, and proven way to learn!</title>
+  
+  <!-- Local Fonts -->
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  
+  <!-- Local Styles -->
+  <link rel="stylesheet" href="/src/styles/global.css">
+  <link rel="stylesheet" href="/src/styles/variables.css">
+  <link rel="stylesheet" href="/src/styles/typography.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+  <link rel="stylesheet" href="/src/styles/components/svg-filters.css">
+  
+  <style>
+    /* Additional page-specific styles that don't belong in global CSS */
+    
+    /* Icon Box Styling - Updated for SVG icons */
+    .icon-box {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      background: var(--cloud);
+      border: 4px solid var(--carpenter-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(18,66,120,0.06);
+      animation: box-pulse 2s infinite ease-in-out;
+      position: relative;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .icon-box:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(18,66,120,0.15);
+      animation-play-state: paused;
+    }
+    
+    .icon-box:active {
+      transform: translateY(0) scale(0.98);
+    }
+    
+    .icon-box:nth-child(1),
+    .icon-box:nth-child(3) {
+      margin-left: 30px;
+    }
+    
+    /* Icon containers for SVGs */
+    .icon-el-svg {
+      width: 44px;
+      height: 44px;
+      display: block;
+      object-fit: contain;
+      animation: icon-pulse 1.4s infinite ease-in-out;
+      transform-origin: center center;
+    }
+    
+    .icon-box:nth-child(1) .icon-el-svg { animation-delay: 0s; }
+    .icon-box:nth-child(2) .icon-el-svg { animation-delay: 0.12s; }
+    .icon-box:nth-child(3) .icon-el-svg { animation-delay: 0.24s; }
+    
+    /* School icon - Bee Yellow filter */
+    .icon-box:nth-child(1) .icon-el-svg {
+      filter: brightness(0) saturate(100%) invert(70%) sepia(78%) saturate(3076%) hue-rotate(345deg) brightness(98%) contrast(96%);
+    }
+    
+    /* Cognition icon - Gecko Blue filter */
+    .icon-box:nth-child(2) .icon-el-svg {
+      filter: brightness(0) saturate(100%) invert(45%) sepia(78%) saturate(1694%) hue-rotate(160deg) brightness(100%) contrast(95%);
+    }
+    
+    /* Quiz icon - Boa Green filter */
+    .icon-box:nth-child(3) .icon-el-svg {
+      filter: brightness(0) saturate(100%) invert(52%) sepia(53%) saturate(1290%) hue-rotate(82deg) brightness(91%) contrast(91%);
+    }
+    
+    /* Material icon container for main cognition icon */
+    .material-icon-container svg {
+      width: 120px;
+      height: 120px;
+      display: block;
+      animation: pulse-main 3s infinite;
+    }
+    
+    /* Make the main cognition icon Carpenter Blue */
+    .material-icon-container svg {
+      filter: brightness(0) saturate(100%) invert(43%) sepia(81%) saturate(1578%) hue-rotate(202deg) brightness(98%) contrast(96%);
+    }
+    
+    /* Bouncing rabbit - Carpenter Blue */
+    .bouncing-rabbit {
+      width: 80px;
+      height: 80px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: bounce 0.5s infinite alternate ease-in-out;
+      z-index: 10;
+      filter: brightness(0) saturate(100%) invert(43%) sepia(81%) saturate(1578%) hue-rotate(202deg) brightness(98%) contrast(96%);
+    }
+    
+    /* Logo rabbit in header - Carpenter Blue */
+    .logo-rabbit-img {
+      width: 42px;
+      height: 42px;
+      display: block;
+      filter: brightness(0) saturate(100%) invert(43%) sepia(81%) saturate(1578%) hue-rotate(202deg) brightness(98%) contrast(96%);
+    }
+    
+    /* Phone rabbit - Carpenter Blue */
+    .phone-rabbit-img {
+      width: 120px;
+      height: 120px;
+      display: block;
+      filter: brightness(0) saturate(100%) invert(43%) sepia(81%) saturate(1578%) hue-rotate(202deg) brightness(98%) contrast(96%);
+      transform-origin: center bottom;
+      animation: rabbit-bounce 1400ms cubic-bezier(.25,.9,.35,1) infinite;
+    }
+    
+    @keyframes rabbit-bounce {
+      0% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-22px) rotate(2deg); }
+      50% { transform: translateY(0) rotate(0deg); }
+      75% { transform: translateY(-11px) rotate(-2deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    
+    @keyframes icon-pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.12); opacity: 0.86; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes box-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes pulse-main {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    @keyframes bounce {
+      0% { top: 10px; }
+      100% { top: 140px; }
+    }
+    
+    @keyframes shadow {
+      0% { width: 70px; height: 20px; opacity: 0.6; }
+      100% { width: 50px; height: 10px; opacity: 0.2; }
+    }
+    
+    @keyframes footer-bounce {
+      0%, 20%, 100% { bottom: 0; }
+      10% { bottom: 10px; }
+    }
+    
+    /* Logo container adjustments */
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.3s ease;
+    }
+    
+    /* Adjust icon container heights for SVGs */
+    .icon-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+      position: relative;
+      height: 180px;
+      align-items: center;
+    }
+    
+    .custom-icon-container {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto;
+    }
+    
+    @media (max-width: 980px) {
+      .material-icon-container svg {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .icon-container {
+        height: 150px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .material-icon-container svg {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .icon-container {
+        height: 120px;
+      }
+      
+      .phone-rabbit-img {
+        width: 60px;
+        height: 60px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .material-icon-container svg {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .icon-container {
+        height: 100px;
+      }
+      
+      .bouncing-rabbit {
+        width: 60px;
+        height: 60px;
+      }
+      
+      @keyframes bounce {
+        0% { top: 10px; }
+        100% { top: 100px; }
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header" id="main-header">
+    <div class="header-inner">
+      <div class="logo-container">
+        <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet" class="logo-rabbit-img">
+        <span class="brand-name">vulanet</span>
+      </div>
+      <button class="btn btn-carpenter-blue" onclick="scrollToStart()" aria-label="Get Started">GET STARTED</button>
+    </div>
+  </header>
+  
+  <section class="welcome-section">
+    <div class="welcome-content">
+      <div class="central-illus" aria-hidden="false">
+        <div class="phone-wrap" aria-hidden="false">
+          <div class="phone" role="img" aria-label="phone with rabbit">
+            <div class="connection-hint" aria-hidden="true"></div>
+            <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit" class="phone-rabbit-img">
+          </div>
+          
+          <div class="floating-icons" aria-hidden="false">
+            <div class="icon-box" role="button" aria-label="School">
+              <img src="/assets/icons/material-symbols/outline/school.svg" alt="School" class="icon-el-svg">
+            </div>
+            
+            <div class="icon-box" role="button" aria-label="Cognition">
+              <img src="/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition" class="icon-el-svg">
+            </div>
+            
+            <div class="icon-box" role="button" aria-label="Quiz">
+              <img src="/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz" class="icon-el-svg">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <h1 class="headline">The free, fun, and proven way to learn!</h1>
+      <button class="btn btn-carpenter-blue" id="get-started-btn" onclick="handleGetStarted()">GET STARTED</button>
+      <button class="btn btn-cloud" style="color: var(--gecko);" onclick="handleAlreadyAccount()">I ALREADY HAVE AN ACCOUNT</button>
+    </div>
+  </section>
+  
+  <div class="content-container">
+    <div class="vulanet-description">
+      <div class="icon-container">
+        <div class="material-icon-container">
+          <img src="/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition">
+        </div>
+      </div>
+      
+      <div class="tagline">free. fun. proven.</div>
+      
+      <p class="description">
+        Learning with Vulanet is fun, and <a href="#" class="research-link">we have the research to prove it</a>! 
+        With quick, easy-to-grasp lessons, you'll earn points and reach new levels while gaining real-world skills.
+      </p>
+    </div>
+
+    <div class="research-section">
+      <div class="icon-container">
+        <div class="custom-icon-container">
+          <div class="custom-icon icon2">
+            <div class="moon top"></div>
+            <div class="planet"></div>
+            <div class="ring"></div>
+            <div class="ring planet"></div>
+            <div class="planetoid"></div>
+            <div class="moon bottom"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tagline">backed by research</div>
+      
+      <p class="description">
+        Working with leading experts and professionals, we use a combination of science-proven teaching methods 
+        and exciting content to create courses that effectively achieve all your goals.
+      </p>
+    </div>
+
+    <div class="track-section">
+      <div class="icon-container">
+        <div class="custom-icon-container">
+          <div class="custom-icon icon3">
+            <div class="telescope">
+              <div class="body">
+                <div class="line line1"></div>
+                <div class="line line2"></div>
+                <div class="line line3"></div>
+                <div class="line line4"></div>
+              </div>
+              <div class="lens"></div>
+            </div>
+            <div class="tripod">
+              <div class="anchor"></div>
+              <div class="foot left"></div>
+              <div class="foot mid"></div>
+              <div class="foot right"></div>
+            </div>
+            <div class="ground"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tagline">stay on track</div>
+      
+      <p class="description">
+        We make it easier to form a habit of learning with game-like features, fun challenges and guidance 
+        from our friendly mascot, Vusi the rabbit.
+      </p>
+    </div>
+
+    <div class="personalized-section">
+      <div class="icon-container">
+        <div class="custom-icon-container">
+          <div class="custom-icon icon4">
+            <div class="planetoid"></div>
+            <div class="sattelite">
+              <div class="solarpanel left"></div>
+              <div class="body"></div>
+              <div class="solarpanel right"></div>
+              <div class="dish"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tagline">personalized learning</div>
+      
+      <p class="description">
+        Combining sophisticated algorithms and user preferences, lessons are tailored to help you learn 
+        at the perfect level and pace.
+      </p>
+    </div>
+
+    <div class="cta-section">
+      <div class="bouncing-rabbit-container">
+        <img src="/assets/icons/phosphor/fill/rabbit.svg" alt="Vulanet Rabbit" class="bouncing-rabbit">
+        <div class="rabbit-shadow"></div>
+      </div>
+      
+      <div class="cta-tagline">learn better with vulanet</div>
+      
+      <button class="btn btn-carpenter-blue" onclick="handleGetStarted()">GET STARTED</button>
+    </div>
+  </div>
+
+  <div class="footer-wrapper">
+    <footer class="footer-content">
+      <div class="footer-logo">
+        <h1>
+          <span class="ud_1">v</span>
+          <span class="ud_2">u</span>
+          <span class="ud_3">l</span>
+          <span class="ud_4">a</span>
+          <span class="ud_5">n</span>
+          <span class="ud_6">e</span>
+          <span class="ud_7">t</span>
+        </h1>
+      </div>
+      
+      <div class="footer-row">
+        <div class="footer-col">
+          <h4>About us</h4>
+          <ul>
+            <li><a href="#">Courses</a></li>
+            <li><a href="#">Mission</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Contact us</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col">
+          <h4>Help and support</h4>
+          <ul>
+            <li><a href="#">Vulanet FAQs</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col">
+          <h4>Privacy and terms</h4>
+          <ul>
+            <li><a href="#">Community guidelines</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Do Not Sell or Share My Personal Information</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-divider"></div>
+      
+      <div class="footer-bottom">
+        <div class="footer-social">
+          <a href="#" title="Instagram" target="_blank">
+            <img src="/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram" width="24" height="24">
+          </a>
+          <a href="#" title="TikTok" target="_blank">
+            <img src="/assets/icons/social/tiktok-brands-solid-full.svg" alt="TikTok" width="24" height="24">
+          </a>
+          <a href="#" title="X" target="_blank">
+            <img src="/assets/icons/social/x-twitter-brands-solid-full.svg" alt="X" width="24" height="24">
+          </a>
+          <a href="#" title="Facebook" target="_blank">
+            <img src="/assets/icons/social/facebook-brands-solid-full.svg" alt="Facebook" width="24" height="24">
+          </a>
+          <a href="#" title="YouTube" target="_blank">
+            <img src="/assets/icons/social/youtube-brands-solid-full.svg" alt="YouTube" width="24" height="24">
+          </a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    window.addEventListener('scroll', function() {
+      const header = document.getElementById('main-header');
+      const getStartedBtn = document.getElementById('get-started-btn');
+      
+      const buttonRect = getStartedBtn.getBoundingClientRect();
+      
+      if (buttonRect.top < 0) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+    
+    function scrollToStart() {
+      const btn = document.getElementById('get-started-btn');
+      if (btn) {
+        btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        btn.focus();
+      }
+    }
+    
+    function handleGetStarted() {
+      // Redirect to course selector / onboarding
+      window.location.href = '/pages/onboarding/course-selector.html';
+    }
+    
+    function handleAlreadyAccount() {
+      // Redirect to login page
+      window.location.href = '/pages/auth/login.html';
+    }
+  </script>
+</body>
+</html>
