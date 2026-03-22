@@ -1,0 +1,50 @@
+:root {
+  /* CORE COLORS */
+  --carpenter-blue: #4285F4;
+  --belly-blue: #7B9FE0;
+  --basalt: #4B4B4B;
+  --cloud: #FFFFFF;
+  
+  /* SECONDARY COLORS */
+  --gecko: #1CB0F6;
+  --ladybug: #EA4335;
+  --bee: #FBBC05;
+  --tiger: #FF6D01;
+  --beetle: #AA00FF;
+  --boa: #34A853;
+  
+  /* NEUTRALS */
+  --hippo: #777777;
+  --koala: #AFAFAF;
+  --beluga: #E5E5E5;
+  --arctic: #F7F7F7;
+  
+  /* SYSTEM */
+  --background-gray: var(--arctic);
+  --text-main: var(--basalt);
+  --text-secondary: var(--hippo);
+  --border-light: var(--beluga);
+  
+  /* HEADER */
+  --header-height: 70px;
+  --header-bg: var(--cloud);
+  
+  /* FONTS */
+  --brand-font: 'Bricolage Grotesque', sans-serif;
+  --headline-font: 'Atkinson Hyperlegible Next', sans-serif;
+  
+  /* BUTTONS */
+  --main-btn: var(--carpenter-blue);
+  --main-btn-hover: #3a75d9;
+  --main-btn-active: #3166c4;
+  --main-btn-text: var(--cloud);
+  
+  /* Icon variables */
+  --borderwidth: 0.1vw;
+  --animationtime: 5s;
+  
+  /* Footer colors */
+  --footer-bg: var(--carpenter-blue);
+  --footer-text-light: var(--cloud);
+  --footer-text-dark: var(--arctic);
+}
