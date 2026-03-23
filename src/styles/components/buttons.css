@@ -55,7 +55,7 @@
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--carpenter-blue);
+  outline: 2px solid #4285F4;
   outline-offset: 2px;
 }
 
@@ -66,7 +66,6 @@
 }
 
 /* ===== COLOR VARIANTS ===== */
-/* Each button has a bottom border that's a darker shade of the background */
 
 /* Carpenter Blue - Primary */
 .btn-carpenter-blue {
