@@ -2,14 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Vulanet - The free, fun, and proven way to learn!</title>
+  <meta name="description" content="Learn any subject with Vulanet. Free, fun, and scientifically proven learning platform for students and lifelong learners.">
+  <meta name="keywords" content="learning, education, courses, biology, pharmacology, programming">
+  <meta name="author" content="Vulanet">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/public/assets/icons/phosphor/regular/rabbit.svg">
   
   <!-- Local Fonts -->
-  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/typography.css">
   
-  <!-- Local Button Styles -->
-  <link rel="stylesheet" href="/assets/css/buttons.css">
+  <!-- Local Buttons System -->
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+  
+  <!-- Font Awesome CDN - REMOVED, using local SVGs -->
   
   <style>
     :root {
@@ -47,6 +55,12 @@
       --brand-font: 'Bricolage Grotesque', sans-serif;
       --headline-font: 'Atkinson Hyperlegible Next', sans-serif;
       
+      /* BUTTONS */
+      --main-btn: var(--carpenter-blue);
+      --main-btn-hover: #3a75d9;
+      --main-btn-active: #3166c4;
+      --main-btn-text: var(--cloud);
+      
       /* Icon variables */
       --borderwidth: 0.1vw;
       --animationtime: 5s;
@@ -56,14 +70,6 @@
       --footer-text-light: var(--cloud);
       --footer-text-dark: var(--arctic);
     }
-    
-    /* SVG Color Filters - Convert black to brand colors */
-    .filter-carpenter-blue { filter: brightness(0) saturate(100%) invert(38%) sepia(84%) saturate(1549%) hue-rotate(198deg) brightness(96%) contrast(93%); }
-    .filter-gecko { filter: brightness(0) saturate(100%) invert(46%) sepia(91%) saturate(1534%) hue-rotate(171deg) brightness(101%) contrast(96%); }
-    .filter-bee { filter: brightness(0) saturate(100%) invert(77%) sepia(70%) saturate(1901%) hue-rotate(353deg) brightness(99%) contrast(97%); }
-    .filter-boa { filter: brightness(0) saturate(100%) invert(55%) sepia(44%) saturate(1571%) hue-rotate(94deg) brightness(95%) contrast(88%); }
-    .filter-cloud { filter: brightness(0) saturate(100%) invert(100%); }
-    .filter-white { filter: brightness(0) saturate(100%) invert(100%); }
     
     html, body {
       margin: 0;
@@ -138,6 +144,12 @@
       flex-shrink: 0;
     }
     
+    .logo-rabbit img {
+      width: 100%;
+      height: 100%;
+      filter: brightness(0) saturate(100%) invert(44%) sepia(85%) saturate(1363%) hue-rotate(201deg) brightness(96%) contrast(96%);
+    }
+    
     .brand-name {
       font-family: var(--brand-font);
       font-size: 1.5rem;
@@ -146,6 +158,45 @@
       color: var(--carpenter-blue);
       letter-spacing: -0.02em;
       transition: opacity 0.3s ease;
+    }
+    
+    .header-btn {
+      padding: 12px 28px;
+      font-family: var(--headline-font);
+      font-size: 1.1rem;
+      background: var(--main-btn);
+      color: var(--main-btn-text);
+      border: none;
+      border-radius: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+      opacity: 0;
+      visibility: hidden;
+      height: 52px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-transform: uppercase;
+      border-bottom: 0.25rem solid var(--main-btn-hover);
+    }
+    
+    .header.scrolled .header-btn {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .header-btn:hover,
+    .header-btn:focus-visible {
+      background: var(--main-btn-hover);
+      border-bottom-color: var(--main-btn-active);
+      transform: translateY(-0.125rem);
+    }
+    
+    .header-btn:active {
+      background: var(--main-btn-active);
+      transform: translateY(0.0625rem);
+      border-bottom-width: 0.125rem;
     }
     
     /* WELCOME SECTION */
@@ -229,6 +280,12 @@
       animation: rabbit-bounce 1400ms cubic-bezier(.25,.9,.35,1) infinite;
     }
     
+    .ph-rabbit img {
+      width: 100%;
+      height: 100%;
+      filter: brightness(0) saturate(100%) invert(44%) sepia(85%) saturate(1363%) hue-rotate(201deg) brightness(96%) contrast(96%);
+    }
+    
     @keyframes rabbit-bounce {
       0% { transform: translateY(0) rotate(0deg); }
       25% { transform: translateY(-22px) rotate(2deg); }
@@ -280,16 +337,32 @@
       margin-left: 30px;
     }
     
-    .icon-box .icon-svg {
+    .icon-el {
       width: 44px;
       height: 44px;
       display: block;
+      transform-origin: center center;
       animation: icon-pulse 1.4s infinite ease-in-out;
     }
     
-    .icon-box:nth-child(1) .icon-svg { animation-delay: 0s; }
-    .icon-box:nth-child(2) .icon-svg { animation-delay: 0.12s; }
-    .icon-box:nth-child(3) .icon-svg { animation-delay: 0.24s; }
+    .icon-box:nth-child(1) .icon-el { animation-delay: 0s; }
+    .icon-box:nth-child(2) .icon-el { animation-delay: 0.12s; }
+    .icon-box:nth-child(3) .icon-el { animation-delay: 0.24s; }
+    
+    /* School icon - Bee Yellow */
+    .icon-box:nth-child(1) .icon-el {
+      filter: brightness(0) saturate(100%) invert(80%) sepia(56%) saturate(715%) hue-rotate(353deg) brightness(102%) contrast(102%);
+    }
+    
+    /* Cognition icon - Gecko Blue */
+    .icon-box:nth-child(2) .icon-el {
+      filter: brightness(0) saturate(100%) invert(48%) sepia(65%) saturate(2059%) hue-rotate(171deg) brightness(99%) contrast(98%);
+    }
+    
+    /* Quiz icon - Boa Green */
+    .icon-box:nth-child(3) .icon-el {
+      filter: brightness(0) saturate(100%) invert(58%) sepia(44%) saturate(1066%) hue-rotate(94deg) brightness(94%) contrast(92%);
+    }
     
     @keyframes icon-pulse {
       0% { transform: scale(1); opacity: 1; }
@@ -328,6 +401,73 @@
       text-align: center;
       letter-spacing: -0.01em;
       line-height: 1.3;
+    }
+    
+    .main-btn, .secondary-btn {
+      display: block;
+      width: 100%;
+      max-width: 380px;
+      margin: 0 auto;
+      border-radius: 0.75rem;
+      font-family: var(--headline-font);
+      font-weight: 700;
+      font-size: 1.1rem;
+      outline: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      height: 52px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      white-space: nowrap;
+    }
+    
+    .main-btn {
+      background: var(--main-btn);
+      color: var(--main-btn-text);
+      margin-bottom: 1.1rem;
+      border-bottom: 0.25rem solid var(--main-btn-hover);
+    }
+    
+    .main-btn:hover,
+    .main-btn:focus-visible {
+      background: var(--main-btn-hover);
+      border-bottom-color: var(--main-btn-active);
+      transform: translateY(-0.125rem);
+    }
+    
+    .main-btn:active {
+      background: var(--main-btn-active);
+      transform: translateY(0.0625rem);
+      border-bottom-width: 0.125rem;
+    }
+    
+    .secondary-btn {
+      background: var(--cloud);
+      color: var(--gecko);
+      margin-bottom: 0.21rem;
+      border: 2px solid var(--beluga);
+      border-bottom: 0.25rem solid var(--koala);
+    }
+    
+    .secondary-btn:hover,
+    .secondary-btn:focus-visible {
+      background: var(--arctic);
+      border-bottom-color: var(--hippo);
+      transform: translateY(-0.125rem);
+    }
+    
+    .secondary-btn:active {
+      background: var(--beluga);
+      transform: translateY(0.0625rem);
+      border-bottom-width: 0.125rem;
+      border-bottom-color: var(--hippo);
+    }
+    
+    .main-btn:focus-visible, .secondary-btn:focus-visible, .icon-box:focus-visible {
+      box-shadow: 0 0 0 2.5px var(--carpenter-blue), 0 2px 11px rgba(66,133,244,0.13);
     }
     
     /* CONTENT SECTIONS */
@@ -381,6 +521,8 @@
     .material-icon {
       width: 120px;
       height: 120px;
+      display: block;
+      filter: brightness(0) saturate(100%) invert(44%) sepia(85%) saturate(1363%) hue-rotate(201deg) brightness(96%) contrast(96%);
       animation: pulse-main 3s infinite;
     }
     
@@ -856,13 +998,19 @@
     }
     
     .bouncing-rabbit {
+      width: 80px;
+      height: 80px;
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
       animation: bounce 0.5s infinite alternate ease-in-out;
       z-index: 10;
-      width: 80px;
-      height: 80px;
+    }
+    
+    .bouncing-rabbit img {
+      width: 100%;
+      height: 100%;
+      filter: brightness(0) saturate(100%) invert(44%) sepia(85%) saturate(1363%) hue-rotate(201deg) brightness(96%) contrast(96%);
     }
     
     .rabbit-shadow {
@@ -909,6 +1057,43 @@
       letter-spacing: -0.02em;
       line-height: 1.2;
       text-transform: lowercase;
+    }
+    
+    .cta-button {
+      display: block;
+      width: 100%;
+      max-width: 380px;
+      margin: 0 auto;
+      border-radius: 0.75rem;
+      font-family: var(--headline-font);
+      font-weight: 700;
+      font-size: 1.1rem;
+      outline: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      height: 52px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      font-size: 1.1rem;
+      color: var(--cloud);
+      background-color: var(--carpenter-blue);
+      border-bottom: 0.25rem solid #3a75d9;
+    }
+    
+    .cta-button:hover,
+    .cta-button:focus-visible {
+      background-color: #3a75d9;
+      border-bottom-color: #3166c4;
+      transform: translateY(-0.125rem);
+    }
+    
+    .cta-button:active {
+      background-color: #3166c4;
+      transform: translateY(0.0625rem);
+      border-bottom-width: 0.125rem;
     }
     
     /* FOOTER STYLES */
@@ -1026,7 +1211,7 @@
       align-items: center;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 24px;
+      gap: 20px;
     }
     
     .footer-social {
@@ -1037,24 +1222,25 @@
     }
     
     .footer-social a {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
-      opacity: 0.9;
+      width: 28px;
+      height: 28px;
+      text-decoration: none;
       transition: all 0.13s;
     }
     
-    .footer-social a:hover {
-      opacity: 1;
-      transform: translateY(-2px);
-    }
-    
-    .footer-social img {
+    .footer-social a svg {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+      transition: transform 0.13s;
+    }
+    
+    .footer-social a:hover svg {
+      transform: translateY(-2px);
+      filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
     }
     
     @media (max-width: 980px) {
@@ -1087,13 +1273,18 @@
         margin-left: 20px; 
       }
       
-      .icon-box .icon-svg {
+      .icon-el {
         width: 36px;
         height: 36px;
       }
       
       .headline {
         font-size: 1.3rem;
+      }
+      
+      .main-btn, .secondary-btn {
+        font-size: 1.05rem;
+        max-width: 340px;
       }
       
       .tagline {
@@ -1111,6 +1302,12 @@
       .logo-rabbit {
         width: 36px;
         height: 36px;
+      }
+      
+      .header-btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+        height: 46px;
       }
       
       .custom-icon-container,
@@ -1140,6 +1337,10 @@
       .bouncing-rabbit-container {
         height: 180px;
         width: 180px;
+      }
+      
+      .cta-button {
+        max-width: 340px;
       }
     }
     
@@ -1182,6 +1383,11 @@
         font-size: 1.2rem;
       }
       
+      .main-btn, .secondary-btn { 
+        font-size: 1.0rem;
+        max-width: 300px;
+      }
+      
       .phone-wrap {
         width: 120px;
         height: 220px;
@@ -1207,7 +1413,7 @@
         margin-left: 15px; 
       }
       
-      .icon-box .icon-svg {
+      .icon-el {
         width: 28px;
         height: 28px;
       }
@@ -1219,6 +1425,12 @@
       .logo-rabbit {
         width: 32px;
         height: 32px;
+      }
+      
+      .header-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        height: 42px;
       }
       
       .cta-tagline {
@@ -1233,6 +1445,10 @@
       .bouncing-rabbit-container {
         height: 160px;
         width: 160px;
+      }
+      
+      .cta-button {
+        max-width: 300px;
       }
       
       @keyframes bounce {
@@ -1287,6 +1503,18 @@
         font-size: 1.1rem;
       }
       
+      .main-btn, .secondary-btn { 
+        font-size: 0.95rem;
+        max-width: 280px;
+      }
+      
+      .secondary-btn {
+        white-space: normal;
+        height: auto;
+        min-height: 52px;
+        padding: 0.8rem;
+      }
+      
       .brand-name {
         font-size: 1.1rem;
       }
@@ -1294,6 +1522,12 @@
       .logo-rabbit {
         width: 28px;
         height: 28px;
+      }
+      
+      .header-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        height: 40px;
       }
       
       .header-inner {
@@ -1314,6 +1548,10 @@
         width: 140px;
       }
       
+      .cta-button {
+        max-width: 280px;
+      }
+      
       @keyframes bounce {
         0% {
           top: 10px;
@@ -1328,8 +1566,8 @@
       }
       
       .footer-social a {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
       }
     }
   </style>
@@ -1338,10 +1576,12 @@
   <header class="header" id="main-header">
     <div class="header-inner">
       <div class="logo-container">
-        <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit" class="logo-rabbit filter-carpenter-blue">
+        <div class="logo-rabbit">
+          <img src="/public/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit Logo">
+        </div>
         <span class="brand-name">vulanet</span>
       </div>
-      <button class="btn btn-carpenter-blue" id="header-cta-btn" onclick="scrollToStart()" style="--btn-text: #FFFFFF;">GET STARTED</button>
+      <button class="header-btn" onclick="scrollToStart()" aria-label="Get Started">GET STARTED</button>
     </div>
   </header>
   
@@ -1351,28 +1591,30 @@
         <div class="phone-wrap" aria-hidden="false">
           <div class="phone" role="img" aria-label="phone with rabbit">
             <div class="connection-hint" aria-hidden="true"></div>
-            <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit" class="ph-rabbit filter-carpenter-blue">
+            <div class="ph-rabbit">
+              <img src="/public/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit">
+            </div>
           </div>
           
           <div class="floating-icons" aria-hidden="false">
             <div class="icon-box" role="button" aria-label="School">
-              <img src="/assets/icons/material-symbols/outline/school.svg" alt="School" class="icon-svg filter-bee">
+              <img class="icon-el" src="/public/assets/icons/material-symbols/outline/school.svg" alt="School icon">
             </div>
             
             <div class="icon-box" role="button" aria-label="Cognition">
-              <img src="/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition" class="icon-svg filter-gecko">
+              <img class="icon-el" src="/public/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition icon">
             </div>
             
             <div class="icon-box" role="button" aria-label="Quiz">
-              <img src="/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz" class="icon-svg filter-boa">
+              <img class="icon-el" src="/public/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz icon">
             </div>
           </div>
         </div>
       </div>
       
       <h1 class="headline">The free, fun, and proven way to learn!</h1>
-      <button class="btn btn-carpenter-blue" id="get-started-btn" onclick="handleGetStarted()" style="--btn-text: #FFFFFF;">GET STARTED</button>
-      <button class="btn btn-cloud" id="already-account-btn" onclick="handleAlreadyAccount()" style="--btn-text: #1CB0F6;">I ALREADY HAVE AN ACCOUNT</button>
+      <button class="main-btn" id="get-started-btn" onclick="handleGetStarted()">GET STARTED</button>
+      <button class="secondary-btn" onclick="handleAlreadyAccount()">I ALREADY HAVE AN ACCOUNT</button>
     </div>
   </section>
   
@@ -1380,7 +1622,7 @@
     <div class="vulanet-description">
       <div class="icon-container">
         <div class="material-icon-container">
-          <img src="/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition" class="material-icon filter-carpenter-blue">
+          <img class="material-icon" src="/public/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition icon">
         </div>
       </div>
       
@@ -1471,13 +1713,15 @@
 
     <div class="cta-section">
       <div class="bouncing-rabbit-container">
-        <img src="/assets/icons/phosphor/fill/rabbit.svg" alt="Vulanet Rabbit" class="bouncing-rabbit filter-carpenter-blue">
+        <div class="bouncing-rabbit">
+          <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vulanet Rabbit">
+        </div>
         <div class="rabbit-shadow"></div>
       </div>
       
       <div class="cta-tagline">learn better with vulanet</div>
       
-      <button class="btn btn-carpenter-blue" id="cta-bottom-btn" onclick="handleGetStarted()" style="--btn-text: #FFFFFF;">GET STARTED</button>
+      <button class="cta-button" onclick="handleGetStarted()">GET STARTED</button>
     </div>
   </div>
 
@@ -1528,20 +1772,20 @@
       
       <div class="footer-bottom">
         <div class="footer-social">
-          <a href="#" title="Instagram" target="_blank">
-            <img src="/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram">
+          <a href="#" title="Instagram" target="_blank" rel="noopener noreferrer">
+            <img src="/public/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram">
           </a>
-          <a href="#" title="TikTok" target="_blank">
-            <img src="/assets/icons/social/tiktok-brands-solid-full.svg" alt="TikTok">
+          <a href="#" title="TikTok" target="_blank" rel="noopener noreferrer">
+            <img src="/public/assets/icons/social/tiktok-brands-solid-full.svg" alt="TikTok">
           </a>
-          <a href="#" title="X" target="_blank">
-            <img src="/assets/icons/social/x-twitter-brands-solid-full.svg" alt="X">
+          <a href="#" title="X" target="_blank" rel="noopener noreferrer">
+            <img src="/public/assets/icons/social/x-twitter-brands-solid-full.svg" alt="X">
           </a>
-          <a href="#" title="Facebook" target="_blank">
-            <img src="/assets/icons/social/facebook-brands-solid-full.svg" alt="Facebook">
+          <a href="#" title="Facebook" target="_blank" rel="noopener noreferrer">
+            <img src="/public/assets/icons/social/facebook-brands-solid-full.svg" alt="Facebook">
           </a>
-          <a href="#" title="YouTube" target="_blank">
-            <img src="/assets/icons/social/youtube-brands-solid-full.svg" alt="YouTube">
+          <a href="#" title="YouTube" target="_blank" rel="noopener noreferrer">
+            <img src="/public/assets/icons/social/youtube-brands-solid-full.svg" alt="YouTube">
           </a>
         </div>
       </div>
@@ -1553,14 +1797,12 @@
       const header = document.getElementById('main-header');
       const getStartedBtn = document.getElementById('get-started-btn');
       
-      if (getStartedBtn) {
-        const buttonRect = getStartedBtn.getBoundingClientRect();
-        
-        if (buttonRect.top < 0) {
-          header.classList.add('scrolled');
-        } else {
-          header.classList.remove('scrolled');
-        }
+      const buttonRect = getStartedBtn.getBoundingClientRect();
+      
+      if (buttonRect.top < 0) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
       }
     });
     
@@ -1573,11 +1815,13 @@
     }
     
     function handleGetStarted() {
-      alert("Proceed to Vulanet onboarding/signup!");
+      // Redirect to onboarding/signup
+      window.location.href = '/src/pages/onboarding/course-selector.html';
     }
     
     function handleAlreadyAccount() {
-      alert("Proceed to Vulanet login!");
+      // Redirect to login
+      window.location.href = '/src/pages/auth/login.html';
     }
   </script>
 </body>
