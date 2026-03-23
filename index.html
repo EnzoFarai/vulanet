@@ -6,9 +6,8 @@
   <meta name="description" content="Vulanet - The free, fun, and proven way to learn! Master new skills with our engaging courses and personalized learning experience.">
   <title>Vulanet - The free, fun, and proven way to learn!</title>
   
-  <!-- Local Stylesheets - Using relative paths for GitHub Pages -->
-  <link rel="stylesheet" href="src/styles/typography.css">
-  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  <!-- Local Fonts -->
+  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
   
   <style>
     /* ===== VARIABLES ===== */
@@ -43,10 +42,10 @@
       --header-bg: var(--cloud);
       
       /* FONTS */
-      --brand-font: 'Bricolage Grotesque', sans-serif;
-      --headline-font: 'Atkinson Hyperlegible Next', sans-serif;
+      --brand-font: 'Bricolage Grotesque', 'Bricolage Grotesque Fallback', monospace;
+      --headline-font: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
       
-      /* BUTTONS - Using new button system */
+      /* BUTTONS */
       --main-btn: var(--carpenter-blue);
       --main-btn-hover: #3a75d9;
       --main-btn-active: #3166c4;
@@ -79,11 +78,6 @@
       flex-direction: column;
       scroll-behavior: smooth;
       color: var(--text-main);
-    }
-    
-    /* Fallback font if custom fonts don't load */
-    body {
-      font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
     }
     
     /* ===== HEADER ===== */
@@ -149,6 +143,7 @@
       width: 100%;
       height: 100%;
       display: block;
+      filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%);
     }
     
     .brand-name {
@@ -285,6 +280,7 @@
       width: 100%;
       height: 100%;
       display: block;
+      filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%);
     }
     
     @keyframes rabbit-bounce {
@@ -363,9 +359,9 @@
       filter: brightness(0) saturate(100%) invert(79%) sepia(39%) saturate(1050%) hue-rotate(342deg) brightness(100%) contrast(97%);
     }
     
-    /* Cognition icon - Gecko Blue filter */
+    /* Cognition icon - Ladybug Red filter (using cognition.svg) */
     .icon-box:nth-child(2) .icon-el {
-      filter: brightness(0) saturate(100%) invert(48%) sepia(98%) saturate(1425%) hue-rotate(161deg) brightness(97%) contrast(101%);
+      filter: brightness(0) saturate(100%) invert(31%) sepia(86%) saturate(2382%) hue-rotate(342deg) brightness(92%) contrast(91%);
     }
     
     /* Quiz icon - Boa Green filter */
@@ -412,7 +408,7 @@
       line-height: 1.3;
     }
     
-    /* Buttons using new system - overriding default button styles */
+    /* Buttons */
     .main-btn, .secondary-btn {
       display: block;
       width: 100%;
@@ -538,6 +534,11 @@
       width: 100%;
       height: 100%;
       display: block;
+    }
+    
+    /* Cognition icon in main description - Ladybug Red */
+    .vulanet-description .material-icon img {
+      filter: brightness(0) saturate(100%) invert(31%) sepia(86%) saturate(2382%) hue-rotate(342deg) brightness(92%) contrast(91%);
     }
     
     .custom-icon-container {
@@ -1025,7 +1026,7 @@
       width: 100%;
       height: 100%;
       display: block;
-      filter: brightness(0) saturate(100%) invert(48%) sepia(98%) saturate(1425%) hue-rotate(161deg) brightness(97%) contrast(101%);
+      filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%);
     }
     
     .rabbit-shadow {
@@ -1253,6 +1254,7 @@
       width: 100%;
       height: 100%;
       display: block;
+      filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
     }
     
     /* ===== RESPONSIVE ===== */
@@ -1590,7 +1592,7 @@
     <div class="header-inner">
       <div class="logo-container">
         <div class="logo-rabbit">
-          <img src="public/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit Logo">
+          <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vulanet Rabbit Logo">
         </div>
         <span class="brand-name">vulanet</span>
       </div>
@@ -1605,7 +1607,7 @@
           <div class="phone" role="img" aria-label="phone with rabbit">
             <div class="connection-hint" aria-hidden="true"></div>
             <div class="ph-rabbit">
-              <img src="public/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit">
+              <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vulanet Rabbit">
             </div>
           </div>
           
@@ -1618,7 +1620,7 @@
             
             <div class="icon-box" role="button" aria-label="Cognition">
               <div class="icon-el">
-                <img src="public/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition">
+                <img src="public/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition">
               </div>
             </div>
             
@@ -1735,7 +1737,7 @@
     <div class="cta-section">
       <div class="bouncing-rabbit-container">
         <div class="bouncing-rabbit">
-          <img src="public/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit">
+          <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vulanet Rabbit">
         </div>
         <div class="rabbit-shadow"></div>
       </div>
