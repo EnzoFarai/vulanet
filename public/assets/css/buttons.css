@@ -1,250 +1,55 @@
-/* ============================================
-   BUTTON SYSTEM - Vulanet
-   Reusable button classes with 3D pressed effect
-   ============================================ */
+/* Atkinson Hyperlegible Next*/
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-400-normal.woff2') format('woff2'),
+       url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-400-normal.woff') format('woff');
+}
 
-/* Base Button Styles */
-.btn {
-  display: inline-block;
-  width: 100%;
-  max-width: 380px;
-  margin: 0 auto;
-  border-radius: 0.75rem;
-  font-family: var(--headline-font, 'Atkinson Hyperlegible Next', sans-serif);
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next';
+  font-style: normal;
   font-weight: 700;
-  font-size: 1.1rem;
-  outline: none;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  height: 52px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  white-space: nowrap;
-  text-decoration: none;
-  text-align: center;
-  line-height: 1;
-  background: var(--btn-bg, #4285F4);
-  color: var(--btn-text, #FFFFFF);
-  border-bottom: 0.25rem solid var(--btn-border, #3a75d9);
+  font-display: swap;
+  src: url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-700-normal.woff2') format('woff2'),
+       url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-700-normal.woff') format('woff');
 }
 
-.btn:hover,
-.btn:focus-visible {
-  transform: translateY(-0.125rem);
+@font-face {
+  font-family: 'Atkinson Hyperlegible Next';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-800-normal.woff2') format('woff2'),
+       url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-800-normal.woff') format('woff');
 }
 
-.btn:active {
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
+/* Bricolage Grotesque */
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-400-normal.woff2') format('woff2'),
+       url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-400-normal.woff') format('woff');
 }
 
-/* Disabled state */
-.btn:disabled {
-  background-color: #e5e5e5;
-  border-bottom-color: #cecece;
-  color: #afafaf;
-  cursor: not-allowed;
-  transform: none;
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-700-normal.woff2') format('woff2'),
+       url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-700-normal.woff') format('woff');
 }
 
-/* Size Variants */
-.btn-sm {
-  height: 42px;
-  font-size: 0.9rem;
-  padding: 0.75rem;
-  max-width: 200px;
-}
-
-.btn-md {
-  height: 52px;
-  font-size: 1.1rem;
-  padding: 1rem;
-}
-
-.btn-lg {
-  height: 60px;
-  font-size: 1.2rem;
-  padding: 1.2rem;
-}
-
-/* Full width modifier */
-.btn-full {
-  width: 100%;
-  max-width: none;
-}
-
-/* Color Variants - Text color must be set manually per instance */
-.btn-carpenter-blue {
-  --btn-bg: #4285F4;
-  --btn-border: #3a75d9;
-}
-
-.btn-carpenter-blue:hover,
-.btn-carpenter-blue:focus-visible {
-  --btn-bg: #3a75d9;
-  --btn-border: #3166c4;
-}
-
-.btn-belly-blue {
-  --btn-bg: #7B9FE0;
-  --btn-border: #6a8bc4;
-}
-
-.btn-belly-blue:hover,
-.btn-belly-blue:focus-visible {
-  --btn-bg: #6a8bc4;
-  --btn-border: #5a78aa;
-}
-
-.btn-gecko {
-  --btn-bg: #1CB0F6;
-  --btn-border: #1899d6;
-}
-
-.btn-gecko:hover,
-.btn-gecko:focus-visible {
-  --btn-bg: #1899d6;
-  --btn-border: #1482b8;
-}
-
-.btn-ladybug {
-  --btn-bg: #EA4335;
-  --btn-border: #c12d21;
-}
-
-.btn-ladybug:hover,
-.btn-ladybug:focus-visible {
-  --btn-bg: #c12d21;
-  --btn-border: #a8261b;
-}
-
-.btn-bee {
-  --btn-bg: #FBBC05;
-  --btn-border: #e6a800;
-}
-
-.btn-bee:hover,
-.btn-bee:focus-visible {
-  --btn-bg: #e6a800;
-  --btn-border: #c88f00;
-}
-
-.btn-tiger {
-  --btn-bg: #FF6D01;
-  --btn-border: #e66000;
-}
-
-.btn-tiger:hover,
-.btn-tiger:focus-visible {
-  --btn-bg: #e66000;
-  --btn-border: #cc5500;
-}
-
-.btn-beetle {
-  --btn-bg: #AA00FF;
-  --btn-border: #8a00d4;
-}
-
-.btn-beetle:hover,
-.btn-beetle:focus-visible {
-  --btn-bg: #8a00d4;
-  --btn-border: #6a00aa;
-}
-
-.btn-boa {
-  --btn-bg: #34A853;
-  --btn-border: #2d8f47;
-}
-
-.btn-boa:hover,
-.btn-boa:focus-visible {
-  --btn-bg: #2d8f47;
-  --btn-border: #24763a;
-}
-
-.btn-cloud {
-  --btn-bg: #FFFFFF;
-  --btn-border: #e5e5e5;
-  color: #1CB0F6;
-}
-
-.btn-cloud:hover,
-.btn-cloud:focus-visible {
-  --btn-bg: #F7F7F7;
-  --btn-border: #d4d4d4;
-}
-
-/* Outline variant - transparent background with colored border */
-.btn-outline {
-  background: transparent;
-  border: 2px solid var(--btn-outline-color, #4285F4);
-  border-bottom: 0.25rem solid var(--btn-outline-color, #4285F4);
-  color: var(--btn-outline-color, #4285F4);
-  box-shadow: none;
-}
-
-.btn-outline:hover {
-  background: rgba(66, 133, 244, 0.05);
-  transform: translateY(-0.125rem);
-}
-
-.btn-outline-carpenter-blue {
-  --btn-outline-color: #4285F4;
-}
-
-.btn-outline-gecko {
-  --btn-outline-color: #1CB0F6;
-}
-
-.btn-outline-ladybug {
-  --btn-outline-color: #EA4335;
-}
-
-/* Icon button style */
-.btn-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.btn-icon img,
-.btn-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .btn {
-    font-size: 1rem;
-    height: 48px;
-    padding: 0.9rem;
-  }
-  
-  .btn-sm {
-    height: 38px;
-    font-size: 0.85rem;
-    padding: 0.7rem;
-  }
-  
-  .btn-lg {
-    height: 54px;
-    font-size: 1.1rem;
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .btn {
-    font-size: 0.95rem;
-    max-width: 280px;
-    white-space: normal;
-    min-height: 52px;
-    height: auto;
-    padding: 0.8rem;
-  }
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-800-normal.woff2') format('woff2'),
+       url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-800-normal.woff') format('woff');
 }
