@@ -8,16 +8,14 @@
   <meta name="keywords" content="learning, education, courses, biology, pharmacology, programming">
   <meta name="author" content="Vulanet">
   
-  <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="/public/assets/icons/phosphor/regular/rabbit.svg">
+  <!-- Favicon - CORRECTED PATH (no /public) -->
+  <link rel="icon" type="image/svg+xml" href="/assets/icons/phosphor/regular/rabbit.svg">
   
-  <!-- Local Fonts -->
-  <link rel="stylesheet" href="/src/styles/typography.css">
+  <!-- Local Fonts - CORRECTED PATHS -->
+  <link rel="stylesheet" href="/styles/typography.css">
   
-  <!-- Local Buttons System -->
-  <link rel="stylesheet" href="/src/styles/components/buttons.css">
-  
-  <!-- Font Awesome CDN - REMOVED, using local SVGs -->
+  <!-- Local Buttons System - CORRECTED PATH -->
+  <link rel="stylesheet" href="/styles/components/buttons.css">
   
   <style>
     :root {
@@ -1577,7 +1575,7 @@
     <div class="header-inner">
       <div class="logo-container">
         <div class="logo-rabbit">
-          <img src="/public/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit Logo">
+          <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit Logo">
         </div>
         <span class="brand-name">vulanet</span>
       </div>
@@ -1592,21 +1590,21 @@
           <div class="phone" role="img" aria-label="phone with rabbit">
             <div class="connection-hint" aria-hidden="true"></div>
             <div class="ph-rabbit">
-              <img src="/public/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit">
+              <img src="/assets/icons/phosphor/regular/rabbit.svg" alt="Vulanet Rabbit">
             </div>
           </div>
           
           <div class="floating-icons" aria-hidden="false">
             <div class="icon-box" role="button" aria-label="School">
-              <img class="icon-el" src="/public/assets/icons/material-symbols/outline/school.svg" alt="School icon">
+              <img class="icon-el" src="/assets/icons/material-symbols/outline/school.svg" alt="School icon">
             </div>
             
             <div class="icon-box" role="button" aria-label="Cognition">
-              <img class="icon-el" src="/public/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition icon">
+              <img class="icon-el" src="/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition icon">
             </div>
             
             <div class="icon-box" role="button" aria-label="Quiz">
-              <img class="icon-el" src="/public/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz icon">
+              <img class="icon-el" src="/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz icon">
             </div>
           </div>
         </div>
@@ -1622,7 +1620,7 @@
     <div class="vulanet-description">
       <div class="icon-container">
         <div class="material-icon-container">
-          <img class="material-icon" src="/public/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition icon">
+          <img class="material-icon" src="/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition icon">
         </div>
       </div>
       
@@ -1714,7 +1712,7 @@
     <div class="cta-section">
       <div class="bouncing-rabbit-container">
         <div class="bouncing-rabbit">
-          <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vulanet Rabbit">
+          <img src="/assets/icons/phosphor/fill/rabbit.svg" alt="Vulanet Rabbit">
         </div>
         <div class="rabbit-shadow"></div>
       </div>
@@ -1773,19 +1771,19 @@
       <div class="footer-bottom">
         <div class="footer-social">
           <a href="#" title="Instagram" target="_blank" rel="noopener noreferrer">
-            <img src="/public/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram">
+            <img src="/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram">
           </a>
           <a href="#" title="TikTok" target="_blank" rel="noopener noreferrer">
-            <img src="/public/assets/icons/social/tiktok-brands-solid-full.svg" alt="TikTok">
+            <img src="/assets/icons/social/tiktok-brands-solid-full.svg" alt="TikTok">
           </a>
           <a href="#" title="X" target="_blank" rel="noopener noreferrer">
-            <img src="/public/assets/icons/social/x-twitter-brands-solid-full.svg" alt="X">
+            <img src="/assets/icons/social/x-twitter-brands-solid-full.svg" alt="X">
           </a>
           <a href="#" title="Facebook" target="_blank" rel="noopener noreferrer">
-            <img src="/public/assets/icons/social/facebook-brands-solid-full.svg" alt="Facebook">
+            <img src="/assets/icons/social/facebook-brands-solid-full.svg" alt="Facebook">
           </a>
           <a href="#" title="YouTube" target="_blank" rel="noopener noreferrer">
-            <img src="/public/assets/icons/social/youtube-brands-solid-full.svg" alt="YouTube">
+            <img src="/assets/icons/social/youtube-brands-solid-full.svg" alt="YouTube">
           </a>
         </div>
       </div>
@@ -1815,12 +1813,10 @@
     }
     
     function handleGetStarted() {
-      // Redirect to onboarding/signup
       window.location.href = '/src/pages/onboarding/course-selector.html';
     }
     
     function handleAlreadyAccount() {
-      // Redirect to login
       window.location.href = '/src/pages/auth/login.html';
     }
   </script>
