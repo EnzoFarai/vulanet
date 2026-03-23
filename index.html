@@ -57,32 +57,13 @@
       --footer-text-dark: var(--arctic);
     }
     
-    /* SVG Color Filters - FIXED */
-    /* These filters convert black (#000000) to specific brand colors */
-    .filter-carpenter-blue { 
-      filter: invert(38%) sepia(84%) saturate(1549%) hue-rotate(198deg) brightness(96%) contrast(93%);
-    }
-    .filter-gecko { 
-      filter: invert(46%) sepia(91%) saturate(1534%) hue-rotate(171deg) brightness(101%) contrast(96%);
-    }
-    .filter-bee { 
-      filter: invert(77%) sepia(70%) saturate(1901%) hue-rotate(353deg) brightness(99%) contrast(97%);
-    }
-    .filter-boa { 
-      filter: invert(55%) sepia(44%) saturate(1571%) hue-rotate(94deg) brightness(95%) contrast(88%);
-    }
-    .filter-ladybug { 
-      filter: invert(38%) sepia(89%) saturate(2263%) hue-rotate(337deg) brightness(96%) contrast(92%);
-    }
-    .filter-white { 
-      filter: invert(100%);
-    }
-    
-    /* Ensure SVGs display correctly */
-    img {
-      display: inline-block;
-      vertical-align: middle;
-    }
+    /* SVG Color Filters - Convert black to brand colors */
+    .filter-carpenter-blue { filter: brightness(0) saturate(100%) invert(38%) sepia(84%) saturate(1549%) hue-rotate(198deg) brightness(96%) contrast(93%); }
+    .filter-gecko { filter: brightness(0) saturate(100%) invert(46%) sepia(91%) saturate(1534%) hue-rotate(171deg) brightness(101%) contrast(96%); }
+    .filter-bee { filter: brightness(0) saturate(100%) invert(77%) sepia(70%) saturate(1901%) hue-rotate(353deg) brightness(99%) contrast(97%); }
+    .filter-boa { filter: brightness(0) saturate(100%) invert(55%) sepia(44%) saturate(1571%) hue-rotate(94deg) brightness(95%) contrast(88%); }
+    .filter-cloud { filter: brightness(0) saturate(100%) invert(100%); }
+    .filter-white { filter: brightness(0) saturate(100%) invert(100%); }
     
     html, body {
       margin: 0;
@@ -1074,7 +1055,6 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: brightness(0) invert(1); /* Makes icons white */
     }
     
     @media (max-width: 980px) {
