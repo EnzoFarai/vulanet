@@ -1,0 +1,241 @@
+/* ============================================
+   VULANET BUTTON SYSTEM
+   Reusable button components with 3D press effect
+   ============================================ */
+
+/* Base Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 1rem 1.5rem;
+  font-family: 'Atkinson Hyperlegible Next', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* Button Sizes */
+.btn-sm {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  height: 44px;
+}
+
+.btn-md {
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  height: 52px;
+}
+
+.btn-lg {
+  padding: 1.25rem 2rem;
+  font-size: 1.125rem;
+  height: 60px;
+}
+
+/* Button States */
+.btn:hover {
+  transform: translateY(-0.125rem);
+}
+
+.btn:active {
+  transform: translateY(0.0625rem);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--carpenter-blue);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===== COLOR VARIANTS ===== */
+/* Each button has a bottom border that's a darker shade of the background */
+
+/* Carpenter Blue - Primary */
+.btn-carpenter-blue {
+  background-color: #4285F4;
+  color: #FFFFFF;
+  border-bottom: 0.25rem solid #3a75d9;
+}
+
+.btn-carpenter-blue:hover {
+  background-color: #3a75d9;
+  border-bottom-color: #3166c4;
+}
+
+.btn-carpenter-blue:active {
+  border-bottom-width: 0.125rem;
+}
+
+/* Belly Blue - Secondary Blue */
+.btn-belly-blue {
+  background-color: #7B9FE0;
+  color: #FFFFFF;
+  border-bottom: 0.25rem solid #6a8fc9;
+}
+
+.btn-belly-blue:hover {
+  background-color: #6a8fc9;
+  border-bottom-color: #5a7fb2;
+}
+
+.btn-belly-blue:active {
+  border-bottom-width: 0.125rem;
+}
+
+/* Cloud - White */
+.btn-cloud {
+  background-color: #FFFFFF;
+  color: #1CB0F6;
+  border: 2px solid #E5E5E5;
+  border-bottom: 0.25rem solid #E5E5E5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-cloud:hover {
+  background-color: #F7F7F7;
+  border-bottom-color: #AFAFAF;
+}
+
+.btn-cloud:active {
+  border-bottom-width: 0.125rem;
+}
+
+/* Gecko - Light Blue */
+.btn-gecko {
+  background-color: #1CB0F6;
+  color: #FFFFFF;
+  border-bottom: 0.25rem solid #1899d6;
+}
+
+.btn-gecko:hover {
+  background-color: #1899d6;
+  border-bottom-color: #1482b6;
+}
+
+.btn-gecko:active {
+  border-bottom-width: 0.125rem;
+}
+
+/* Ladybug - Red */
+.btn-ladybug {
+  background-color: #EA4335;
+  color: #FFFFFF;
+  border-bottom: 0.25rem solid #d13b2e;
+}
+
+.btn-ladybug:hover {
+  background-color: #d13b2e;
+  border-bottom-color: #b83327;
+}
+
+.btn-ladybug:active {
+  border-bottom-width: 0.125rem;
+}
+
+/* Bee - Yellow */
+.btn-bee {
+  background-color: #FBBC05;
+  color: #4B4B4B;
+  border-bottom: 0.25rem solid #e0a704;
+}
+
+.btn-bee:hover {
+  background-color: #e0a704;
+  border-bottom-color: #c59203;
+}
+
+.btn-bee:active {
+  border-bottom-width: 0.125rem;
+}
+
+/* Tiger - Orange */
+.btn-tiger {
+  background-color: #FF6D01;
+  color: #FFFFFF;
+  border-bottom: 0.25rem solid #e56101;
+}
+
+.btn-tiger:hover {
+  background-color: #e56101;
+  border-bottom-color: #cc5501;
+}
+
+.btn-tiger:active {
+  border-bottom-width: 0.125rem;
+}
+
+/* Beetle - Purple */
+.btn-beetle {
+  background-color: #AA00FF;
+  color: #FFFFFF;
+  border-bottom: 0.25rem solid #9900e5;
+}
+
+.btn-beetle:hover {
+  background-color: #9900e5;
+  border-bottom-color: #8800cc;
+}
+
+.btn-beetle:active {
+  border-bottom-width: 0.125rem;
+}
+
+/* Boa - Green */
+.btn-boa {
+  background-color: #34A853;
+  color: #FFFFFF;
+  border-bottom: 0.25rem solid #2e964a;
+}
+
+.btn-boa:hover {
+  background-color: #2e964a;
+  border-bottom-color: #288341;
+}
+
+.btn-boa:active {
+  border-bottom-width: 0.125rem;
+}
+
+/* ===== UTILITY CLASSES ===== */
+.btn-full-width {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.btn-icon-only {
+  padding: 1rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 0.75rem;
+}
+
+.btn-icon-only.btn-sm {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+
+.btn-icon-only.btn-lg {
+  width: 60px;
+  height: 60px;
+  padding: 0;
+}
