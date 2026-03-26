@@ -1,273 +1,139 @@
 /* ========================================
    VULANET BUTTON SYSTEM
-   Complete reusable button system with all variants
+   Reusable 3D button styles with all brand colors
    ======================================== */
 
 /* Base button styles */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  display: block;
   width: 100%;
   max-width: 380px;
   margin: 0 auto;
   border-radius: 0.75rem;
-  font-family: 'Atkinson Hyperlegible Next', sans-serif;
+  font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
   font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 1.1rem;
   outline: none;
   border: none;
-  position: relative;
-  line-height: 1;
-  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
   height: 52px;
+  padding: 0 1rem;
+  line-height: 1;
+  position: relative;
 }
 
-/* Button Sizes */
+/* Button sizes */
 .btn-sm {
   height: 40px;
-  font-size: 0.85rem;
-  padding: 0.75rem;
+  font-size: 0.9rem;
   max-width: 200px;
 }
 
 .btn-md {
   height: 52px;
-  font-size: 1rem;
-  padding: 1rem;
+  font-size: 1.1rem;
   max-width: 380px;
 }
 
 .btn-lg {
   height: 64px;
-  font-size: 1.125rem;
-  padding: 1.25rem;
+  font-size: 1.25rem;
   max-width: 450px;
 }
 
-/* ===== COLOR VARIANTS ===== */
-
-/* Carpenter Blue - Primary */
+/* Button variants - 3D raised effect */
 .btn-carpenter-blue {
   background-color: #4285F4;
   color: #FFFFFF;
-  border-bottom: 0.25rem solid #3a75d9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 0 #2d5bb5, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
 }
 
 .btn-carpenter-blue:hover:not(:disabled) {
   background-color: #3a75d9;
-  border-bottom-color: #3166c4;
-  transform: translateY(-0.125rem);
+  box-shadow: 0 2px 0 #2d5bb5, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
 }
 
 .btn-carpenter-blue:active:not(:disabled) {
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #2d5bb5, 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Belly Blue - Secondary Blue */
-.btn-belly-blue {
-  background-color: #7B9FE0;
-  color: #FFFFFF;
-  border-bottom: 0.25rem solid #6c8dc9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Disabled state - flat and grey */
+.btn-carpenter-blue:disabled,
+.btn-carpenter-blue.disabled {
+  background-color: #E5E5E5;
+  color: #777777;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
 }
 
-.btn-belly-blue:hover:not(:disabled) {
-  background-color: #6c8dc9;
-  border-bottom-color: #5d7bb2;
-  transform: translateY(-0.125rem);
+/* Secondary button - Gecko blue text, white background */
+.btn-gecko-outline {
+  background-color: #FFFFFF;
+  color: #1CB0F6;
+  border: 2px solid #1CB0F6;
+  box-shadow: 0 4px 0 #b0d4f5, 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(0);
 }
 
-.btn-belly-blue:active:not(:disabled) {
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
+.btn-gecko-outline:hover:not(:disabled) {
+  background-color: #F0F9FF;
+  box-shadow: 0 2px 0 #b0d4f5, 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(2px);
 }
 
-/* Cloud - White Outline */
-.btn-cloud {
+.btn-gecko-outline:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #b0d4f5, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* White button for sign-in on landing page */
+.btn-cloud-outline {
   background-color: #FFFFFF;
   color: #1CB0F6;
   border: 2px solid #E5E5E5;
-  border-bottom: 0.25rem solid #AFAFAF;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-bottom: 4px solid #AFAFAF;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
 }
 
-.btn-cloud:hover:not(:disabled) {
+.btn-cloud-outline:hover:not(:disabled) {
   background-color: #F7F7F7;
   border-bottom-color: #777777;
-  transform: translateY(-0.125rem);
+  transform: translateY(-2px);
 }
 
-.btn-cloud:active:not(:disabled) {
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
+.btn-cloud-outline:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
 }
 
-/* Gecko - Accent Blue */
-.btn-gecko {
-  background-color: #1CB0F6;
-  color: #FFFFFF;
-  border-bottom: 0.25rem solid #199bda;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-gecko:hover:not(:disabled) {
-  background-color: #199bda;
-  border-bottom-color: #1685be;
-  transform: translateY(-0.125rem);
-}
-
-.btn-gecko:active:not(:disabled) {
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
-}
-
-/* Ladybug - Red */
-.btn-ladybug {
-  background-color: #EA4335;
-  color: #FFFFFF;
-  border-bottom: 0.25rem solid #d13c2f;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-ladybug:hover:not(:disabled) {
-  background-color: #d13c2f;
-  border-bottom-color: #b83429;
-  transform: translateY(-0.125rem);
-}
-
-.btn-ladybug:active:not(:disabled) {
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
-}
-
-/* Bee - Yellow */
-.btn-bee {
-  background-color: #FBBC05;
-  color: #4B4B4B;
-  border-bottom: 0.25rem solid #e2a904;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-bee:hover:not(:disabled) {
-  background-color: #e2a904;
-  border-bottom-color: #c99604;
-  transform: translateY(-0.125rem);
-}
-
-.btn-bee:active:not(:disabled) {
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
-}
-
-/* Tiger - Orange */
-.btn-tiger {
-  background-color: #FF6D01;
-  color: #FFFFFF;
-  border-bottom: 0.25rem solid #e66201;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-tiger:hover:not(:disabled) {
-  background-color: #e66201;
-  border-bottom-color: #cc5701;
-  transform: translateY(-0.125rem);
-}
-
-.btn-tiger:active:not(:disabled) {
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
-}
-
-/* Beetle - Purple */
-.btn-beetle {
-  background-color: #AA00FF;
-  color: #FFFFFF;
-  border-bottom: 0.25rem solid #9900e6;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-beetle:hover:not(:disabled) {
-  background-color: #9900e6;
-  border-bottom-color: #8800cc;
-  transform: translateY(-0.125rem);
-}
-
-.btn-beetle:active:not(:disabled) {
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
-}
-
-/* Boa - Green */
-.btn-boa {
-  background-color: #34A853;
-  color: #FFFFFF;
-  border-bottom: 0.25rem solid #2e974b;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn-boa:hover:not(:disabled) {
-  background-color: #2e974b;
-  border-bottom-color: #288542;
-  transform: translateY(-0.125rem);
-}
-
-.btn-boa:active:not(:disabled) {
-  transform: translateY(0.0625rem);
-  border-bottom-width: 0.125rem;
-}
-
-/* Disabled State */
-.btn:disabled {
-  background-color: #E5E5E5;
-  color: #777777;
-  border-bottom: none;
-  box-shadow: none;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn:disabled:hover {
-  transform: none;
-  border-bottom: none;
-}
-
-/* Focus Visible State */
+/* Focus visible state for accessibility */
 .btn:focus-visible {
-  outline: 2px solid #4285F4;
+  outline: 3px solid #4285F4;
   outline-offset: 2px;
 }
 
-/* Icon inside button */
-.btn i, .btn .ph {
-  font-size: 1.25rem;
-  line-height: 1;
-}
-
-/* Responsive */
+/* Mobile responsive */
 @media (max-width: 768px) {
   .btn {
     height: 48px;
-    font-size: 0.9rem;
-    padding: 0.875rem;
+    font-size: 1rem;
   }
   
   .btn-sm {
-    height: 38px;
-    font-size: 0.8rem;
-    padding: 0.7rem;
+    height: 36px;
+    font-size: 0.85rem;
   }
   
   .btn-lg {
     height: 56px;
-    font-size: 1rem;
-    padding: 1rem;
+    font-size: 1.1rem;
   }
 }
