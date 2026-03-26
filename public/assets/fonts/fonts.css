@@ -3,7 +3,7 @@
    Atkinson Hyperlegible Next & Bricolage Grotesque
    ======================================== */
 
-/* Atkinson Hyperlegible Next - Latin */
+/* Atkinson Hyperlegible Next - Latin Subset */
 @font-face {
   font-family: 'Atkinson Hyperlegible Next';
   font-style: normal;
@@ -117,7 +117,7 @@
   src: url('atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-800-italic.woff2') format('woff2');
 }
 
-/* Bricolage Grotesque - Latin */
+/* Bricolage Grotesque - Latin Subset */
 @font-face {
   font-family: 'Bricolage Grotesque';
   font-style: normal;
