@@ -3,14 +3,16 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Choose a Course — Vulanet</title>
+<title>Choose a Course — vulanet</title>
 
-<!-- Local Fonts & Styles -->
+<!-- Local Fonts -->
 <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+
+<!-- Button Component Styles -->
 <link rel="stylesheet" href="src/styles/components/buttons.css">
 
 <style>
-/* ===== COLOR & TYPOGRAPHY GUIDELINES ===== */
+/* ===== COLOR VARIABLES ===== */
 :root {
   --carpenter-blue: #4285F4;
   --belly-blue: #7B9FE0;
@@ -31,7 +33,6 @@
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
-  cursor: default;
 }
 
 body {
@@ -44,7 +45,6 @@ body {
   flex-direction: column;
   align-items: center;
   line-height: 1.4;
-  font-size: 0.9rem;
 }
 
 .screen {
@@ -52,7 +52,6 @@ body {
   width: 100%;
   margin: 0 auto;
   padding-bottom: 100px;
-  position: relative;
   background: var(--cloud);
 }
 
@@ -60,15 +59,12 @@ body {
 .header-container {
   padding: 24px 16px 32px;
   position: relative;
-  background: var(--cloud);
-  z-index: 5;
 }
 
 .header {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  position: relative;
 }
 
 .rabbit-icon {
@@ -85,8 +81,6 @@ body {
 }
 
 /* Speech Bubble */
-[speech-bubble], [speech-bubble] * { box-sizing: border-box; }
-
 [speech-bubble] {
   --bbColor: var(--cloud);
   --bbArrowSize: 0.8rem;
@@ -97,7 +91,6 @@ body {
   padding: var(--bbPadding);
   position: relative;
   border: 2px solid var(--beluga);
-  color: var(--basalt);
   width: 230px;
   min-height: 60px;
   display: flex;
@@ -110,29 +103,24 @@ body {
   flex-grow: 1;
 }
 
-[speech-bubble]::before,
-[speech-bubble]::after {
-  content: ''; 
+[speech-bubble]::before {
+  content: '';
   position: absolute;
-  z-index: 1;
-}
-
-[speech-bubble][pleft]::before {
   right: 100%;
   border: solid transparent;
   border-width: calc(var(--bbArrowSize) * 0.75) var(--bbArrowSize) calc(var(--bbArrowSize) * 0.75) 0;
   border-right-color: var(--beluga);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
-[speech-bubble][pleft]::after {
+[speech-bubble]::after {
+  content: '';
+  position: absolute;
   right: calc(100% - 2px);
   border: solid transparent;
   border-width: calc(var(--bbArrowSize) * 0.75 - 2px) calc(var(--bbArrowSize) - 2px) calc(var(--bbArrowSize) * 0.75 - 2px) 0;
   border-right-color: var(--bbColor);
-}
-
-[speech-bubble][pleft][acenter]::before,
-[speech-bubble][pleft][acenter]::after {
   top: 50%;
   transform: translateY(-50%);
 }
@@ -142,16 +130,15 @@ body {
   border-top: 1px solid var(--beluga);
   border-bottom: 1px solid var(--beluga);
   margin-top: -1px;
-  background-color: var(--cloud);
-  position: relative;
 }
 
-.section:first-of-type { border-top: none; }
+.section:first-of-type {
+  border-top: none;
+}
 
 .section.matric-section {
   margin-top: 40px;
   border-top: 8px solid var(--arctic);
-  border-bottom: 1px solid var(--beluga);
 }
 
 .section-title {
@@ -163,19 +150,10 @@ body {
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  background-color: transparent;
-  position: relative;
-  z-index: 2;
-  background: var(--cloud);
-  color: var(--basalt);
 }
 
-.section-title:hover { background-color: var(--arctic); }
-
-.section-title h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
+.section-title:hover {
+  background-color: var(--arctic);
 }
 
 .section-title i {
@@ -184,20 +162,21 @@ body {
   transition: transform 0.3s ease;
 }
 
-.section.open .section-title i { transform: rotate(180deg); }
+.section.open .section-title i {
+  transform: rotate(180deg);
+}
 
 /* Course list */
 .course-list {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), padding 0.3s ease;
+  transition: max-height 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
   padding: 0 16px;
-  background: var(--cloud);
 }
 
 .section.open .course-list {
   max-height: 800px;
-  padding: 8px 16px 20px 16px;
+  padding: 8px 16px 20px;
 }
 
 .course {
@@ -212,11 +191,8 @@ body {
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: border 0.15s ease, background 0.15s ease, transform 0.1s ease;
-  color: var(--basalt);
+  transition: all 0.15s ease;
 }
-
-.course:last-of-type { margin-bottom: 8px; }
 
 .course:hover {
   background: var(--arctic);
@@ -226,11 +202,12 @@ body {
 .course.selected {
   background: rgba(28, 176, 246, 0.12);
   border: 2px solid var(--gecko);
-  box-shadow: 0 2px 6px rgba(28, 176, 246, 0.2);
   color: var(--gecko);
 }
 
-.course.selected span:not(.subject-icon) { color: var(--gecko); }
+.course.selected .subject-icon img {
+  filter: brightness(0.95) saturate(1.2);
+}
 
 .subject-icon {
   width: 34px;
@@ -246,7 +223,7 @@ body {
   object-fit: cover;
 }
 
-/* Continue Button Container */
+/* Continue button */
 .continue-wrap {
   position: fixed;
   bottom: 0;
@@ -260,164 +237,98 @@ body {
   z-index: 100;
 }
 
-/* Using button system - the continue button will be generated by JavaScript */
-#continueBtn {
+.continue {
   max-width: 388px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 @media (max-width: 400px) {
-  .section.open .course-list { padding: 8px 12px 20px 12px; }
-  .course { padding: 12px; gap: 12px; }
+  .section.open .course-list {
+    padding: 8px 12px 20px;
+  }
+  .course {
+    padding: 12px;
+    gap: 12px;
+  }
 }
 </style>
 </head>
 
 <body>
 <div class="screen">
-
   <div class="header-container">
     <div class="header">
       <div class="rabbit-icon">
         <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vusi">
       </div>
-      <div speech-bubble pleft acenter style="--bbColor:var(--cloud)">
-        What would you like to learn?
-      </div>
+      <div speech-bubble pleft acenter>What would you like to learn?</div>
     </div>
   </div>
 
-  <!-- Commerce Section -->
-  <div class="section">
-    <div class="section-title">
-      <h3>Commerce</h3>
-      <i class="ph-bold ph-caret-down"></i>
-    </div>
+  <div class="section" data-category="commerce">
+    <div class="section-title"><span>Commerce</span><i class="ph-bold ph-caret-down"></i></div>
     <div class="course-list">
-      <div class="course" data-course="Financial Accounting" data-course-id="financial-accounting">
-        <div class="subject-icon">
-          <img src="public/assets/images/logos/financial-accounting.png" alt="Financial Accounting" onerror="this.src='public/assets/images/logos/default-course.svg'">
-        </div>
+      <div class="course" data-course-id="FIN-001" data-course-name="Financial Accounting">
+        <div class="subject-icon"><img src="public/assets/courses/financial-accounting.png" alt="Financial Accounting"></div>
         Financial Accounting
       </div>
     </div>
   </div>
 
-  <!-- Humanities Section -->
-  <div class="section">
-    <div class="section-title">
-      <h3>Humanities</h3>
-      <i class="ph-bold ph-caret-down"></i>
-    </div>
+  <div class="section" data-category="humanities">
+    <div class="section-title"><span>Humanities</span><i class="ph-bold ph-caret-down"></i></div>
     <div class="course-list">
-      <div class="course" data-course="International Law" data-course-id="international-law">
-        <div class="subject-icon">
-          <img src="public/assets/images/logos/international-law.png" alt="International Law" onerror="this.src='public/assets/images/logos/default-course.svg'">
-        </div>
+      <div class="course" data-course-id="LAW-001" data-course-name="International Law">
+        <div class="subject-icon"><img src="public/assets/courses/international-law.png" alt="International Law"></div>
         International Law
       </div>
     </div>
   </div>
 
-  <!-- Medical Sciences Section -->
-  <div class="section">
-    <div class="section-title">
-      <h3>Medical Sciences</h3>
-      <i class="ph-bold ph-caret-down"></i>
-    </div>
+  <div class="section" data-category="medical">
+    <div class="section-title"><span>Medical Sciences</span><i class="ph-bold ph-caret-down"></i></div>
     <div class="course-list">
-      <div class="course" data-course="Clinical Pharmacy" data-course-id="clinical-pharmacy">
-        <div class="subject-icon">
-          <img src="public/assets/images/logos/clinical-pharmacy.png" alt="Clinical Pharmacy" onerror="this.src='public/assets/images/logos/default-course.svg'">
-        </div>
+      <div class="course" data-course-id="MED-001" data-course-name="Clinical Pharmacy">
+        <div class="subject-icon"><img src="public/assets/courses/clinical-pharmacy.png" alt="Clinical Pharmacy"></div>
         Clinical Pharmacy
       </div>
-      <div class="course" data-course="Pharmacology-II" data-course-id="pharmacology-ii">
-        <div class="subject-icon">
-          <img src="public/assets/images/logos/pharmacology-ii.png" alt="Pharmacology-II" onerror="this.src='public/assets/images/logos/default-course.svg'">
-        </div>
+      <div class="course" data-course-id="MED-002" data-course-name="Pharmacology-II">
+        <div class="subject-icon"><img src="public/assets/courses/pharmacology-ii.png" alt="Pharmacology-II"></div>
         Pharmacology-II
       </div>
     </div>
   </div>
 
-  <!-- Science & Technology Section -->
-  <div class="section">
-    <div class="section-title">
-      <h3>Science & Technology</h3>
-      <i class="ph-bold ph-caret-down"></i>
-    </div>
+  <div class="section" data-category="technology">
+    <div class="section-title"><span>Science & Technology</span><i class="ph-bold ph-caret-down"></i></div>
     <div class="course-list">
-      <div class="course" data-course="Java Programming" data-course-id="java-programming">
-        <div class="subject-icon">
-          <img src="public/assets/images/logos/java-programming.png" alt="Java Programming" onerror="this.src='public/assets/images/logos/default-course.svg'">
-        </div>
+      <div class="course" data-course-id="TECH-001" data-course-name="Java Programming">
+        <div class="subject-icon"><img src="public/assets/courses/java-programming.png" alt="Java Programming"></div>
         Java Programming
       </div>
-      <div class="course" data-course="Web Design" data-course-id="web-design">
-        <div class="subject-icon">
-          <img src="public/assets/images/logos/web-design.png" alt="Web Design" onerror="this.src='public/assets/images/logos/default-course.svg'">
-        </div>
+      <div class="course" data-course-id="TECH-002" data-course-name="Web Design">
+        <div class="subject-icon"><img src="public/assets/courses/web-design.png" alt="Web Design"></div>
         Web Design
       </div>
     </div>
   </div>
 
-  <!-- Matric (NSC) Section -->
-  <div class="section matric-section">
-    <div class="section-title">
-      <h3>Matric (NSC)</h3>
-      <i class="ph-bold ph-caret-down"></i>
-    </div>
+  <div class="section matric-section" data-category="matric">
+    <div class="section-title"><span>Matric (NSC)</span><i class="ph-bold ph-caret-down"></i></div>
     <div class="course-list">
-      <div class="course" data-course="G12 Life Sciences" data-course-id="g12-life-sciences">
-        <div class="subject-icon">
-          <img src="public/assets/images/logos/g12-life-sciences.png" alt="G12 Life Sciences" onerror="this.src='public/assets/images/logos/default-course.svg'">
-        </div>
+      <div class="course" data-course-id="SCI-001" data-course-name="G12 Life Sciences">
+        <div class="subject-icon"><img src="public/assets/courses/g12-life-sciences.png" alt="G12 Life Sciences"></div>
         G12 Life Sciences
       </div>
     </div>
   </div>
-
 </div>
 
-<!-- Continue Button Container -->
 <div class="continue-wrap">
-  <div id="continueBtn"></div>
+  <button class="btn btn-carpenter-blue continue" id="continueBtn" disabled>CONTINUE</button>
 </div>
 
-<script src="src/styles/components/buttons.js"></script>
 <script>
-// Store selected course
-let selectedCourse = null;
-
-// Function to save selected course to localStorage (temporary storage)
-function saveSelectedCourse(course) {
-  if (course) {
-    localStorage.setItem('selectedCourse', JSON.stringify({
-      name: course.dataset.course,
-      id: course.dataset.courseId,
-      selectedAt: new Date().toISOString()
-    }));
-    console.log('Course saved:', course.dataset.course);
-  }
-}
-
-// Handle course selection
-function handleCourseSelection(selected) {
-  courses.forEach(c => c.classList.remove('selected'));
-  selected.classList.add('selected');
-  selectedCourse = selected;
-  
-  // Save to localStorage
-  saveSelectedCourse(selected);
-  
-  // Enable button
-  continueBtn.disabled = false;
-  continueBtn.classList.add('enabled');
-  continueBtn.style.cursor = 'pointer';
-}
-
 // Expand/Collapse sections
 document.querySelectorAll('.section-title').forEach(title => {
   title.addEventListener('click', (e) => {
@@ -429,27 +340,26 @@ document.querySelectorAll('.section-title').forEach(title => {
 
 // Course selection
 const courses = document.querySelectorAll('.course');
-const continueBtnContainer = document.getElementById('continueBtn');
-
-// Create button using VulanetButton class
-const continueButton = VulanetButton.createButton({
-  text: 'CONTINUE',
-  type: 'carpenter-blue',
-  size: 'md',
-  disabled: true,
-  onClick: () => {
-    if (selectedCourse) {
-      const courseName = selectedCourse.dataset.course;
-      const courseId = selectedCourse.dataset.courseId;
-      console.log('Selected course:', courseName, 'ID:', courseId);
-      // Redirect to onboarding flow
-      window.location.href = `onboarding.html?course=${courseId}`;
-    }
-  }
-});
-
-continueBtnContainer.appendChild(continueButton);
 const continueBtn = document.getElementById('continueBtn');
+let selectedCourseId = null;
+
+function handleCourseSelection(courseElement) {
+  courses.forEach(c => c.classList.remove('selected'));
+  courseElement.classList.add('selected');
+  selectedCourseId = courseElement.dataset.courseId;
+  continueBtn.disabled = false;
+  
+  // Ensure selected course is visible
+  const section = courseElement.closest('.section');
+  if (section && !section.classList.contains('open')) {
+    section.classList.add('open');
+    setTimeout(() => {
+      courseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 50);
+  } else {
+    courseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
 
 courses.forEach(course => {
   course.addEventListener('click', (e) => {
@@ -458,15 +368,13 @@ courses.forEach(course => {
   });
 });
 
-// Check if there's a previously selected course (e.g., from "Add Course" flow)
-const savedCourse = localStorage.getItem('selectedCourse');
-if (savedCourse) {
-  const courseData = JSON.parse(savedCourse);
-  const matchingCourse = Array.from(courses).find(c => c.dataset.courseId === courseData.id);
-  if (matchingCourse) {
-    handleCourseSelection(matchingCourse);
+continueBtn.addEventListener('click', () => {
+  if (selectedCourseId) {
+    // Save selected course to localStorage for onboarding flow
+    localStorage.setItem('selectedCourseId', selectedCourseId);
+    window.location.href = 'onboarding.html';
   }
-}
+});
 </script>
 </body>
 </html>
