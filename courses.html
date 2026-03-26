@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Choose a Course — Vulanet</title>
+
+<!-- Local Fonts & Styles -->
+<link rel="stylesheet" href="public/assets/fonts/fonts.css">
+<link rel="stylesheet" href="src/styles/components/buttons.css">
+
+<style>
+/* ===== COLOR & TYPOGRAPHY GUIDELINES ===== */
+:root {
+  --carpenter-blue: #4285F4;
+  --belly-blue: #7B9FE0;
+  --basalt: #4B4B4B;
+  --cloud: #FFFFFF;
+  --gecko: #1CB0F6;
+  --ladybug: #EA4335;
+  --bee: #FBBC05;
+  --tiger: #FF6D01;
+  --beetle: #AA00FF;
+  --boa: #34A853;
+  --hippo: #777777;
+  --koala: #AFAFAF;
+  --beluga: #E5E5E5;
+  --arctic: #F7F7F7;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  cursor: default;
+}
+
+body {
+  margin: 0;
+  font-family: 'Atkinson Hyperlegible Next', sans-serif;
+  background: var(--cloud);
+  color: var(--basalt);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.4;
+  font-size: 0.9rem;
+}
+
+.screen {
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 100px;
+  position: relative;
+  background: var(--cloud);
+}
+
+/* Header */
+.header-container {
+  padding: 24px 16px 32px;
+  position: relative;
+  background: var(--cloud);
+  z-index: 5;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+}
+
+.rabbit-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+}
+
+.rabbit-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%);
+}
+
+/* Speech Bubble */
+[speech-bubble], [speech-bubble] * { box-sizing: border-box; }
+
+[speech-bubble] {
+  --bbColor: var(--cloud);
+  --bbArrowSize: 0.8rem;
+  --bbBorderRadius: 0.8rem;
+  --bbPadding: 0.8rem;
+  background: var(--bbColor);
+  border-radius: var(--bbBorderRadius);
+  padding: var(--bbPadding);
+  position: relative;
+  border: 2px solid var(--beluga);
+  color: var(--basalt);
+  width: 230px;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  font-size: 16px;
+  margin-left: var(--bbArrowSize);
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+  flex-grow: 1;
+}
+
+[speech-bubble]::before,
+[speech-bubble]::after {
+  content: ''; 
+  position: absolute;
+  z-index: 1;
+}
+
+[speech-bubble][pleft]::before {
+  right: 100%;
+  border: solid transparent;
+  border-width: calc(var(--bbArrowSize) * 0.75) var(--bbArrowSize) calc(var(--bbArrowSize) * 0.75) 0;
+  border-right-color: var(--beluga);
+}
+
+[speech-bubble][pleft]::after {
+  right: calc(100% - 2px);
+  border: solid transparent;
+  border-width: calc(var(--bbArrowSize) * 0.75 - 2px) calc(var(--bbArrowSize) - 2px) calc(var(--bbArrowSize) * 0.75 - 2px) 0;
+  border-right-color: var(--bbColor);
+}
+
+[speech-bubble][pleft][acenter]::before,
+[speech-bubble][pleft][acenter]::after {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Sections */
+.section {
+  border-top: 1px solid var(--beluga);
+  border-bottom: 1px solid var(--beluga);
+  margin-top: -1px;
+  background-color: var(--cloud);
+  position: relative;
+}
+
+.section:first-of-type { border-top: none; }
+
+.section.matric-section {
+  margin-top: 40px;
+  border-top: 8px solid var(--arctic);
+  border-bottom: 1px solid var(--beluga);
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  background-color: transparent;
+  position: relative;
+  z-index: 2;
+  background: var(--cloud);
+  color: var(--basalt);
+}
+
+.section-title:hover { background-color: var(--arctic); }
+
+.section-title h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.section-title i {
+  font-size: 18px;
+  color: var(--koala);
+  transition: transform 0.3s ease;
+}
+
+.section.open .section-title i { transform: rotate(180deg); }
+
+/* Course list */
+.course-list {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), padding 0.3s ease;
+  padding: 0 16px;
+  background: var(--cloud);
+}
+
+.section.open .course-list {
+  max-height: 800px;
+  padding: 8px 16px 20px 16px;
+}
+
+.course {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  border-radius: 14px;
+  border: 2px solid var(--beluga);
+  background: var(--cloud);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  color: var(--basalt);
+}
+
+.course:last-of-type { margin-bottom: 8px; }
+
+.course:hover {
+  background: var(--arctic);
+  transform: translateY(-2px);
+}
+
+.course.selected {
+  background: rgba(28, 176, 246, 0.12);
+  border: 2px solid var(--gecko);
+  box-shadow: 0 2px 6px rgba(28, 176, 246, 0.2);
+  color: var(--gecko);
+}
+
+.course.selected span:not(.subject-icon) { color: var(--gecko); }
+
+.subject-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.subject-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Continue Button Container */
+.continue-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  background: var(--cloud);
+  padding: 14px 16px 22px;
+  border-top: 1px solid var(--beluga);
+  z-index: 100;
+}
+
+/* Using button system - the continue button will be generated by JavaScript */
+#continueBtn {
+  max-width: 388px;
+  margin: 0 auto;
+}
+
+@media (max-width: 400px) {
+  .section.open .course-list { padding: 8px 12px 20px 12px; }
+  .course { padding: 12px; gap: 12px; }
+}
+</style>
+</head>
+
+<body>
+<div class="screen">
+
+  <div class="header-container">
+    <div class="header">
+      <div class="rabbit-icon">
+        <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vusi">
+      </div>
+      <div speech-bubble pleft acenter style="--bbColor:var(--cloud)">
+        What would you like to learn?
+      </div>
+    </div>
+  </div>
+
+  <!-- Commerce Section -->
+  <div class="section">
+    <div class="section-title">
+      <h3>Commerce</h3>
+      <i class="ph-bold ph-caret-down"></i>
+    </div>
+    <div class="course-list">
+      <div class="course" data-course="Financial Accounting" data-course-id="financial-accounting">
+        <div class="subject-icon">
+          <img src="public/assets/images/logos/financial-accounting.png" alt="Financial Accounting" onerror="this.src='public/assets/images/logos/default-course.svg'">
+        </div>
+        Financial Accounting
+      </div>
+    </div>
+  </div>
+
+  <!-- Humanities Section -->
+  <div class="section">
+    <div class="section-title">
+      <h3>Humanities</h3>
+      <i class="ph-bold ph-caret-down"></i>
+    </div>
+    <div class="course-list">
+      <div class="course" data-course="International Law" data-course-id="international-law">
+        <div class="subject-icon">
+          <img src="public/assets/images/logos/international-law.png" alt="International Law" onerror="this.src='public/assets/images/logos/default-course.svg'">
+        </div>
+        International Law
+      </div>
+    </div>
+  </div>
+
+  <!-- Medical Sciences Section -->
+  <div class="section">
+    <div class="section-title">
+      <h3>Medical Sciences</h3>
+      <i class="ph-bold ph-caret-down"></i>
+    </div>
+    <div class="course-list">
+      <div class="course" data-course="Clinical Pharmacy" data-course-id="clinical-pharmacy">
+        <div class="subject-icon">
+          <img src="public/assets/images/logos/clinical-pharmacy.png" alt="Clinical Pharmacy" onerror="this.src='public/assets/images/logos/default-course.svg'">
+        </div>
+        Clinical Pharmacy
+      </div>
+      <div class="course" data-course="Pharmacology-II" data-course-id="pharmacology-ii">
+        <div class="subject-icon">
+          <img src="public/assets/images/logos/pharmacology-ii.png" alt="Pharmacology-II" onerror="this.src='public/assets/images/logos/default-course.svg'">
+        </div>
+        Pharmacology-II
+      </div>
+    </div>
+  </div>
+
+  <!-- Science & Technology Section -->
+  <div class="section">
+    <div class="section-title">
+      <h3>Science & Technology</h3>
+      <i class="ph-bold ph-caret-down"></i>
+    </div>
+    <div class="course-list">
+      <div class="course" data-course="Java Programming" data-course-id="java-programming">
+        <div class="subject-icon">
+          <img src="public/assets/images/logos/java-programming.png" alt="Java Programming" onerror="this.src='public/assets/images/logos/default-course.svg'">
+        </div>
+        Java Programming
+      </div>
+      <div class="course" data-course="Web Design" data-course-id="web-design">
+        <div class="subject-icon">
+          <img src="public/assets/images/logos/web-design.png" alt="Web Design" onerror="this.src='public/assets/images/logos/default-course.svg'">
+        </div>
+        Web Design
+      </div>
+    </div>
+  </div>
+
+  <!-- Matric (NSC) Section -->
+  <div class="section matric-section">
+    <div class="section-title">
+      <h3>Matric (NSC)</h3>
+      <i class="ph-bold ph-caret-down"></i>
+    </div>
+    <div class="course-list">
+      <div class="course" data-course="G12 Life Sciences" data-course-id="g12-life-sciences">
+        <div class="subject-icon">
+          <img src="public/assets/images/logos/g12-life-sciences.png" alt="G12 Life Sciences" onerror="this.src='public/assets/images/logos/default-course.svg'">
+        </div>
+        G12 Life Sciences
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Continue Button Container -->
+<div class="continue-wrap">
+  <div id="continueBtn"></div>
+</div>
+
+<script src="src/styles/components/buttons.js"></script>
+<script>
+// Store selected course
+let selectedCourse = null;
+
+// Function to save selected course to localStorage (temporary storage)
+function saveSelectedCourse(course) {
+  if (course) {
+    localStorage.setItem('selectedCourse', JSON.stringify({
+      name: course.dataset.course,
+      id: course.dataset.courseId,
+      selectedAt: new Date().toISOString()
+    }));
+    console.log('Course saved:', course.dataset.course);
+  }
+}
+
+// Handle course selection
+function handleCourseSelection(selected) {
+  courses.forEach(c => c.classList.remove('selected'));
+  selected.classList.add('selected');
+  selectedCourse = selected;
+  
+  // Save to localStorage
+  saveSelectedCourse(selected);
+  
+  // Enable button
+  continueBtn.disabled = false;
+  continueBtn.classList.add('enabled');
+  continueBtn.style.cursor = 'pointer';
+}
+
+// Expand/Collapse sections
+document.querySelectorAll('.section-title').forEach(title => {
+  title.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const section = title.parentElement;
+    section.classList.toggle('open');
+  });
+});
+
+// Course selection
+const courses = document.querySelectorAll('.course');
+const continueBtnContainer = document.getElementById('continueBtn');
+
+// Create button using VulanetButton class
+const continueButton = VulanetButton.createButton({
+  text: 'CONTINUE',
+  type: 'carpenter-blue',
+  size: 'md',
+  disabled: true,
+  onClick: () => {
+    if (selectedCourse) {
+      const courseName = selectedCourse.dataset.course;
+      const courseId = selectedCourse.dataset.courseId;
+      console.log('Selected course:', courseName, 'ID:', courseId);
+      // Redirect to onboarding flow
+      window.location.href = `onboarding.html?course=${courseId}`;
+    }
+  }
+});
+
+continueBtnContainer.appendChild(continueButton);
+const continueBtn = document.getElementById('continueBtn');
+
+courses.forEach(course => {
+  course.addEventListener('click', (e) => {
+    e.stopPropagation();
+    handleCourseSelection(course);
+  });
+});
+
+// Check if there's a previously selected course (e.g., from "Add Course" flow)
+const savedCourse = localStorage.getItem('selectedCourse');
+if (savedCourse) {
+  const courseData = JSON.parse(savedCourse);
+  const matchingCourse = Array.from(courses).find(c => c.dataset.courseId === courseData.id);
+  if (matchingCourse) {
+    handleCourseSelection(matchingCourse);
+  }
+}
+</script>
+</body>
+</html>
