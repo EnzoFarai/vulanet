@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Vulanet - The free, fun, and proven way to learn! Master new skills with our engaging courses and personalized learning experience.">
+  <meta name="description" content="Vulanet - The free, fun, and proven way to learn!">
   <title>Vulanet - The free, fun, and proven way to learn!</title>
   
   <!-- Local Fonts -->
@@ -13,45 +13,31 @@
   <link rel="stylesheet" href="src/styles/components/buttons.css">
   
   <style>
-    /* ===== VARIABLES ===== */
     :root {
-      /* CORE COLORS */
       --carpenter-blue: #4285F4;
       --belly-blue: #7B9FE0;
       --basalt: #4B4B4B;
       --cloud: #FFFFFF;
-      
-      /* SECONDARY COLORS */
       --gecko: #1CB0F6;
       --ladybug: #EA4335;
       --bee: #FBBC05;
       --tiger: #FF6D01;
       --beetle: #AA00FF;
       --boa: #34A853;
-      
-      /* NEUTRALS */
       --hippo: #777777;
       --koala: #AFAFAF;
       --beluga: #E5E5E5;
       --arctic: #F7F7F7;
-      
-      /* HEADER */
       --header-height: 70px;
-      
-      /* FONTS */
-      --brand-font: 'Bricolage Grotesque', 'Bricolage Grotesque Fallback', monospace;
-      --headline-font: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
+      --brand-font: 'Bricolage Grotesque', monospace;
+      --headline-font: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+      --borderwidth: 0.1vw;
+      --animationtime: 5s;
     }
     
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     
     html, body {
-      margin: 0;
-      padding: 0;
       min-height: 100vh;
       background: var(--cloud);
       font-family: var(--headline-font);
@@ -61,7 +47,7 @@
       color: var(--basalt);
     }
     
-    /* ===== HEADER ===== */
+    /* Header */
     .header {
       width: 100%;
       height: var(--header-height);
@@ -87,7 +73,6 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 20px;
-      transition: all 0.3s ease;
       position: relative;
     }
     
@@ -105,25 +90,12 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      transition: all 0.3s ease;
     }
     
-    .header.scrolled .brand-name {
-      display: none;
-    }
+    .header.scrolled .brand-name { display: none; }
     
-    .logo-rabbit {
-      width: 42px;
-      height: 42px;
-      display: block;
-    }
-    
-    .logo-rabbit img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%);
-    }
+    .logo-rabbit { width: 42px; height: 42px; }
+    .logo-rabbit img { width: 100%; height: 100%; display: block; filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%); }
     
     .brand-name {
       font-family: var(--brand-font);
@@ -151,29 +123,17 @@
       border-bottom: 0.25rem solid #3a75d9;
     }
     
-    .header.scrolled .header-btn {
-      opacity: 1;
-      visibility: visible;
-    }
+    .header.scrolled .header-btn { opacity: 1; visibility: visible; }
+    .header-btn:hover { background: #3a75d9; transform: translateY(-2px); }
+    .header-btn:active { transform: translateY(2px); border-bottom-width: 0.125rem; }
     
-    .header-btn:hover {
-      background: #3a75d9;
-      transform: translateY(-2px);
-    }
-    
-    .header-btn:active {
-      transform: translateY(2px);
-      border-bottom-width: 0.125rem;
-    }
-    
-    /* ===== WELCOME SECTION ===== */
+    /* Welcome Section */
     .welcome-section {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding-top: var(--header-height);
-      background: var(--cloud);
     }
     
     .welcome-content {
@@ -225,18 +185,8 @@
       background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.02));
     }
     
-    .ph-rabbit {
-      width: 120px;
-      height: 120px;
-      animation: rabbit-bounce 1400ms cubic-bezier(.25,.9,.35,1) infinite;
-    }
-    
-    .ph-rabbit img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%);
-    }
+    .ph-rabbit { width: 120px; height: 120px; animation: rabbit-bounce 1400ms cubic-bezier(.25,.9,.35,1) infinite; }
+    .ph-rabbit img { width: 100%; height: 100%; display: block; filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%); }
     
     @keyframes rabbit-bounce {
       0% { transform: translateY(0) rotate(0deg); }
@@ -270,39 +220,15 @@
       cursor: pointer;
     }
     
-    .icon-box:hover {
-      transform: translateY(-3px) scale(1.05);
-      animation-play-state: paused;
-    }
+    .icon-box:hover { transform: translateY(-3px) scale(1.05); animation-play-state: paused; }
+    .icon-box:nth-child(1), .icon-box:nth-child(3) { margin-left: 30px; }
     
-    .icon-box:nth-child(1),
-    .icon-box:nth-child(3) {
-      margin-left: 30px;
-    }
+    .icon-el { width: 44px; height: 44px; animation: icon-pulse 1.4s infinite ease-in-out; }
+    .icon-el img { width: 100%; height: 100%; display: block; }
     
-    .icon-el {
-      width: 44px;
-      height: 44px;
-      animation: icon-pulse 1.4s infinite ease-in-out;
-    }
-    
-    .icon-el img {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    
-    .icon-box:nth-child(1) .icon-el {
-      filter: brightness(0) saturate(100%) invert(79%) sepia(39%) saturate(1050%) hue-rotate(342deg) brightness(100%) contrast(97%);
-    }
-    
-    .icon-box:nth-child(2) .icon-el {
-      filter: brightness(0) saturate(100%) invert(48%) sepia(98%) saturate(1425%) hue-rotate(161deg) brightness(97%) contrast(101%);
-    }
-    
-    .icon-box:nth-child(3) .icon-el {
-      filter: brightness(0) saturate(100%) invert(50%) sepia(78%) saturate(1037%) hue-rotate(96deg) brightness(93%) contrast(91%);
-    }
+    .icon-box:nth-child(1) .icon-el { filter: brightness(0) saturate(100%) invert(79%) sepia(39%) saturate(1050%) hue-rotate(342deg) brightness(100%) contrast(97%); }
+    .icon-box:nth-child(2) .icon-el { filter: brightness(0) saturate(100%) invert(48%) sepia(98%) saturate(1425%) hue-rotate(161deg) brightness(97%) contrast(101%); }
+    .icon-box:nth-child(3) .icon-el { filter: brightness(0) saturate(100%) invert(50%) sepia(78%) saturate(1037%) hue-rotate(96deg) brightness(93%) contrast(91%); }
     
     @keyframes icon-pulse {
       0% { transform: scale(1); opacity: 1; }
@@ -321,19 +247,12 @@
       font-weight: 700;
       margin: 12px 0 2rem;
       text-align: center;
-      letter-spacing: -0.01em;
     }
     
-    /* Buttons using the component system */
-    .main-btn {
-      margin-bottom: 1.1rem;
-    }
+    .main-btn { margin-bottom: 1.1rem; }
+    .secondary-btn { margin-bottom: 0.21rem; }
     
-    .secondary-btn {
-      margin-bottom: 0.21rem;
-    }
-    
-    /* ===== CONTENT SECTIONS ===== */
+    /* Content Sections */
     .content-container {
       display: flex;
       flex-direction: column;
@@ -351,14 +270,9 @@
       margin: 0 auto;
     }
     
-    .vulanet-description {
-      padding-top: 0;
-    }
+    .vulanet-description { padding-top: 0; }
     
-    @keyframes pulse-main {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-    }
+    @keyframes pulse-main { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
     
     .icon-container {
       display: flex;
@@ -368,60 +282,20 @@
       align-items: center;
     }
     
-    .material-icon-container {
-      width: 180px;
-      height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .material-icon-container { width: 180px; height: 180px; display: flex; align-items: center; justify-content: center; }
+    .material-icon { width: 120px; height: 120px; animation: pulse-main 3s infinite; }
+    .material-icon img { width: 100%; height: 100%; display: block; }
+    .vulanet-description .material-icon img { filter: brightness(0) saturate(100%) invert(31%) sepia(86%) saturate(2382%) hue-rotate(342deg) brightness(92%) contrast(91%); }
     
-    .material-icon {
-      width: 120px;
-      height: 120px;
-      animation: pulse-main 3s infinite;
-    }
-    
-    .material-icon img {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    
-    .vulanet-description .material-icon img {
-      filter: brightness(0) saturate(100%) invert(31%) sepia(86%) saturate(2382%) hue-rotate(342deg) brightness(92%) contrast(91%);
-    }
-    
-    .custom-icon-container {
-      width: 180px;
-      height: 180px;
-      margin: 0 auto;
-    }
-    
-    .custom-icon {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      height: 100%;
-    }
-    
-    .custom-icon div {
-      position: absolute;
-      box-sizing: border-box;
-      border: 0.1vw solid;
-      overflow: hidden;
-    }
-    
-    .moon, .planetoid, .planet {
-      border-radius: 50%;
-      background: white;
-    }
-    
+    .custom-icon-container { width: 180px; height: 180px; margin: 0 auto; position: relative; }
+    .custom-icon { position: relative; width: 100%; height: 100%; }
+    .custom-icon div { position: absolute; border: var(--borderwidth) solid; overflow: hidden; }
+    .moon, .planetoid, .planet { border-radius: 50%; background: white; }
     .icon2 div { border-color: var(--ladybug); }
     .icon3 div { border-color: var(--bee); }
     .icon4 div { border-color: var(--boa); }
     
-    /* Animation keyframes (truncated for brevity - same as before) */
+    /* Animation keyframes (simplified - same as before) */
     .tagline {
       font-family: var(--brand-font);
       font-size: 2.4rem;
@@ -439,19 +313,10 @@
       margin: 0 auto;
     }
     
-    .research-link {
-      color: var(--gecko);
-      font-weight: 700;
-      text-decoration: none;
-    }
+    .research-link { color: var(--gecko); font-weight: 700; text-decoration: none; }
+    .research-link:hover { text-decoration: underline; }
     
-    .research-link:hover {
-      text-decoration: underline;
-    }
-    
-    .cta-section {
-      padding: 60px 20px;
-    }
+    .cta-section { padding: 60px 20px; }
     
     .bouncing-rabbit-container {
       position: relative;
@@ -488,15 +353,8 @@
       animation: shadow 0.5s infinite alternate ease-in-out;
     }
     
-    @keyframes bounce {
-      0% { top: 10px; }
-      100% { top: 140px; }
-    }
-    
-    @keyframes shadow {
-      0% { width: 70px; height: 20px; opacity: 0.6; }
-      100% { width: 50px; height: 10px; opacity: 0.2; }
-    }
+    @keyframes bounce { 0% { top: 10px; } 100% { top: 140px; } }
+    @keyframes shadow { 0% { width: 70px; height: 20px; opacity: 0.6; } 100% { width: 50px; height: 10px; opacity: 0.2; } }
     
     .cta-tagline {
       font-family: var(--brand-font);
@@ -508,11 +366,7 @@
       text-transform: lowercase;
     }
     
-    .cta-button {
-      margin-top: 20px;
-    }
-    
-    /* ===== FOOTER ===== */
+    /* Footer */
     .footer-wrapper {
       background-color: var(--carpenter-blue);
       width: 100%;
@@ -535,36 +389,12 @@
       margin-bottom: 30px;
     }
     
-    .footer-col {
-      min-width: 140px;
-    }
-    
-    .footer-col h4 {
-      font-size: 1.07rem;
-      font-weight: 600;
-      margin-bottom: 15px;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-      padding-bottom: 8px;
-    }
-    
-    .footer-col ul {
-      list-style: none;
-    }
-    
-    .footer-col ul li {
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-    }
-    
-    .footer-col ul li a {
-      color: rgba(255,255,255,0.8);
-      text-decoration: none;
-    }
-    
-    .footer-col ul li a:hover {
-      color: white;
-      text-decoration: underline;
-    }
+    .footer-col { min-width: 140px; }
+    .footer-col h4 { font-size: 1.07rem; font-weight: 600; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; font-size: 0.95rem; }
+    .footer-col ul li a { color: rgba(255,255,255,0.8); text-decoration: none; }
+    .footer-col ul li a:hover { color: white; text-decoration: underline; }
     
     .footer-logo h1 {
       font-family: var(--brand-font);
@@ -575,12 +405,7 @@
       font-weight: 800;
       letter-spacing: -0.02em;
     }
-    
-    .footer-logo h1 span {
-      display: inline-block;
-      animation: footer-bounce 1.5s infinite ease-in-out;
-    }
-    
+    .footer-logo h1 span { display: inline-block; animation: footer-bounce 1.5s infinite ease-in-out; }
     .ud_1 { animation-delay: 0s; }
     .ud_2 { animation-delay: 0.075s; }
     .ud_3 { animation-delay: 0.15s; }
@@ -589,47 +414,15 @@
     .ud_6 { animation-delay: 0.375s; }
     .ud_7 { animation-delay: 0.45s; }
     
-    @keyframes footer-bounce {
-      0%, 20%, 100% { transform: translateY(0); }
-      10% { transform: translateY(-5px); }
-    }
+    @keyframes footer-bounce { 0%, 20%, 100% { transform: translateY(0); } 10% { transform: translateY(-5px); } }
     
-    .footer-divider {
-      height: 1px;
-      background: rgba(255,255,255,0.2);
-      margin: 20px 0;
-    }
+    .footer-divider { height: 1px; background: rgba(255,255,255,0.2); margin: 20px 0; }
+    .footer-bottom { display: flex; justify-content: center; }
+    .footer-social { display: flex; gap: 24px; }
+    .footer-social a { display: inline-block; width: 24px; height: 24px; opacity: 0.8; }
+    .footer-social a:hover { opacity: 1; transform: translateY(-2px); }
+    .footer-social a img { width: 100%; height: 100%; display: block; filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%); }
     
-    .footer-bottom {
-      display: flex;
-      justify-content: center;
-    }
-    
-    .footer-social {
-      display: flex;
-      gap: 24px;
-    }
-    
-    .footer-social a {
-      display: inline-block;
-      width: 24px;
-      height: 24px;
-      opacity: 0.8;
-    }
-    
-    .footer-social a:hover {
-      opacity: 1;
-      transform: translateY(-2px);
-    }
-    
-    .footer-social a img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
-    }
-    
-    /* Responsive */
     @media (max-width: 768px) {
       .tagline { font-size: 1.9rem; }
       .description { font-size: 1.1rem; }
@@ -643,10 +436,7 @@
       .cta-tagline { font-size: 1.8rem; }
       .bouncing-rabbit { width: 60px; height: 60px; }
       .bouncing-rabbit-container { height: 160px; }
-      @keyframes bounce {
-        0% { top: 10px; }
-        100% { top: 120px; }
-      }
+      @keyframes bounce { 0% { top: 10px; } 100% { top: 120px; } }
     }
   </style>
 </head>
@@ -655,7 +445,7 @@
     <div class="header-inner">
       <div class="logo-container">
         <div class="logo-rabbit">
-          <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vulanet Rabbit Logo">
+          <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vulanet Rabbit">
         </div>
         <span class="brand-name">vulanet</span>
       </div>
@@ -674,171 +464,60 @@
           </div>
           
           <div class="floating-icons">
-            <div class="icon-box">
-              <div class="icon-el">
-                <img src="public/assets/icons/material-symbols/outline/school.svg" alt="School">
-              </div>
-            </div>
-            <div class="icon-box">
-              <div class="icon-el">
-                <img src="public/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition">
-              </div>
-            </div>
-            <div class="icon-box">
-              <div class="icon-el">
-                <img src="public/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz">
-              </div>
-            </div>
+            <div class="icon-box"><div class="icon-el"><img src="public/assets/icons/material-symbols/outline/school.svg" alt="School"></div></div>
+            <div class="icon-box"><div class="icon-el"><img src="public/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition"></div></div>
+            <div class="icon-box"><div class="icon-el"><img src="public/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz"></div></div>
           </div>
         </div>
       </div>
       
       <h1 class="headline">The free, fun, and proven way to learn!</h1>
-      <button class="btn btn-carpenter-blue main-btn" id="get-started-btn" onclick="handleGetStarted()">GET STARTED</button>
-      <button class="btn btn-cloud-outline secondary-btn" onclick="handleAlreadyAccount()">I ALREADY HAVE AN ACCOUNT</button>
+      <button class="btn btn-carpenter-blue main-btn" onclick="window.location.href='courses.html'">GET STARTED</button>
+      <button class="btn btn-cloud-outline secondary-btn" onclick="window.location.href='login.html'">I ALREADY HAVE AN ACCOUNT</button>
     </div>
   </section>
   
   <div class="content-container">
     <div class="vulanet-description">
-      <div class="icon-container">
-        <div class="material-icon-container">
-          <div class="material-icon">
-            <img src="public/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition">
-          </div>
-        </div>
-      </div>
+      <div class="icon-container"><div class="material-icon-container"><div class="material-icon"><img src="public/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition"></div></div></div>
       <div class="tagline">free. fun. proven.</div>
-      <p class="description">
-        Learning with Vulanet is fun, and <a href="#" class="research-link">we have the research to prove it</a>! 
-        With quick, easy-to-grasp lessons, you'll earn points and reach new levels while gaining real-world skills.
-      </p>
+      <p class="description">Learning with Vulanet is fun, and <a href="#" class="research-link">we have the research to prove it</a>! With quick, easy-to-grasp lessons, you'll earn points and reach new levels while gaining real-world skills.</p>
     </div>
 
     <div class="research-section">
-      <div class="icon-container">
-        <div class="custom-icon-container">
-          <div class="custom-icon icon2">
-            <div class="moon top"></div>
-            <div class="planet"></div>
-            <div class="ring"></div>
-            <div class="ring planet"></div>
-            <div class="planetoid"></div>
-            <div class="moon bottom"></div>
-          </div>
-        </div>
-      </div>
+      <div class="icon-container"><div class="custom-icon-container"><div class="custom-icon icon2"><div class="moon top"></div><div class="planet"></div><div class="ring"></div><div class="ring planet"></div><div class="planetoid"></div><div class="moon bottom"></div></div></div></div>
       <div class="tagline">backed by research</div>
-      <p class="description">
-        Working with leading experts and professionals, we use a combination of science-proven teaching methods 
-        and exciting content to create courses that effectively achieve all your goals.
-      </p>
+      <p class="description">Working with leading experts and professionals, we use a combination of science-proven teaching methods and exciting content to create courses that effectively achieve all your goals.</p>
     </div>
 
     <div class="track-section">
-      <div class="icon-container">
-        <div class="custom-icon-container">
-          <div class="custom-icon icon3">
-            <div class="telescope">
-              <div class="body">
-                <div class="line line1"></div>
-                <div class="line line2"></div>
-                <div class="line line3"></div>
-                <div class="line line4"></div>
-              </div>
-              <div class="lens"></div>
-            </div>
-            <div class="tripod">
-              <div class="anchor"></div>
-              <div class="foot left"></div>
-              <div class="foot mid"></div>
-              <div class="foot right"></div>
-            </div>
-            <div class="ground"></div>
-          </div>
-        </div>
-      </div>
+      <div class="icon-container"><div class="custom-icon-container"><div class="custom-icon icon3"><div class="telescope"><div class="body"><div class="line line1"></div><div class="line line2"></div><div class="line line3"></div><div class="line line4"></div></div><div class="lens"></div></div><div class="tripod"><div class="anchor"></div><div class="foot left"></div><div class="foot mid"></div><div class="foot right"></div></div><div class="ground"></div></div></div></div>
       <div class="tagline">stay on track</div>
-      <p class="description">
-        We make it easier to form a habit of learning with game-like features, fun challenges and guidance 
-        from our friendly mascot, Vusi the rabbit.
-      </p>
+      <p class="description">We make it easier to form a habit of learning with game-like features, fun challenges and guidance from our friendly mascot, Vusi the rabbit.</p>
     </div>
 
     <div class="personalized-section">
-      <div class="icon-container">
-        <div class="custom-icon-container">
-          <div class="custom-icon icon4">
-            <div class="planetoid"></div>
-            <div class="sattelite">
-              <div class="solarpanel left"></div>
-              <div class="body"></div>
-              <div class="solarpanel right"></div>
-              <div class="dish"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="icon-container"><div class="custom-icon-container"><div class="custom-icon icon4"><div class="planetoid"></div><div class="sattelite"><div class="solarpanel left"></div><div class="body"></div><div class="solarpanel right"></div><div class="dish"></div></div></div></div></div>
       <div class="tagline">personalized learning</div>
-      <p class="description">
-        Combining sophisticated algorithms and user preferences, lessons are tailored to help you learn 
-        at the perfect level and pace.
-      </p>
+      <p class="description">Combining sophisticated algorithms and user preferences, lessons are tailored to help you learn at the perfect level and pace.</p>
     </div>
 
     <div class="cta-section">
-      <div class="bouncing-rabbit-container">
-        <div class="bouncing-rabbit">
-          <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vulanet Rabbit">
-        </div>
-        <div class="rabbit-shadow"></div>
-      </div>
+      <div class="bouncing-rabbit-container"><div class="bouncing-rabbit"><img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vulanet Rabbit"></div><div class="rabbit-shadow"></div></div>
       <div class="cta-tagline">learn better with vulanet</div>
-      <button class="btn btn-carpenter-blue cta-button" onclick="handleGetStarted()">GET STARTED</button>
+      <button class="btn btn-carpenter-blue cta-button" onclick="window.location.href='courses.html'">GET STARTED</button>
     </div>
   </div>
 
   <div class="footer-wrapper">
     <footer class="footer-content">
-      <div class="footer-logo">
-        <h1>
-          <span class="ud_1">v</span>
-          <span class="ud_2">u</span>
-          <span class="ud_3">l</span>
-          <span class="ud_4">a</span>
-          <span class="ud_5">n</span>
-          <span class="ud_6">e</span>
-          <span class="ud_7">t</span>
-        </h1>
-      </div>
-      
+      <div class="footer-logo"><h1><span class="ud_1">v</span><span class="ud_2">u</span><span class="ud_3">l</span><span class="ud_4">a</span><span class="ud_5">n</span><span class="ud_6">e</span><span class="ud_7">t</span></h1></div>
       <div class="footer-row">
-        <div class="footer-col">
-          <h4>About us</h4>
-          <ul>
-            <li><a href="#">Courses</a></li>
-            <li><a href="#">Mission</a></li>
-            <li><a href="#">Blog</a></li>
-            <li><a href="#">Contact us</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Help and support</h4>
-          <ul><li><a href="#">Vulanet FAQs</a></li></ul>
-        </div>
-        <div class="footer-col">
-          <h4>Privacy and terms</h4>
-          <ul>
-            <li><a href="#">Community guidelines</a></li>
-            <li><a href="#">Terms</a></li>
-            <li><a href="#">Privacy</a></li>
-            <li><a href="#">Do Not Sell or Share My Personal Information</a></li>
-          </ul>
-        </div>
+        <div class="footer-col"><h4>About us</h4><ul><li><a href="#">Courses</a></li><li><a href="#">Mission</a></li><li><a href="#">Blog</a></li><li><a href="#">Contact us</a></li></ul></div>
+        <div class="footer-col"><h4>Help and support</h4><ul><li><a href="#">Vulanet FAQs</a></li></ul></div>
+        <div class="footer-col"><h4>Privacy and terms</h4><ul><li><a href="#">Community guidelines</a></li><li><a href="#">Terms</a></li><li><a href="#">Privacy</a></li><li><a href="#">Do Not Sell or Share My Personal Information</a></li></ul></div>
       </div>
-      
       <div class="footer-divider"></div>
-      
       <div class="footer-bottom">
         <div class="footer-social">
           <a href="#" target="_blank"><img src="public/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram"></a>
@@ -854,7 +533,7 @@
   <script>
     window.addEventListener('scroll', function() {
       const header = document.getElementById('main-header');
-      const getStartedBtn = document.getElementById('get-started-btn');
+      const getStartedBtn = document.querySelector('.main-btn');
       if (getStartedBtn && getStartedBtn.getBoundingClientRect().top < 0) {
         header.classList.add('scrolled');
       } else {
@@ -863,16 +542,8 @@
     });
     
     function scrollToStart() {
-      const btn = document.getElementById('get-started-btn');
+      const btn = document.querySelector('.main-btn');
       if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-    
-    function handleGetStarted() {
-      window.location.href = 'courses.html';
-    }
-    
-    function handleAlreadyAccount() {
-      window.location.href = 'login.html';
     }
   </script>
 </body>
