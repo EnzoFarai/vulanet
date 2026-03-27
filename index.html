@@ -6,23 +6,29 @@
   <meta name="description" content="Learn by playing a game. It's 100% free, fun, and includes reading material too.">
   <title>Learn a course for free</title>
   
-<!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
-<link rel="apple-touch-icon" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
+  <!-- Favicon - Multiple formats -->
+  <link rel="icon" type="image/svg+xml" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
+  <link rel="icon" type="image/png" sizes="16x16" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
+  <meta name="msapplication-TileColor" content="#4285F4">
+  <meta name="theme-color" content="#4285F4">
   
-  <!-- Open Graph / Social Media Preview -->
+  <!-- Open Graph / Social Media Preview (Facebook, WhatsApp, LinkedIn, Telegram, etc.) -->
   <meta property="og:title" content="Learn a course for free">
   <meta property="og:description" content="Learn by playing a game. It's 100% free, fun, and includes reading material too.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="public/assets/images/og-preview.png">
   <meta property="og:image:alt" content="Vulanet Rabbit mascot Vusi with learning icons">
+  <meta property="og:url" content="https://vulanet.vercel.app">
+  <meta property="og:site_name" content="Vulanet">
   
-  <!-- Twitter Card -->
+  <!-- Twitter Card (Twitter/X specific) -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Learn a course for free">
   <meta name="twitter:description" content="Learn by playing a game. It's 100% free, fun, and includes reading material too.">
   <meta name="twitter:image" content="public/assets/images/og-preview.png">
+  <meta name="twitter:site" content="@vulanet">
   
   <!-- Local Fonts -->
   <link rel="stylesheet" href="public/assets/fonts/fonts.css">
@@ -114,7 +120,7 @@
     .header.scrolled .brand-name { display: none; }
     
     .logo-rabbit { width: 42px; height: 42px; }
-    .logo-rabbit img { width: 100%; height: 100%; display: block; filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%); }
+    .logo-rabbit img { width: 100%; height: 100%; display: block; }
     
     .brand-name {
       font-family: var(--brand-font);
@@ -205,7 +211,7 @@
     }
     
     .ph-rabbit { width: 120px; height: 120px; animation: rabbit-bounce 1400ms cubic-bezier(.25,.9,.35,1) infinite; }
-    .ph-rabbit img { width: 100%; height: 100%; display: block; filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%); }
+    .ph-rabbit img { width: 100%; height: 100%; display: block; }
     
     @keyframes rabbit-bounce {
       0% { transform: translateY(0) rotate(0deg); }
@@ -703,7 +709,6 @@
       width: 100%;
       height: 100%;
       display: block;
-      filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%);
     }
     
     .rabbit-shadow {
@@ -761,16 +766,31 @@
     .footer-col ul li a { color: rgba(255,255,255,0.8); text-decoration: none; }
     .footer-col ul li a:hover { color: white; text-decoration: underline; }
     
+    .footer-logo {
+      margin-bottom: 20px;
+    }
+    
     .footer-logo h1 {
       font-family: var(--brand-font);
       font-size: 32px;
+      margin: 0;
+      padding: 0;
+      white-space: nowrap;
       display: flex;
+      align-items: flex-end;
       gap: 4px;
+      user-select: none;
       text-transform: lowercase;
       font-weight: 800;
       letter-spacing: -0.02em;
     }
-    .footer-logo h1 span { display: inline-block; animation: footer-bounce 1.5s infinite ease-in-out; }
+    
+    .footer-logo h1 span {
+      display: inline-block;
+      position: relative;
+      animation: footer-bounce 1.5s ease-in-out infinite;
+    }
+    
     .ud_1 { animation-delay: 0s; }
     .ud_2 { animation-delay: 0.075s; }
     .ud_3 { animation-delay: 0.15s; }
@@ -779,7 +799,10 @@
     .ud_6 { animation-delay: 0.375s; }
     .ud_7 { animation-delay: 0.45s; }
     
-    @keyframes footer-bounce { 0%, 20%, 100% { transform: translateY(0); } 10% { transform: translateY(-5px); } }
+    @keyframes footer-bounce {
+      0%, 20%, 100% { transform: translateY(0); }
+      10% { transform: translateY(-5px); }
+    }
     
     .footer-divider { height: 1px; background: rgba(255,255,255,0.2); margin: 20px 0; }
     .footer-bottom { display: flex; justify-content: center; }
@@ -811,7 +834,7 @@
     <div class="header-inner">
       <div class="logo-container">
         <div class="logo-rabbit">
-          <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vulanet Rabbit">
+          <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet Rabbit">
         </div>
         <span class="brand-name">vulanet</span>
       </div>
@@ -825,7 +848,7 @@
         <div class="phone-wrap">
           <div class="phone">
             <div class="ph-rabbit">
-              <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vulanet Rabbit">
+              <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet Rabbit">
             </div>
           </div>
           
@@ -869,7 +892,7 @@
     </div>
 
     <div class="cta-section">
-      <div class="bouncing-rabbit-container"><div class="bouncing-rabbit"><img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vulanet Rabbit"></div><div class="rabbit-shadow"></div></div>
+      <div class="bouncing-rabbit-container"><div class="bouncing-rabbit"><img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet Rabbit"></div><div class="rabbit-shadow"></div></div>
       <div class="cta-tagline">learn better with vulanet</div>
       <button class="btn btn-carpenter-blue cta-button" onclick="window.location.href='courses.html'">GET STARTED</button>
     </div>
@@ -877,7 +900,18 @@
 
   <div class="footer-wrapper">
     <footer class="footer-content">
-      <div class="footer-logo"><h1><span class="ud_1">v</span><span class="ud_2">u</span><span class="ud_3">l</span><span class="ud_4">a</span><span class="ud_5">n</span><span class="ud_6">e</span><span class="ud_7">t</span></h1></div>
+      <div class="footer-logo">
+        <h1>
+          <span class="ud_1">v</span>
+          <span class="ud_2">u</span>
+          <span class="ud_3">l</span>
+          <span class="ud_4">a</span>
+          <span class="ud_5">n</span>
+          <span class="ud_6">e</span>
+          <span class="ud_7">t</span>
+        </h1>
+      </div>
+      
       <div class="footer-row">
         <div class="footer-col"><h4>About us</h4><ul><li><a href="#">Courses</a></li><li><a href="#">Mission</a></li><li><a href="#">Blog</a></li><li><a href="#">Contact us</a></li></ul></div>
         <div class="footer-col"><h4>Help and support</h4><ul><li><a href="#">Vulanet FAQs</a></li></ul></div>
