@@ -1,121 +1,129 @@
 // ========================================
 // VULANET COURSE DATA
-// Courses are identified by unique IDs to allow name changes without data loss
+// Courses use semantic IDs that are category-agnostic
+// IDs are based on course name slugs for readability and permanence
 // ========================================
 
 export const courses = {
   // Commerce
-  "FIN-001": {
-    id: "FIN-001",
+  "financial-accounting": {
+    id: "financial-accounting",
     name: "Financial Accounting",
     displayName: "Financial Accounting",
     shortName: "Financial Accounting",
-    category: "commerce",
+    slug: "financial-accounting",
     icon: "public/assets/courses/financial-accounting.png",
     order: 1,
-    createdAt: "2024-01-01"
+    createdAt: "2024-01-01",
+    categories: ["commerce"]
   },
   
   // Humanities
-  "LAW-001": {
-    id: "LAW-001",
+  "international-law": {
+    id: "international-law",
     name: "International Law",
     displayName: "International Law",
     shortName: "International Law",
-    category: "humanities",
+    slug: "international-law",
     icon: "public/assets/courses/international-law.png",
     order: 1,
-    createdAt: "2024-01-01"
+    createdAt: "2024-01-01",
+    categories: ["humanities"]
   },
   
   // Medical Sciences
-  "MED-001": {
-    id: "MED-001",
+  "clinical-pharmacy": {
+    id: "clinical-pharmacy",
     name: "Clinical Pharmacy",
     displayName: "Clinical Pharmacy",
     shortName: "Clinical Pharmacy",
-    category: "medical",
+    slug: "clinical-pharmacy",
     icon: "public/assets/courses/clinical-pharmacy.png",
     order: 1,
-    createdAt: "2024-01-01"
+    createdAt: "2024-01-01",
+    categories: ["medical"]
   },
-  "MED-002": {
-    id: "MED-002",
+  "pharmacology-ii": {
+    id: "pharmacology-ii",
     name: "Pharmacology-II",
     displayName: "Pharmacology-II",
     shortName: "Pharmacology-II",
-    category: "medical",
+    slug: "pharmacology-ii",
     icon: "public/assets/courses/pharmacology-ii.png",
     order: 2,
-    createdAt: "2024-01-01"
+    createdAt: "2024-01-01",
+    categories: ["medical"]
   },
   
   // Science & Technology
-  "TECH-001": {
-    id: "TECH-001",
+  "java-programming": {
+    id: "java-programming",
     name: "Java Programming",
     displayName: "Java Programming",
     shortName: "Java Programming",
-    category: "technology",
+    slug: "java-programming",
     icon: "public/assets/courses/java-programming.png",
     order: 1,
-    createdAt: "2024-01-01"
+    createdAt: "2024-01-01",
+    categories: ["technology"]
   },
-  "TECH-002": {
-    id: "TECH-002",
+  "web-design": {
+    id: "web-design",
     name: "Web Design",
     displayName: "Web Design",
     shortName: "Web Design",
-    category: "technology",
+    slug: "web-design",
     icon: "public/assets/courses/web-design.png",
     order: 2,
-    createdAt: "2024-01-01"
+    createdAt: "2024-01-01",
+    categories: ["technology"]
   },
   
   // Matric (NSC)
-  "SCI-001": {
-    id: "SCI-001",
+  "g12-life-sciences": {
+    id: "g12-life-sciences",
     name: "G12 Life Sciences",
     displayName: "G12 Life Sciences",
     shortName: "Life Sciences",
-    category: "matric",
+    slug: "g12-life-sciences",
     icon: "public/assets/courses/g12-life-sciences.png",
     order: 1,
-    createdAt: "2024-01-01"
+    createdAt: "2024-01-01",
+    categories: ["matric", "science"]
   }
 };
 
-// Course categories for organization
+// Course categories - flexible for any course to appear in multiple categories
 export const courseCategories = [
   {
     id: "commerce",
     name: "Commerce",
     order: 1,
-    courses: ["FIN-001"]
+    courseIds: ["financial-accounting"]
   },
   {
     id: "humanities",
     name: "Humanities",
     order: 2,
-    courses: ["LAW-001"]
+    courseIds: ["international-law"]
   },
   {
     id: "medical",
     name: "Medical Sciences",
     order: 3,
-    courses: ["MED-001", "MED-002"]
+    courseIds: ["clinical-pharmacy", "pharmacology-ii"]
   },
   {
     id: "technology",
     name: "Science & Technology",
     order: 4,
-    courses: ["TECH-001", "TECH-002"]
+    courseIds: ["java-programming", "web-design"]
   },
   {
     id: "matric",
     name: "Matric (NSC)",
     order: 5,
-    courses: ["SCI-001"],
+    courseIds: ["g12-life-sciences"],
     isSpecial: true
   }
 ];
@@ -129,10 +137,18 @@ export function getCourseById(id) {
 export function getCoursesByCategory(categoryId) {
   const category = courseCategories.find(c => c.id === categoryId);
   if (!category) return [];
-  return category.courses.map(id => courses[id]).filter(c => c);
+  return category.courseIds.map(id => courses[id]).filter(c => c);
 }
 
 // Helper function to get all courses
 export function getAllCourses() {
   return Object.values(courses);
+}
+
+// Helper to get courses that match multiple categories
+export function getCoursesByCategories(categoryIds) {
+  const allCourses = getAllCourses();
+  return allCourses.filter(course => 
+    course.categories.some(cat => categoryIds.includes(cat))
+  );
 }
