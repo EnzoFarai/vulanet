@@ -295,7 +295,387 @@
     .icon3 div { border-color: var(--bee); }
     .icon4 div { border-color: var(--boa); }
     
-    /* Animation keyframes (simplified - same as before) */
+    /* ===== ICON 2 ANIMATIONS (Research - Ladybug) ===== */
+    .icon2 .moon.top {
+      top: 15%;
+      left: 10%;
+      width: 8%;
+      height: 8%;
+      animation: icon2moontop var(--animationtime) ease 0s infinite;
+    }
+    
+    .icon2 .moon.bottom {
+      top: 85%;
+      right: 5%;
+      width: 4%;
+      height: 4%;
+      animation: icon2moonbottom var(--animationtime) ease 0s infinite;
+    }
+    
+    .icon2 .planet {
+      top: 25%;
+      left: 24%;
+      width: 63%;
+      height: 63%;
+    }
+    
+    .icon2 .ring {
+      top: 45%;
+      left: 15%;
+      width: 80%;
+      height: 25%;
+      border-radius: 50%;
+      border-color: transparent var(--ladybug) var(--ladybug) var(--ladybug);
+      transform: rotate(17deg);
+      animation: icon2ring var(--animationtime) linear 0s infinite alternate;
+    }
+    
+    .icon2 .ring.planet {
+      top: 62.5%;
+      left: 40%;
+      width: 8%;
+      height: 8%;
+      border-color: var(--ladybug);
+      background: white;
+      z-index: 1;
+      overflow: visible;
+      animation: icon2ringplanet var(--animationtime) ease 0s infinite;
+    }
+    
+    .icon2 .ring.planet:after {
+      top: -55%;
+      left: 80%;
+      width: 4%;
+      height: 4%;
+      border: var(--borderwidth) solid var(--ladybug);
+      border-radius: 50%;
+    }
+    
+    .icon2 .planetoid {
+      top: 25%;
+      left: 70%;
+      width: 20%;
+      height: 20%;
+      overflow: visible;
+      background: white;
+    }
+    
+    .icon2 .planetoid:before {
+      top: -25%;
+      left: -25%;
+      width: 150%;
+      padding-top: 150%;
+      border: var(--borderwidth) solid var(--ladybug);
+      border-radius: 50%;
+      border-color: var(--ladybug) var(--ladybug) transparent transparent;
+      transform: rotate(55deg);
+      background: transparent;
+    }
+    
+    .icon2 .planetoid:after {
+      top: 100%;
+      left: 5%;
+      width: 30%;
+      padding-top: 15%;
+      border: var(--borderwidth) solid var(--ladybug);
+      border-radius: 50%;
+      border-color: transparent transparent var(--ladybug) transparent;
+      transform: rotate(35deg);
+      background: transparent;
+    }
+    
+    @keyframes icon2moontop {
+      0% { top: 15%; left: 10%; z-index: 0; }
+      49% { top: 60%; left: 95%; z-index: 0; }
+      50% { top: 60%; left: 95%; z-index: 1; }
+      99% { top: 15%; left: 10%; z-index: 1; }
+      100% { top: 15%; left: 10%; z-index: 0; }
+    }
+    
+    @keyframes icon2moonbottom {
+      0% { top: 85%; left: 95%; z-index: 0; }
+      49% { top: 40%; left: 5%; z-index: 0; }
+      50% { top: 40%; left: 5%; z-index: -1; }
+      99% { top: 85%; left: 95%; z-index: -1; }
+      100% { top: 85%; left: 95%; z-index: 0; }
+    }
+    
+    @keyframes icon2ring {
+      0% { transform: rotate(10deg); }
+      100% { transform: rotate(30deg); }
+    }
+    
+    @keyframes icon2ringplanet {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* ===== ICON 3 ANIMATIONS (Track - Bee) ===== */
+    .icon3 .telescope {
+      top: 15%;
+      left: 10%;
+      width: 75%;
+      height: 33%;
+      transform: rotate(-17deg);
+      border-color: transparent;
+      animation: icon3telescope var(--animationtime) ease 0s infinite alternate;
+    }
+    
+    .icon3 .telescope:before, 
+    .icon3 .telescope:after {
+      height: 1%;
+      border: var(--borderwidth) solid var(--bee);
+      border-color: var(--bee) transparent transparent transparent;
+    }
+    
+    .icon3 .telescope:before {
+      width: 25%;
+      left: 60%;
+    }
+    
+    .icon3 .telescope:after {
+      bottom: 15%;
+      width: 15%;
+      left: 65%;
+    }
+    
+    .icon3 .telescope .body {
+      top: 20%;
+      left: 10%;
+      width: 75%;
+      height: 45%;
+      overflow: visible;
+    }
+    
+    .icon3 .telescope .line {
+      border-color: var(--bee) transparent transparent transparent;
+      transform: rotate(90deg);
+    }
+    
+    .icon3 .telescope .line1 {
+      top: 45%;
+      left: -5%;
+      width: 40%;
+    }
+    
+    .icon3 .telescope .line2 {
+      top: 45%;
+      left: 20%;
+      width: 28%;
+    }
+    
+    .icon3 .telescope .line3 {
+      top: 45%;
+      left: 45%;
+      width: 28%;
+    }
+    
+    .icon3 .telescope .line4 {
+      top: 45%;
+      left: 65%;
+      width: 28%;
+    }
+    
+    .icon3 .telescope .lens {
+      top: 10%;
+      right: 0;
+      width: 16%;
+      height: 62%;
+    }
+    
+    .icon3 .tripod {
+      top: 35%;
+      left: 30%;
+      width: 45%;
+      height: 45%;
+      border-color: transparent;
+    }
+    
+    .icon3 .tripod .anchor {
+      left: 40%;
+      width: 20%;
+      height: 20%;
+      border-radius: 50%;
+    }
+    
+    .icon3 .tripod .foot {
+      top: 20%;
+      left: 50%;
+      height: 1%;
+      border-color: var(--bee) transparent transparent transparent;
+      transform-origin: top left;
+    }
+    
+    .icon3 .tripod .foot.left {
+      width: 92%;
+      transform: rotate(115deg);
+    }
+    
+    .icon3 .tripod .foot.mid {
+      width: 84%;
+      transform: rotate(90deg);
+    }
+    
+    .icon3 .tripod .foot.right {
+      width: 92%;
+      transform: rotate(65deg);
+    }
+    
+    .icon3 .ground {
+      top: 80%;
+      left: 30%;
+      width: 45%;
+      height: 1%;
+      border-color: var(--bee) transparent transparent transparent;
+      overflow: visible;
+    }
+    
+    .icon3 .ground:after {
+      top: -10%;
+      left: 115%;
+      width: 8%;
+      height: 1%;
+      border: var(--borderwidth) solid var(--bee);
+      border-color: var(--bee) transparent transparent transparent;
+    }
+    
+    @keyframes icon3telescope {
+      0% { transform: rotate(-10deg); }
+      100% { transform: rotate(-30deg); }
+    }
+    
+    /* ===== ICON 4 ANIMATIONS (Personalized - Boa) ===== */
+    .icon4 .planetoid {
+      top: 10%;
+      left: 20%;
+      width: 10%;
+      height: 10%;
+      overflow: visible;
+      animation: icon4planetoid var(--animationtime) linear 0s infinite;
+    }
+    
+    .icon4 .planetoid:before {
+      top: 110%;
+      left: -60%;
+      width: 4%;
+      height: 4%;
+      border: var(--borderwidth) solid var(--boa);
+      border-radius: 50%;
+    }
+    
+    .icon4 .sattelite {
+      top: 20%;
+      left: 10%;
+      width: 100%;
+      height: 70%;
+      transform: rotate(-45deg);
+      border: 0;
+      animation: icon4sattelite var(--animationtime) linear 0s infinite alternate;
+    }
+    
+    .icon4 .sattelite .solarpanel {
+      top: 15%;
+      width: 30%;
+      height: 30%;
+      overflow: visible;
+      animation: icon4solarpanel calc(var(--animationtime) * 2) linear 0s infinite alternate;
+    }
+    
+    .icon4 .sattelite .solarpanel:after {
+      top: 50%;
+      height: 1%;
+      width: 125%;
+      border: var(--borderwidth) solid var(--boa);
+      border-color: var(--boa) transparent transparent transparent;
+    }
+    
+    .icon4 .sattelite .solarpanel.left {
+      left: 0;
+    }
+    
+    .icon4 .sattelite .solarpanel.right {
+      right: 0;
+    }
+    
+    .icon4 .sattelite .solarpanel.right:after {
+      left: -30%;
+    }
+    
+    .icon4 .sattelite .body {
+      top: 0;
+      left: 38%;
+      width: 25%;
+      height: 60%;
+      overflow: visible;
+    }
+    
+    .icon4 .sattelite .body:after {
+      top: 70%;
+      left: calc(-1 * var(--borderwidth));
+      width: 100%;
+      padding-top: 100%;
+      border: var(--borderwidth) solid var(--boa);
+      border-color: transparent var(--boa) var(--boa) transparent;
+      border-radius: 50%;
+      transform: rotate(45deg);
+    }
+    
+    .icon4 .sattelite .dish {
+      top: 76%;
+      left: 40%;
+      width: 20%;
+      padding-top: 20%;
+      border-color: var(--boa) var(--boa) transparent transparent;
+      border-radius: 50%;
+      transform: rotate(-45deg);
+      overflow: visible;
+      animation: icon4dish var(--animationtime) linear 0s infinite alternate;
+    }
+    
+    .icon4 .sattelite .dish:before, 
+    .icon4 .sattelite .dish:after {
+      transform-origin: top left;
+      border: var(--borderwidth) solid var(--boa);
+    }
+    
+    .icon4 .sattelite .dish:before {
+      left: 10%;
+      top: 10%;
+      width: 110%;
+      height: 0;
+      border-color: var(--boa) transparent transparent transparent;
+      transform: rotate(45deg);
+    }
+    
+    .icon4 .sattelite .dish:after {
+      left: 50%;
+      top: 50%;
+      width: 20%;
+      height: 0;
+      border-color: var(--boa) transparent transparent transparent;
+      transform: rotate(135deg);
+    }
+    
+    @keyframes icon4planetoid {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes icon4sattelite {
+      0% { transform: rotate(-40deg); }
+      100% { transform: rotate(-50deg); }
+    }
+    
+    @keyframes icon4solarpanel {
+      0% { transform: scaleY(1); }
+      100% { transform: scaleY(0.75); }
+    }
+    
+    @keyframes icon4dish {
+      0% { transform: rotate(-60deg); }
+      100% { transform: rotate(-30deg); }
+    }
+    
     .tagline {
       font-family: var(--brand-font);
       font-size: 2.4rem;
@@ -449,7 +829,7 @@
         </div>
         <span class="brand-name">vulanet</span>
       </div>
-      <button class="header-btn" onclick="scrollToStart()">GET STARTED</button>
+      <button class="header-btn" onclick="window.location.href='courses.html'">GET STARTED</button>
     </div>
   </header>
   
@@ -533,18 +913,13 @@
   <script>
     window.addEventListener('scroll', function() {
       const header = document.getElementById('main-header');
-      const getStartedBtn = document.querySelector('.main-btn');
-      if (getStartedBtn && getStartedBtn.getBoundingClientRect().top < 0) {
+      const welcomeSection = document.querySelector('.welcome-section');
+      if (welcomeSection && welcomeSection.getBoundingClientRect().top < 0) {
         header.classList.add('scrolled');
       } else {
         header.classList.remove('scrolled');
       }
     });
-    
-    function scrollToStart() {
-      const btn = document.querySelector('.main-btn');
-      if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
   </script>
 </body>
 </html>
