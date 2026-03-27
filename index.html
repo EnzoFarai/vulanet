@@ -3,8 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Vulanet - The free, fun, and proven way to learn!">
-  <title>Vulanet = The free, fun, and proven way to learn!</title>
+  <meta name="description" content="Learn by playing a game. It's 100% free, fun, and includes reading material too.">
+  <title>Learn a course for free</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="public/assets/icons/phosphor/fill/rabbit-fill.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="public/assets/icons/phosphor/fill/rabbit-fill.svg">
+  <link rel="apple-touch-icon" href="public/assets/icons/phosphor/fill/rabbit-fill.svg">
+  
+  <!-- Open Graph / Social Media Preview -->
+  <meta property="og:title" content="Learn a course for free">
+  <meta property="og:description" content="Learn by playing a game. It's 100% free, fun, and includes reading material too.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="public/assets/images/og-preview.png">
+  <meta property="og:image:alt" content="Vulanet Rabbit mascot Vusi with learning icons">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Learn a course for free">
+  <meta name="twitter:description" content="Learn by playing a game. It's 100% free, fun, and includes reading material too.">
+  <meta name="twitter:image" content="public/assets/images/og-preview.png">
   
   <!-- Local Fonts -->
   <link rel="stylesheet" href="public/assets/fonts/fonts.css">
@@ -13,6 +31,7 @@
   <link rel="stylesheet" href="src/styles/components/buttons.css">
   
   <style>
+    /* ===== VARIABLES ===== */
     :root {
       --carpenter-blue: #4285F4;
       --belly-blue: #7B9FE0;
@@ -47,7 +66,7 @@
       color: var(--basalt);
     }
     
-    /* Header */
+    /* ===== HEADER ===== */
     .header {
       width: 100%;
       height: var(--header-height);
@@ -127,7 +146,7 @@
     .header-btn:hover { background: #3a75d9; transform: translateY(-2px); }
     .header-btn:active { transform: translateY(2px); border-bottom-width: 0.125rem; }
     
-    /* Welcome Section */
+    /* ===== WELCOME SECTION ===== */
     .welcome-section {
       min-height: 100vh;
       display: flex;
@@ -252,7 +271,7 @@
     .main-btn { margin-bottom: 1.1rem; }
     .secondary-btn { margin-bottom: 0.21rem; }
     
-    /* Content Sections */
+    /* ===== CONTENT SECTIONS ===== */
     .content-container {
       display: flex;
       flex-direction: column;
@@ -287,15 +306,44 @@
     .material-icon img { width: 100%; height: 100%; display: block; }
     .vulanet-description .material-icon img { filter: brightness(0) saturate(100%) invert(31%) sepia(86%) saturate(2382%) hue-rotate(342deg) brightness(92%) contrast(91%); }
     
-    .custom-icon-container { width: 180px; height: 180px; margin: 0 auto; position: relative; }
-    .custom-icon { position: relative; width: 100%; height: 100%; }
-    .custom-icon div { position: absolute; border: var(--borderwidth) solid; overflow: hidden; }
-    .moon, .planetoid, .planet { border-radius: 50%; background: white; }
-    .icon2 div { border-color: var(--ladybug); }
-    .icon3 div { border-color: var(--bee); }
-    .icon4 div { border-color: var(--boa); }
+    /* ===== CUSTOM ICONS (Backed by Research, Stay on Track, Personalized Learning) ===== */
+    .custom-icon-container {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto;
+    }
     
-    /* ===== ICON 2 ANIMATIONS (Research - Ladybug) ===== */
+    .custom-icon {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .custom-icon div {
+      position: absolute;
+      box-sizing: border-box;
+      border: var(--borderwidth) solid;
+      overflow: hidden;
+    }
+    
+    .custom-icon div:before, 
+    .custom-icon div:after {
+      content: '';
+      display: block;
+      position: absolute;
+    }
+    
+    .moon, .planetoid, .planet {
+      border-radius: 50%;
+      background: white;
+    }
+    
+    /* Icon 2 - Ladybug Red (Backed by Research) */
+    .icon2 div {
+      border-color: var(--ladybug);
+    }
+    
     .icon2 .moon.top {
       top: 15%;
       left: 10%;
@@ -338,7 +386,6 @@
       border-color: var(--ladybug);
       background: white;
       z-index: 1;
-      overflow: visible;
       animation: icon2ringplanet var(--animationtime) ease 0s infinite;
     }
     
@@ -384,33 +431,11 @@
       background: transparent;
     }
     
-    @keyframes icon2moontop {
-      0% { top: 15%; left: 10%; z-index: 0; }
-      49% { top: 60%; left: 95%; z-index: 0; }
-      50% { top: 60%; left: 95%; z-index: 1; }
-      99% { top: 15%; left: 10%; z-index: 1; }
-      100% { top: 15%; left: 10%; z-index: 0; }
+    /* Icon 3 - Bee Yellow (Stay on Track) */
+    .icon3 div {
+      border-color: var(--bee);
     }
     
-    @keyframes icon2moonbottom {
-      0% { top: 85%; left: 95%; z-index: 0; }
-      49% { top: 40%; left: 5%; z-index: 0; }
-      50% { top: 40%; left: 5%; z-index: -1; }
-      99% { top: 85%; left: 95%; z-index: -1; }
-      100% { top: 85%; left: 95%; z-index: 0; }
-    }
-    
-    @keyframes icon2ring {
-      0% { transform: rotate(10deg); }
-      100% { transform: rotate(30deg); }
-    }
-    
-    @keyframes icon2ringplanet {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    /* ===== ICON 3 ANIMATIONS (Track - Bee) ===== */
     .icon3 .telescope {
       top: 15%;
       left: 10%;
@@ -452,36 +477,11 @@
       transform: rotate(90deg);
     }
     
-    .icon3 .telescope .line1 {
-      top: 45%;
-      left: -5%;
-      width: 40%;
-    }
-    
-    .icon3 .telescope .line2 {
-      top: 45%;
-      left: 20%;
-      width: 28%;
-    }
-    
-    .icon3 .telescope .line3 {
-      top: 45%;
-      left: 45%;
-      width: 28%;
-    }
-    
-    .icon3 .telescope .line4 {
-      top: 45%;
-      left: 65%;
-      width: 28%;
-    }
-    
-    .icon3 .telescope .lens {
-      top: 10%;
-      right: 0;
-      width: 16%;
-      height: 62%;
-    }
+    .icon3 .telescope .line1 { top: 45%; left: -5%; width: 40%; }
+    .icon3 .telescope .line2 { top: 45%; left: 20%; width: 28%; }
+    .icon3 .telescope .line3 { top: 45%; left: 45%; width: 28%; }
+    .icon3 .telescope .line4 { top: 45%; left: 65%; width: 28%; }
+    .icon3 .telescope .lens { top: 10%; right: 0; width: 16%; height: 62%; }
     
     .icon3 .tripod {
       top: 35%;
@@ -506,20 +506,9 @@
       transform-origin: top left;
     }
     
-    .icon3 .tripod .foot.left {
-      width: 92%;
-      transform: rotate(115deg);
-    }
-    
-    .icon3 .tripod .foot.mid {
-      width: 84%;
-      transform: rotate(90deg);
-    }
-    
-    .icon3 .tripod .foot.right {
-      width: 92%;
-      transform: rotate(65deg);
-    }
+    .icon3 .tripod .foot.left { width: 92%; transform: rotate(115deg); }
+    .icon3 .tripod .foot.mid { width: 84%; transform: rotate(90deg); }
+    .icon3 .tripod .foot.right { width: 92%; transform: rotate(65deg); }
     
     .icon3 .ground {
       top: 80%;
@@ -539,12 +528,11 @@
       border-color: var(--bee) transparent transparent transparent;
     }
     
-    @keyframes icon3telescope {
-      0% { transform: rotate(-10deg); }
-      100% { transform: rotate(-30deg); }
+    /* Icon 4 - Boa Green (Personalized Learning) */
+    .icon4 div {
+      border-color: var(--boa);
     }
     
-    /* ===== ICON 4 ANIMATIONS (Personalized - Boa) ===== */
     .icon4 .planetoid {
       top: 10%;
       left: 20%;
@@ -589,17 +577,9 @@
       border-color: var(--boa) transparent transparent transparent;
     }
     
-    .icon4 .sattelite .solarpanel.left {
-      left: 0;
-    }
-    
-    .icon4 .sattelite .solarpanel.right {
-      right: 0;
-    }
-    
-    .icon4 .sattelite .solarpanel.right:after {
-      left: -30%;
-    }
+    .icon4 .sattelite .solarpanel.left { left: 0; }
+    .icon4 .sattelite .solarpanel.right { right: 0; }
+    .icon4 .sattelite .solarpanel.right:after { left: -30%; }
     
     .icon4 .sattelite .body {
       top: 0;
@@ -656,25 +636,30 @@
       transform: rotate(135deg);
     }
     
-    @keyframes icon4planetoid {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    /* Animation Keyframes */
+    @keyframes icon2moontop {
+      0% { top: 15%; left: 10%; z-index: 0; }
+      49% { top: 60%; left: 95%; z-index: 0; }
+      50% { top: 60%; left: 95%; z-index: 1; }
+      99% { top: 15%; left: 10%; z-index: 1; }
+      100% { top: 15%; left: 10%; z-index: 0; }
     }
     
-    @keyframes icon4sattelite {
-      0% { transform: rotate(-40deg); }
-      100% { transform: rotate(-50deg); }
+    @keyframes icon2moonbottom {
+      0% { top: 85%; left: 95%; z-index: 0; }
+      49% { top: 40%; left: 5%; z-index: 0; }
+      50% { top: 40%; left: 5%; z-index: -1; }
+      99% { top: 85%; left: 95%; z-index: -1; }
+      100% { top: 85%; left: 95%; z-index: 0; }
     }
     
-    @keyframes icon4solarpanel {
-      0% { transform: scaleY(1); }
-      100% { transform: scaleY(0.75); }
-    }
-    
-    @keyframes icon4dish {
-      0% { transform: rotate(-60deg); }
-      100% { transform: rotate(-30deg); }
-    }
+    @keyframes icon2ring { 0% { transform: rotate(10deg); } 100% { transform: rotate(30deg); } }
+    @keyframes icon2ringplanet { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes icon3telescope { 0% { transform: rotate(-10deg); } 100% { transform: rotate(-30deg); } }
+    @keyframes icon4planetoid { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes icon4sattelite { 0% { transform: rotate(-40deg); } 100% { transform: rotate(-50deg); } }
+    @keyframes icon4solarpanel { 0% { transform: scaleY(1); } 100% { transform: scaleY(0.75); } }
+    @keyframes icon4dish { 0% { transform: rotate(-60deg); } 100% { transform: rotate(-30deg); } }
     
     .tagline {
       font-family: var(--brand-font);
@@ -746,7 +731,7 @@
       text-transform: lowercase;
     }
     
-    /* Footer */
+    /* ===== FOOTER ===== */
     .footer-wrapper {
       background-color: var(--carpenter-blue);
       width: 100%;
@@ -803,6 +788,7 @@
     .footer-social a:hover { opacity: 1; transform: translateY(-2px); }
     .footer-social a img { width: 100%; height: 100%; display: block; filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%); }
     
+    /* Responsive */
     @media (max-width: 768px) {
       .tagline { font-size: 1.9rem; }
       .description { font-size: 1.1rem; }
@@ -913,8 +899,8 @@
   <script>
     window.addEventListener('scroll', function() {
       const header = document.getElementById('main-header');
-      const welcomeSection = document.querySelector('.welcome-section');
-      if (welcomeSection && welcomeSection.getBoundingClientRect().top < 0) {
+      const getStartedBtn = document.querySelector('.main-btn');
+      if (getStartedBtn && getStartedBtn.getBoundingClientRect().top < 0) {
         header.classList.add('scrolled');
       } else {
         header.classList.remove('scrolled');
