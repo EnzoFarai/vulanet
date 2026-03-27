@@ -788,20 +788,20 @@
     .footer-logo h1 span {
       display: inline-block;
       position: relative;
-      animation: footer-bounce 1.5s ease-in-out infinite;
     }
     
-    .ud_1 { animation-delay: 0s; }
-    .ud_2 { animation-delay: 0.075s; }
-    .ud_3 { animation-delay: 0.15s; }
-    .ud_4 { animation-delay: 0.225s; }
-    .ud_5 { animation-delay: 0.3s; }
-    .ud_6 { animation-delay: 0.375s; }
-    .ud_7 { animation-delay: 0.45s; }
+    /* Individual letter bounce animations with staggered delays - MATCHING EXAMPLE */
+    .ud_1 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0s; }
+    .ud_2 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.075s; }
+    .ud_3 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.15s; }
+    .ud_4 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.225s; }
+    .ud_5 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.3s; }
+    .ud_6 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.375s; }
+    .ud_7 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.45s; }
     
     @keyframes footer-bounce {
-      0%, 20%, 100% { transform: translateY(0); }
-      10% { transform: translateY(-5px); }
+      0%, 20%, 100% { bottom: 0; }
+      10% { bottom: 10px; }
     }
     
     .footer-divider { height: 1px; background: rgba(255,255,255,0.2); margin: 20px 0; }
