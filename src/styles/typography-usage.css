@@ -1,0 +1,143 @@
+/* ========================================
+   VULANET TYPOGRAPHY USAGE RULES
+   Font usage guidelines - NOT font-face declarations
+   ======================================== */
+
+/* Base body text - Atkinson Hyperlegible Next */
+body {
+  font-family: 'Atkinson Hyperlegible Next', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #4B4B4B; /* Basalt */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings - Bricolage Grotesque */
+h1, h2, h3, h4, h5, h6,
+.brand-font,
+.headline,
+.tagline,
+.cta-tagline {
+  font-family: 'Bricolage Grotesque', monospace;
+  text-transform: lowercase;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Heading sizes */
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
+
+/* Brand name styling */
+.brand-name {
+  font-family: 'Bricolage Grotesque', monospace;
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+}
+
+/* Button text - Atkinson Hyperlegible Next */
+.btn,
+button,
+.button {
+  font-family: 'Atkinson Hyperlegible Next', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Navigation items */
+.nav-item,
+.nav-link {
+  font-family: 'Atkinson Hyperlegible Next', sans-serif;
+  font-weight: 600;
+}
+
+/* Labels and captions */
+.label,
+.caption,
+small {
+  font-family: 'Atkinson Hyperlegible Next', sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: #777777; /* Hippo */
+}
+
+/* Speech bubbles - Atkinson Hyperlegible Next */
+[speech-bubble],
+.speech-bubble {
+  font-family: 'Atkinson Hyperlegible Next', sans-serif;
+  font-weight: 400 !important;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* Quotes and testimonials */
+blockquote,
+.testimonial {
+  font-family: 'Atkinson Hyperlegible Next', sans-serif;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* Code blocks */
+code,
+pre {
+  font-family: 'Atkinson Hyperlegible Next', monospace;
+  font-weight: 400;
+}
+
+/* Helper classes */
+.text-carpenter-blue { color: #4285F4; }
+.text-basalt { color: #4B4B4B; }
+.text-hippo { color: #777777; }
+.text-koala { color: #AFAFAF; }
+
+.font-bricolage {
+  font-family: 'Bricolage Grotesque', monospace;
+}
+
+.font-atkinson {
+  font-family: 'Atkinson Hyperlegible Next', sans-serif;
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+  body {
+    font-size: 15px;
+  }
+  
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.5rem; }
+  h4 { font-size: 1.25rem; }
+  h5 { font-size: 1.1rem; }
+  h6 { font-size: 1rem; }
+  
+  .brand-name {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+  
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.3rem; }
+  
+  .brand-name {
+    font-size: 1.2rem;
+  }
+}
