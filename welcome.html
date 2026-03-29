@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Welcome - Vulanet</title>
+  <title>Welcome - Vusi</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   
   <!-- Local Fonts -->
@@ -15,13 +15,12 @@
   <link rel="stylesheet" href="/src/styles/components/speech-bubble.css">
   
   <style>
-    /* ===== ADDITIONAL ONBOARDING STYLES ===== */
     * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      cursor: default;
-      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        cursor: default;
+        font-family: 'Atkinson Hyperlegible Next', sans-serif;
     }
 
     body {
@@ -29,11 +28,13 @@
       margin: 0;
       padding: 0;
       overflow-x: hidden;
-      min-height: 100vh;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      height: 100vh;
       width: 100%;
+      position: relative;
     }
 
-    /* Container styles */
+    /* ==================== CONTAINER STYLES ==================== */
     .container {
       display: flex;
       flex-direction: column;
@@ -78,9 +79,114 @@
       100% { transform: scale(1.09); }
     }
 
+    /* ==================== BUTTON STYLES - UNIFIED 3D STYLE ==================== */
+    .continue-btn, .third-continue-btn, .fourth-continue-btn, 
+    .fifth-continue-btn, .sixth-continue-btn, .seventh-continue-btn, 
+    .eighth-continue-btn, .ninth-continue-btn, .course-continue-btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #ffffff;
+        background-color: #4285F4;
+        border: none;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.2s ease;
+        z-index: 10;
+        letter-spacing: .5px;
+        font-family: 'Atkinson Hyperlegible Next', sans-serif;
+        box-shadow: 0 4px 0 #2d5bb5, 0 6px 10px rgba(0, 0, 0, 0.1);
+        transform: translateY(0);
+        margin-top: auto;
+    }
+    
+    .continue-btn:hover:not(:disabled),
+    .third-continue-btn:hover:not(:disabled),
+    .fourth-continue-btn:hover:not(:disabled),
+    .fifth-continue-btn:hover:not(:disabled),
+    .sixth-continue-btn:hover:not(:disabled),
+    .seventh-continue-btn:hover:not(:disabled),
+    .eighth-continue-btn:hover:not(:disabled),
+    .ninth-continue-btn:hover:not(:disabled),
+    .course-continue-btn:hover:not(:disabled) {
+        background-color: #3a75d9;
+        box-shadow: 0 3px 0 #2d5bb5, 0 6px 10px rgba(0, 0, 0, 0.1);
+        transform: translateY(1px);
+    }
+    
+    .continue-btn:active:not(:disabled),
+    .third-continue-btn:active:not(:disabled),
+    .fourth-continue-btn:active:not(:disabled),
+    .fifth-continue-btn:active:not(:disabled),
+    .sixth-continue-btn:active:not(:disabled),
+    .seventh-continue-btn:active:not(:disabled),
+    .eighth-continue-btn:active:not(:disabled),
+    .ninth-continue-btn:active:not(:disabled),
+    .course-continue-btn:active:not(:disabled) {
+        transform: translateY(4px);
+        box-shadow: 0 0 0 #2d5bb5, 0 6px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .third-continue-btn:disabled,
+    .fourth-continue-btn:disabled,
+    .fifth-continue-btn:disabled,
+    .sixth-continue-btn:disabled,
+    .seventh-continue-btn:disabled,
+    .eighth-continue-btn:disabled,
+    .ninth-continue-btn:disabled,
+    .course-continue-btn:disabled {
+        background-color: #E5E5E5;
+        color: #777777;
+        box-shadow: none;
+        transform: none;
+        cursor: not-allowed;
+    }
+    
+    .third-continue-btn.enabled,
+    .fourth-continue-btn.enabled,
+    .fifth-continue-btn.enabled,
+    .sixth-continue-btn.enabled,
+    .seventh-continue-btn.enabled,
+    .eighth-continue-btn.enabled,
+    .ninth-continue-btn.enabled,
+    .course-continue-btn.enabled {
+        background-color: #4285F4;
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #2d5bb5, 0 6px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Celebration effects */
+    .celebration {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .firework-emoji {
+      position: absolute;
+      font-size: 20px;
+      opacity: 0;
+      z-index: 2;
+      animation: fireworkPop 1.2s ease-out forwards;
+    }
+
+    @keyframes fireworkPop {
+      0% { transform: scale(0) translateY(0); opacity: 1; }
+      50% { transform: scale(1.2) translateY(-15px); opacity: 1; }
+      100% { transform: scale(1) translateY(-30px); opacity: 0; }
+    }
+
     /* State containers */
     .third-state, .fourth-state, .fifth-state, .sixth-state, .seventh-state, .eighth-state, .ninth-state, .course-state {
       background: #fff;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
       margin: 0;
       padding: 0;
       height: 100vh;
@@ -117,7 +223,7 @@
       gap: 1rem;
     }
 
-    /* Rabbit container for left-pointing speech bubbles */
+    /* Rabbit container */
     .rabbit-container {
       display: flex;
       align-items: flex-end;
@@ -163,7 +269,6 @@
       min-height: 70px;
     }
 
-    /* Question mark and lightbulb */
     .question-mark {
       position: absolute;
       top: -1.5rem;
@@ -183,7 +288,6 @@
       left: 50%;
       transform: translateX(-50%);
       font-size: 1.4rem;
-      color: #FFD700;
       z-index: 6;
       animation: bulb-glow 2s forwards;
     }
@@ -201,41 +305,15 @@
     }
 
     @keyframes rise-and-glow {
-      0% {
-        top: -1.5rem;
-        color: #FFD700;
-        text-shadow: none;
-      }
-      50% {
-        top: -2rem;
-        color: #FFD700;
-        text-shadow: 0 0 5px #FFD700;
-      }
-      100% {
-        top: -2.2rem;
-        color: #FFD700;
-        text-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700;
-        animation: neon-pulse 1.5s infinite alternate;
-      }
+      0% { top: -1.5rem; color: #FFD700; text-shadow: none; }
+      50% { top: -2rem; color: #FFD700; text-shadow: 0 0 5px #FFD700; }
+      100% { top: -2.2rem; color: #FFD700; text-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700; animation: neon-pulse 1.5s infinite alternate; }
     }
 
     @keyframes bulb-glow {
-      0% {
-        top: -1.5rem;
-        color: #FFD700;
-        text-shadow: none;
-      }
-      50% {
-        top: -2rem;
-        color: #FFD700;
-        text-shadow: 0 0 5px #FFD700;
-      }
-      100% {
-        top: -2.2rem;
-        color: #FFD700;
-        text-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700;
-        animation: bulb-pulse 1.5s infinite alternate;
-      }
+      0% { top: -1.5rem; color: #FFD700; text-shadow: none; }
+      50% { top: -2rem; color: #FFD700; text-shadow: 0 0 5px #FFD700; }
+      100% { top: -2.2rem; color: #FFD700; text-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700; animation: bulb-pulse 1.5s infinite alternate; }
     }
 
     @keyframes neon-pulse {
@@ -246,6 +324,17 @@
     @keyframes bulb-pulse {
       0% { text-shadow: 0 0 5px #FFD700, 0 0 10px #FFD700; }
       100% { text-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700; }
+    }
+
+    /* Bold text for non-speech-bubble */
+    .choice, .progress-option, .goal-option, .course-title, .course-subtext, 
+    .level-label, .left-text, .right-text, .notification-header, .notification-body,
+    .block-btn, .allow-btn, .close-btn {
+      font-weight: 700 !important;
+    }
+
+    [speech-bubble], .course-speech-bubble {
+      font-weight: 400 !important;
     }
 
     /* Choice lists */
@@ -259,7 +348,7 @@
       width: 100%;
     }
 
-    .choice, .progress-option, .goal-option {
+    .choice {
       display: flex;
       align-items: center;
       background: #f2f3f4;
@@ -273,83 +362,21 @@
       box-sizing: border-box;
       border: 2px solid transparent;
       width: 100%;
-      font-weight: 700;
+      font-weight: 700 !important;
       color: #4B4B4B;
     }
 
-    .choice:hover, .progress-option:hover, .goal-option:hover {
+    .choice:hover {
       background: #e8eaed;
     }
 
-    .choice.selected, .progress-option.selected, .goal-option.selected {
+    .choice.selected {
       background: #e8f0fe;
       border: 2px solid #4285F4;
-      color: #1CB0F6;
+      color: #1CB0F6 !important;
     }
 
-    .goal-option {
-      justify-content: space-between;
-    }
-
-    .goal-option .left-text {
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .goal-option .right-text {
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-
-    .goal-option.selected .left-text,
-    .goal-option.selected .right-text {
-      color: #1CB0F6;
-    }
-
-    /* Progress circles */
-    .progress-circle {
-      width: 40px;
-      height: 40px;
-      min-width: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .progress-ring {
-      width: 40px;
-      height: 40px;
-      display: block;
-      overflow: visible;
-    }
-
-    .progress-ring-circle-bg {
-      stroke: #d2d2dc;
-      opacity: 0.28;
-      stroke-width: 5;
-      fill: transparent;
-    }
-
-    .progress-ring-circle {
-      stroke: #4285F4;
-      stroke-width: 5;
-      stroke-linecap: round;
-      stroke-dasharray: 113.0973355;
-      transform-origin: 50% 50%;
-      transform: rotate(-90deg);
-      transition: stroke-dashoffset 320ms cubic-bezier(.2,.9,.4,1);
-      fill: transparent;
-    }
-
-    .level-label {
-      font-size: 1rem;
-      color: #1d1f2b;
-      line-height: 1.2;
-      font-weight: 700;
-    }
-
-    /* Icon styling - all using local SVGs */
+    /* Icon styles for local SVGs */
     .choice-icon-img {
       width: 1.8rem;
       height: 1.8rem;
@@ -364,13 +391,12 @@
       flex-shrink: 0;
     }
 
-    .choice-icon-large img {
+    .choice-icon-large img, .choice-icon-img img {
       width: 100%;
       height: 100%;
       display: block;
     }
 
-    /* Social icon stack */
     .icon-stack {
       position: relative;
       width: 2rem;
@@ -410,6 +436,150 @@
       border-radius: inherit;
     }
 
+    /* Progress options */
+    .progress-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      flex-grow: 1;
+      margin-bottom: 0.5rem;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .progress-option {
+      display: flex;
+      align-items: center;
+      background: #f2f3f4;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      min-height: 3.5rem;
+      box-sizing: border-box;
+      gap: 12px;
+      border: 2px solid transparent;
+      width: 100%;
+      font-weight: 700 !important;
+      color: #4B4B4B;
+    }
+
+    .progress-option:hover {
+      background: #e8eaed;
+    }
+
+    .progress-option.selected {
+      background: #e8f0fe;
+      border: 2px solid #4285F4;
+      color: #1CB0F6 !important;
+    }
+
+    .progress-option.selected .level-label {
+      color: #1CB0F6 !important;
+    }
+
+    .progress-circle {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .progress-ring {
+      width: 40px;
+      height: 40px;
+      display: block;
+      overflow: visible;
+    }
+
+    .progress-ring-circle-bg {
+      stroke: #d2d2dc;
+      opacity: 0.28;
+      stroke-width: 5;
+      fill: transparent;
+    }
+
+    .progress-ring-circle {
+      stroke: #4285F4;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 113.0973355;
+      transform-origin: 50% 50%;
+      transform: rotate(-90deg);
+      transition: stroke-dashoffset 320ms cubic-bezier(.2,.9,.4,1);
+      fill: transparent;
+    }
+
+    .level-label {
+      font-size: 1rem;
+      color: #1d1f2b;
+      line-height: 1.2;
+      font-weight: 700 !important;
+      transition: color 0.2s ease;
+    }
+
+    /* Goal options */
+    .goal-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      flex-grow: 1;
+      margin-bottom: 0.5rem;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .goal-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f2f3f4;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      min-height: 3.5rem;
+      box-sizing: border-box;
+      border: 2px solid transparent;
+      width: 100%;
+      font-weight: 700 !important;
+      color: #4B4B4B;
+    }
+
+    .goal-option:hover {
+      background: #e8eaed;
+    }
+
+    .goal-option.selected {
+      background: #e8f0fe;
+      border: 2px solid #4285F4;
+      color: #1CB0F6 !important;
+    }
+
+    .goal-option .left-text {
+      font-weight: 700 !important;
+      font-size: 1rem;
+      transition: color 0.2s ease;
+    }
+
+    .goal-option .right-text {
+      font-weight: 700 !important;
+      font-size: 0.95rem;
+      transition: color 0.2s ease;
+    }
+
+    .goal-option.selected .left-text,
+    .goal-option.selected .right-text {
+      color: #1CB0F6 !important;
+    }
+
     /* Notification box */
     .notification-content {
       flex-grow: 1;
@@ -433,14 +603,14 @@
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .notification-header {
       display: flex;
       justify-content: space-between;
       font-size: 15px;
-      font-weight: 700;
+      font-weight: 700 !important;
       margin-bottom: 10px;
     }
 
@@ -448,7 +618,11 @@
       cursor: pointer;
       font-size: 18px;
       color: #888;
-      font-weight: 700;
+      font-weight: 700 !important;
+    }
+
+    .close-btn:hover {
+      color: #000;
     }
 
     .notification-body {
@@ -457,7 +631,7 @@
       gap: 6px;
       font-size: 14px;
       margin-bottom: 14px;
-      font-weight: 700;
+      font-weight: 700 !important;
     }
 
     .bell-icon {
@@ -477,7 +651,7 @@
       font-size: 14px;
       cursor: pointer;
       transition: background 0.2s;
-      font-weight: 700;
+      font-weight: 700 !important;
     }
 
     .block-btn {
@@ -492,14 +666,29 @@
     .allow-btn {
       background-color: #e7f8e7;
       color: #3c983c;
-      font-weight: 700;
+      font-weight: 700 !important;
+      box-shadow: 0 1px 2px rgba(60,152,60,0.09);
     }
 
     .allow-btn:hover {
       background-color: #d8f4d8;
     }
 
-    /* Course selection styles */
+    /* Course selection */
+    .course-container {
+      max-width: 25rem;
+      margin: 0 auto;
+      padding: 1rem 1rem 1.5rem 1rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      width: 100%;
+      overflow-x: hidden;
+      gap: 1.5rem;
+    }
+
     .course-header {
       display: flex;
       align-items: flex-start;
@@ -531,7 +720,7 @@
       font-size: 16px;
       position: relative;
       margin-left: 0.8rem;
-      font-weight: 400;
+      font-weight: 400 !important;
     }
 
     .course-speech-bubble::before {
@@ -576,6 +765,8 @@
       font-size: 18px;
       cursor: pointer;
       transition: all 0.2s ease;
+      position: relative;
+      box-sizing: border-box;
       width: 100%;
     }
 
@@ -587,10 +778,15 @@
     .course-option.selected {
       background: rgba(28, 176, 246, 0.12);
       border: 2px solid #1CB0F6;
+      box-shadow: 0 2px 8px rgba(28, 176, 246, 0.2);
     }
 
     .course-option.selected .course-title {
-      color: #1CB0F6;
+      color: #1CB0F6 !important;
+    }
+
+    .course-option.selected .course-subtext {
+      color: #5a5a5a !important;
     }
 
     .course-icon-container {
@@ -613,6 +809,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .path-node .material-symbols-outlined {
@@ -634,6 +831,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.2s ease;
     }
 
     .icon-read {
@@ -661,7 +859,7 @@
 
     .course-title {
       font-size: 18px;
-      font-weight: 700;
+      font-weight: 700 !important;
       line-height: 1.3;
       color: #4B4B4B;
       transition: color 0.2s ease;
@@ -669,52 +867,48 @@
 
     .course-subtext {
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 700 !important;
       line-height: 1.4;
       color: #777777;
+      transition: color 0.2s ease;
     }
 
-    /* Celebration effects */
-    .celebration {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
+    .course-continue-btn {
+      margin-top: auto;
+      position: sticky;
+      bottom: 0;
     }
 
-    .firework-emoji {
-      position: absolute;
-      font-size: 20px;
-      opacity: 0;
-      z-index: 2;
-      animation: fireworkPop 1.2s ease-out forwards;
-    }
-
-    @keyframes fireworkPop {
-      0% { transform: scale(0) translateY(0); opacity: 1; }
-      50% { transform: scale(1.2) translateY(-15px); opacity: 1; }
-      100% { transform: scale(1) translateY(-30px); opacity: 0; }
-    }
-
-    /* Hidden state */
     .hidden {
       display: none;
     }
 
-    /* Button overrides for onboarding */
-    .continue-btn, .third-continue-btn, .fourth-continue-btn, 
-    .fifth-continue-btn, .sixth-continue-btn, .seventh-continue-btn, 
-    .eighth-continue-btn, .ninth-continue-btn, .course-continue-btn {
-      width: 100%;
-      margin-top: auto;
-    }
-
-    /* Mobile responsive */
-    @media (max-width: 480px) {
+    /* Responsive */
+    @media (max-height: 700px) {
       .rabbit { width: 110px; height: 110px; }
+      .rabbit-container { height: 100px; }
+      [speech-bubble] { --bbPadding: 0.7rem; font-size: 0.9rem; }
+      .continue-btn, .third-continue-btn, .fourth-continue-btn, 
+      .fifth-continue-btn, .sixth-continue-btn, .seventh-continue-btn, 
+      .eighth-continue-btn, .ninth-continue-btn, .course-continue-btn { padding: 0.85rem; font-size: 1rem; }
+      .choice, .progress-option, .goal-option { padding: 0.85rem 1rem; min-height: 3rem; font-size: 0.95rem; }
+      .course-icon-container { width: 70px; min-width: 70px; height: 70px; }
+      .path-node { height: 70px; width: 70px; }
+      .path-node .material-symbols-outlined { font-size: 38px; }
+      .custom-icon-wrapper { width: 70px; height: 70px; }
+      .icon-read { width: 42px; height: 42px; }
+      .course-title { font-size: 17px; }
+      .course-subtext { font-size: 12px; }
+      .course-option { padding: 20px 16px; }
+    }
+    
+    @media (max-width: 480px) {
+      .container { gap: 1rem; }
+      .rabbit { width: 120px; height: 120px; }
+      .continue-btn, .third-continue-btn, .fourth-continue-btn, 
+      .fifth-continue-btn, .sixth-continue-btn, .seventh-continue-btn, 
+      .eighth-continue-btn, .ninth-continue-btn, .course-continue-btn { font-size: 1rem; }
+      .course-option { padding: 18px 16px; gap: 16px; }
       .course-icon-container { width: 65px; min-width: 65px; height: 65px; }
       .path-node { height: 65px; width: 65px; }
       .path-node .material-symbols-outlined { font-size: 34px; }
@@ -722,7 +916,6 @@
       .icon-read { width: 38px; height: 38px; }
       .course-title { font-size: 16px; }
       .course-subtext { font-size: 11px; }
-      .course-option { padding: 18px 16px; gap: 16px; }
     }
   </style>
 </head>
@@ -735,7 +928,7 @@
         <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi the rabbit">
       </div>
     </div>
-    <button class="btn btn-carpenter-blue continue-btn" id="continueBtn">CONTINUE</button>
+    <button class="continue-btn" id="continueBtn">CONTINUE</button>
   </div>
 
   <!-- Third State - How did you hear about Vulanet? -->
@@ -1002,7 +1195,7 @@
         <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
       </div>
     </div>
-    <button class="btn btn-carpenter-blue continue-btn" id="eighthContinueBtn">CONTINUE</button>
+    <button class="continue-btn" id="eighthContinueBtn">CONTINUE</button>
   </div>
 
   <!-- Ninth State - Fun message -->
@@ -1013,7 +1206,7 @@
         <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
       </div>
     </div>
-    <button class="btn btn-carpenter-blue continue-btn" id="ninthContinueBtn">LET'S GO!</button>
+    <button class="continue-btn" id="ninthContinueBtn">LET'S GO!</button>
   </div>
 
   <!-- Course Selection State -->
@@ -1084,9 +1277,7 @@
     };
     
     let currentState = 1;
-    let notificationsEnabled = false;
 
-    // Continue button for first state
     document.getElementById('continueBtn').addEventListener('click', function() {
       if (currentState === 1) {
         const speechBubble = document.querySelector('#initialState [speech-bubble]');
@@ -1249,7 +1440,6 @@
 
       document.getElementById('allowBtn').onclick = function() {
         onboardingData.notificationsAllowed = true;
-        notificationsEnabled = true;
         seventhContainer.classList.add('hidden');
         document.getElementById('eighthState').classList.remove('hidden');
         currentState = 8;
@@ -1257,7 +1447,6 @@
 
       document.getElementById('blockBtn').onclick = function() {
         onboardingData.notificationsAllowed = false;
-        notificationsEnabled = false;
         seventhContainer.classList.add('hidden');
         document.getElementById('eighthState').classList.remove('hidden');
         currentState = 8;
@@ -1265,7 +1454,6 @@
 
       document.getElementById('closeBtn').onclick = function() {
         onboardingData.notificationsAllowed = false;
-        notificationsEnabled = false;
         seventhContainer.classList.add('hidden');
         document.getElementById('eighthState').classList.remove('hidden');
         currentState = 8;
@@ -1301,7 +1489,7 @@
 
       courseContinueBtn.addEventListener('click', function() {
         if (!this.disabled) {
-          // Save onboarding data to localStorage (or send to server)
+          // Save onboarding data to localStorage
           localStorage.setItem('onboardingData', JSON.stringify(onboardingData));
           
           // Redirect based on preference
