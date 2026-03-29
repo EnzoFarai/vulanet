@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome - Vulanet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  
+  <!-- Local Fonts -->
+  <link rel="stylesheet" href="/public/assets/fonts/fonts.css">
+  
+  <!-- Button Component Styles -->
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+  
+  <!-- Speech Bubble Component Styles -->
+  <link rel="stylesheet" href="/src/styles/components/speech-bubble.css">
+  
+  <style>
+    /* ===== ADDITIONAL ONBOARDING STYLES ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      cursor: default;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    }
+
+    body {
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Container styles */
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      height: 100vh;
+      position: relative;
+      padding: 1rem 1rem 1.5rem 1rem;
+      gap: 1rem;
+      max-width: 25rem;
+      margin: 0 auto;
+      overflow-x: hidden;
+    }
+
+    .top-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      width: 100%;
+      gap: 1.5rem;
+    }
+
+    .rabbit {
+      width: 130px;
+      height: 130px;
+      animation: pulse 1.2s infinite alternate;
+      display: block;
+      position: relative;
+      z-index: 5;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.09); }
+    }
+
+    /* State containers */
+    .third-state, .fourth-state, .fifth-state, .sixth-state, .seventh-state, .eighth-state, .ninth-state, .course-state {
+      background: #fff;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-size: 15px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      width: 100%;
+    }
+
+    .third-container, .fourth-container, .fifth-container, .sixth-container, .seventh-container, .eighth-container, .ninth-container, .course-container {
+      max-width: 25rem;
+      margin: 0 auto;
+      padding: 1rem 1rem 1.5rem 1rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow-y: auto;
+      gap: 1rem;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    .content-area {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-bottom: 1rem;
+      width: 100%;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Rabbit container for left-pointing speech bubbles */
+    .rabbit-container {
+      display: flex;
+      align-items: flex-end;
+      padding: 0.75rem 0 0.5rem;
+      margin-bottom: 0.5rem;
+      flex-shrink: 0;
+      height: 120px;
+      gap: 0.75rem;
+      width: 100%;
+      position: relative;
+    }
+
+    .rabbit-wrapper {
+      position: relative;
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      flex-shrink: 0;
+      margin-right: 0.5rem;
+      transform: translateY(-8px);
+    }
+
+    .third-rabbit, .fourth-rabbit, .fifth-rabbit, .sixth-rabbit, .seventh-rabbit, .eighth-rabbit, .ninth-rabbit, .course-rabbit {
+      width: 2.5rem;
+      height: 2.5rem;
+      display: block;
+      animation: pulse-rise 2s forwards;
+    }
+
+    .speech-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      min-height: 70px;
+    }
+
+    /* Question mark and lightbulb */
+    .question-mark {
+      position: absolute;
+      top: -1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.4rem;
+      color: #FFD700;
+      font-weight: bold;
+      z-index: 6;
+      animation: rise-and-glow 2s forwards;
+    }
+
+    .lightbulb-icon {
+      position: absolute;
+      top: -1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.4rem;
+      color: #FFD700;
+      z-index: 6;
+      animation: bulb-glow 2s forwards;
+    }
+
+    @keyframes pulse-rise {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1.03); }
+    }
+
+    @keyframes rise-and-glow {
+      0% {
+        top: -1.5rem;
+        color: #FFD700;
+        text-shadow: none;
+      }
+      50% {
+        top: -2rem;
+        color: #FFD700;
+        text-shadow: 0 0 5px #FFD700;
+      }
+      100% {
+        top: -2.2rem;
+        color: #FFD700;
+        text-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700;
+        animation: neon-pulse 1.5s infinite alternate;
+      }
+    }
+
+    @keyframes bulb-glow {
+      0% {
+        top: -1.5rem;
+        color: #FFD700;
+        text-shadow: none;
+      }
+      50% {
+        top: -2rem;
+        color: #FFD700;
+        text-shadow: 0 0 5px #FFD700;
+      }
+      100% {
+        top: -2.2rem;
+        color: #FFD700;
+        text-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700;
+        animation: bulb-pulse 1.5s infinite alternate;
+      }
+    }
+
+    @keyframes neon-pulse {
+      0% { text-shadow: 0 0 5px #FFD700, 0 0 10px #FFD700; }
+      100% { text-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700; }
+    }
+
+    @keyframes bulb-pulse {
+      0% { text-shadow: 0 0 5px #FFD700, 0 0 10px #FFD700; }
+      100% { text-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700; }
+    }
+
+    /* Choice lists */
+    .choice-list, .progress-options, .goal-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      flex-grow: 1;
+      margin-bottom: 0.5rem;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .choice, .progress-option, .goal-option {
+      display: flex;
+      align-items: center;
+      background: #f2f3f4;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      min-height: 3.5rem;
+      box-sizing: border-box;
+      border: 2px solid transparent;
+      width: 100%;
+      font-weight: 700;
+      color: #4B4B4B;
+    }
+
+    .choice:hover, .progress-option:hover, .goal-option:hover {
+      background: #e8eaed;
+    }
+
+    .choice.selected, .progress-option.selected, .goal-option.selected {
+      background: #e8f0fe;
+      border: 2px solid #4285F4;
+      color: #1CB0F6;
+    }
+
+    .goal-option {
+      justify-content: space-between;
+    }
+
+    .goal-option .left-text {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .goal-option .right-text {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .goal-option.selected .left-text,
+    .goal-option.selected .right-text {
+      color: #1CB0F6;
+    }
+
+    /* Progress circles */
+    .progress-circle {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .progress-ring {
+      width: 40px;
+      height: 40px;
+      display: block;
+      overflow: visible;
+    }
+
+    .progress-ring-circle-bg {
+      stroke: #d2d2dc;
+      opacity: 0.28;
+      stroke-width: 5;
+      fill: transparent;
+    }
+
+    .progress-ring-circle {
+      stroke: #4285F4;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 113.0973355;
+      transform-origin: 50% 50%;
+      transform: rotate(-90deg);
+      transition: stroke-dashoffset 320ms cubic-bezier(.2,.9,.4,1);
+      fill: transparent;
+    }
+
+    .level-label {
+      font-size: 1rem;
+      color: #1d1f2b;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    /* Icon styling */
+    .ph-duotone, .ph-fill, .ph-regular, .ph-bold {
+      font-size: 1.6rem;
+      margin-right: 0.65rem;
+      width: 1.8rem;
+      display: inline-flex;
+      justify-content: center;
+    }
+
+    .ph-graduation-cap { color: #6F4EA1; }
+    .ph-briefcase { color: #A56644; }
+    .ph-confetti { color: #FF9600; }
+    .ph-brain { color: #FFB2B2; }
+    .ph-dots-three-circle { color: #AA00FF; }
+    .ph-newspaper { color: #777777; }
+    .ph-users { color: #4285F4; }
+    .ph-television { color: #000000; }
+
+    /* Notification box */
+    .notification-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      width: 100%;
+    }
+
+    .notification-box {
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      border-radius: 6px;
+      padding: 16px 14px 12px 14px;
+      position: relative;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .notification-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .close-btn {
+      cursor: pointer;
+      font-size: 18px;
+      color: #888;
+      font-weight: 700;
+    }
+
+    .notification-body {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    .notification-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .block-btn, .allow-btn {
+      flex: 1;
+      padding: 7px 0;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: 700;
+    }
+
+    .block-btn {
+      background-color: #eee;
+      color: #444;
+    }
+
+    .block-btn:hover {
+      background-color: #ddd;
+    }
+
+    .allow-btn {
+      background-color: #e7f8e7;
+      color: #3c983c;
+      font-weight: 700;
+    }
+
+    .allow-btn:hover {
+      background-color: #d8f4d8;
+    }
+
+    /* Course selection styles */
+    .course-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 0;
+      padding: 0 8px;
+      width: 100%;
+    }
+
+    .course-rabbit-icon {
+      color: #4285F4;
+      font-size: 46px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .course-speech-bubble {
+      background: white;
+      border-radius: 0.8rem;
+      padding: 0.8rem;
+      border: 2px solid #E5E5E5;
+      color: #4B4B4B;
+      flex: 1;
+      font-size: 16px;
+      position: relative;
+      margin-left: 0.8rem;
+      font-weight: 400;
+    }
+
+    .course-speech-bubble::before {
+      content: '';
+      position: absolute;
+      right: 100%;
+      border: solid transparent;
+      border-width: 0.6rem 0.8rem 0.6rem 0;
+      border-right-color: #E5E5E5;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .course-speech-bubble::after {
+      content: '';
+      position: absolute;
+      right: calc(100% - 2px);
+      border: solid transparent;
+      border-width: calc(0.6rem - 2px) calc(0.8rem - 2px) calc(0.6rem - 2px) 0;
+      border-right-color: white;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .course-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 0 8px;
+      width: 100%;
+    }
+
+    .course-option {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 24px 20px;
+      border-radius: 24px;
+      border: 2px solid #E5E5E5;
+      background: white;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .course-option:hover {
+      background: #F7F7F7;
+      transform: translateY(-2px);
+    }
+
+    .course-option.selected {
+      background: rgba(28, 176, 246, 0.12);
+      border: 2px solid #1CB0F6;
+    }
+
+    .course-option.selected .course-title {
+      color: #1CB0F6;
+    }
+
+    .course-icon-container {
+      width: 80px;
+      min-width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .path-node {
+      position: relative;
+      height: 80px;
+      width: 80px;
+      border-radius: 50%;
+      background-color: #4285F4;
+      box-shadow: 0 8px 0 0 #3367D6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .path-node .material-symbols-outlined {
+      font-size: 44px;
+      color: white;
+      margin: 0;
+    }
+
+    .course-option.selected .path-node {
+      background-color: #1CB0F6;
+      box-shadow: 0 8px 0 0 #0f8bc4;
+    }
+
+    .custom-icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background: rgba(251, 188, 5, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-read {
+      font-size: 48px;
+      color: #FBBC05;
+      margin: 0;
+    }
+
+    .course-option.selected .custom-icon-wrapper {
+      background: rgba(28, 176, 246, 0.2);
+    }
+
+    .course-option.selected .icon-read {
+      color: #1CB0F6;
+    }
+
+    .course-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .course-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #4B4B4B;
+      transition: color 0.2s ease;
+    }
+
+    .course-subtext {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.4;
+      color: #777777;
+    }
+
+    /* Celebration effects */
+    .celebration {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .firework-emoji {
+      position: absolute;
+      font-size: 20px;
+      opacity: 0;
+      z-index: 2;
+      animation: fireworkPop 1.2s ease-out forwards;
+    }
+
+    @keyframes fireworkPop {
+      0% { transform: scale(0) translateY(0); opacity: 1; }
+      50% { transform: scale(1.2) translateY(-15px); opacity: 1; }
+      100% { transform: scale(1) translateY(-30px); opacity: 0; }
+    }
+
+    /* Hidden state */
+    .hidden {
+      display: none;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 480px) {
+      .rabbit { width: 110px; height: 110px; }
+      .course-icon-container { width: 65px; min-width: 65px; height: 65px; }
+      .path-node { height: 65px; width: 65px; }
+      .path-node .material-symbols-outlined { font-size: 34px; }
+      .custom-icon-wrapper { width: 65px; height: 65px; }
+      .icon-read { font-size: 38px; }
+      .course-title { font-size: 16px; }
+      .course-subtext { font-size: 11px; }
+      .course-option { padding: 18px 16px; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- First and Second State -->
+  <div class="container" id="initialState">
+    <div class="top-section">
+      <div speech-bubble pbottom acenter style="--bbColor:#ffffff">Hi there! I'm Vusi!</div>
+      <svg class="rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
+        <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
+      </svg>
+    </div>
+    <button class="btn btn-carpenter-blue continue-btn" id="continueBtn">CONTINUE</button>
+  </div>
+
+  <!-- Third State - How did you hear about Vulanet? -->
+  <div class="third-state hidden" id="thirdState">
+    <div class="third-container">
+      <div class="content-area">
+        <div class="rabbit-container">
+          <div class="rabbit-wrapper">
+            <div class="question-mark">?</div>
+            <svg class="third-rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
+              <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
+            </svg>
+          </div>
+          <div class="speech-wrapper">
+            <div speech-bubble pleft acenter style="--bbColor:#ffffff">How did you hear about Vulanet?</div>
+          </div>
+        </div>
+        
+        <div class="choice-list">
+          <div class="choice" data-value="facebook_instagram">
+            <span class="icon-stack">
+              <img class="fb-icon" src="/public/assets/icons/social/facebook.svg" alt="Facebook" style="width:24px;height:24px;">
+              <img class="ig-icon" src="/public/assets/icons/social/instagram.svg" alt="Instagram" style="width:18px;height:18px;">
+            </span>
+            Facebook/Instagram
+          </div>
+          <div class="choice" data-value="google">
+            <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google" style="width:28px;height:28px;">
+            Google Search
+          </div>
+          <div class="choice" data-value="news">
+            <i class="ph-duotone ph-newspaper"></i>
+            News/article/blog
+          </div>
+          <div class="choice" data-value="linkedin">
+            <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" style="width:28px;height:28px;">
+            LinkedIn
+          </div>
+          <div class="choice" data-value="friends_family">
+            <i class="ph-duotone ph-users"></i>
+            Friends/family
+          </div>
+          <div class="choice" data-value="youtube">
+            <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube" style="width:28px;height:28px;">
+            YouTube
+          </div>
+          <div class="choice" data-value="tv">
+            <i class="ph-duotone ph-television"></i>
+            TV
+          </div>
+          <div class="choice" data-value="tiktok">
+            <img class="icon-img" src="https://img.icons8.com/fluency/48/tiktok.png" alt="TikTok" style="width:28px;height:28px;">
+            TikTok
+          </div>
+          <div class="choice" data-value="other">
+            <i class="ph-fill ph-dots-three-circle"></i>
+            Other
+          </div>
+        </div>
+      </div>
+      
+      <button class="third-continue-btn" id="thirdContinueBtn" disabled>CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- Fourth State - Why are you learning? -->
+  <div class="fourth-state hidden" id="fourthState">
+    <div class="fourth-container">
+      <div class="content-area">
+        <div class="rabbit-container">
+          <div class="rabbit-wrapper">
+            <div class="question-mark">?</div>
+            <svg class="fourth-rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
+              <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
+            </svg>
+          </div>
+          <div class="speech-wrapper">
+            <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="fourthSpeechBubble">Why are you learning?</div>
+          </div>
+        </div>
+        
+        <div class="choice-list">
+          <div class="choice" data-value="education" data-response="Let's ace those tests!">
+            <i class="ph-duotone ph-graduation-cap"></i>
+            Support my education
+          </div>
+          <div class="choice" data-value="career" data-response="Let's unlock new opportunities for you!">
+            <i class="ph-duotone ph-briefcase"></i>
+            Boost my career
+          </div>
+          <div class="choice" data-value="fun" data-response="Yay! Fun is my specialty!">
+            <i class="ph-duotone ph-confetti"></i>
+            Just for fun
+          </div>
+          <div class="choice" data-value="productivity" data-response="That's a wise choice!">
+            <i class="ph-duotone ph-brain"></i>
+            Spend time productively
+          </div>
+          <div class="choice" data-value="other_goal" data-response="Any reason is a good reason to learn!">
+            <i class="ph-fill ph-dots-three-circle"></i>
+            Other
+          </div>
+        </div>
+      </div>
+      
+      <button class="fourth-continue-btn" id="fourthContinueBtn" disabled>CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- Fifth State - How much do you know? -->
+  <div class="fifth-state hidden" id="fifthState">
+    <div class="fifth-container">
+      <div class="content-area">
+        <div class="rabbit-container">
+          <div class="rabbit-wrapper">
+            <div class="question-mark">?</div>
+            <svg class="fifth-rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
+              <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
+            </svg>
+          </div>
+          <div class="speech-wrapper">
+            <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="fifthSpeechBubble">How much do you know about the course you selected?</div>
+          </div>
+        </div>
+        
+        <div class="progress-options">
+          <div class="progress-option" data-response="Okay, we'll start afresh!" data-value="0">
+            <div class="progress-circle">
+              <svg class="progress-ring" viewBox="0 0 44 44" width="44" height="44">
+                <circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle>
+                <circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="113.0973355"></circle>
+              </svg>
+            </div>
+            <div class="level-label">I'm new to this subject</div>
+          </div>
+          <div class="progress-option" data-response="Okay, we can build on what you already know!" data-value="25">
+            <div class="progress-circle">
+              <svg class="progress-ring" viewBox="0 0 44 44" width="44" height="44">
+                <circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle>
+                <circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="84.8230016"></circle>
+              </svg>
+            </div>
+            <div class="level-label">I have common knowledge</div>
+          </div>
+          <div class="progress-option" data-response="Okay, we can build on what you already know!" data-value="50">
+            <div class="progress-circle">
+              <svg class="progress-ring" viewBox="0 0 44 44" width="44" height="44">
+                <circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle>
+                <circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="56.5486678"></circle>
+              </svg>
+            </div>
+            <div class="level-label">I know the basics</div>
+          </div>
+          <div class="progress-option" data-response="Wow, that's great!" data-value="75">
+            <div class="progress-circle">
+              <svg class="progress-ring" viewBox="0 0 44 44" width="44" height="44">
+                <circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle>
+                <circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="28.2743339"></circle>
+              </svg>
+            </div>
+            <div class="level-label">I can talk about various topics</div>
+          </div>
+          <div class="progress-option" data-response="Wow, we've got ourselves an aficionado over here!" data-value="100">
+            <div class="progress-circle">
+              <svg class="progress-ring" viewBox="0 0 44 44" width="44" height="44">
+                <circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle>
+                <circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="0"></circle>
+              </svg>
+            </div>
+            <div class="level-label">I can discuss most topics in detail</div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="fifth-continue-btn" id="fifthContinueBtn" disabled>CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- Sixth State - Daily learning goal -->
+  <div class="sixth-state hidden" id="sixthState">
+    <div class="sixth-container">
+      <div class="content-area">
+        <div class="rabbit-container">
+          <div class="rabbit-wrapper">
+            <div class="question-mark">?</div>
+            <svg class="sixth-rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
+              <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
+            </svg>
+          </div>
+          <div class="speech-wrapper">
+            <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="sixthSpeechBubble">What's your daily learning goal?</div>
+          </div>
+        </div>
+        
+        <div class="goal-options">
+          <div class="goal-option" data-value="5" data-response="Slow and steady wins the race!">
+            <span class="left-text">5 min / day</span>
+            <span class="right-text">Casual</span>
+          </div>
+          <div class="goal-option" data-value="10" data-response="Your consistency will pay off!">
+            <span class="left-text">10 min / day</span>
+            <span class="right-text">Focused</span>
+          </div>
+          <div class="goal-option" data-value="15" data-response="You're on the fast track!">
+            <span class="left-text">15 min / day</span>
+            <span class="right-text">Driven</span>
+          </div>
+          <div class="goal-option" data-value="20" data-response="Nothing can stop you now!">
+            <span class="left-text">20 min / day</span>
+            <span class="right-text">Intense</span>
+          </div>
+        </div>
+      </div>
+      
+      <button class="sixth-continue-btn" id="sixthContinueBtn" disabled>CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- Seventh State - Notifications -->
+  <div class="seventh-state hidden" id="seventhState">
+    <div class="seventh-container">
+      <div class="content-area">
+        <div class="rabbit-container">
+          <div class="rabbit-wrapper">
+            <div class="lightbulb-icon">
+              <i class="ph-fill ph-lightbulb-filament"></i>
+            </div>
+            <svg class="seventh-rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
+              <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
+            </svg>
+          </div>
+          <div class="speech-wrapper">
+            <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="seventhSpeechBubble">I'll remind you to practice so it becomes a habit!</div>
+          </div>
+        </div>
+        
+        <div class="notification-content">
+          <div class="notification-box" id="notifBox">
+            <div class="notification-header">
+              <span>vulanet.vercel.app wants to</span>
+              <span class="close-btn" id="closeBtn">&times;</span>
+            </div>
+            <div class="notification-body">
+              <span class="bell-icon">🔔</span>
+              <span>Show notifications</span>
+            </div>
+            <div class="notification-actions">
+              <button class="block-btn" id="blockBtn">BLOCK</button>
+              <button class="allow-btn" id="allowBtn">ALLOW</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="seventh-continue-btn" id="seventhContinueBtn" disabled>CONTINUE</button>
+    </div>
+  </div>
+
+  <!-- Eighth State - Motivation message -->
+  <div class="container hidden" id="eighthState">
+    <div class="top-section">
+      <div speech-bubble pbottom acenter style="--bbColor:#ffffff">It can be hard to stay motivated...</div>
+      <svg class="rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
+        <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
+      </svg>
+    </div>
+    <button class="btn btn-carpenter-blue continue-btn" id="eighthContinueBtn">CONTINUE</button>
+  </div>
+
+  <!-- Ninth State - Fun message -->
+  <div class="container hidden" id="ninthState">
+    <div class="top-section">
+      <div speech-bubble pbottom acenter style="--bbColor:#ffffff">...so Vulanet is designed to be fun like a game!</div>
+      <svg class="rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
+        <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
+      </svg>
+    </div>
+    <button class="btn btn-carpenter-blue continue-btn" id="ninthContinueBtn">LET'S GO!</button>
+  </div>
+
+  <!-- Course Selection State -->
+  <div class="course-state hidden" id="courseState">
+    <div class="course-container">
+      <div class="course-header">
+        <div class="course-rabbit-icon"><i class="ph-fill ph-rabbit"></i></div>
+        <div class="course-speech-bubble" id="courseSpeechBubble">
+          Now let's find a place to start!
+        </div>
+      </div>
+
+      <div class="course-list">
+        <div class="course-option" data-course="game" data-value="game">
+          <div class="course-icon-container">
+            <div class="path-node">
+              <span class="material-symbols-outlined">joystick</span>
+            </div>
+          </div>
+          <div class="course-content">
+            <div class="course-title">Start with a game</div>
+            <div class="course-subtext" id="gameSubtext">Take the first lesson of your course</div>
+          </div>
+        </div>
+        
+        <div class="course-option" data-course="reading" data-value="reading">
+          <div class="course-icon-container">
+            <div class="custom-icon-wrapper">
+              <i class="ph-duotone ph-book-open-user icon-read"></i>
+            </div>
+          </div>
+          <div class="course-content">
+            <div class="course-title">Start with reading</div>
+            <div class="course-subtext">Ready yourself for a lesson by reading</div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="course-continue-btn" id="courseContinueBtn" disabled>CONTINUE</button>
+    </div>
+  </div>
+
+  <script>
+    // Get selected course from localStorage
+    const selectedCourseId = localStorage.getItem('selectedCourseId');
+    const selectedCourseName = localStorage.getItem('selectedCourseName') || 'the course';
+    
+    // Update course-specific text
+    const gameSubtext = document.getElementById('gameSubtext');
+    if (gameSubtext && selectedCourseName) {
+      gameSubtext.textContent = `Take the first lesson of ${selectedCourseName}`;
+    }
+    
+    // Store onboarding data
+    let onboardingData = {
+      heardFrom: null,
+      learningReason: null,
+      knowledgeLevel: null,
+      dailyGoal: null,
+      notificationsAllowed: null,
+      startPreference: null,
+      courseId: selectedCourseId,
+      courseName: selectedCourseName
+    };
+    
+    let currentState = 1;
+    let notificationsEnabled = false;
+
+    // Continue button for first state
+    document.getElementById('continueBtn').addEventListener('click', function() {
+      if (currentState === 1) {
+        const speechBubble = document.querySelector('#initialState [speech-bubble]');
+        speechBubble.textContent = "Let's get this party started!";
+        createCelebration();
+        currentState = 2;
+      } else if (currentState === 2) {
+        document.getElementById('initialState').classList.add('hidden');
+        document.getElementById('thirdState').classList.remove('hidden');
+        currentState = 3;
+      }
+    });
+
+    function createCelebration() {
+      const container = document.querySelector('.container');
+      const celebration = document.createElement('div');
+      celebration.className = 'celebration';
+      container.appendChild(celebration);
+
+      const fireworksCount = 18;
+      
+      for (let i = 0; i < fireworksCount; i++) {
+        const firework = document.createElement('div');
+        firework.className = 'firework-emoji';
+        firework.textContent = '✨';
+        
+        let left, top;
+        const quadrant = i % 4;
+        switch(quadrant) {
+          case 0:
+            left = Math.random() * 35;
+            top = Math.random() * 35;
+            break;
+          case 1:
+            left = 65 + Math.random() * 30;
+            top = Math.random() * 35;
+            break;
+          case 2:
+            left = Math.random() * 35;
+            top = 65 + Math.random() * 30;
+            break;
+          case 3:
+            left = 65 + Math.random() * 30;
+            top = 65 + Math.random() * 30;
+            break;
+        }
+        
+        firework.style.left = `${left}%`;
+        firework.style.top = `${top}%`;
+        firework.style.animationDelay = `${(i * 0.1) % 1}s`;
+        
+        celebration.appendChild(firework);
+      }
+
+      setTimeout(() => {
+        celebration.remove();
+      }, 1500);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Third state functionality
+      const thirdChoices = document.querySelectorAll('#thirdState .choice');
+      const thirdContinueBtn = document.getElementById('thirdContinueBtn');
+      
+      thirdChoices.forEach(choice => {
+        choice.addEventListener('click', function() {
+          thirdChoices.forEach(c => c.classList.remove('selected'));
+          this.classList.add('selected');
+          onboardingData.heardFrom = this.getAttribute('data-value');
+          thirdContinueBtn.disabled = false;
+          thirdContinueBtn.classList.add('enabled');
+        });
+      });
+      
+      thirdContinueBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+          document.getElementById('thirdState').classList.add('hidden');
+          document.getElementById('fourthState').classList.remove('hidden');
+          currentState = 4;
+        }
+      });
+
+      // Fourth state functionality
+      const fourthChoices = document.querySelectorAll('#fourthState .choice');
+      const fourthContinueBtn = document.getElementById('fourthContinueBtn');
+      const fourthSpeechBubble = document.querySelector('#fourthState [speech-bubble]');
+      
+      fourthChoices.forEach(choice => {
+        choice.addEventListener('click', function() {
+          fourthChoices.forEach(c => c.classList.remove('selected'));
+          this.classList.add('selected');
+          onboardingData.learningReason = this.getAttribute('data-value');
+          const response = this.getAttribute('data-response');
+          fourthSpeechBubble.textContent = response;
+          fourthContinueBtn.disabled = false;
+          fourthContinueBtn.classList.add('enabled');
+        });
+      });
+      
+      fourthContinueBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+          document.getElementById('fourthState').classList.add('hidden');
+          document.getElementById('fifthState').classList.remove('hidden');
+          currentState = 5;
+        }
+      });
+
+      // Fifth state functionality
+      const fifthOptions = document.querySelectorAll('#fifthState .progress-option');
+      const fifthContinueBtn = document.getElementById('fifthContinueBtn');
+      const fifthSpeechBubble = document.querySelector('#fifthState [speech-bubble]');
+      
+      fifthOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          fifthOptions.forEach(o => o.classList.remove('selected'));
+          this.classList.add('selected');
+          onboardingData.knowledgeLevel = parseInt(this.getAttribute('data-value'));
+          const response = this.getAttribute('data-response');
+          fifthSpeechBubble.textContent = response;
+          fifthContinueBtn.disabled = false;
+          fifthContinueBtn.classList.add('enabled');
+        });
+      });
+      
+      fifthContinueBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+          document.getElementById('fifthState').classList.add('hidden');
+          document.getElementById('sixthState').classList.remove('hidden');
+          currentState = 6;
+        }
+      });
+
+      // Sixth state functionality
+      const sixthOptions = document.querySelectorAll('#sixthState .goal-option');
+      const sixthContinueBtn = document.getElementById('sixthContinueBtn');
+      const sixthSpeechBubble = document.querySelector('#sixthState [speech-bubble]');
+      
+      sixthOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          sixthOptions.forEach(o => o.classList.remove('selected'));
+          this.classList.add('selected');
+          onboardingData.dailyGoal = parseInt(this.getAttribute('data-value'));
+          const response = this.getAttribute('data-response');
+          sixthSpeechBubble.textContent = response;
+          sixthContinueBtn.disabled = false;
+          sixthContinueBtn.classList.add('enabled');
+        });
+      });
+      
+      sixthContinueBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+          document.getElementById('sixthState').classList.add('hidden');
+          document.getElementById('seventhState').classList.remove('hidden');
+          currentState = 7;
+        }
+      });
+
+      // Seventh state functionality
+      const seventhContainer = document.getElementById('seventhState');
+
+      document.getElementById('allowBtn').onclick = function() {
+        onboardingData.notificationsAllowed = true;
+        notificationsEnabled = true;
+        seventhContainer.classList.add('hidden');
+        document.getElementById('eighthState').classList.remove('hidden');
+        currentState = 8;
+      };
+
+      document.getElementById('blockBtn').onclick = function() {
+        onboardingData.notificationsAllowed = false;
+        notificationsEnabled = false;
+        seventhContainer.classList.add('hidden');
+        document.getElementById('eighthState').classList.remove('hidden');
+        currentState = 8;
+      };
+
+      document.getElementById('closeBtn').onclick = function() {
+        onboardingData.notificationsAllowed = false;
+        notificationsEnabled = false;
+        seventhContainer.classList.add('hidden');
+        document.getElementById('eighthState').classList.remove('hidden');
+        currentState = 8;
+      };
+
+      // Eighth state functionality
+      document.getElementById('eighthContinueBtn').addEventListener('click', function() {
+        document.getElementById('eighthState').classList.add('hidden');
+        document.getElementById('ninthState').classList.remove('hidden');
+        currentState = 9;
+      });
+
+      // Ninth state functionality - transition to course selection
+      document.getElementById('ninthContinueBtn').addEventListener('click', function() {
+        document.getElementById('ninthState').classList.add('hidden');
+        document.getElementById('courseState').classList.remove('hidden');
+        currentState = 10;
+      });
+
+      // Course selection functionality
+      const courseOptions = document.querySelectorAll('.course-option');
+      const courseContinueBtn = document.getElementById('courseContinueBtn');
+
+      courseOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          courseOptions.forEach(o => o.classList.remove('selected'));
+          this.classList.add('selected');
+          onboardingData.startPreference = this.getAttribute('data-value');
+          courseContinueBtn.disabled = false;
+          courseContinueBtn.classList.add('enabled');
+        });
+      });
+
+      courseContinueBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+          // Save onboarding data to localStorage (or send to server)
+          localStorage.setItem('onboardingData', JSON.stringify(onboardingData));
+          
+          // Redirect based on preference
+          if (onboardingData.startPreference === 'game') {
+            window.location.href = `/src/pages/lessons/${selectedCourseId}/introduction-to-nucleic-acids.html`;
+          } else {
+            window.location.href = `/src/pages/read/${selectedCourseId}/unit-1/chapter-1/introduction.html`;
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
