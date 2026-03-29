@@ -44,6 +44,7 @@
 [speech-bubble][pleft][acenter] {
   align-items: flex-start;
   text-align: left;
+  margin-left: var(--bbArrowSize);
 }
 
 /* Base tail styling */
@@ -52,10 +53,6 @@
   content: ''; 
   position: absolute;
   z-index: 1;
-}
-
-[speech-bubble][pleft] { 
-  margin-left: var(--bbArrowSize);
 }
 
 /* Left arrows - pointing LEFT - CENTER alignment */
@@ -77,7 +74,7 @@
   transform: translateY(-50%);
 }
 
-/* Bottom arrows - pointing DOWN */
+/* Bottom arrows - pointing DOWN - CENTER alignment */
 [speech-bubble][pbottom][acenter]::before {
   top: 100%;
   border: solid transparent;
@@ -94,85 +91,6 @@
   border-top-color: var(--bbColor);
   left: 50%;
   transform: translateX(-50%);
-}
-
-/* Top arrows - pointing UP */
-[speech-bubble][ptop][acenter]::before {
-  bottom: 100%;
-  border: solid transparent;
-  border-width: 0 calc(var(--bbArrowSize) * 0.75) var(--bbArrowSize);
-  border-bottom-color: #E5E5E5;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-[speech-bubble][ptop][acenter]::after {
-  bottom: calc(100% - 2px);
-  border: solid transparent;
-  border-width: 0 calc(var(--bbArrowSize) * 0.75 - 2px) calc(var(--bbArrowSize) - 2px);
-  border-bottom-color: var(--bbColor);
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* Right arrows - pointing RIGHT */
-[speech-bubble][pright][acenter]::before {
-  left: 100%;
-  border: solid transparent;
-  border-width: calc(var(--bbArrowSize) * 0.75) 0 calc(var(--bbArrowSize) * 0.75) var(--bbArrowSize);
-  border-left-color: #E5E5E5;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-[speech-bubble][pright][acenter]::after {
-  left: calc(100% - 2px);
-  border: solid transparent;
-  border-width: calc(var(--bbArrowSize) * 0.75 - 2px) 0 calc(var(--bbArrowSize) * 0.75 - 2px) calc(var(--bbArrowSize) - 2px);
-  border-left-color: var(--bbColor);
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* Arrow alignment variations */
-[speech-bubble][pbottom][aleft]::before,
-[speech-bubble][pbottom][aleft]::after {
-  left: 1.5rem;
-}
-
-[speech-bubble][pbottom][aright]::before,
-[speech-bubble][pbottom][aright]::after {
-  right: 1.5rem;
-}
-
-[speech-bubble][ptop][aleft]::before,
-[speech-bubble][ptop][aleft]::after {
-  left: 1.5rem;
-}
-
-[speech-bubble][ptop][aright]::before,
-[speech-bubble][ptop][aright]::after {
-  right: 1.5rem;
-}
-
-[speech-bubble][pleft][atop]::before,
-[speech-bubble][pleft][atop]::after {
-  top: 1.5rem;
-}
-
-[speech-bubble][pleft][abottom]::before,
-[speech-bubble][pleft][abottom]::after {
-  bottom: 1.5rem;
-}
-
-[speech-bubble][pright][atop]::before,
-[speech-bubble][pright][atop]::after {
-  top: 1.5rem;
-}
-
-[speech-bubble][pright][abottom]::before,
-[speech-bubble][pright][abottom]::after {
-  bottom: 1.5rem;
 }
 
 /* Message styling */
