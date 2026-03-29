@@ -67,6 +67,12 @@
       z-index: 5;
     }
 
+    .rabbit img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
     @keyframes pulse {
       0% { transform: scale(1); }
       100% { transform: scale(1.09); }
@@ -143,6 +149,13 @@
       animation: pulse-rise 2s forwards;
     }
 
+    .third-rabbit img, .fourth-rabbit img, .fifth-rabbit img, .sixth-rabbit img, 
+    .seventh-rabbit img, .eighth-rabbit img, .ninth-rabbit img, .course-rabbit img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
     .speech-wrapper {
       flex: 1;
       display: flex;
@@ -161,6 +174,7 @@
       font-weight: bold;
       z-index: 6;
       animation: rise-and-glow 2s forwards;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
     }
 
     .lightbulb-icon {
@@ -172,6 +186,12 @@
       color: #FFD700;
       z-index: 6;
       animation: bulb-glow 2s forwards;
+    }
+
+    .lightbulb-icon img {
+      width: 24px;
+      height: 24px;
+      display: block;
     }
 
     @keyframes pulse-rise {
@@ -329,23 +349,66 @@
       font-weight: 700;
     }
 
-    /* Icon styling */
-    .ph-duotone, .ph-fill, .ph-regular, .ph-bold {
-      font-size: 1.6rem;
-      margin-right: 0.65rem;
+    /* Icon styling - all using local SVGs */
+    .choice-icon-img {
       width: 1.8rem;
-      display: inline-flex;
-      justify-content: center;
+      height: 1.8rem;
+      margin-right: 0.65rem;
+      flex-shrink: 0;
     }
 
-    .ph-graduation-cap { color: #6F4EA1; }
-    .ph-briefcase { color: #A56644; }
-    .ph-confetti { color: #FF9600; }
-    .ph-brain { color: #FFB2B2; }
-    .ph-dots-three-circle { color: #AA00FF; }
-    .ph-newspaper { color: #777777; }
-    .ph-users { color: #4285F4; }
-    .ph-television { color: #000000; }
+    .choice-icon-large {
+      width: 1.8rem;
+      height: 1.8rem;
+      margin-right: 0.65rem;
+      flex-shrink: 0;
+    }
+
+    .choice-icon-large img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Social icon stack */
+    .icon-stack {
+      position: relative;
+      width: 2rem;
+      height: 2rem;
+      min-width: 2rem;
+      margin-right: 0.65rem;
+    }
+
+    .fb-icon {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: #fff;
+      z-index: 1;
+    }
+
+    .ig-icon {
+      position: absolute;
+      bottom: -0.125rem;
+      right: -0.375rem;
+      width: 1.1rem;
+      height: 1.1rem;
+      border-radius: 0.25rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+      background: #fff;
+      z-index: 2;
+      border: 1.5px solid #fff;
+    }
+
+    .fb-icon img, .ig-icon img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: inherit;
+    }
 
     /* Notification box */
     .notification-content {
@@ -397,6 +460,10 @@
       font-weight: 700;
     }
 
+    .bell-icon {
+      font-size: 16px;
+    }
+
     .notification-actions {
       display: flex;
       gap: 8px;
@@ -443,10 +510,15 @@
     }
 
     .course-rabbit-icon {
-      color: #4285F4;
-      font-size: 46px;
-      line-height: 1;
+      width: 46px;
+      height: 46px;
       flex-shrink: 0;
+    }
+
+    .course-rabbit-icon img {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .course-speech-bubble {
@@ -565,17 +637,18 @@
     }
 
     .icon-read {
-      font-size: 48px;
-      color: #FBBC05;
-      margin: 0;
+      width: 48px;
+      height: 48px;
+    }
+
+    .icon-read img {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .course-option.selected .custom-icon-wrapper {
       background: rgba(28, 176, 246, 0.2);
-    }
-
-    .course-option.selected .icon-read {
-      color: #1CB0F6;
     }
 
     .course-content {
@@ -631,6 +704,14 @@
       display: none;
     }
 
+    /* Button overrides for onboarding */
+    .continue-btn, .third-continue-btn, .fourth-continue-btn, 
+    .fifth-continue-btn, .sixth-continue-btn, .seventh-continue-btn, 
+    .eighth-continue-btn, .ninth-continue-btn, .course-continue-btn {
+      width: 100%;
+      margin-top: auto;
+    }
+
     /* Mobile responsive */
     @media (max-width: 480px) {
       .rabbit { width: 110px; height: 110px; }
@@ -638,7 +719,7 @@
       .path-node { height: 65px; width: 65px; }
       .path-node .material-symbols-outlined { font-size: 34px; }
       .custom-icon-wrapper { width: 65px; height: 65px; }
-      .icon-read { font-size: 38px; }
+      .icon-read { width: 38px; height: 38px; }
       .course-title { font-size: 16px; }
       .course-subtext { font-size: 11px; }
       .course-option { padding: 18px 16px; gap: 16px; }
@@ -650,9 +731,9 @@
   <div class="container" id="initialState">
     <div class="top-section">
       <div speech-bubble pbottom acenter style="--bbColor:#ffffff">Hi there! I'm Vusi!</div>
-      <svg class="rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
-        <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
-      </svg>
+      <div class="rabbit">
+        <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi the rabbit">
+      </div>
     </div>
     <button class="btn btn-carpenter-blue continue-btn" id="continueBtn">CONTINUE</button>
   </div>
@@ -664,9 +745,9 @@
         <div class="rabbit-container">
           <div class="rabbit-wrapper">
             <div class="question-mark">?</div>
-            <svg class="third-rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
-              <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
-            </svg>
+            <div class="third-rabbit">
+              <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
+            </div>
           </div>
           <div class="speech-wrapper">
             <div speech-bubble pleft acenter style="--bbColor:#ffffff">How did you hear about Vulanet?</div>
@@ -675,42 +756,42 @@
         
         <div class="choice-list">
           <div class="choice" data-value="facebook_instagram">
-            <span class="icon-stack">
-              <img class="fb-icon" src="/public/assets/icons/social/facebook.svg" alt="Facebook" style="width:24px;height:24px;">
-              <img class="ig-icon" src="/public/assets/icons/social/instagram.svg" alt="Instagram" style="width:18px;height:18px;">
-            </span>
+            <div class="icon-stack">
+              <div class="fb-icon"><img src="/public/assets/icons/social/facebook.svg" alt="Facebook"></div>
+              <div class="ig-icon"><img src="/public/assets/icons/social/instagram.svg" alt="Instagram"></div>
+            </div>
             Facebook/Instagram
           </div>
           <div class="choice" data-value="google">
-            <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google" style="width:28px;height:28px;">
+            <div class="choice-icon-large"><img src="/public/assets/icons/social/google.svg" alt="Google"></div>
             Google Search
           </div>
           <div class="choice" data-value="news">
-            <i class="ph-duotone ph-newspaper"></i>
+            <div class="choice-icon-img"><img src="/public/assets/icons/phosphor/regular/newspaper.svg" alt="News"></div>
             News/article/blog
           </div>
           <div class="choice" data-value="linkedin">
-            <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" style="width:28px;height:28px;">
+            <div class="choice-icon-large"><img src="/public/assets/icons/social/linkedin.svg" alt="LinkedIn"></div>
             LinkedIn
           </div>
           <div class="choice" data-value="friends_family">
-            <i class="ph-duotone ph-users"></i>
+            <div class="choice-icon-img"><img src="/public/assets/icons/phosphor/regular/users.svg" alt="Friends"></div>
             Friends/family
           </div>
           <div class="choice" data-value="youtube">
-            <img class="icon-img" src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube" style="width:28px;height:28px;">
+            <div class="choice-icon-large"><img src="/public/assets/icons/social/youtube.svg" alt="YouTube"></div>
             YouTube
           </div>
           <div class="choice" data-value="tv">
-            <i class="ph-duotone ph-television"></i>
+            <div class="choice-icon-img"><img src="/public/assets/icons/phosphor/regular/television.svg" alt="TV"></div>
             TV
           </div>
           <div class="choice" data-value="tiktok">
-            <img class="icon-img" src="https://img.icons8.com/fluency/48/tiktok.png" alt="TikTok" style="width:28px;height:28px;">
+            <div class="choice-icon-large"><img src="/public/assets/icons/social/tiktok.svg" alt="TikTok"></div>
             TikTok
           </div>
           <div class="choice" data-value="other">
-            <i class="ph-fill ph-dots-three-circle"></i>
+            <div class="choice-icon-img"><img src="/public/assets/icons/phosphor/regular/dots-three-circle.svg" alt="Other"></div>
             Other
           </div>
         </div>
@@ -727,9 +808,9 @@
         <div class="rabbit-container">
           <div class="rabbit-wrapper">
             <div class="question-mark">?</div>
-            <svg class="fourth-rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
-              <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
-            </svg>
+            <div class="fourth-rabbit">
+              <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
+            </div>
           </div>
           <div class="speech-wrapper">
             <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="fourthSpeechBubble">Why are you learning?</div>
@@ -738,23 +819,23 @@
         
         <div class="choice-list">
           <div class="choice" data-value="education" data-response="Let's ace those tests!">
-            <i class="ph-duotone ph-graduation-cap"></i>
+            <div class="choice-icon-img"><img src="/public/assets/icons/phosphor/fill/graduation-cap.svg" alt="Education"></div>
             Support my education
           </div>
           <div class="choice" data-value="career" data-response="Let's unlock new opportunities for you!">
-            <i class="ph-duotone ph-briefcase"></i>
+            <div class="choice-icon-img"><img src="/public/assets/icons/phosphor/fill/briefcase.svg" alt="Career"></div>
             Boost my career
           </div>
           <div class="choice" data-value="fun" data-response="Yay! Fun is my specialty!">
-            <i class="ph-duotone ph-confetti"></i>
+            <div class="choice-icon-img"><img src="/public/assets/icons/phosphor/fill/confetti.svg" alt="Fun"></div>
             Just for fun
           </div>
           <div class="choice" data-value="productivity" data-response="That's a wise choice!">
-            <i class="ph-duotone ph-brain"></i>
+            <div class="choice-icon-img"><img src="/public/assets/icons/phosphor/fill/brain.svg" alt="Productivity"></div>
             Spend time productively
           </div>
           <div class="choice" data-value="other_goal" data-response="Any reason is a good reason to learn!">
-            <i class="ph-fill ph-dots-three-circle"></i>
+            <div class="choice-icon-img"><img src="/public/assets/icons/phosphor/fill/dots-three-circle.svg" alt="Other"></div>
             Other
           </div>
         </div>
@@ -771,9 +852,9 @@
         <div class="rabbit-container">
           <div class="rabbit-wrapper">
             <div class="question-mark">?</div>
-            <svg class="fifth-rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
-              <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
-            </svg>
+            <div class="fifth-rabbit">
+              <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
+            </div>
           </div>
           <div class="speech-wrapper">
             <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="fifthSpeechBubble">How much do you know about the course you selected?</div>
@@ -840,9 +921,9 @@
         <div class="rabbit-container">
           <div class="rabbit-wrapper">
             <div class="question-mark">?</div>
-            <svg class="sixth-rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
-              <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
-            </svg>
+            <div class="sixth-rabbit">
+              <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
+            </div>
           </div>
           <div class="speech-wrapper">
             <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="sixthSpeechBubble">What's your daily learning goal?</div>
@@ -880,11 +961,11 @@
         <div class="rabbit-container">
           <div class="rabbit-wrapper">
             <div class="lightbulb-icon">
-              <i class="ph-fill ph-lightbulb-filament"></i>
+              <img src="/public/assets/icons/phosphor/fill/lightbulb-filament.svg" alt="Lightbulb">
             </div>
-            <svg class="seventh-rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
-              <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
-            </svg>
+            <div class="seventh-rabbit">
+              <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
+            </div>
           </div>
           <div class="speech-wrapper">
             <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="seventhSpeechBubble">I'll remind you to practice so it becomes a habit!</div>
@@ -917,9 +998,9 @@
   <div class="container hidden" id="eighthState">
     <div class="top-section">
       <div speech-bubble pbottom acenter style="--bbColor:#ffffff">It can be hard to stay motivated...</div>
-      <svg class="rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
-        <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
-      </svg>
+      <div class="rabbit">
+        <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
+      </div>
     </div>
     <button class="btn btn-carpenter-blue continue-btn" id="eighthContinueBtn">CONTINUE</button>
   </div>
@@ -928,9 +1009,9 @@
   <div class="container hidden" id="ninthState">
     <div class="top-section">
       <div speech-bubble pbottom acenter style="--bbColor:#ffffff">...so Vulanet is designed to be fun like a game!</div>
-      <svg class="rabbit" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="#4285F4">
-        <path d="M199.28,149.8A71.58,71.58,0,0,0,193,129c19-37.94,30.45-88.28,17.34-110A22,22,0,0,0,190.94,8c-14.12,0-26,11.89-36.44,36.36-6.22,14.62-10.85,31.32-14,44.74a71.8,71.8,0,0,0-25,0c-3.13-13.42-7.76-30.12-14-44.74C91.1,19.89,79.18,8,65.06,8A22,22,0,0,0,45.64,19.08C32.53,40.76,44,91.1,63,129a71.58,71.58,0,0,0-6.26,20.76A52,52,0,1,0,128,225.52l-21.12-19.37a8,8,0,1,1,10.24-12.3L128,202.9l10.88-9.05a8,8,0,0,1,10.24,12.3L128,225.52a52,52,0,1,0,71.28-75.72Zm-126-36.53A218.45,218.45,0,0,1,58.4,67.08c-3.49-18.13-3.15-33,.93-39.72A6,6,0,0,1,65.06,24c6.61,0,14.52,9.7,21.72,26.62,5.93,13.94,10.35,30.12,13.33,43a71.72,71.72,0,0,0-26.88,19.64ZM100,176a12,12,0,1,1,12-12A12,12,0,0,1,100,176Zm56,0a12,12,0,1,1,12-12A12,12,0,0,1,156,176Zm20.55-69.17a71.89,71.89,0,0,0-20.66-13.2c3-12.89,7.4-29.07,13.33-43C176.42,33.7,184.33,24,190.94,24a6,6,0,0,1,5.73,3.36c4.08,6.74,4.42,21.59.93,39.72a218.45,218.45,0,0,1-14.83,46.19A72.6,72.6,0,0,0,176.55,106.83Z"/>
-      </svg>
+      <div class="rabbit">
+        <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
+      </div>
     </div>
     <button class="btn btn-carpenter-blue continue-btn" id="ninthContinueBtn">LET'S GO!</button>
   </div>
@@ -939,7 +1020,9 @@
   <div class="course-state hidden" id="courseState">
     <div class="course-container">
       <div class="course-header">
-        <div class="course-rabbit-icon"><i class="ph-fill ph-rabbit"></i></div>
+        <div class="course-rabbit-icon">
+          <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
+        </div>
         <div class="course-speech-bubble" id="courseSpeechBubble">
           Now let's find a place to start!
         </div>
@@ -961,7 +1044,9 @@
         <div class="course-option" data-course="reading" data-value="reading">
           <div class="course-icon-container">
             <div class="custom-icon-wrapper">
-              <i class="ph-duotone ph-book-open-user icon-read"></i>
+              <div class="icon-read">
+                <img src="/public/assets/icons/phosphor/fill/book-open-user.svg" alt="Read">
+              </div>
             </div>
           </div>
           <div class="course-content">
@@ -1221,7 +1306,7 @@
           
           // Redirect based on preference
           if (onboardingData.startPreference === 'game') {
-            window.location.href = `/src/pages/lessons/${selectedCourseId}/introduction-to-nucleic-acids.html`;
+            window.location.href = `/src/pages/lessons/${selectedCourseId}/introduction.html`;
           } else {
             window.location.href = `/src/pages/read/${selectedCourseId}/unit-1/chapter-1/introduction.html`;
           }
