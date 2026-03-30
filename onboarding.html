@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   
   <!-- Local Fonts -->
-  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="public/assets/css/fonts.css">
   
   <!-- Button Component Styles -->
   <link rel="stylesheet" href="src/styles/components/buttons.css">
@@ -163,83 +163,15 @@
       100% { transform: scale(1.09); }
     }
 
-    /* ==================== BUTTON STYLES ==================== */
-    .continue-btn, .third-continue-btn, .fourth-continue-btn, 
-    .fifth-continue-btn, .sixth-continue-btn, .seventh-continue-btn, 
-    .eighth-continue-btn, .ninth-continue-btn, .course-continue-btn {
-        width: 100%;
-        padding: 1rem;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #ffffff;
-        background-color: #4285F4;
-        border: none;
-        border-radius: 0.75rem;
-        cursor: pointer;
-        text-transform: uppercase;
-        transition: all 0.2s ease;
-        z-index: 10;
-        letter-spacing: .5px;
-        font-family: 'Atkinson Hyperlegible Next', sans-serif;
-        box-shadow: 0 4px 0 #2d5bb5, 0 6px 10px rgba(0, 0, 0, 0.1);
-        transform: translateY(0);
-        margin-top: auto;
+    /* Override button styles to match onboarding layout */
+    .btn {
+      margin-top: auto;
     }
-    
-    .continue-btn:hover:not(:disabled),
-    .third-continue-btn:hover:not(:disabled),
-    .fourth-continue-btn:hover:not(:disabled),
-    .fifth-continue-btn:hover:not(:disabled),
-    .sixth-continue-btn:hover:not(:disabled),
-    .seventh-continue-btn:hover:not(:disabled),
-    .eighth-continue-btn:hover:not(:disabled),
-    .ninth-continue-btn:hover:not(:disabled),
-    .course-continue-btn:hover:not(:disabled) {
-        background-color: #3a75d9;
-        box-shadow: 0 3px 0 #2d5bb5, 0 6px 10px rgba(0, 0, 0, 0.1);
-        transform: translateY(1px);
-    }
-    
-    .continue-btn:active:not(:disabled),
-    .third-continue-btn:active:not(:disabled),
-    .fourth-continue-btn:active:not(:disabled),
-    .fifth-continue-btn:active:not(:disabled),
-    .sixth-continue-btn:active:not(:disabled),
-    .seventh-continue-btn:active:not(:disabled),
-    .eighth-continue-btn:active:not(:disabled),
-    .ninth-continue-btn:active:not(:disabled),
-    .course-continue-btn:active:not(:disabled) {
-        transform: translateY(4px);
-        box-shadow: 0 0 0 #2d5bb5, 0 6px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .third-continue-btn:disabled,
-    .fourth-continue-btn:disabled,
-    .fifth-continue-btn:disabled,
-    .sixth-continue-btn:disabled,
-    .seventh-continue-btn:disabled,
-    .eighth-continue-btn:disabled,
-    .ninth-continue-btn:disabled,
-    .course-continue-btn:disabled {
-        background-color: #E5E5E5;
-        color: #777777;
-        box-shadow: none;
-        transform: none;
-        cursor: not-allowed;
-    }
-    
-    .third-continue-btn.enabled,
-    .fourth-continue-btn.enabled,
-    .fifth-continue-btn.enabled,
-    .sixth-continue-btn.enabled,
-    .seventh-continue-btn.enabled,
-    .eighth-continue-btn.enabled,
-    .ninth-continue-btn.enabled,
-    .course-continue-btn.enabled {
-        background-color: #4285F4;
-        color: #fff;
-        cursor: pointer;
-        box-shadow: 0 4px 0 #2d5bb5, 0 6px 10px rgba(0, 0, 0, 0.1);
+
+    /* Custom button for this page - matches existing button styles but uses btn class */
+    .onboarding-btn {
+      width: 100%;
+      margin-top: auto;
     }
 
     .celebration {
@@ -816,12 +748,6 @@
       transition: color 0.2s ease;
     }
 
-    .course-continue-btn {
-      margin-top: auto;
-      position: sticky;
-      bottom: 0;
-    }
-
     .hidden {
       display: none;
     }
@@ -830,11 +756,7 @@
       .rabbit { width: 110px; height: 110px; }
       .rabbit-container { height: 100px; }
       [speech-bubble] { --bbPadding: 0.7rem; font-size: 0.9rem; }
-      .continue-btn, .third-continue-btn, .fourth-continue-btn, 
-      .fifth-continue-btn, .sixth-continue-btn, .seventh-continue-btn, 
-      .eighth-continue-btn, .ninth-continue-btn, .course-continue-btn {
-        padding: 0.85rem; font-size: 1rem;
-      }
+      .btn { height: 48px; font-size: 1rem; }
       .choice, .progress-option, .goal-option { padding: 0.85rem 1rem; min-height: 3rem; font-size: 0.95rem; }
       .course-icon-container { width: 70px; min-width: 70px; height: 70px; }
       .path-node { height: 70px; width: 70px; }
@@ -853,7 +775,7 @@
         <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi the Rabbit">
       </div>
     </div>
-    <button class="continue-btn" id="continueBtn">CONTINUE</button>
+    <button class="btn btn-carpenter-blue onboarding-btn" id="continueBtn">CONTINUE</button>
   </div>
 
   <!-- Third State -->
@@ -871,18 +793,18 @@
         </div>
         
         <div class="choice-list">
-          <div class="choice"><span class="icon-stack"><img class="fb-icon" src="public/assets/icons/social/facebook-brands-solid-full.svg" alt="Facebook"><img class="ig-icon" src="public/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram"></span>Facebook/Instagram</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/social/google-brands-solid-full.svg" alt="Google">Google Search</div>
+          <div class="choice"><span class="icon-stack"><img class="fb-icon" src="public/assets/icons/social/facebook-full.svg" alt="Facebook"><img class="ig-icon" src="public/assets/icons/social/instagram-full.svg" alt="Instagram"></span>Facebook/Instagram</div>
+          <div class="choice"><img class="icon-img" src="public/assets/icons/social/google-full.svg" alt="Google">Google Search</div>
           <div class="choice"><img class="icon-img" src="public/assets/icons/phosphor/duotone/newspaper.svg" alt="News">News/article/blog</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/social/linkedin-brands-solid-full.svg" alt="LinkedIn">LinkedIn</div>
+          <div class="choice"><img class="icon-img" src="public/assets/icons/social/linkedin-full.svg" alt="LinkedIn">LinkedIn</div>
           <div class="choice"><img class="icon-img" src="public/assets/icons/phosphor/duotone/users.svg" alt="Users">Friends/family</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/social/youtube-brands-solid-full.svg" alt="YouTube">YouTube</div>
+          <div class="choice"><img class="icon-img" src="public/assets/icons/social/youtube-full.svg" alt="YouTube">YouTube</div>
           <div class="choice"><img class="icon-img" src="public/assets/icons/phosphor/duotone/television.svg" alt="TV">TV</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/social/tiktok-brands-solid-full.svg" alt="TikTok">TikTok</div>
+          <div class="choice"><img class="icon-img" src="public/assets/icons/social/tiktok-full.svg" alt="TikTok">TikTok</div>
           <div class="choice"><img class="icon-img" src="public/assets/icons/phosphor/fill/dots-three-circle.svg" alt="Other">Other</div>
         </div>
       </div>
-      <button class="third-continue-btn" id="thirdContinueBtn" disabled>CONTINUE</button>
+      <button class="btn btn-carpenter-blue onboarding-btn third-continue-btn" id="thirdContinueBtn" disabled>CONTINUE</button>
     </div>
   </div>
 
@@ -908,7 +830,7 @@
           <div class="choice" data-response="Any reason is a good reason to learn!"><img class="icon-img" src="public/assets/icons/phosphor/fill/dots-three-circle.svg" alt="Other">Other</div>
         </div>
       </div>
-      <button class="fourth-continue-btn" id="fourthContinueBtn" disabled>CONTINUE</button>
+      <button class="btn btn-carpenter-blue onboarding-btn fourth-continue-btn" id="fourthContinueBtn" disabled>CONTINUE</button>
     </div>
   </div>
 
@@ -934,7 +856,7 @@
           <div class="progress-option" data-response="Wow, we've got ourselves an aficionado over here!" data-value="100"><div class="progress-circle"><svg class="progress-ring" viewBox="0 0 44 44"><circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle><circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="0"></circle></svg></div><div class="level-label">I can discuss most topics in detail</div></div>
         </div>
       </div>
-      <button class="fifth-continue-btn" id="fifthContinueBtn" disabled>CONTINUE</button>
+      <button class="btn btn-carpenter-blue onboarding-btn fifth-continue-btn" id="fifthContinueBtn" disabled>CONTINUE</button>
     </div>
   </div>
 
@@ -959,7 +881,7 @@
           <div class="goal-option" data-response="Nothing can stop you now!"><span class="left-text">20 min / day</span><span class="right-text">Intense</span></div>
         </div>
       </div>
-      <button class="sixth-continue-btn" id="sixthContinueBtn" disabled>CONTINUE</button>
+      <button class="btn btn-carpenter-blue onboarding-btn sixth-continue-btn" id="sixthContinueBtn" disabled>CONTINUE</button>
     </div>
   </div>
 
@@ -985,7 +907,7 @@
           </div>
         </div>
       </div>
-      <button class="seventh-continue-btn" id="seventhContinueBtn" disabled>CONTINUE</button>
+      <button class="btn btn-carpenter-blue onboarding-btn seventh-continue-btn" id="seventhContinueBtn" disabled>CONTINUE</button>
     </div>
   </div>
 
@@ -995,7 +917,7 @@
       <div speech-bubble pbottom acenter style="--bbColor:#ffffff">It can be hard to stay motivated...</div>
       <div class="rabbit"><img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi"></div>
     </div>
-    <button class="continue-btn" id="eighthContinueBtn">CONTINUE</button>
+    <button class="btn btn-carpenter-blue onboarding-btn" id="eighthContinueBtn">CONTINUE</button>
   </div>
 
   <!-- Ninth State -->
@@ -1004,7 +926,7 @@
       <div speech-bubble pbottom acenter style="--bbColor:#ffffff">...so Vulanet is designed to be fun like a game!</div>
       <div class="rabbit"><img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi"></div>
     </div>
-    <button class="continue-btn" id="ninthContinueBtn">LET'S GO!</button>
+    <button class="btn btn-carpenter-blue onboarding-btn" id="ninthContinueBtn">LET'S GO!</button>
   </div>
 
   <!-- Course Selection State -->
@@ -1024,7 +946,7 @@
           <div class="course-content"><div class="course-title">Start with reading</div><div class="course-subtext">Ready yourself for a lesson by reading</div></div>
         </div>
       </div>
-      <button class="course-continue-btn" id="courseContinueBtn" disabled>CONTINUE</button>
+      <button class="btn btn-carpenter-blue onboarding-btn course-continue-btn" id="courseContinueBtn" disabled>CONTINUE</button>
     </div>
   </div>
 
