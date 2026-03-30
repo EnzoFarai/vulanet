@@ -1,192 +1,121 @@
 /* ========================================
    VULANET TYPOGRAPHY USAGE RULES
-   This file contains font family assignments, sizes, and line heights.
-   Font-face declarations are in public/assets/fonts/fonts.css
+   Defines how fonts are applied throughout the application
+   Font-face declarations are in /public/assets/fonts/fonts.css
    ======================================== */
 
-/* ===== GLOBAL BODY ===== */
+/* ===== BASE TYPOGRAPHY ===== */
 body {
-  font-family: 'Atkinson Hyperlegible Next', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Atkinson Hyperlegible Next', system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-weight: 400;
   line-height: 1.5;
-  color: #4B4B4B;
-  font-size: 16px;
+  color: #4B4B4B; /* Basalt */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-/* ===== HEADINGS - Bricolage Grotesque ===== */
-h1, h2, h3, h4, .brand-font, .logo-text, .tagline, .cta-tagline {
+/* ===== HEADINGS (Bricolage Grotesque) ===== */
+h1, h2, h3, h4, h5, h6,
+.brand-font,
+.heading,
+.logo-text {
   font-family: 'Bricolage Grotesque', monospace;
   text-transform: lowercase;
   letter-spacing: -0.02em;
   font-weight: 700;
-}
-
-h1 {
-  font-size: 2.5rem;
   line-height: 1.2;
 }
 
-h2 {
-  font-size: 2rem;
-  line-height: 1.25;
-}
+/* Heading sizes */
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
 
-h3 {
-  font-size: 1.5rem;
-  line-height: 1.3;
-}
-
-h4 {
-  font-size: 1.25rem;
-  line-height: 1.35;
-}
-
-/* ===== BODY TEXT ===== */
-p, li, .body-text, .description {
+/* ===== BODY TEXT (Atkinson Hyperlegible Next) ===== */
+p, li, span, div, a, button, input, textarea, select,
+.speech-bubble-text,
+.card-text,
+.description {
   font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  font-weight: 400;
-  font-size: 1rem;
-  line-height: 1.5;
 }
 
-/* ===== SMALL TEXT ===== */
-small, .caption, .timestamp, .metadata {
+/* ===== WEIGHT VARIANTS ===== */
+.text-light { font-weight: 300; }
+.text-regular { font-weight: 400; }
+.text-semibold { font-weight: 600; }
+.text-bold { font-weight: 700; }
+.text-extrabold { font-weight: 800; }
+
+/* ===== SPECIFIC COMPONENTS ===== */
+
+/* Buttons */
+.btn, button {
   font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  font-weight: 400;
-  font-size: 0.875rem;
-  line-height: 1.4;
-}
-
-/* ===== BOLD TEXT ===== */
-strong, b, .bold-text, .stat-value, .xp-amount {
   font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-/* ===== SEMIBOLD TEXT ===== */
-.semibold, .section-title, .quest-title, .achievement-title {
+/* Navigation */
+.nav-item {
+  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
   font-weight: 600;
 }
 
-/* ===== LIGHT TEXT ===== */
-.light, .helper-text, .placeholder-text {
-  font-weight: 300;
+/* Speech bubbles */
+[speech-bubble], 
+.course-speech-bubble {
+  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.4;
 }
 
-/* ===== BRAND TEXT (Vulanet) ===== */
-.brand-name, .logo-text {
+/* Course titles and selection */
+.course-title,
+.course-option .course-title,
+.chapter-title,
+.lesson-title {
+  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+/* Brand elements */
+.brand-name,
+.logo-text {
   font-family: 'Bricolage Grotesque', monospace;
   font-weight: 800;
-  text-transform: lowercase;
   letter-spacing: -0.02em;
-  font-size: 1.5rem;
-  color: #4285F4;
+  text-transform: lowercase;
 }
 
-/* ===== BUTTON TEXT ===== */
-.btn, button, .action-button {
-  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.9375rem;
-}
+/* ===== HELPER CLASSES ===== */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
 
-/* ===== LINKS ===== */
-a, .link {
-  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  font-weight: 600;
-  text-decoration: none;
-  color: #1CB0F6;
-  transition: opacity 0.2s ease;
-}
-
-a:hover, .link:hover {
-  opacity: 0.8;
-  text-decoration: underline;
-}
-
-/* ===== SPEECH BUBBLES ===== */
-[speech-bubble], .speech-bubble {
-  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  font-weight: 400 !important;
-  line-height: 1.4;
-  font-size: 1rem;
-}
-
-/* ===== CODE/MONOSPACE ===== */
-code, pre, .mono {
-  font-family: 'Atkinson Hyperlegible Next', monospace;
-  font-weight: 400;
-  font-size: 0.875rem;
-}
+/* Line heights */
+.leading-tight { line-height: 1.2; }
+.leading-normal { line-height: 1.5; }
+.leading-loose { line-height: 1.8; }
 
 /* ===== RESPONSIVE TYPOGRAPHY ===== */
 @media (max-width: 768px) {
-  body {
-    font-size: 15px;
-  }
-  
-  h1 {
-    font-size: 2rem;
-  }
-  
-  h2 {
-    font-size: 1.75rem;
-  }
-  
-  h3 {
-    font-size: 1.35rem;
-  }
-  
-  .brand-name, .logo-text {
-    font-size: 1.25rem;
-  }
-  
-  .tagline {
-    font-size: 1.8rem;
-  }
-  
-  .btn, button, .action-button {
-    font-size: 0.875rem;
-  }
-  
-  [speech-bubble], .speech-bubble {
-    font-size: 0.9375rem;
-  }
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.5rem; }
+  h4 { font-size: 1.25rem; }
+  h5 { font-size: 1.1rem; }
+  h6 { font-size: 0.9rem; }
+  body { font-size: 0.95rem; }
 }
 
 @media (max-width: 480px) {
-  body {
-    font-size: 14px;
-  }
-  
-  h1 {
-    font-size: 1.75rem;
-  }
-  
-  h2 {
-    font-size: 1.5rem;
-  }
-  
-  h3 {
-    font-size: 1.25rem;
-  }
-  
-  .tagline {
-    font-size: 1.5rem;
-  }
-  
-  .brand-name, .logo-text {
-    font-size: 1.125rem;
-  }
-  
-  .btn, button, .action-button {
-    font-size: 0.8125rem;
-  }
-  
-  [speech-bubble], .speech-bubble {
-    font-size: 0.875rem;
-  }
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+  body { font-size: 0.9rem; }
 }
