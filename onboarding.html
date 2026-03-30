@@ -6,12 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   
   <!-- Local Fonts -->
-  <link rel="stylesheet" href="public/assets/css/fonts.css">
+  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
   
   <!-- Button Component Styles -->
   <link rel="stylesheet" href="src/styles/components/buttons.css">
   
+  <!-- Typography Usage -->
+  <link rel="stylesheet" href="src/styles/typography-usage.css">
+  
   <style>
+    /* All existing styles remain the same */
     * {
         margin: 0;
         padding: 0;
@@ -163,12 +167,10 @@
       100% { transform: scale(1.09); }
     }
 
-    /* Override button styles to match onboarding layout */
     .btn {
       margin-top: auto;
     }
 
-    /* Custom button for this page - matches existing button styles but uses btn class */
     .onboarding-btn {
       width: 100%;
       margin-top: auto;
@@ -778,7 +780,7 @@
     <button class="btn btn-carpenter-blue onboarding-btn" id="continueBtn">CONTINUE</button>
   </div>
 
-  <!-- Third State -->
+  <!-- Third State - How did you hear? -->
   <div class="third-state hidden" id="thirdState">
     <div class="third-container">
       <div class="content-area">
@@ -793,22 +795,22 @@
         </div>
         
         <div class="choice-list">
-          <div class="choice"><span class="icon-stack"><img class="fb-icon" src="public/assets/icons/social/facebook-full.svg" alt="Facebook"><img class="ig-icon" src="public/assets/icons/social/instagram-full.svg" alt="Instagram"></span>Facebook/Instagram</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/social/google-full.svg" alt="Google">Google Search</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/phosphor/duotone/newspaper.svg" alt="News">News/article/blog</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/social/linkedin-full.svg" alt="LinkedIn">LinkedIn</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/phosphor/duotone/users.svg" alt="Users">Friends/family</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/social/youtube-full.svg" alt="YouTube">YouTube</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/phosphor/duotone/television.svg" alt="TV">TV</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/social/tiktok-full.svg" alt="TikTok">TikTok</div>
-          <div class="choice"><img class="icon-img" src="public/assets/icons/phosphor/fill/dots-three-circle.svg" alt="Other">Other</div>
+          <div class="choice" data-value="social"><span class="icon-stack"><img class="fb-icon" src="public/assets/icons/social/facebook-full.svg" alt="Facebook"><img class="ig-icon" src="public/assets/icons/social/instagram-full.svg" alt="Instagram"></span>Facebook/Instagram</div>
+          <div class="choice" data-value="google"><img class="icon-img" src="public/assets/icons/social/google-full.svg" alt="Google">Google Search</div>
+          <div class="choice" data-value="news"><img class="icon-img" src="public/assets/icons/phosphor/duotone/newspaper.svg" alt="News">News/article/blog</div>
+          <div class="choice" data-value="linkedin"><img class="icon-img" src="public/assets/icons/social/linkedin-full.svg" alt="LinkedIn">LinkedIn</div>
+          <div class="choice" data-value="friends"><img class="icon-img" src="public/assets/icons/phosphor/duotone/users.svg" alt="Users">Friends/family</div>
+          <div class="choice" data-value="youtube"><img class="icon-img" src="public/assets/icons/social/youtube-full.svg" alt="YouTube">YouTube</div>
+          <div class="choice" data-value="tv"><img class="icon-img" src="public/assets/icons/phosphor/duotone/television.svg" alt="TV">TV</div>
+          <div class="choice" data-value="tiktok"><img class="icon-img" src="public/assets/icons/social/tiktok-full.svg" alt="TikTok">TikTok</div>
+          <div class="choice" data-value="other"><img class="icon-img" src="public/assets/icons/phosphor/fill/dots-three-circle.svg" alt="Other">Other</div>
         </div>
       </div>
       <button class="btn btn-carpenter-blue onboarding-btn third-continue-btn" id="thirdContinueBtn" disabled>CONTINUE</button>
     </div>
   </div>
 
-  <!-- Fourth State -->
+  <!-- Fourth State - Why are you learning? -->
   <div class="fourth-state hidden" id="fourthState">
     <div class="fourth-container">
       <div class="content-area">
@@ -818,7 +820,7 @@
             <img class="fourth-rabbit" src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi">
           </div>
           <div class="speech-wrapper">
-            <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="fourthSpeechBubble">Why are you learning Data Structures using C?</div>
+            <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="fourthSpeechBubble">Why are you learning <span id="courseNamePlaceholder">Data Structures using C</span>?</div>
           </div>
         </div>
         
@@ -834,7 +836,7 @@
     </div>
   </div>
 
-  <!-- Fifth State -->
+  <!-- Fifth State - How much do you know? -->
   <div class="fifth-state hidden" id="fifthState">
     <div class="fifth-container">
       <div class="content-area">
@@ -844,12 +846,12 @@
             <img class="fifth-rabbit" src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi">
           </div>
           <div class="speech-wrapper">
-            <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="fifthSpeechBubble">How much do you know about Data Structures using C?</div>
+            <div speech-bubble pleft acenter style="--bbColor:#ffffff" id="fifthSpeechBubble">How much do you know about <span id="courseNamePlaceholder2">Data Structures using C</span>?</div>
           </div>
         </div>
         
         <div class="progress-options">
-          <div class="progress-option" data-response="Okay, we'll start afresh!" data-value="0"><div class="progress-circle"><svg class="progress-ring" viewBox="0 0 44 44"><circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle><circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="113.0973355"></circle></svg></div><div class="level-label">I'm new to Data Structures using C</div></div>
+          <div class="progress-option" data-response="Okay, we'll start afresh!" data-value="0"><div class="progress-circle"><svg class="progress-ring" viewBox="0 0 44 44"><circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle><circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="113.0973355"></circle></svg></div><div class="level-label">I'm new to this subject</div></div>
           <div class="progress-option" data-response="Okay, we can build on what you already know!" data-value="25"><div class="progress-circle"><svg class="progress-ring" viewBox="0 0 44 44"><circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle><circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="84.8230016"></circle></svg></div><div class="level-label">I have common knowledge</div></div>
           <div class="progress-option" data-response="Okay, we can build on what you already know!" data-value="50"><div class="progress-circle"><svg class="progress-ring" viewBox="0 0 44 44"><circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle><circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="56.5486678"></circle></svg></div><div class="level-label">I know the basics</div></div>
           <div class="progress-option" data-response="Wow, that's great!" data-value="75"><div class="progress-circle"><svg class="progress-ring" viewBox="0 0 44 44"><circle class="progress-ring-circle-bg" cx="22" cy="22" r="18"></circle><circle class="progress-ring-circle" cx="22" cy="22" r="18" stroke-dasharray="113.0973355" stroke-dashoffset="28.2743339"></circle></svg></div><div class="level-label">I can talk about various topics</div></div>
@@ -860,7 +862,7 @@
     </div>
   </div>
 
-  <!-- Sixth State -->
+  <!-- Sixth State - Daily goal -->
   <div class="sixth-state hidden" id="sixthState">
     <div class="sixth-container">
       <div class="content-area">
@@ -875,17 +877,17 @@
         </div>
         
         <div class="goal-options">
-          <div class="goal-option" data-response="Slow and steady wins the race!"><span class="left-text">5 min / day</span><span class="right-text">Casual</span></div>
-          <div class="goal-option" data-response="Your consistency will pay off!"><span class="left-text">10 min / day</span><span class="right-text">Focused</span></div>
-          <div class="goal-option" data-response="You're on the fast track!"><span class="left-text">15 min / day</span><span class="right-text">Driven</span></div>
-          <div class="goal-option" data-response="Nothing can stop you now!"><span class="left-text">20 min / day</span><span class="right-text">Intense</span></div>
+          <div class="goal-option" data-response="Slow and steady wins the race!" data-value="5"><span class="left-text">5 min / day</span><span class="right-text">Casual</span></div>
+          <div class="goal-option" data-response="Your consistency will pay off!" data-value="10"><span class="left-text">10 min / day</span><span class="right-text">Focused</span></div>
+          <div class="goal-option" data-response="You're on the fast track!" data-value="15"><span class="left-text">15 min / day</span><span class="right-text">Driven</span></div>
+          <div class="goal-option" data-response="Nothing can stop you now!" data-value="20"><span class="left-text">20 min / day</span><span class="right-text">Intense</span></div>
         </div>
       </div>
       <button class="btn btn-carpenter-blue onboarding-btn sixth-continue-btn" id="sixthContinueBtn" disabled>CONTINUE</button>
     </div>
   </div>
 
-  <!-- Seventh State -->
+  <!-- Seventh State - Notifications -->
   <div class="seventh-state hidden" id="seventhState">
     <div class="seventh-container">
       <div class="content-area">
@@ -901,7 +903,7 @@
         
         <div class="notification-content">
           <div class="notification-box" id="notifBox">
-            <div class="notification-header"><span>www.vulanet.com wants to</span><span class="close-btn" id="closeBtn">&times;</span></div>
+            <div class="notification-header"><span>vulanet.vercel.app wants to</span><span class="close-btn" id="closeBtn">&times;</span></div>
             <div class="notification-body"><span class="bell-icon"><img src="public/assets/icons/material-symbols/outline/notifications.svg" alt="Bell"></span><span>Show notifications</span></div>
             <div class="notification-actions"><button class="block-btn" id="blockBtn">BLOCK</button><button class="allow-btn" id="allowBtn">ALLOW</button></div>
           </div>
@@ -937,22 +939,83 @@
         <div class="course-speech-bubble">Now let's find a place to start!</div>
       </div>
       <div class="course-list">
-        <div class="course-option" data-course="Start with a game">
+        <div class="course-option" data-start-with="game">
           <div class="course-icon-container"><div class="path-node"><img src="public/assets/icons/material-symbols/outline/joystick.svg" alt="Joystick"></div></div>
-          <div class="course-content"><div class="course-title">Start with a game</div><div class="course-subtext">Take the first lesson of the Data Structures using C course</div></div>
+          <div class="course-content"><div class="course-title">Start with a game</div><div class="course-subtext" id="gameSubtext">Take the first lesson of the course</div></div>
         </div>
-        <div class="course-option" data-course="Start with reading">
+        <div class="course-option" data-start-with="reading">
           <div class="course-icon-container"><div class="custom-icon-wrapper"><img src="public/assets/icons/phosphor/duotone/book-open-user.svg" alt="Book"></div></div>
-          <div class="course-content"><div class="course-title">Start with reading</div><div class="course-subtext">Ready yourself for a lesson by reading</div></div>
+          <div class="course-content"><div class="course-title">Start with reading</div><div class="course-subtext" id="readingSubtext">Ready yourself for a lesson by reading</div></div>
         </div>
       </div>
       <button class="btn btn-carpenter-blue onboarding-btn course-continue-btn" id="courseContinueBtn" disabled>CONTINUE</button>
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { getCourseById, getFirstLessonUrl } from './src/js/course-data.js';
+    
+    // Get course from URL parameters or localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    let selectedCourseId = urlParams.get('course');
+    let selectedCourseName = urlParams.get('name');
+    let onboardingAction = localStorage.getItem('onboardingAction') || 'first-time';
+    
+    // Check if user already has courses
+    const hasExistingCourses = localStorage.getItem('hasCourses') === 'true';
+    let userHasCourses = hasExistingCourses;
+    
+    // If user already has courses and this is first-time onboarding, skip to add-course mode
+    if (userHasCourses && onboardingAction === 'first-time') {
+      onboardingAction = 'add-course';
+      localStorage.setItem('onboardingAction', 'add-course');
+    }
+    
+    // Store user's onboarding data
+    let onboardingData = {
+      heardFrom: null,
+      learningReason: null,
+      knowledgeLevel: null,
+      dailyGoal: null,
+      notificationsEnabled: null,
+      startWith: null
+    };
+    
+    // Load course data
+    let currentCourse = null;
+    if (selectedCourseId) {
+      currentCourse = getCourseById(selectedCourseId);
+      if (!currentCourse) {
+        // Fallback to default if course not found
+        currentCourse = { name: "Data Structures using C" };
+      }
+    } else {
+      // Default fallback
+      currentCourse = { name: "Data Structures using C" };
+    }
+    
+    // Update all course name placeholders
+    document.querySelectorAll('#courseNamePlaceholder, #courseNamePlaceholder2').forEach(el => {
+      if (el) el.textContent = currentCourse.name;
+    });
+    
+    // Update subtext in course selection
+    const gameSubtext = document.getElementById('gameSubtext');
+    const readingSubtext = document.getElementById('readingSubtext');
+    if (gameSubtext) gameSubtext.textContent = `Take the first lesson of ${currentCourse.name}`;
+    if (readingSubtext) readingSubtext.textContent = `Ready yourself for a lesson by reading ${currentCourse.name}`;
+    
     let currentState = 1;
-
+    let skipToCourseSelection = false;
+    
+    // If adding a new course, skip to the course selection state directly
+    if (onboardingAction === 'add-course') {
+      skipToCourseSelection = true;
+      currentState = 10;
+      document.getElementById('initialState').classList.add('hidden');
+      document.getElementById('courseState').classList.remove('hidden');
+    }
+    
     document.getElementById('continueBtn').addEventListener('click', function() {
       if (currentState === 1) {
         const speechBubble = document.querySelector('#initialState [speech-bubble]');
@@ -965,13 +1028,13 @@
         currentState = 3;
       }
     });
-
+    
     function createCelebration() {
       const container = document.querySelector('.container');
       const celebration = document.createElement('div');
       celebration.className = 'celebration';
       container.appendChild(celebration);
-
+      
       const fireworksCount = 18;
       for (let i = 0; i < fireworksCount; i++) {
         const firework = document.createElement('div');
@@ -986,28 +1049,58 @@
       }
       setTimeout(() => { celebration.remove(); }, 1500);
     }
-
+    
+    function saveOnboardingData() {
+      // Save all collected data to localStorage
+      localStorage.setItem('onboardingData', JSON.stringify(onboardingData));
+      localStorage.setItem('hasCourses', 'true');
+      localStorage.setItem('selectedCourseId', selectedCourseId);
+      localStorage.setItem('selectedCourseName', selectedCourseName);
+      console.log('Onboarding data saved:', onboardingData);
+    }
+    
+    function proceedToNextState(nextStateId) {
+      // Save data before proceeding
+      saveOnboardingData();
+      
+      // Hide current states
+      document.querySelectorAll('.third-state, .fourth-state, .fifth-state, .sixth-state, .seventh-state, .eighth-state, .ninth-state').forEach(el => {
+        el.classList.add('hidden');
+      });
+      
+      // Show next state
+      document.getElementById(nextStateId).classList.remove('hidden');
+      
+      // Update currentState based on nextStateId
+      if (nextStateId === 'fourthState') currentState = 4;
+      else if (nextStateId === 'fifthState') currentState = 5;
+      else if (nextStateId === 'sixthState') currentState = 6;
+      else if (nextStateId === 'seventhState') currentState = 7;
+      else if (nextStateId === 'eighthState') currentState = 8;
+      else if (nextStateId === 'ninthState') currentState = 9;
+      else if (nextStateId === 'courseState') currentState = 10;
+    }
+    
     document.addEventListener('DOMContentLoaded', function() {
-      // Third state
+      // Third state - How did you hear?
       const thirdChoices = document.querySelectorAll('#thirdState .choice');
       const thirdContinueBtn = document.getElementById('thirdContinueBtn');
       thirdChoices.forEach(choice => {
         choice.addEventListener('click', function() {
           thirdChoices.forEach(c => c.classList.remove('selected'));
           this.classList.add('selected');
+          onboardingData.heardFrom = this.getAttribute('data-value');
           thirdContinueBtn.disabled = false;
           thirdContinueBtn.classList.add('enabled');
         });
       });
       thirdContinueBtn.addEventListener('click', function() {
         if (!this.disabled) {
-          document.getElementById('thirdState').classList.add('hidden');
-          document.getElementById('fourthState').classList.remove('hidden');
-          currentState = 4;
+          proceedToNextState('fourthState');
         }
       });
-
-      // Fourth state
+      
+      // Fourth state - Why are you learning?
       const fourthChoices = document.querySelectorAll('#fourthState .choice');
       const fourthContinueBtn = document.getElementById('fourthContinueBtn');
       const fourthSpeechBubble = document.querySelector('#fourthState [speech-bubble]');
@@ -1016,6 +1109,7 @@
           fourthChoices.forEach(c => c.classList.remove('selected'));
           this.classList.add('selected');
           const response = this.getAttribute('data-response');
+          onboardingData.learningReason = this.textContent.trim();
           fourthSpeechBubble.textContent = response;
           fourthContinueBtn.disabled = false;
           fourthContinueBtn.classList.add('enabled');
@@ -1023,13 +1117,11 @@
       });
       fourthContinueBtn.addEventListener('click', function() {
         if (!this.disabled) {
-          document.getElementById('fourthState').classList.add('hidden');
-          document.getElementById('fifthState').classList.remove('hidden');
-          currentState = 5;
+          proceedToNextState('fifthState');
         }
       });
-
-      // Fifth state
+      
+      // Fifth state - Knowledge level
       const fifthOptions = document.querySelectorAll('#fifthState .progress-option');
       const fifthContinueBtn = document.getElementById('fifthContinueBtn');
       const fifthSpeechBubble = document.querySelector('#fifthState [speech-bubble]');
@@ -1038,6 +1130,7 @@
           fifthOptions.forEach(o => o.classList.remove('selected'));
           this.classList.add('selected');
           const response = this.getAttribute('data-response');
+          onboardingData.knowledgeLevel = parseInt(this.getAttribute('data-value'));
           fifthSpeechBubble.textContent = response;
           fifthContinueBtn.disabled = false;
           fifthContinueBtn.classList.add('enabled');
@@ -1045,13 +1138,11 @@
       });
       fifthContinueBtn.addEventListener('click', function() {
         if (!this.disabled) {
-          document.getElementById('fifthState').classList.add('hidden');
-          document.getElementById('sixthState').classList.remove('hidden');
-          currentState = 6;
+          proceedToNextState('sixthState');
         }
       });
-
-      // Sixth state
+      
+      // Sixth state - Daily goal
       const sixthOptions = document.querySelectorAll('#sixthState .goal-option');
       const sixthContinueBtn = document.getElementById('sixthContinueBtn');
       const sixthSpeechBubble = document.querySelector('#sixthState [speech-bubble]');
@@ -1060,6 +1151,7 @@
           sixthOptions.forEach(o => o.classList.remove('selected'));
           this.classList.add('selected');
           const response = this.getAttribute('data-response');
+          onboardingData.dailyGoal = parseInt(this.getAttribute('data-value'));
           sixthSpeechBubble.textContent = response;
           sixthContinueBtn.disabled = false;
           sixthContinueBtn.classList.add('enabled');
@@ -1067,43 +1159,48 @@
       });
       sixthContinueBtn.addEventListener('click', function() {
         if (!this.disabled) {
-          document.getElementById('sixthState').classList.add('hidden');
-          document.getElementById('seventhState').classList.remove('hidden');
-          currentState = 7;
+          proceedToNextState('seventhState');
         }
       });
-
-      // Seventh state
-      document.getElementById('allowBtn').onclick = function() {
-        document.getElementById('seventhState').classList.add('hidden');
-        document.getElementById('eighthState').classList.remove('hidden');
-        currentState = 8;
-      };
-      document.getElementById('blockBtn').onclick = function() {
-        document.getElementById('seventhState').classList.add('hidden');
-        document.getElementById('eighthState').classList.remove('hidden');
-        currentState = 8;
-      };
-      document.getElementById('closeBtn').onclick = function() {
-        document.getElementById('seventhState').classList.add('hidden');
-        document.getElementById('eighthState').classList.remove('hidden');
-        currentState = 8;
-      };
-
+      
+      // Seventh state - Notifications
+      const allowBtn = document.getElementById('allowBtn');
+      const blockBtn = document.getElementById('blockBtn');
+      const closeNotifBtn = document.getElementById('closeBtn');
+      const seventhContinueBtn = document.getElementById('seventhContinueBtn');
+      
+      function handleNotificationResponse(enabled) {
+        onboardingData.notificationsEnabled = enabled;
+        // In a real app, you would request notification permissions here
+        if (enabled && 'Notification' in window) {
+          Notification.requestPermission().then(permission => {
+            console.log('Notification permission:', permission);
+          });
+        }
+        proceedToNextState('eighthState');
+      }
+      
+      if (allowBtn) allowBtn.onclick = () => handleNotificationResponse(true);
+      if (blockBtn) blockBtn.onclick = () => handleNotificationResponse(false);
+      if (closeNotifBtn) closeNotifBtn.onclick = () => handleNotificationResponse(false);
+      
+      // Enable continue button after notification response (but we proceed directly)
+      // The continue button is not used in seventh state - we go directly to next state
+      
       // Eighth state
       document.getElementById('eighthContinueBtn').addEventListener('click', function() {
         document.getElementById('eighthState').classList.add('hidden');
         document.getElementById('ninthState').classList.remove('hidden');
         currentState = 9;
       });
-
+      
       // Ninth state
       document.getElementById('ninthContinueBtn').addEventListener('click', function() {
         document.getElementById('ninthState').classList.add('hidden');
         document.getElementById('courseState').classList.remove('hidden');
         currentState = 10;
       });
-
+      
       // Course selection
       const courseOptions = document.querySelectorAll('.course-option');
       const courseContinueBtn = document.getElementById('courseContinueBtn');
@@ -1111,16 +1208,23 @@
         option.addEventListener('click', function() {
           courseOptions.forEach(o => o.classList.remove('selected'));
           this.classList.add('selected');
+          onboardingData.startWith = this.getAttribute('data-start-with');
           courseContinueBtn.disabled = false;
           courseContinueBtn.classList.add('enabled');
         });
       });
+      
       courseContinueBtn.addEventListener('click', function() {
-        if (!this.disabled) {
-          const selected = document.querySelector('.course-option.selected');
-          if (selected) {
-            const courseName = selected.getAttribute('data-course');
-            window.location.href = "/main?course=" + encodeURIComponent(courseName);
+        if (!this.disabled && selectedCourseId) {
+          saveOnboardingData();
+          // Redirect to the appropriate starting point
+          const startWith = onboardingData.startWith;
+          const lessonUrl = getFirstLessonUrl(selectedCourseId, startWith);
+          if (lessonUrl) {
+            window.location.href = lessonUrl;
+          } else {
+            // Fallback to dashboard
+            window.location.href = '/dashboard.html';
           }
         }
       });
