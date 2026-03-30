@@ -6,16 +6,16 @@
 <title>Choose a Course — vulanet</title>
 
 <!-- Local Fonts -->
-<link rel="stylesheet" href="/public/assets/fonts/fonts.css">
+<link rel="stylesheet" href="public/assets/fonts/fonts.css">
 
 <!-- Button Component Styles -->
-<link rel="stylesheet" href="/src/styles/components/buttons.css">
+<link rel="stylesheet" href="src/styles/components/buttons.css">
 
-<!-- Speech Bubble Component Styles -->
-<link rel="stylesheet" href="/src/styles/components/speech-bubble.css">
+<!-- Typography Usage -->
+<link rel="stylesheet" href="src/styles/typography-usage.css">
 
 <style>
-/* ===== ADDITIONAL COURSE SELECTOR STYLES ===== */
+/* ===== COLOR VARIABLES ===== */
 :root {
   --carpenter-blue: #4285F4;
   --belly-blue: #7B9FE0;
@@ -41,7 +41,6 @@
 }
 
 body {
-  font-family: 'Atkinson Hyperlegible Next', sans-serif;
   background: var(--cloud);
   color: var(--basalt);
   min-height: 100vh;
@@ -81,6 +80,52 @@ body {
   width: 100%;
   height: 100%;
   display: block;
+  filter: brightness(0) saturate(100%) invert(38%) sepia(98%) saturate(1500%) hue-rotate(202deg) brightness(94%) contrast(95%);
+}
+
+/* Speech Bubble */
+[speech-bubble] {
+  --bbColor: var(--cloud);
+  --bbArrowSize: 0.8rem;
+  --bbBorderRadius: 0.8rem;
+  --bbPadding: 0.8rem;
+  background: var(--bbColor);
+  border-radius: var(--bbBorderRadius);
+  padding: var(--bbPadding);
+  position: relative;
+  border: 2px solid var(--beluga);
+  width: 230px;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  font-size: 16px;
+  margin-left: var(--bbArrowSize);
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+  flex-grow: 1;
+}
+
+[speech-bubble]::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  border: solid transparent;
+  border-width: calc(var(--bbArrowSize) * 0.75) var(--bbArrowSize) calc(var(--bbArrowSize) * 0.75) 0;
+  border-right-color: var(--beluga);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+[speech-bubble]::after {
+  content: '';
+  position: absolute;
+  right: calc(100% - 2px);
+  border: solid transparent;
+  border-width: calc(var(--bbArrowSize) * 0.75 - 2px) calc(var(--bbArrowSize) - 2px) calc(var(--bbArrowSize) * 0.75 - 2px) 0;
+  border-right-color: var(--bbColor);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Sections */
@@ -114,7 +159,6 @@ body {
   background-color: var(--arctic);
 }
 
-/* Chevron icon using local SVG */
 .chevron-icon {
   width: 18px;
   height: 18px;
@@ -125,13 +169,13 @@ body {
   width: 100%;
   height: 100%;
   display: block;
+  filter: brightness(0) saturate(100%) invert(63%) sepia(0%) saturate(0%) hue-rotate(215deg) brightness(96%) contrast(87%);
 }
 
 .section.open .chevron-icon {
   transform: rotate(180deg);
 }
 
-/* Course list */
 .course-list {
   max-height: 0;
   overflow: hidden;
@@ -170,6 +214,10 @@ body {
   color: var(--gecko);
 }
 
+.course.selected .subject-icon img {
+  filter: brightness(0.95) saturate(1.2);
+}
+
 .subject-icon {
   width: 34px;
   height: 34px;
@@ -184,11 +232,6 @@ body {
   object-fit: cover;
 }
 
-.course-title {
-  font-weight: 700;
-}
-
-/* Continue button */
 .continue-wrap {
   position: fixed;
   bottom: 0;
@@ -224,7 +267,7 @@ body {
   <div class="header-container">
     <div class="header">
       <div class="rabbit-icon">
-        <img src="/public/assets/icons/phosphor/fill/rabbit.svg" alt="Vusi">
+        <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vusi">
       </div>
       <div speech-bubble pleft acenter>What would you like to learn?</div>
     </div>
@@ -233,12 +276,12 @@ body {
   <div class="section" data-category="commerce">
     <div class="section-title">
       <span>Commerce</span>
-      <div class="chevron-icon"><img src="/public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
+      <div class="chevron-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
     </div>
     <div class="course-list">
       <div class="course" data-course-id="financial-accounting" data-course-name="Financial Accounting">
-        <div class="subject-icon"><img src="/public/assets/courses/financial-accounting.png" alt="Financial Accounting"></div>
-        <span class="course-title">Financial Accounting</span>
+        <div class="subject-icon"><img src="public/assets/courses/financial-accounting.png" alt="Financial Accounting"></div>
+        Financial Accounting
       </div>
     </div>
   </div>
@@ -246,12 +289,12 @@ body {
   <div class="section" data-category="humanities">
     <div class="section-title">
       <span>Humanities</span>
-      <div class="chevron-icon"><img src="/public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
+      <div class="chevron-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
     </div>
     <div class="course-list">
       <div class="course" data-course-id="international-law" data-course-name="International Law">
-        <div class="subject-icon"><img src="/public/assets/courses/international-law.png" alt="International Law"></div>
-        <span class="course-title">International Law</span>
+        <div class="subject-icon"><img src="public/assets/courses/international-law.png" alt="International Law"></div>
+        International Law
       </div>
     </div>
   </div>
@@ -259,16 +302,16 @@ body {
   <div class="section" data-category="medical">
     <div class="section-title">
       <span>Medical Sciences</span>
-      <div class="chevron-icon"><img src="/public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
+      <div class="chevron-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
     </div>
     <div class="course-list">
       <div class="course" data-course-id="clinical-pharmacy" data-course-name="Clinical Pharmacy">
-        <div class="subject-icon"><img src="/public/assets/courses/clinical-pharmacy.png" alt="Clinical Pharmacy"></div>
-        <span class="course-title">Clinical Pharmacy</span>
+        <div class="subject-icon"><img src="public/assets/courses/clinical-pharmacy.png" alt="Clinical Pharmacy"></div>
+        Clinical Pharmacy
       </div>
       <div class="course" data-course-id="pharmacology-ii" data-course-name="Pharmacology-II">
-        <div class="subject-icon"><img src="/public/assets/courses/pharmacology-ii.png" alt="Pharmacology-II"></div>
-        <span class="course-title">Pharmacology-II</span>
+        <div class="subject-icon"><img src="public/assets/courses/pharmacology-ii.png" alt="Pharmacology-II"></div>
+        Pharmacology-II
       </div>
     </div>
   </div>
@@ -276,16 +319,16 @@ body {
   <div class="section" data-category="technology">
     <div class="section-title">
       <span>Science & Technology</span>
-      <div class="chevron-icon"><img src="/public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
+      <div class="chevron-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
     </div>
     <div class="course-list">
       <div class="course" data-course-id="java-programming" data-course-name="Java Programming">
-        <div class="subject-icon"><img src="/public/assets/courses/java-programming.png" alt="Java Programming"></div>
-        <span class="course-title">Java Programming</span>
+        <div class="subject-icon"><img src="public/assets/courses/java-programming.png" alt="Java Programming"></div>
+        Java Programming
       </div>
       <div class="course" data-course-id="web-design" data-course-name="Web Design">
-        <div class="subject-icon"><img src="/public/assets/courses/web-design.png" alt="Web Design"></div>
-        <span class="course-title">Web Design</span>
+        <div class="subject-icon"><img src="public/assets/courses/web-design.png" alt="Web Design"></div>
+        Web Design
       </div>
     </div>
   </div>
@@ -293,12 +336,12 @@ body {
   <div class="section matric-section" data-category="matric">
     <div class="section-title">
       <span>Matric (NSC)</span>
-      <div class="chevron-icon"><img src="/public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
+      <div class="chevron-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
     </div>
     <div class="course-list">
       <div class="course" data-course-id="g12-life-sciences" data-course-name="G12 Life Sciences">
-        <div class="subject-icon"><img src="/public/assets/courses/g12-life-sciences.png" alt="G12 Life Sciences"></div>
-        <span class="course-title">G12 Life Sciences</span>
+        <div class="subject-icon"><img src="public/assets/courses/g12-life-sciences.png" alt="G12 Life Sciences"></div>
+        G12 Life Sciences
       </div>
     </div>
   </div>
@@ -308,55 +351,67 @@ body {
   <button class="btn btn-carpenter-blue continue" id="continueBtn" disabled>CONTINUE</button>
 </div>
 
-<script>
-// Expand/Collapse sections
-document.querySelectorAll('.section-title').forEach(title => {
-  title.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const section = title.parentElement;
-    section.classList.toggle('open');
-  });
-});
-
-// Course selection
-const courses = document.querySelectorAll('.course');
-const continueBtn = document.getElementById('continueBtn');
-let selectedCourseId = null;
-let selectedCourseName = null;
-
-function handleCourseSelection(courseElement) {
-  courses.forEach(c => c.classList.remove('selected'));
-  courseElement.classList.add('selected');
-  selectedCourseId = courseElement.dataset.courseId;
-  selectedCourseName = courseElement.dataset.courseName;
-  continueBtn.disabled = false;
+<script type="module">
+  import { getCourseById } from './src/js/course-data.js';
   
-  // Ensure selected course is visible
-  const section = courseElement.closest('.section');
-  if (section && !section.classList.contains('open')) {
-    section.classList.add('open');
-    setTimeout(() => {
-      courseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 50);
-  } else {
-    courseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-}
-
-courses.forEach(course => {
-  course.addEventListener('click', (e) => {
-    e.stopPropagation();
-    handleCourseSelection(course);
+  // Expand/Collapse sections
+  document.querySelectorAll('.section-title').forEach(title => {
+    title.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const section = title.parentElement;
+      section.classList.toggle('open');
+    });
   });
-});
-
-continueBtn.addEventListener('click', () => {
-  if (selectedCourseId) {
-    localStorage.setItem('selectedCourseId', selectedCourseId);
-    localStorage.setItem('selectedCourseName', selectedCourseName);
-    window.location.href = 'welcome.html';
+  
+  // Course selection
+  const courses = document.querySelectorAll('.course');
+  const continueBtn = document.getElementById('continueBtn');
+  let selectedCourseId = null;
+  let selectedCourseName = null;
+  
+  function handleCourseSelection(courseElement) {
+    courses.forEach(c => c.classList.remove('selected'));
+    courseElement.classList.add('selected');
+    selectedCourseId = courseElement.dataset.courseId;
+    selectedCourseName = courseElement.dataset.courseName;
+    continueBtn.disabled = false;
+    
+    // Ensure selected course is visible
+    const section = courseElement.closest('.section');
+    if (section && !section.classList.contains('open')) {
+      section.classList.add('open');
+      setTimeout(() => {
+        courseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+    } else {
+      courseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
-});
+  
+  courses.forEach(course => {
+    course.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleCourseSelection(course);
+    });
+  });
+  
+  continueBtn.addEventListener('click', () => {
+    if (selectedCourseId) {
+      // Store the selected course data
+      localStorage.setItem('selectedCourseId', selectedCourseId);
+      localStorage.setItem('selectedCourseName', selectedCourseName);
+      localStorage.setItem('onboardingAction', 'first-time'); // or 'add-course' if coming from profile
+      
+      // Get the full course data
+      const courseData = getCourseById(selectedCourseId);
+      if (courseData) {
+        // Pass via URL parameter for reliability
+        window.location.href = `onboarding.html?course=${encodeURIComponent(selectedCourseId)}&name=${encodeURIComponent(selectedCourseName)}`;
+      } else {
+        window.location.href = 'onboarding.html';
+      }
+    }
+  });
 </script>
 </body>
 </html>
