@@ -22,7 +22,8 @@
     }
 
     body {
-      background: #FFFFFF;
+      background: #ffffff;
+      color: #4B4B4B;
       display: flex;
       justify-content: center;
       min-height: 100vh;
@@ -49,10 +50,10 @@
       font-size: 20px;
       line-height: 1.4;
       max-width: 320px;
+      position: relative;
     }
 
     .scene {
-      position: relative;
       width: 100%;
       height: 200px;
       margin-top: 20px;
@@ -62,7 +63,6 @@
     }
 
     .emoji-container {
-      position: relative;
       width: 160px;
       height: 160px;
       display: flex;
@@ -124,15 +124,12 @@
 
 <script>
   (function() {
-    const playSound = (path) => {
-      const audio = new Audio(path);
-      audio.play().catch(e => console.log('Audio play failed:', e));
-    };
-    
-    playSound('public/assets/audio/quit.mp3');
-
     const keepGoingBtn = document.getElementById('keepGoingBtn');
     const quitBtn = document.getElementById('quitBtn');
+
+    // Play sound
+    const audio = new Audio('public/assets/audio/quit.mp3');
+    audio.play().catch(() => {});
 
     keepGoingBtn.addEventListener('click', () => {
       if (window.parent !== window) {
