@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson Complete</title>
+  
+  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  <script src="src/lib/lottie-player.js"></script>
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #FFFFFF;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+      font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+    }
+
+    .modal-container {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      padding: 24px 18px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 20;
+      background: transparent;
+    }
+
+    .title {
+      margin-top: 12px;
+      text-align: center;
+      font-weight: 900;
+      font-size: 34px;
+      line-height: 1.1;
+      letter-spacing: 0.5px;
+      z-index: 30;
+    }
+    .title.xp-boost { color: #FF6D01; }
+    .title.normal { color: #FBBC05; }
+
+    .scene {
+      width: 100%;
+      height: 260px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .emoji-container {
+      width: 160px;
+      height: 160px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    lottie-player {
+      width: 160px !important;
+      height: 160px !important;
+      filter: drop-shadow(0 4px 8px rgba(255, 210, 74, 0.3));
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .stats {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      background: #FFFFFF;
+      border-radius: 16px;
+      text-align: center;
+      border: 2px solid;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-header { padding: 12px 6px; color: #FFFFFF; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .stat-content { padding: 14px 6px; display: flex; align-items: center; justify-content: center; }
+    .stat .value { font-size: 18px; font-weight: 900; display: flex; align-items: center; gap: 6px; }
+    .stat-icon { width: 20px; height: 20px; display: inline-block; }
+    .stat-icon img { width: 100%; height: 100%; display: block; }
+
+    .stat.tiger { border-color: #FF6D01; }
+    .stat.tiger .stat-header { background-color: #FF6D01; }
+    .stat.tiger .value { color: #FF6D01; }
+
+    .stat.carpenter-blue { border-color: #4285F4; }
+    .stat.carpenter-blue .stat-header { background-color: #4285F4; }
+    .stat.carpenter-blue .value { color: #4285F4; }
+
+    .stat.boa { border-color: #34A853; }
+    .stat.boa .stat-header { background-color: #34A853; }
+    .stat.boa .value { color: #34A853; }
+
+    .continue-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      padding: 14px 16px 22px;
+      border-top: 1px solid #ededed;
+      z-index: 100;
+    }
+
+    .continue-wrap .btn {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      display: block;
+    }
+
+    /* Fireworks animation */
+    .fireworks-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 50px;
+    }
+
+    .fireworks {
+      position: relative;
+      width: 2.5em;
+      height: 2em;
+      font-size: 2.5em;
+      animation: flatify-firework 4s infinite;
+    }
+
+    @keyframes flatify-firework {
+      0%, 20% { transform: translateY(0); }
+      40% { transform: translateY(-1em); }
+      80%, 100% { transform: translateY(0.5em); }
+    }
+
+    @media (max-width: 768px) {
+      .fireworks-wrapper { padding: 0 20px; }
+      .fireworks { font-size: 1.8em; }
+      .stat .value { font-size: 16px; }
+      .title { font-size: 28px; }
+      .stat-header { font-size: 10px; padding: 10px 4px; }
+      .stat-content { padding: 12px 4px; }
+    }
+  </style>
+</head>
+<body>
+<div class="fireworks-wrapper">
+  <div class="fireworks fireworks-1">✨</div>
+  <div class="fireworks fireworks-2">🎉</div>
+  <div class="fireworks fireworks-3">✨</div>
+</div>
+
+<div class="modal-container">
+  <div class="title normal" id="titleElement">Lesson complete!</div>
+
+  <div class="scene">
+    <div class="emoji-container">
+      <lottie-player src="public/assets/lottie/1f973.json" background="transparent" speed="1" loop autoplay></lottie-player>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat tiger" id="xpStat">
+      <div class="stat-header" id="xpHeader">TOTAL XP</div>
+      <div class="stat-content">
+        <div class="value">
+          <span class="stat-icon"><img src="public/assets/icons/phosphor/fill/lightning.svg" alt="XP"></span>
+          <span id="xpValue">0</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="stat carpenter-blue">
+      <div class="stat-header" id="timeHeader">COMMITTED</div>
+      <div class="stat-content">
+        <div class="value">
+          <span class="stat-icon"><img src="public/assets/icons/phosphor/regular/clock-countdown.svg" alt="Time"></span>
+          <span id="timeValue">0s</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="stat boa">
+      <div class="stat-header" id="accuracyHeader">OUTSTANDING</div>
+      <div class="stat-content">
+        <div class="value">
+          <span class="stat-icon"><img src="public/assets/icons/phosphor/regular/target.svg" alt="Accuracy"></span>
+          <span id="accuracyValue">0%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="continue-wrap">
+  <button class="btn btn-md btn-carpenter-blue" id="continueBtn">CONTINUE</button>
+</div>
+
+<script>
+  (function() {
+    new Audio('public/assets/audio/complete.mp3').play().catch(() => {});
+
+    // Receive data from parent
+    window.addEventListener('message', function(e) {
+      const data = e.data;
+      if (data.action === 'setResults') {
+        updateDisplay(data);
+      }
+    });
+
+    function updateDisplay(data) {
+      const { xp, totalXp, time, accuracy, isXpBoost, boostMultiplier } = data;
+      
+      const titleEl = document.getElementById('titleElement');
+      const xpHeader = document.getElementById('xpHeader');
+      const xpValueSpan = document.getElementById('xpValue');
+      const timeValueSpan = document.getElementById('timeValue');
+      const accuracyValueSpan = document.getElementById('accuracyValue');
+      const timeHeader = document.getElementById('timeHeader');
+      const accuracyHeader = document.getElementById('accuracyHeader');
+      
+      // XP display with boost
+      let displayXp = xp;
+      if (isXpBoost && boostMultiplier) {
+        displayXp = Math.round(xp * boostMultiplier);
+        titleEl.classList.add('xp-boost');
+        titleEl.classList.remove('normal');
+        xpHeader.textContent = 'XP BOOST';
+      } else {
+        titleEl.classList.add('normal');
+        titleEl.classList.remove('xp-boost');
+        xpHeader.textContent = 'TOTAL XP';
+      }
+      xpValueSpan.textContent = displayXp;
+      
+      // Time display
+      if (time <= 60) {
+        timeValueSpan.textContent = `${time}s`;
+      } else if (time < 3600) {
+        const mins = Math.floor(time / 60);
+        const secs = time % 60;
+        timeValueSpan.textContent = secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
+      } else {
+        const hours = Math.floor(time / 3600);
+        const mins = Math.floor((time % 3600) / 60);
+        timeValueSpan.textContent = mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+      }
+      
+      // Time header (WHOA if at or under expected time)
+      if (data.isUnderExpected) {
+        timeHeader.textContent = 'WHOA';
+      } else {
+        timeHeader.textContent = 'COMMITTED';
+      }
+      
+      // Accuracy and message
+      let message = '';
+      if (accuracy >= 100) message = 'PERFECT';
+      else if (accuracy >= 80) message = 'OUTSTANDING';
+      else if (accuracy >= 50) message = 'NICE';
+      else message = 'YIKES';
+      accuracyHeader.textContent = message;
+      accuracyValueSpan.textContent = `${accuracy}%`;
+    }
+
+    document.getElementById('continueBtn').addEventListener('click', () => {
+      if (window.parent !== window) window.parent.postMessage({ action: 'continueFromComplete' }, '*');
+    });
+  })();
+</script>
+</body>
+</html>
