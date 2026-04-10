@@ -3,10 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quit Confirmation</title>
+  <title>Quit Confirmation · Vulanet</title>
   
+  <!-- Local Fonts -->
   <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+  
+  <!-- Local Button Styles -->
   <link rel="stylesheet" href="src/styles/components/buttons.css">
+  
+  <!-- Local Lottie Player -->
   <script src="src/lib/lottie-player.js"></script>
   
   <style>
@@ -21,10 +26,10 @@
       display: flex;
       justify-content: center;
       min-height: 100vh;
-      font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+      font-family: 'Atkinson Hyperlegible Next', system-ui, -apple-system, sans-serif;
     }
 
-    .modal-container {
+    .app {
       width: 100%;
       max-width: 420px;
       min-height: 100vh;
@@ -92,8 +97,9 @@
     }
   </style>
 </head>
+
 <body>
-<div class="modal-container">
+<div class="app">
   <div class="scene">
     <div class="emoji-container">
       <lottie-player
@@ -118,15 +124,26 @@
 
 <script>
   (function() {
-    const playSound = (path) => { new Audio(path).play().catch(() => {}); };
+    const playSound = (path) => {
+      const audio = new Audio(path);
+      audio.play().catch(e => console.log('Audio play failed:', e));
+    };
+    
     playSound('public/assets/audio/quit.mp3');
 
-    document.getElementById('keepGoingBtn').addEventListener('click', () => {
-      if (window.parent !== window) window.parent.postMessage({ action: 'resumeLesson' }, '*');
+    const keepGoingBtn = document.getElementById('keepGoingBtn');
+    const quitBtn = document.getElementById('quitBtn');
+
+    keepGoingBtn.addEventListener('click', () => {
+      if (window.parent !== window) {
+        window.parent.postMessage({ action: 'resumeLesson' }, '*');
+      }
     });
 
-    document.getElementById('quitBtn').addEventListener('click', () => {
-      if (window.parent !== window) window.parent.postMessage({ action: 'quitLesson' }, '*');
+    quitBtn.addEventListener('click', () => {
+      if (window.parent !== window) {
+        window.parent.postMessage({ action: 'quitLesson' }, '*');
+      }
     });
 
     document.addEventListener('keydown', (e) => {
