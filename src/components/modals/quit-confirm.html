@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quit Confirmation</title>
+  
+  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  <script src="src/lib/lottie-player.js"></script>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #FFFFFF;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+    }
+
+    .modal-container {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      padding: 24px 18px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      background: transparent;
+    }
+
+    .title {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: 700;
+      color: #4B4B4B;
+      font-size: 20px;
+      line-height: 1.4;
+      max-width: 320px;
+    }
+
+    .scene {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .emoji-container {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    lottie-player {
+      width: 160px !important;
+      height: 160px !important;
+    }
+
+    .buttons-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .buttons-container .btn {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .title { font-size: 18px; max-width: 280px; }
+      .scene { height: 180px; }
+      .emoji-container { width: 140px; height: 140px; }
+      lottie-player { width: 140px !important; height: 140px !important; }
+      .buttons-container { margin-top: 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="modal-container">
+  <div class="scene">
+    <div class="emoji-container">
+      <lottie-player
+        src="public/assets/lottie/1f627.json"
+        background="transparent"
+        speed="1"
+        loop
+        autoplay>
+      </lottie-player>
+    </div>
+  </div>
+
+  <div class="title">
+    Are you sure you want to quit? You'll lose all XP gained in this lesson.
+  </div>
+
+  <div class="buttons-container">
+    <button class="btn btn-md btn-carpenter-blue" id="keepGoingBtn">KEEP GOING</button>
+    <button class="btn btn-md btn-ladybug-outline" id="quitBtn">QUIT</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const playSound = (path) => { new Audio(path).play().catch(() => {}); };
+    playSound('public/assets/audio/quit.mp3');
+
+    document.getElementById('keepGoingBtn').addEventListener('click', () => {
+      if (window.parent !== window) window.parent.postMessage({ action: 'resumeLesson' }, '*');
+    });
+
+    document.getElementById('quitBtn').addEventListener('click', () => {
+      if (window.parent !== window) window.parent.postMessage({ action: 'quitLesson' }, '*');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && window.parent !== window) {
+        window.parent.postMessage({ action: 'resumeLesson' }, '*');
+      }
+    });
+  })();
+</script>
+</body>
+</html>
