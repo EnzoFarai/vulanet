@@ -5,8 +5,8 @@
 
 /* Base button styles */
 .btn {
-  display: block;
-  width: 100%;
+  display: inline-block;
+  width: auto;
   max-width: 380px;
   margin: 0 auto;
   border-radius: 0.75rem;
@@ -23,6 +23,8 @@
   padding: 0 1rem;
   line-height: 1;
   position: relative;
+  text-align: center;
+  text-decoration: none;
 }
 
 /* Button sizes */
@@ -44,7 +46,17 @@
   max-width: 450px;
 }
 
-/* Button variants - 3D raised effect */
+/* Full width modifier */
+.btn-full {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ========================================
+   SOLID BUTTONS (3D effect)
+   ======================================== */
+
+/* Carpenter Blue Solid - Primary action */
 .btn-carpenter-blue {
   background-color: #4285F4;
   color: #FFFFFF;
@@ -63,17 +75,106 @@
   box-shadow: 0 0 0 #2d5bb5, 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Disabled state - flat and grey */
-.btn-carpenter-blue:disabled,
-.btn-carpenter-blue.disabled {
-  background-color: #E5E5E5;
-  color: #777777;
-  box-shadow: none;
-  transform: none;
-  cursor: not-allowed;
+/* Gecko Solid - Secondary/Accent action */
+.btn-gecko-solid {
+  background-color: #1CB0F6;
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 #0d8bc4, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
 }
 
-/* Secondary button - Gecko blue text, white background */
+.btn-gecko-solid:hover:not(:disabled) {
+  background-color: #17a0e0;
+  box-shadow: 0 2px 0 #0d8bc4, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-gecko-solid:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #0d8bc4, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Ladybug Red Solid - Destructive actions */
+.btn-ladybug-solid {
+  background-color: #EA4335;
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 #bc3327, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-ladybug-solid:hover:not(:disabled) {
+  background-color: #d33c2f;
+  box-shadow: 0 2px 0 #bc3327, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-ladybug-solid:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #bc3327, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Bee Yellow Solid - Warning/Achievement actions */
+.btn-bee-solid {
+  background-color: #FBBC05;
+  color: #4B4B4B;
+  box-shadow: 0 4px 0 #d4a104, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-bee-solid:hover:not(:disabled) {
+  background-color: #e6ab04;
+  box-shadow: 0 2px 0 #d4a104, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-bee-solid:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #d4a104, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Boa Green Solid - Success/Completion actions */
+.btn-boa-solid {
+  background-color: #34A853;
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 #288542, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-boa-solid:hover:not(:disabled) {
+  background-color: #2e994a;
+  box-shadow: 0 2px 0 #288542, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-boa-solid:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #288542, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Tiger Solid - Highlight/Streak actions */
+.btn-tiger-solid {
+  background-color: #FF6D01;
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 #cc5701, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-tiger-solid:hover:not(:disabled) {
+  background-color: #e66201;
+  box-shadow: 0 2px 0 #cc5701, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-tiger-solid:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #cc5701, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ========================================
+   OUTLINE BUTTONS (3D effect)
+   ======================================== */
+
+/* Gecko Outline - Secondary action */
 .btn-gecko-outline {
   background-color: #FFFFFF;
   color: #1CB0F6;
@@ -93,7 +194,27 @@
   box-shadow: 0 0 0 #b0d4f5, 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* White button for sign-in on landing page */
+/* Ladybug Outline - Destructive secondary */
+.btn-ladybug-outline {
+  background-color: #FFFFFF;
+  color: #EA4335;
+  border: 2px solid #EA4335;
+  box-shadow: 0 4px 0 #f5c6c2, 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(0);
+}
+
+.btn-ladybug-outline:hover:not(:disabled) {
+  background-color: #FFF5F5;
+  box-shadow: 0 2px 0 #f5c6c2, 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(2px);
+}
+
+.btn-ladybug-outline:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #f5c6c2, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Cloud Outline - Tertiary action (white with grey border) */
 .btn-cloud-outline {
   background-color: #FFFFFF;
   color: #1CB0F6;
@@ -114,13 +235,33 @@
   border-bottom-width: 2px;
 }
 
-/* Focus visible state for accessibility */
+/* ========================================
+   DISABLED STATE
+   ======================================== */
+
+.btn:disabled,
+.btn.disabled {
+  background-color: #E5E5E5;
+  color: #777777;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+  border: none;
+}
+
+/* ========================================
+   FOCUS VISIBLE (Accessibility)
+   ======================================== */
+
 .btn:focus-visible {
   outline: 3px solid #4285F4;
   outline-offset: 2px;
 }
 
-/* Mobile responsive */
+/* ========================================
+   MOBILE RESPONSIVE
+   ======================================== */
+
 @media (max-width: 768px) {
   .btn {
     height: 48px;
