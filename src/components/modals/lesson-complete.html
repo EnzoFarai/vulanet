@@ -14,15 +14,16 @@
 
     body {
       background: #FFFFFF;
+      color: #4B4B4B;
       display: flex;
       justify-content: center;
       position: relative;
       overflow: hidden;
       min-height: 100vh;
-      font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
     }
 
-    .modal-container {
+    .app {
       width: 100%;
       max-width: 420px;
       min-height: 100vh;
@@ -30,22 +31,21 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      background: transparent;
       position: relative;
       z-index: 20;
-      background: transparent;
     }
 
     .title {
       margin-top: 12px;
       text-align: center;
       font-weight: 900;
+      color: #ffd24a;
       font-size: 34px;
       line-height: 1.1;
       letter-spacing: 0.5px;
-      z-index: 30;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
-    .title.xp-boost { color: #FF6D01; }
-    .title.normal { color: #FBBC05; }
 
     .scene {
       width: 100%;
@@ -87,18 +87,52 @@
     .stat {
       background: #FFFFFF;
       border-radius: 16px;
+      padding: 0;
       text-align: center;
       border: 2px solid;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
 
-    .stat-header { padding: 12px 6px; color: #FFFFFF; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .stat-content { padding: 14px 6px; display: flex; align-items: center; justify-content: center; }
-    .stat .value { font-size: 18px; font-weight: 900; display: flex; align-items: center; gap: 6px; }
-    .stat-icon { width: 20px; height: 20px; display: inline-block; }
-    .stat-icon img { width: 100%; height: 100%; display: block; }
+    .stat-header {
+      padding: 12px 6px;
+      color: #FFFFFF;
+      font-size: 11px;
+      letter-spacing: .8px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .stat-content {
+      padding: 14px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat .value {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-icon {
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+    }
+
+    .stat-icon img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
 
     .stat.tiger { border-color: #FF6D01; }
     .stat.tiger .stat-header { background-color: #FF6D01; }
@@ -121,6 +155,7 @@
       padding: 14px 16px 22px;
       border-top: 1px solid #ededed;
       z-index: 100;
+      width: 100%;
     }
 
     .continue-wrap .btn {
@@ -131,6 +166,16 @@
     }
 
     /* Fireworks animation */
+    :root {
+      --firework-color-main: #5D9CEC;
+      --firework-color-center-top-bottom: #5D9CEC;
+      --firework-color-center-left-right: #5D9CEC;
+      --firework-color-left-top-bottom: #967ADC;
+      --firework-color-right-top-bottom: #967ADC;
+      --firework-animation-delay: 0s;
+      --firework-animation-duration: 4s;
+    }
+
     .fireworks-wrapper {
       position: fixed;
       top: 0;
@@ -149,19 +194,187 @@
       position: relative;
       width: 2.5em;
       height: 2em;
+      background: transparent;
+      animation: firework-ease var(--firework-animation-duration) var(--firework-animation-delay) infinite;
       font-size: 2.5em;
-      animation: flatify-firework 4s infinite;
     }
 
-    @keyframes flatify-firework {
+    .fireworks:before,
+    .fireworks .spark:before,
+    .fireworks .spark:after {
+      content: " ";
+      position: absolute;
+      height: 0.25em;
+      border-radius: 50em;
+      background: var(--firework-color-main);
+    }
+
+    .fireworks:before {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 0.25em;
+      margin: auto;
+      animation: firework-main var(--firework-animation-duration) var(--firework-animation-delay) both;
+    }
+
+    .fireworks .spark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      animation: firework-sparks var(--firework-animation-duration) var(--firework-animation-delay) both;
+    }
+
+    .fireworks .spark:nth-child(1):before,
+    .fireworks .spark:nth-child(1):after,
+    .fireworks .spark:nth-child(2):before,
+    .fireworks .spark:nth-child(2):after {
+      top: 0;
+      bottom: 0;
+      width: 1.5em;
+      margin: auto;
+    }
+
+    .fireworks .spark:nth-child(1):before,
+    .fireworks .spark:nth-child(2):before {
+      left: -0.25em;
+      animation: firework-spark-left var(--firework-animation-duration) var(--firework-animation-delay);
+    }
+
+    .fireworks .spark:nth-child(1):after,
+    .fireworks .spark:nth-child(2):after {
+      right: -0.25em;
+      animation: firework-spark-right var(--firework-animation-duration) var(--firework-animation-delay);
+    }
+
+    .fireworks .spark:nth-child(1) {
+      --firework-color-main: var(--firework-color-center-left-right);
+    }
+
+    .fireworks .spark:nth-child(2) {
+      --firework-color-main: var(--firework-color-center-top-bottom);
+      transform: rotate(90deg);
+    }
+
+    .fireworks .spark:nth-child(3),
+    .fireworks .spark:nth-child(4) {
+      left: 0;
+    }
+
+    .fireworks .spark:nth-child(3):before,
+    .fireworks .spark:nth-child(3):after,
+    .fireworks .spark:nth-child(4):before,
+    .fireworks .spark:nth-child(4):after {
+      width: 0.75em;
+    }
+
+    .fireworks .spark:nth-child(3):before,
+    .fireworks .spark:nth-child(4):before {
+      top: 0;
+      transform: rotate(45deg);
+      animation: firework-spark-corner-top var(--firework-animation-duration) var(--firework-animation-delay);
+    }
+
+    .fireworks .spark:nth-child(3):after,
+    .fireworks .spark:nth-child(4):after {
+      bottom: 0;
+      transform: rotate(-45deg);
+      animation: firework-spark-corner-bottom var(--firework-animation-duration) var(--firework-animation-delay);
+    }
+
+    .fireworks .spark:nth-child(3) {
+      --firework-color-main: var(--firework-color-left-top-bottom);
+    }
+
+    .fireworks .spark:nth-child(4) {
+      --firework-color-main: var(--firework-color-right-top-bottom);
+      transform: rotate(180deg);
+    }
+
+    .fireworks-1 {
+      --firework-animation-delay: 0.3s;
+      align-self: flex-start;
+      transform: rotate(-30deg);
+      position: relative;
+      top: 200px;
+      left: 50px;
+    }
+
+    .fireworks-2 {
+      --firework-animation-delay: 0.6s;
+      --firework-color-main: #ffce54;
+      --firework-color-center-top-bottom: #fc6e51;
+      --firework-color-center-left-right: #f6bb42;
+      --firework-color-left-top-bottom: #22c55e;
+      --firework-color-right-top-bottom: #a855f7;
+      align-self: center;
+      position: relative;
+      top: 200px;
+    }
+
+    .fireworks-3 {
+      --firework-animation-delay: 0.9s;
+      align-self: flex-start;
+      transform: rotate(30deg);
+      position: relative;
+      top: 200px;
+      right: 50px;
+    }
+
+    @keyframes firework-ease {
       0%, 20% { transform: translateY(0); }
       40% { transform: translateY(-1em); }
       80%, 100% { transform: translateY(0.5em); }
     }
 
+    @keyframes firework-main {
+      0% { opacity: 0; transform: scale(0) translateY(1em); }
+      5% { opacity: 1; transform: scale(0, 6) translateY(1em); }
+      26% { transform: scaleY(2) translateY(0); }
+      30% { transform: scale(9) translateY(0); }
+      40%, 100% { transform: scale(0) translateY(0); }
+    }
+
+    @keyframes firework-sparks {
+      0%, 30% { clip-path: circle(0 at center); opacity: 0; }
+      38% { clip-path: circle(100% at center); opacity: 1; }
+      65%, 100% { opacity: 0; }
+    }
+
+    @keyframes firework-spark-corner-top {
+      0%, 30% { opacity: 1; clip-path: circle(100% at left); transform: scale(1) translate(0) rotate(45deg); }
+      40% { clip-path: circle(100% at left); }
+      60%, 100% { opacity: 0; clip-path: circle(0 at left); transform: scale(1.5) translate(-0.5em, -0.25em) rotate(45deg); }
+    }
+
+    @keyframes firework-spark-corner-bottom {
+      0%, 30% { opacity: 1; clip-path: circle(100% at left); transform: scale(1) translate(0) rotate(-45deg); }
+      40% { clip-path: circle(100% at left); }
+      60%, 100% { opacity: 0; clip-path: circle(0 at left); transform: scale(1.5) translate(-0.5em, 0.25em) rotate(-45deg); }
+    }
+
+    @keyframes firework-spark-left {
+      0%, 30% { opacity: 1; clip-path: circle(100% at left); transform: scale(1) translate(0); }
+      40% { clip-path: circle(100% at left); }
+      60%, 100% { opacity: 0; clip-path: circle(0 at left); transform: scaleX(2) translate(-0.5em); }
+    }
+
+    @keyframes firework-spark-right {
+      0%, 30% { opacity: 1; clip-path: circle(100% at right); transform: scale(1) translate(0); }
+      40% { clip-path: circle(100% at right); }
+      60%, 100% { opacity: 0; clip-path: circle(0 at right); transform: scaleX(2) translate(0.5em); }
+    }
+
     @media (max-width: 768px) {
       .fireworks-wrapper { padding: 0 20px; }
       .fireworks { font-size: 1.8em; }
+      .fireworks-1, .fireworks-3 { transform: none; top: 150px; }
+      .fireworks-1 { left: 20px; }
+      .fireworks-3 { right: 20px; }
+      .fireworks-2 { top: 150px; }
       .stat .value { font-size: 16px; }
       .title { font-size: 28px; }
       .stat-header { font-size: 10px; padding: 10px 4px; }
@@ -169,15 +382,16 @@
     }
   </style>
 </head>
+
 <body>
 <div class="fireworks-wrapper">
-  <div class="fireworks fireworks-1">✨</div>
-  <div class="fireworks fireworks-2">🎉</div>
-  <div class="fireworks fireworks-3">✨</div>
+  <div class="fireworks fireworks-1"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
+  <div class="fireworks fireworks-2"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
+  <div class="fireworks fireworks-3"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
 </div>
 
-<div class="modal-container">
-  <div class="title normal" id="titleElement">Lesson complete!</div>
+<div class="app">
+  <div class="title">Lesson complete!</div>
 
   <div class="scene">
     <div class="emoji-container">
@@ -186,8 +400,8 @@
   </div>
 
   <div class="stats">
-    <div class="stat tiger" id="xpStat">
-      <div class="stat-header" id="xpHeader">TOTAL XP</div>
+    <div class="stat tiger">
+      <div class="stat-header" id="xpStatHeader">TOTAL XP</div>
       <div class="stat-content">
         <div class="value">
           <span class="stat-icon"><img src="public/assets/icons/phosphor/fill/lightning.svg" alt="XP"></span>
@@ -195,23 +409,21 @@
         </div>
       </div>
     </div>
-    
     <div class="stat carpenter-blue">
-      <div class="stat-header" id="timeHeader">COMMITTED</div>
+      <div class="stat-header" id="timeStatHeader">COMMITTED</div>
       <div class="stat-content">
         <div class="value">
           <span class="stat-icon"><img src="public/assets/icons/phosphor/regular/clock-countdown.svg" alt="Time"></span>
-          <span id="timeValue">0s</span>
+          <span id="timeValue">0</span>
         </div>
       </div>
     </div>
-    
     <div class="stat boa">
-      <div class="stat-header" id="accuracyHeader">OUTSTANDING</div>
+      <div class="stat-header" id="accuracyStatHeader">OUTSTANDING</div>
       <div class="stat-content">
         <div class="value">
           <span class="stat-icon"><img src="public/assets/icons/phosphor/regular/target.svg" alt="Accuracy"></span>
-          <span id="accuracyValue">0%</span>
+          <span id="accuracyValue">0</span>
         </div>
       </div>
     </div>
@@ -224,73 +436,77 @@
 
 <script>
   (function() {
-    new Audio('public/assets/audio/complete.mp3').play().catch(() => {});
+    const audio = new Audio('public/assets/audio/complete.mp3');
+    audio.play().catch(() => {});
 
-    // Receive data from parent
-    window.addEventListener('message', function(e) {
-      const data = e.data;
-      if (data.action === 'setResults') {
-        updateDisplay(data);
-      }
-    });
+    // XP calculation utility
+    window.updateLessonCompleteStats = function(data) {
+      const { totalXP, timeTakenSeconds, accuracyPercent, isBoostActive, boostMultiplier } = data;
+      
+      const xpSpan = document.getElementById('xpValue');
+      const timeSpan = document.getElementById('timeValue');
+      const accuracySpan = document.getElementById('accuracyValue');
+      const xpHeader = document.getElementById('xpStatHeader');
+      const timeHeader = document.getElementById('timeStatHeader');
+      const accuracyHeader = document.getElementById('accuracyStatHeader');
 
-    function updateDisplay(data) {
-      const { xp, totalXp, time, accuracy, isXpBoost, boostMultiplier } = data;
+      // Format time
+      let timeDisplay = '';
+      const hours = Math.floor(timeTakenSeconds / 3600);
+      const minutes = Math.floor((timeTakenSeconds % 3600) / 60);
+      const seconds = timeTakenSeconds % 60;
       
-      const titleEl = document.getElementById('titleElement');
-      const xpHeader = document.getElementById('xpHeader');
-      const xpValueSpan = document.getElementById('xpValue');
-      const timeValueSpan = document.getElementById('timeValue');
-      const accuracyValueSpan = document.getElementById('accuracyValue');
-      const timeHeader = document.getElementById('timeHeader');
-      const accuracyHeader = document.getElementById('accuracyHeader');
-      
-      // XP display with boost
-      let displayXp = xp;
-      if (isXpBoost && boostMultiplier) {
-        displayXp = Math.round(xp * boostMultiplier);
-        titleEl.classList.add('xp-boost');
-        titleEl.classList.remove('normal');
-        xpHeader.textContent = 'XP BOOST';
+      if (hours > 0) {
+        timeDisplay = `${hours}h`;
+        if (minutes > 0) timeDisplay += ` ${minutes}m`;
+      } else if (minutes > 0) {
+        timeDisplay = `${minutes}m`;
+        if (seconds > 0) timeDisplay += ` ${seconds}s`;
       } else {
-        titleEl.classList.add('normal');
-        titleEl.classList.remove('xp-boost');
-        xpHeader.textContent = 'TOTAL XP';
-      }
-      xpValueSpan.textContent = displayXp;
-      
-      // Time display
-      if (time <= 60) {
-        timeValueSpan.textContent = `${time}s`;
-      } else if (time < 3600) {
-        const mins = Math.floor(time / 60);
-        const secs = time % 60;
-        timeValueSpan.textContent = secs > 0 ? `${mins}m ${secs}s` : `${mins}m`;
-      } else {
-        const hours = Math.floor(time / 3600);
-        const mins = Math.floor((time % 3600) / 60);
-        timeValueSpan.textContent = mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+        timeDisplay = `${seconds}s`;
       }
       
-      // Time header (WHOA if at or under expected time)
-      if (data.isUnderExpected) {
+      timeSpan.textContent = timeDisplay;
+      
+      // Update accuracy header based on percentage
+      if (accuracyPercent === 100) {
+        accuracyHeader.textContent = 'PERFECT';
+      } else if (accuracyPercent >= 80) {
+        accuracyHeader.textContent = 'OUTSTANDING';
+      } else if (accuracyPercent >= 50) {
+        accuracyHeader.textContent = 'NICE';
+      } else {
+        accuracyHeader.textContent = 'YIKES';
+      }
+      accuracySpan.textContent = `${accuracyPercent}%`;
+      
+      // Update time header based on speed
+      if (data.isUnderExpectedTime) {
         timeHeader.textContent = 'WHOA';
       } else {
         timeHeader.textContent = 'COMMITTED';
       }
       
-      // Accuracy and message
-      let message = '';
-      if (accuracy >= 100) message = 'PERFECT';
-      else if (accuracy >= 80) message = 'OUTSTANDING';
-      else if (accuracy >= 50) message = 'NICE';
-      else message = 'YIKES';
-      accuracyHeader.textContent = message;
-      accuracyValueSpan.textContent = `${accuracy}%`;
-    }
+      // Update XP display with boost handling
+      const finalXP = isBoostActive ? Math.floor(totalXP * boostMultiplier) : totalXP;
+      xpSpan.textContent = finalXP;
+      
+      if (isBoostActive) {
+        xpHeader.textContent = 'XP BOOST';
+        document.querySelector('.stat.tiger').style.borderColor = '#FF6D01';
+        document.querySelector('.stat.tiger .stat-header').style.backgroundColor = '#FF6D01';
+      } else {
+        xpHeader.textContent = 'TOTAL XP';
+        document.querySelector('.stat.tiger').style.borderColor = '#FBBC05';
+        document.querySelector('.stat.tiger .stat-header').style.backgroundColor = '#FBBC05';
+      }
+    };
 
-    document.getElementById('continueBtn').addEventListener('click', () => {
-      if (window.parent !== window) window.parent.postMessage({ action: 'continueFromComplete' }, '*');
+    const continueBtn = document.getElementById('continueBtn');
+    continueBtn.addEventListener('click', () => {
+      if (window.parent !== window) {
+        window.parent.postMessage({ action: 'continueFromComplete' }, '*');
+      }
     });
   })();
 </script>
