@@ -15,9 +15,10 @@ export const courses = {
     slug: "financial-accounting",
     icon: "public/assets/courses/financial-accounting.png",
     order: 1,
-    createdAt: "2025-03-15", // Actual launch date
+    createdAt: "2025-03-15",
     firstLessonId: "introduction-to-financial-accounting",
-    firstReadingId: "introduction-to-financial-accounting-reading"
+    firstReadingId: "introduction-to-financial-accounting-reading",
+    dykSources: ["business.html", "mathematics.html"]
   },
   
   // Humanities
@@ -31,7 +32,8 @@ export const courses = {
     order: 1,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-international-law",
-    firstReadingId: "introduction-to-international-law-reading"
+    firstReadingId: "introduction-to-international-law-reading",
+    dykSources: ["law.html", "humanities.html"]
   },
   
   // Medical Sciences
@@ -45,7 +47,8 @@ export const courses = {
     order: 1,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-clinical-pharmacy",
-    firstReadingId: "introduction-to-clinical-pharmacy-reading"
+    firstReadingId: "introduction-to-clinical-pharmacy-reading",
+    dykSources: ["medicine.html", "chemistry.html"]
   },
   "pharmacology-ii": {
     id: "pharmacology-ii",
@@ -57,7 +60,8 @@ export const courses = {
     order: 2,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-anticoagulants",
-    firstReadingId: "introduction-to-anticoagulants-reading"
+    firstReadingId: "introduction-to-anticoagulants-reading",
+    dykSources: ["medicine.html", "biology.html"]
   },
   
   // Science & Technology
@@ -71,7 +75,8 @@ export const courses = {
     order: 1,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-java",
-    firstReadingId: "introduction-to-java-reading"
+    firstReadingId: "introduction-to-java-reading",
+    dykSources: ["computer-science.html", "engineering.html"]
   },
   "web-design": {
     id: "web-design",
@@ -83,7 +88,8 @@ export const courses = {
     order: 2,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-web-design",
-    firstReadingId: "introduction-to-web-design-reading"
+    firstReadingId: "introduction-to-web-design-reading",
+    dykSources: ["computer-science.html", "engineering.html"]
   },
   
   // Matric (NSC)
@@ -97,7 +103,8 @@ export const courses = {
     order: 1,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-nucleic-acids",
-    firstReadingId: "introduction-to-nucleic-acids-reading"
+    firstReadingId: "introduction-to-nucleic-acids-reading",
+    dykSources: ["biology.html", "chemistry.html"]
   }
 };
 
@@ -164,4 +171,11 @@ export function getFirstLessonUrl(courseId, startWith = "game") {
   } else {
     return `/src/pages/read/${courseId}/${course.firstReadingId}.html`;
   }
+}
+
+// Helper to get DYK sources for a course
+export function getCourseDykSources(courseId) {
+  const course = courses[courseId];
+  if (!course) return ["general.html"];
+  return course.dykSources || ["general.html"];
 }
