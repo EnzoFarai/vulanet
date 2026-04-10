@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Achievement / Personal Record</title>
+
+  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  <script src="src/lib/html2canvas.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #ffffff;
+      color: #4B4B4B;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      background: transparent;
+      z-index: 100;
+    }
+
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .header-icon img { width: 24px; height: 24px; display: block; }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      padding: 80px 18px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+    }
+
+    .title {
+      margin-top: 32px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1.4;
+      max-width: 320px;
+    }
+
+    .scene {
+      width: 100%;
+      height: 220px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .achievement-card {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      background: transparent;
+    }
+
+    .achievement-diamond {
+      width: 120px;
+      height: 120px;
+      transform: rotate(45deg);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .achievement-diamond-content {
+      transform: rotate(-45deg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .achievement-icon {
+      width: 32px;
+      height: 32px;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .achievement-icon img { width: 100%; height: 100%; display: block; }
+
+    .achievement-number {
+      font-weight: 700;
+      font-size: 18px;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .achievement-title {
+      font-weight: 600;
+      font-size: 18px;
+      margin-top: 8px;
+      color: #4B4B4B;
+    }
+
+    .achievement-date {
+      font-size: 14px;
+      color: #fff;
+      background-color: #D4AF37;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .buttons-container { width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
+    .action-button { width: 100%; height: 52px; border-radius: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border: none; font-size: 15px; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; line-height: 1; }
+    .claim-reward { color: #ffffff; background-color: #4285F4; border-bottom: 0.25rem solid #3a75d9; }
+    .claim-reward:hover { background-color: #3a75d9; border-bottom-color: #3166c4; transform: translateY(-2px); }
+    .claim-reward:active { transform: translateY(2px); border-bottom-width: 0.125rem; }
+
+    .share-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .share-content {
+      width: 100%;
+      max-width: 357px;
+      background: #f5f5f7;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .share-card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 32px 24px 28px;
+      margin-bottom: 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .share-brand { margin-top: 16px; font-weight: 700; color: #4285F4; font-size: 24px; }
+    .share-sheet { background: #fff; border-top: 1px solid #dadada; border-radius: 24px 24px 0 0; padding: 16px 12px; }
+    .share-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .share-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+    .share-icon-circle { width: 44px; height: 44px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+    .share-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+    .share-icon img { width: 100%; height: 100%; object-fit: contain; }
+    .share-text { font-size: 11px; color: #333; }
+    .bottom-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 0 20px; }
+    .bottom-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+    .bottom-icon-circle { width: 44px; height: 44px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+    .bottom-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+    .bottom-text { font-size: 11px; color: #333; }
+
+    @media (max-width: 768px) {
+      .title { font-size: 18px; max-width: 280px; margin-top: 28px; }
+      .scene { height: 200px; }
+      .achievement-diamond { width: 110px; height: 110px; }
+      .achievement-icon { width: 28px; height: 28px; }
+      .achievement-number { font-size: 16px; }
+      .achievement-title { font-size: 16px; }
+      .buttons-container { margin-top: 32px; }
+      .action-button { height: 48px; font-size: 14px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="header">
+  <div class="header-icon" id="exit-button">
+    <img src="public/assets/icons/material-symbols/outline/close.svg" alt="Close">
+  </div>
+  <div class="header-icon" id="share-button">
+    <img src="public/assets/icons/material-symbols/outline/upload.svg" alt="Share">
+  </div>
+</div>
+
+<div class="app">
+  <div class="scene">
+    <div class="achievement-card" id="achievement-card">
+      <div class="achievement-diamond" id="achievementDiamond">
+        <div class="achievement-diamond-content">
+          <span class="achievement-icon" id="achievementIcon">
+            <img src="public/assets/icons/material-symbols/outline/exercise.svg" alt="Achievement">
+          </span>
+          <div class="achievement-number" id="achievementNumber">0</div>
+        </div>
+      </div>
+      <div class="achievement-title" id="achievementTitle">Achievement</div>
+      <div class="achievement-date" id="currentDate"></div>
+    </div>
+  </div>
+
+  <div class="title" id="titleText">You earned an achievement!</div>
+
+  <div class="buttons-container">
+    <button class="action-button claim-reward" id="claimRewardBtn">CLAIM REWARD</button>
+  </div>
+</div>
+
+<div class="share-overlay" id="share-overlay">
+  <div class="share-content">
+    <div class="share-card" id="share-card">
+      <div class="achievement-diamond" id="shareDiamond">
+        <div class="achievement-diamond-content">
+          <span class="achievement-icon" id="shareIcon">
+            <img src="public/assets/icons/material-symbols/outline/exercise.svg" alt="Achievement">
+          </span>
+          <div class="achievement-number" id="shareNumber">0</div>
+        </div>
+      </div>
+      <div class="achievement-title" id="shareTitle">Achievement</div>
+      <div class="achievement-date" id="shareDate"></div>
+      <div class="title" id="shareMessage" style="margin-top: 20px; font-size: 18px;">I earned an achievement!</div>
+      <div class="share-brand">vulanet</div>
+    </div>
+    <div class="share-sheet">
+      <div class="share-grid">
+        <div class="share-item" id="share-facebook"><div class="share-icon-circle"><div class="share-icon"><img src="public/assets/icons/social/facebook-brands-solid-full.svg"></div></div><div class="share-text">Facebook</div></div>
+        <div class="share-item" id="share-x"><div class="share-icon-circle"><div class="share-icon"><img src="public/assets/icons/social/x-twitter-brands-solid-full.svg"></div></div><div class="share-text">X</div></div>
+        <div class="share-item" id="share-whatsapp"><div class="share-icon-circle"><div class="share-icon"><img src="public/assets/icons/social/whatsapp-brands-solid-full.svg"></div></div><div class="share-text">WhatsApp</div></div>
+        <div class="share-item" id="share-sms"><div class="share-icon-circle"><div class="share-icon"><img src="public/assets/icons/material-symbols/outline/sms.svg" alt="SMS"></div></div><div class="share-text">Message</div></div>
+      </div>
+      <div class="bottom-grid">
+        <div class="bottom-item" id="save-image"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="public/assets/icons/material-symbols/outline/download.svg" alt="Download"></div></div><div class="bottom-text">Save image</div></div>
+        <div class="bottom-item" id="more-options"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="public/assets/icons/material-symbols/outline/more_horiz.svg" alt="More"></div></div><div class="bottom-text">More</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    function getCurrentDateFormatted() {
+      const now = new Date();
+      return `${now.getDate()} ${now.toLocaleString('en-US', { month: 'long' })} ${now.getFullYear()}`;
+    }
+
+    document.getElementById('currentDate').textContent = getCurrentDateFormatted();
+    document.getElementById('shareDate').textContent = getCurrentDateFormatted();
+
+    window.updateAchievementDisplay = function(data) {
+      const { iconSrc, number, title, message, rewardType, rewardAmount, diamondColor } = data;
+      
+      document.getElementById('achievementIcon').innerHTML = `<img src="${iconSrc}" alt="${title}">`;
+      document.getElementById('achievementNumber').textContent = number;
+      document.getElementById('achievementTitle').textContent = title;
+      document.getElementById('titleText').textContent = message;
+      document.getElementById('achievementDiamond').style.backgroundColor = diamondColor || '#2563eb';
+      
+      document.getElementById('shareIcon').innerHTML = `<img src="${iconSrc}" alt="${title}">`;
+      document.getElementById('shareNumber').textContent = number;
+      document.getElementById('shareTitle').textContent = title;
+      document.getElementById('shareMessage').textContent = message;
+      document.getElementById('shareDiamond').style.backgroundColor = diamondColor || '#2563eb';
+    };
+
+    document.getElementById('exit-button').addEventListener('click', () => {
+      if (window.parent !== window) window.parent.postMessage({ action: 'closeAchievement' }, '*');
+    });
+
+    document.getElementById('claimRewardBtn').addEventListener('click', () => {
+      if (window.parent !== window) window.parent.postMessage({ action: 'claimAchievementReward' }, '*');
+    });
+
+    const shareBtn = document.getElementById('share-button');
+    const shareOverlay = document.getElementById('share-overlay');
+    shareBtn.addEventListener('click', () => { shareOverlay.style.display = 'flex'; });
+    shareOverlay.addEventListener('click', (e) => { if (e.target === shareOverlay) shareOverlay.style.display = 'none'; });
+
+    function getShareText() { return document.getElementById('shareMessage').textContent + ' #Vulanet'; }
+
+    document.getElementById('share-sms').addEventListener('click', () => {
+      const text = getShareText();
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        window.location.href = `sms:?body=${encodeURIComponent(text)}`;
+      } else {
+        navigator.clipboard?.writeText(text);
+      }
+    });
+
+    document.getElementById('save-image').addEventListener('click', async () => {
+      const card = document.getElementById('share-card');
+      await document.fonts.ready;
+      html2canvas(card, { scale: 2, useCORS: true }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'vulanet-achievement.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(() => {});
+    });
+
+    document.getElementById('share-facebook').addEventListener('click', () => {
+      const text = encodeURIComponent(document.getElementById('shareMessage').textContent + '\n\n');
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://vulanet.com/achievement")}&quote=${text}&hashtag=%23Vulanet`, 'fb-share', 'width=626,height=436');
+    });
+
+    document.getElementById('share-x').addEventListener('click', () => {
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`, 'x-share', 'width=550,height=420');
+    });
+
+    document.getElementById('share-whatsapp').addEventListener('click', () => {
+      window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`, 'wa-share', 'width=600,height=600');
+    });
+
+    document.getElementById('more-options').addEventListener('click', () => {
+      if (navigator.share) {
+        navigator.share({ title: 'Vulanet Achievement', text: getShareText(), url: 'https://vulanet.com/achievement' }).catch(() => {});
+      }
+    });
+  })();
+</script>
+</body>
+</html>
