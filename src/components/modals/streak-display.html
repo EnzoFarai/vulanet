@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Streak Achievement</title>
+
+  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  <script src="src/lib/html2canvas.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #F7F7F7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      background: transparent;
+      z-index: 100;
+    }
+
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .header-icon img { width: 24px; height: 24px; display: block; }
+
+    .container {
+      max-width: 400px;
+      width: 100%;
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .flame {
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s, opacity 0.3s ease;
+    }
+    .flame.visible { visibility: visible; opacity: 1; }
+    .flame img { width: 110px; height: auto; margin: 0 auto 4px; }
+
+    .streak-number {
+      font-size: 72px;
+      font-weight: 700;
+      color: #FF6D01;
+      text-shadow: -4px -4px 0 #FFFFFF, 4px -4px 0 #FFFFFF, -4px 4px 0 #FFFFFF, 4px 4px 0 #FFFFFF;
+      margin: 0;
+      line-height: 1.1;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s, opacity 0.3s ease;
+    }
+    .streak-number.visible { visibility: visible; opacity: 1; }
+
+    .streak-text {
+      font-size: 28px;
+      color: #FF6D01;
+      font-weight: 700;
+      margin-top: -6px;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s, opacity 0.3s ease;
+    }
+    .streak-text.visible { visibility: visible; opacity: 1; }
+
+    .card {
+      margin-top: 30px;
+      background: #FFFFFF;
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 0 0 3px #E5E5E5;
+    }
+
+    .days {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: #999;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .days span { width: 38px; text-align: center; }
+    .days span.active { color: #FF6D01; }
+
+    .ticks {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .tick {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .tick.orange { background: #FF6D01; color: white; }
+    .tick.grey { background: #AFAFAF; color: white; }
+    .tick.freeze { background: white; border: 2px solid #EA4335; }
+    .tick-icon { width: 22px; height: 22px; display: inline-block; }
+    .tick-icon img { width: 100%; height: 100%; display: block; }
+
+    .divider { height: 1px; background: #E5E5E5; margin: 18px 0; }
+    .message { font-size: 20px; color: #444; }
+    .continue-btn { width: 100%; margin-top: 24px; }
+
+    .share-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .share-content {
+      width: 100%;
+      max-width: 357px;
+      background: #f5f5f7;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .share-card {
+      background: white;
+      border-radius: 24px;
+      padding: 32px 24px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .share-sheet {
+      background: white;
+      border-top: 1px solid #dadada;
+      border-radius: 24px 24px 0 0;
+      padding: 16px 12px;
+    }
+
+    .share-grid, .bottom-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .share-grid { grid-template-columns: repeat(4, 1fr); margin-bottom: 20px; }
+    .bottom-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 0 20px; }
+
+    .share-item, .bottom-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .share-icon-circle, .bottom-icon-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .share-icon, .bottom-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+    .share-icon img, .bottom-icon img { width: 100%; height: 100%; object-fit: contain; }
+    .share-text, .bottom-text { font-size: 11px; color: #333; }
+
+    .mini-streak { display: flex; flex-direction: column; align-items: center; }
+    .share-streak-number { font-size: 48px; font-weight: 700; color: #FF6D01; text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff; }
+    .share-streak-text { font-size: 22px; color: #FF6D01; font-weight: 700; }
+    .share-message { font-size: 18px; color: #444; margin: 8px 0; }
+    .share-brand { margin-top: 16px; font-weight: 700; color: #4285F4; font-size: 24px; font-family: 'Bricolage Grotesque', monospace; }
+
+    @media (max-width: 768px) {
+      .streak-number { font-size: 56px; }
+      .streak-text { font-size: 22px; }
+      .message { font-size: 16px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="header">
+  <div class="header-icon" id="exit-button">
+    <img src="public/assets/icons/material-symbols/outline/close.svg" alt="Close">
+  </div>
+  <div class="header-icon" id="share-button">
+    <img src="public/assets/icons/material-symbols/outline/upload.svg" alt="Share">
+  </div>
+</div>
+
+<div class="container">
+  <div class="flame" id="flame">
+    <img src="public/assets/lottie/1f525-static.png" alt="flame">
+  </div>
+  <h1 class="streak-number" id="streakNumber">0</h1>
+  <div class="streak-text" id="streakText">day streak!</div>
+
+  <div class="card">
+    <div class="days">
+      <span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span><span>Mo</span><span class="active" id="tuLabel">Tu</span>
+    </div>
+    <div class="ticks" id="ticksContainer">
+      <!-- Dynamic ticks inserted via JS -->
+    </div>
+    <div class="divider"></div>
+    <div class="message" id="streakMessage">You extended your streak!</div>
+  </div>
+
+  <button class="btn btn-md btn-carpenter-blue continue-btn" id="continueButton">CONTINUE</button>
+</div>
+
+<div class="share-overlay" id="share-overlay">
+  <div class="share-content">
+    <div class="share-card" id="share-card">
+      <div class="mini-streak">
+        <img src="public/assets/lottie/1f525-static.png" width="60" alt="flame" style="margin-bottom: 4px;">
+        <div class="share-streak-number" id="shareStreakNumber">0</div>
+        <div class="share-streak-text">day streak!</div>
+        <div class="share-message" id="shareMessage"></div>
+      </div>
+      <div class="share-brand">vulanet</div>
+    </div>
+    <div class="share-sheet">
+      <div class="share-grid">
+        <div class="share-item" id="share-facebook"><div class="share-icon-circle"><div class="share-icon"><img src="public/assets/icons/social/facebook-brands-solid-full.svg"></div></div><div class="share-text">Facebook</div></div>
+        <div class="share-item" id="share-x"><div class="share-icon-circle"><div class="share-icon"><img src="public/assets/icons/social/x-twitter-brands-solid-full.svg"></div></div><div class="share-text">X</div></div>
+        <div class="share-item" id="share-whatsapp"><div class="share-icon-circle"><div class="share-icon"><img src="public/assets/icons/social/whatsapp-brands-solid-full.svg"></div></div><div class="share-text">WhatsApp</div></div>
+        <div class="share-item" id="share-sms"><div class="share-icon-circle"><div class="share-icon"><img src="public/assets/icons/material-symbols/outline/sms.svg" alt="SMS"></div></div><div class="share-text">Message</div></div>
+      </div>
+      <div class="bottom-grid">
+        <div class="bottom-item" id="save-image"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="public/assets/icons/material-symbols/outline/download.svg" alt="Download"></div></div><div class="bottom-text">Save image</div></div>
+        <div class="bottom-item" id="more-options"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="public/assets/icons/material-symbols/outline/more_horiz.svg" alt="More"></div></div><div class="bottom-text">More</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const audio = new Audio('public/assets/audio/streak.mp3');
+    audio.play().catch(() => {});
+
+    // Populate streak data
+    window.updateStreakDisplay = function(data) {
+      const { streakLength, streakHistory, messageText, shareText } = data;
+      
+      document.getElementById('streakNumber').textContent = streakLength;
+      document.getElementById('shareStreakNumber').textContent = streakLength;
+      document.getElementById('streakMessage').textContent = messageText;
+      document.getElementById('shareMessage').textContent = shareText || messageText;
+      
+      // Build tick marks
+      const ticksContainer = document.getElementById('ticksContainer');
+      ticksContainer.innerHTML = '';
+      
+      for (let i = 0; i < 7; i++) {
+        const tick = document.createElement('div');
+        tick.className = 'tick';
+        const history = streakHistory[i];
+        
+        if (history === 'completed') {
+          tick.classList.add('orange');
+          tick.innerHTML = '<span class="tick-icon"><img src="public/assets/icons/phosphor/fill/check-fat.svg" alt="Check"></span>';
+        } else if (history === 'freeze') {
+          tick.classList.add('freeze');
+          tick.innerHTML = '<span class="tick-icon"><img src="public/assets/icons/phosphor/fill/first-aid.svg" alt="Freeze"></span>';
+        } else {
+          tick.classList.add('grey');
+          tick.innerHTML = '<span class="tick-icon"><img src="public/assets/icons/phosphor/fill/check-fat.svg" alt="Check"></span>';
+        }
+        
+        ticksContainer.appendChild(tick);
+      }
+      
+      // Animate the last (today's) tick from grey to orange
+      const lastTick = ticksContainer.children[6];
+      setTimeout(() => {
+        lastTick.classList.remove('grey');
+        lastTick.classList.add('orange');
+        document.getElementById('flame').classList.add('visible');
+        document.getElementById('streakNumber').classList.add('visible');
+        document.getElementById('streakText').classList.add('visible');
+      }, 1000);
+    };
+
+    // Exit button
+    document.getElementById('exit-button').addEventListener('click', () => {
+      if (window.parent !== window) window.parent.postMessage({ action: 'exitStreak' }, '*');
+    });
+
+    // Share button
+    const shareBtn = document.getElementById('share-button');
+    const shareOverlay = document.getElementById('share-overlay');
+    shareBtn.addEventListener('click', () => { shareOverlay.style.display = 'flex'; });
+    shareOverlay.addEventListener('click', (e) => { if (e.target === shareOverlay) shareOverlay.style.display = 'none'; });
+
+    // Continue button
+    document.getElementById('continueButton').addEventListener('click', () => {
+      if (window.parent !== window) window.parent.postMessage({ action: 'continueFromStreak' }, '*');
+    });
+
+    // SMS share
+    document.getElementById('share-sms').addEventListener('click', () => {
+      const text = document.getElementById('shareMessage').textContent;
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        window.location.href = `sms:?body=${encodeURIComponent(text + ' #Vulanet')}`;
+      } else {
+        navigator.clipboard?.writeText(text + ' #Vulanet');
+      }
+    });
+
+    // Save image
+    document.getElementById('save-image').addEventListener('click', async () => {
+      const card = document.getElementById('share-card');
+      await document.fonts.ready;
+      if (typeof html2canvas !== 'undefined') {
+        html2canvas(card, { scale: 2, useCORS: true }).then(canvas => {
+          const link = document.createElement('a');
+          link.download = 'vulanet-streak.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        }).catch(() => alert('Could not generate image'));
+      }
+    });
+
+    // Facebook share
+    document.getElementById('share-facebook').addEventListener('click', () => {
+      const text = encodeURIComponent(document.getElementById('shareMessage').textContent + '\n\n');
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://vulanet.com/streak")}&quote=${text}&hashtag=%23Vulanet`, 'fb-share', 'width=626,height=436');
+    });
+
+    // X share
+    document.getElementById('share-x').addEventListener('click', () => {
+      const text = encodeURIComponent(document.getElementById('shareMessage').textContent + ' #Vulanet');
+      window.open(`https://twitter.com/intent/tweet?text=${text}`, 'x-share', 'width=550,height=420');
+    });
+
+    // WhatsApp share
+    document.getElementById('share-whatsapp').addEventListener('click', () => {
+      const text = encodeURIComponent(document.getElementById('shareMessage').textContent + ' #Vulanet');
+      window.open(`https://wa.me/?text=${text}`, 'wa-share', 'width=600,height=600');
+    });
+
+    // More options (native share)
+    document.getElementById('more-options').addEventListener('click', () => {
+      const text = document.getElementById('shareMessage').textContent + ' #Vulanet';
+      if (navigator.share) {
+        navigator.share({ title: 'Vulanet Streak', text: text, url: 'https://vulanet.com/streak' }).catch(() => {});
+      }
+    });
+  })();
+</script>
+</body>
+</html>
