@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Introduction to Nucleic Acids</title>
+  <title>Biology Quiz</title>
   
   <!-- Local Fonts -->
   <link rel="stylesheet" href="public/assets/fonts/fonts.css">
@@ -16,8 +16,7 @@
   <link rel="stylesheet" href="src/styles/components/speech-bubble.css">
   <link rel="stylesheet" href="src/styles/components/result-panel.css">
   <link rel="stylesheet" href="src/styles/components/celebration.css">
-  <link rel="stylesheet" href="src/styles/components/image-select.css">
-  <link rel="stylesheet" href="src/styles/components/matching.css">
+  <link rel="stylesheet" href="src/styles/components/ordering.css">
   
   <!-- Button Component -->
   <link rel="stylesheet" href="src/styles/components/buttons.css">
@@ -78,10 +77,367 @@
       height: 24px;
     }
     
-    .share-icon .material-icon,
-    .bottom-icon .material-icon {
-      width: 28px;
-      height: 28px;
+    /* Image Diagram Styles */
+    .image-diagram-container {
+      margin: 2rem 0;
+      text-align: center;
+    }
+    
+    .diagram-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 2px solid #E5E5E5;
+      margin-bottom: 0.75rem;
+    }
+    
+    .diagram-label {
+      font-size: 0.95rem;
+      color: #777777;
+      font-style: italic;
+      margin-top: 0.5rem;
+      line-height: 1.4;
+    }
+    
+    .bond-question-container {
+      text-align: center;
+      margin: 2rem 0;
+    }
+    
+    .bond-question {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #4B4B4B;
+      line-height: 1.4;
+      text-align: center;
+    }
+    
+    .bond-answer-container {
+      display: block;
+      margin: 0 auto;
+      max-width: 300px;
+      width: 100%;
+    }
+    
+    .bond-answer-input {
+      width: 100%;
+      border: 3px solid #E5E5E5;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #4B4B4B;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      background: #FFFFFF;
+      text-align: center;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.06);
+    }
+    
+    .bond-answer-input::placeholder {
+      color: #777777;
+      font-weight: 400;
+    }
+    
+    .bond-answer-input:focus {
+      border-color: #1CB0F6;
+      background-color: rgba(229, 245, 255, 0.3);
+      box-shadow: 0 4px 0 rgba(28, 176, 246, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .bond-answer-input.correct {
+      color: #2E7D32;
+      border-color: #34A853;
+      background-color: rgba(215, 255, 184, 0.3);
+      box-shadow: 0 4px 0 rgba(52, 168, 83, 0.2);
+    }
+    
+    .bond-answer-input.incorrect {
+      color: #C5221F;
+      border-color: #EA4335;
+      background-color: rgba(255, 223, 224, 0.3);
+      box-shadow: 0 4px 0 rgba(234, 67, 53, 0.2);
+    }
+    
+    .bond-answer-input:disabled {
+      color: #4B4B4B;
+      cursor: default;
+      background-color: #F7F7F7;
+      border-color: #E5E5E5;
+      transform: none;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.06);
+    }
+    
+    .bond-answer-input:disabled.correct {
+      color: #2E7D32;
+      border-color: #34A853;
+      background-color: rgba(215, 255, 184, 0.5);
+    }
+    
+    .bond-answer-input:disabled.incorrect {
+      color: #C5221F;
+      border-color: #EA4335;
+      background-color: rgba(255, 223, 224, 0.5);
+    }
+    
+    /* Question 5 specific */
+    #question5 .question5-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      max-width: 100%;
+    }
+    
+    #question5 .icon-container {
+      color: #4285F4;
+      font-size: clamp(3rem, 6vw, 4rem);
+      flex-shrink: 0;
+    }
+    
+    #question5 .response-container {
+      margin: 2rem 0;
+      text-align: left;
+    }
+    
+    #question5 .response-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #4B4B4B;
+      line-height: 1.4;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    }
+    
+    #question5 .response-input {
+      display: inline-block;
+      min-width: 140px;
+      width: auto;
+      max-width: 200px;
+      border: none;
+      border-bottom: 3px solid #4285F4;
+      margin: 0 0.5rem;
+      padding: 0.3rem 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #4B4B4B;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      background: transparent;
+      text-align: center;
+      outline: none;
+      transition: all 0.3s ease;
+      vertical-align: baseline;
+    }
+    
+    #question5 .response-input::placeholder {
+      color: #777777;
+      font-weight: 400;
+    }
+    
+    #question5 .response-input:focus {
+      border-bottom-color: #1CB0F6;
+      background-color: rgba(229, 245, 255, 0.3);
+    }
+    
+    #question5 .response-input.correct {
+      color: #2E7D32;
+      border-bottom-color: #34A853;
+      background-color: rgba(215, 255, 184, 0.3);
+    }
+    
+    #question5 .response-input.incorrect {
+      color: #C5221F;
+      border-bottom-color: #EA4335;
+      background-color: rgba(255, 223, 224, 0.3);
+    }
+    
+    #question5 .response-input:disabled {
+      color: #4B4B4B;
+      cursor: default;
+      background-color: transparent;
+    }
+    
+    #question5 .response-input:disabled.correct {
+      color: #2E7D32;
+      border-bottom-color: #34A853;
+    }
+    
+    #question5 .response-input:disabled.incorrect {
+      color: #C5221F;
+      border-bottom-color: #EA4335;
+    }
+    
+    /* Image Selection Styles */
+    .image-selection-container {
+      margin: 2rem 0;
+    }
+    
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    
+    .image-tile {
+      position: relative;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 3px solid #E5E5E5;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #FFFFFF;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .image-tile:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      border-color: #AFAFAF;
+    }
+    
+    .image-tile.selected {
+      border-color: #1CB0F6;
+      box-shadow: 0 0 0 3px rgba(28, 176, 246, 0.2), 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    .image-tile.correct {
+      border-color: #34A853;
+      box-shadow: 0 0 0 3px rgba(52, 168, 83, 0.2), 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    .image-tile.incorrect {
+      border-color: #EA4335;
+      box-shadow: 0 0 0 3px rgba(234, 67, 53, 0.2), 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    .image-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #F7F7F7;
+      cursor: pointer;
+    }
+    
+    .image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .image-tile:hover .image-container img {
+      transform: scale(1.05);
+    }
+    
+    .image-label {
+      padding: 0.75rem;
+      text-align: center;
+      font-weight: 600;
+      color: #4B4B4B;
+      background: #FFFFFF;
+      border-top: 1px solid #F7F7F7;
+    }
+    
+    .expand-hint {
+      text-align: center;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #777777;
+      font-style: italic;
+    }
+    
+    /* Image Zoom Modal */
+    .image-zoom-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .image-zoom-modal.visible {
+      display: flex;
+    }
+    
+    .zoom-content {
+      position: relative;
+      max-width: 90%;
+      max-height: 90%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .zoom-content img {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .zoom-close {
+      position: absolute;
+      top: -2.5rem;
+      right: -0.5rem;
+      color: white;
+      background: none;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+    
+    .zoom-close:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .zoom-label {
+      color: white;
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .zoom-instructions {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+    
+    /* Modal Container Styles */
+    .modal-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10000;
+      background: transparent;
+    }
+    .modal-container > * {
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
@@ -124,34 +480,6 @@
 
     <!-- Question 1 Content -->
     <div id="question1">
-      <h2 class="quiz-title">Choose the correct option</h2>
-
-      <div class="question" id="question-text-1">
-        Where is most of a cell's DNA located?
-      </div>
-
-      <div class="options-container" id="options-container-1">
-        <button class="option-button" data-value="Cytoplasm">
-          Cytoplasm
-        </button>
-        <button class="option-button" data-value="Ribosomes">
-          Ribosomes
-        </button>
-        <button class="option-button" data-value="Nucleus">
-          Nucleus
-        </button>
-        <button class="option-button" data-value="Nuclear membrane">
-          Nuclear membrane
-        </button>
-      </div>
-
-      <div class="footer">
-        <button class="check-button" id="check-button-1" disabled>Check</button>
-      </div>
-    </div>
-
-    <!-- Question 2 Content -->
-    <div id="question2" style="display: none;">
       <h2 class="quiz-title">Select what is missing</h2>
 
       <div class="question1-container">
@@ -163,23 +491,200 @@
         
         <div speech-bubble pleft abottom style="--bbColor:#FFFFFF">
           <div class="bubble-text">
-            The nucleus is a cell organelle that 
-            <span id="blank-2-1" class="blank" tabindex="0"></span> and 
-            <span id="blank-2-2" class="blank" tabindex="0"></span><span class="full-stop">.</span>
+            Two places in an animal cell where DNA is located are the 
+            <span id="blank-1-1" class="blank" tabindex="0"></span> and the 
+            <span id="blank-1-2" class="blank" tabindex="0"></span><span class="full-stop">.</span>
           </div>
         </div>
       </div>
 
-      <div id="options-2" class="options-container"></div>
+      <div id="options-1" class="options-container"></div>
 
       <div class="footer">
-        <button id="check-button-2" class="check-button" disabled>Check</button>
+        <button id="check-button-1" class="check-button" disabled>Check</button>
+      </div>
+    </div>
+
+    <!-- Question 2 Content -->
+    <div id="question2" style="display: none;">
+      <h2 class="quiz-title">Choose the correct option</h2>
+
+      <div class="question" id="question-text-2">
+        The organelle where DNA is found in plants.
+      </div>
+
+      <div class="options-container" id="options-container-2">
+        <button class="option-button" data-value="Mitochondria">Mitochondria</button>
+        <button class="option-button" data-value="Chloroplast">Chloroplast</button>
+        <button class="option-button" data-value="Both of the above">Both of the above</button>
+        <button class="option-button" data-value="None of the above">None of the above</button>
+      </div>
+
+      <div class="footer">
+        <button class="check-button" id="check-button-2" disabled>Check</button>
       </div>
     </div>
 
     <!-- Question 3 Content -->
     <div id="question3" style="display: none;">
+      <h2 class="quiz-title">Choose the correct option</h2>
+
+      <div class="question" id="question-text-3">
+        Which scientists were credited with discovering the helical structure of the DNA molecule?
+      </div>
+
+      <div class="options-container" id="options-container-3">
+        <button class="option-button" data-value="Rosalind Franklin and Maurice Wilkins">Rosalind Franklin and Maurice Wilkins</button>
+        <button class="option-button" data-value="Maurice Wilkins and Francis Crick">Maurice Wilkins and Francis Crick</button>
+        <button class="option-button" data-value="James Watson and Rosalind Franklin">James Watson and Rosalind Franklin</button>
+        <button class="option-button" data-value="James Watson and Francis Crick">James Watson and Francis Crick</button>
+      </div>
+
+      <div class="footer">
+        <button class="check-button" id="check-button-3" disabled>Check</button>
+      </div>
+    </div>
+
+    <!-- Question 4 - DNA Discovery Order -->
+    <div id="question4" style="display: none;">
+      <h2 class="quiz-title">Arrange in Order</h2>
+      
+      <div class="question">
+        What is the correct order of events in the discovery of DNA's structure?
+      </div>
+
+      <div class="ordering-section">
+        <div class="ordering-container">
+          <div class="order-item"><div class="order-number">1.</div><div class="order-blank" id="order-blank-1"><div class="blank-text"></div></div></div>
+          <div class="order-item"><div class="order-number">2.</div><div class="order-blank" id="order-blank-2"><div class="blank-text"></div></div></div>
+          <div class="order-item"><div class="order-number">3.</div><div class="order-blank" id="order-blank-3"><div class="blank-text"></div></div></div>
+          <div class="order-item"><div class="order-number">4.</div><div class="order-blank" id="order-blank-4"><div class="blank-text"></div></div></div>
+        </div>
+      </div>
+
+      <div class="ordering-options-container" id="ordering-options-container"></div>
+
+      <div class="footer">
+        <button id="check-button-4" class="check-button" disabled>Check</button>
+      </div>
+    </div>
+
+    <!-- Question 5 Content -->
+    <div id="question5" style="display: none;">
       <h2 class="quiz-title">Complete the statement</h2>
+
+      <div class="question5-container">
+        <div class="icon-container">
+          <span class="rabbit-icon">
+            <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Rabbit">
+          </span>
+        </div>
+        
+        <div speech-bubble pleft acenter style="--bbColor:#FFFFFF">
+          <div class="bubble-text">
+            What is the natural shape of a DNA molecule?
+          </div>
+        </div>
+      </div>
+
+      <div class="response-container">
+        <div class="response-text">
+          The natural shape of a DNA molecule is a 
+          <input type="text" id="dna-answer-input" class="response-input" placeholder="______" spellcheck="false">.
+        </div>
+      </div>
+
+      <div class="footer">
+        <button class="check-button" id="check-button-5" disabled>Check</button>
+      </div>
+    </div>
+
+    <!-- Question 6 - Image Selection -->
+    <div id="question6" style="display: none;">
+      <h2 class="quiz-title">Pick the correct image</h2>
+      
+      <div class="question" style="text-align: center;">
+        Which diagram is a correct representation of a DNA's structure?
+      </div>
+
+      <div class="image-selection-container">
+        <div class="image-grid" id="image-grid">
+          <div class="image-tile" data-image="1"><div class="image-container" data-image="1"><img src="public/assets/images/lessons/g12-life-sciences/dna-location-structure-and-functions/fig-001.webp" alt="Image 1" loading="lazy" id="img-1"></div><div class="image-label">Image 1</div></div>
+          <div class="image-tile" data-image="2"><div class="image-container" data-image="2"><img src="public/assets/images/lessons/g12-life-sciences/dna-location-structure-and-functions/fig-002.webp" alt="Image 2" loading="lazy" id="img-2"></div><div class="image-label">Image 2</div></div>
+          <div class="image-tile" data-image="3"><div class="image-container" data-image="3"><img src="public/assets/images/lessons/g12-life-sciences/dna-location-structure-and-functions/fig-003.webp" alt="Image 3" loading="lazy" id="img-3"></div><div class="image-label">Image 3</div></div>
+          <div class="image-tile" data-image="4"><div class="image-container" data-image="4"><img src="public/assets/images/lessons/g12-life-sciences/dna-location-structure-and-functions/fig-004.webp" alt="Image 4" loading="lazy" id="img-4"></div><div class="image-label">Image 4</div></div>
+        </div>
+        
+        <div class="expand-hint">
+          <i>Tap any image to expand for a closer look</i>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button id="check-button-6" class="check-button" disabled>Check</button>
+      </div>
+    </div>
+
+    <!-- Question 7 - DNA Diagram Analysis -->
+    <div id="question7" style="display: none;">
+      <h2 class="quiz-title">Examine the image</h2>
+
+      <div class="image-diagram-container">
+        <img src="public/assets/images/lessons/g12-life-sciences/dna-location-structure-and-functions/lti.jpg" alt="DNA Diagram with labelled bond" class="diagram-image" loading="lazy" id="dna-diagram-7">
+        <div class="diagram-label">The diagram above represents a DNA molecule undergoing a biological process</div>
+      </div>
+
+      <div class="bond-question-container">
+        <div class="bond-question">What is the chemical bond labelled "1"?</div>
+        <div class="bond-answer-container"><input type="text" id="bond-answer-input-7" class="bond-answer-input" placeholder="Type your answer here" spellcheck="false"></div>
+      </div>
+
+      <div class="footer">
+        <button id="check-button-7" class="check-button" disabled>Check</button>
+      </div>
+    </div>
+
+    <!-- Question 8 - DNA Diagram Analysis -->
+    <div id="question8" style="display: none;">
+      <h2 class="quiz-title">Examine the image</h2>
+
+      <div class="image-diagram-container">
+        <img src="public/assets/images/lessons/g12-life-sciences/dna-location-structure-and-functions/lti.jpg" alt="DNA Diagram with labelled parts" class="diagram-image" loading="lazy" id="dna-diagram-8">
+        <div class="diagram-label">The diagram above represents a DNA molecule undergoing a biological process</div>
+      </div>
+
+      <div class="bond-question-container">
+        <div class="bond-question">Give the collective name for the parts labelled "2", "3" and "4".</div>
+        <div class="bond-answer-container"><input type="text" id="bond-answer-input-8" class="bond-answer-input" placeholder="Type your answer here" spellcheck="false"></div>
+      </div>
+
+      <div class="footer">
+        <button id="check-button-8" class="check-button" disabled>Check</button>
+      </div>
+    </div>
+
+    <!-- Question 9 - DNA Diagram Analysis -->
+    <div id="question9" style="display: none;">
+      <h2 class="quiz-title">Examine the image</h2>
+
+      <div class="image-diagram-container">
+        <img src="public/assets/images/lessons/g12-life-sciences/dna-location-structure-and-functions/lti.jpg" alt="DNA Diagram with labelled base" class="diagram-image" loading="lazy" id="dna-diagram-9">
+        <div class="diagram-label">The diagram above represents a DNA molecule undergoing a biological process</div>
+      </div>
+
+      <div class="bond-question-container">
+        <div class="bond-question">Give the full name of the nitrogenous base labelled "5".</div>
+        <div class="bond-answer-container"><input type="text" id="bond-answer-input-9" class="bond-answer-input" placeholder="Type your answer here" spellcheck="false"></div>
+      </div>
+
+      <div class="footer">
+        <button id="check-button-9" class="check-button" disabled>Check</button>
+      </div>
+    </div>
+
+    <!-- Question 10 - Bond Type Question -->
+    <div id="question10" style="display: none;">
+      <h2 class="quiz-title">Give the correct term</h2>
 
       <div class="question1-container">
         <div class="icon-container">
@@ -190,7 +695,7 @@
         
         <div speech-bubble pleft acenter style="--bbColor:#FFFFFF">
           <div class="bubble-text">
-            The monomers that make up DNA and RNA are called __________.
+            The type of bonds that occur between nitrogenous bases in a DNA molecule.
           </div>
         </div>
       </div>
@@ -201,143 +706,16 @@
         </div>
         
         <div class="response-input-container">
-          <input type="text" 
-                 id="nucleotide-answer-input" 
-                 class="response-input" 
-                 placeholder="Type your answer here" 
-                 spellcheck="false">
+          <input type="text" id="bond-answer-input-10" class="response-input" placeholder="Type your answer here" spellcheck="false">
         </div>
       </div>
 
       <div class="footer">
-        <button class="check-button" id="check-button-3" disabled>Check</button>
+        <button class="check-button" id="check-button-10" disabled>Check</button>
       </div>
     </div>
 
-    <!-- Question 4 Content -->
-    <div id="question4" style="display: none;">
-      <h2 class="quiz-title">Choose the correct option</h2>
-
-      <div class="question" id="question-text-4">
-        Which of the following is not a component of a nucleotide?
-      </div>
-
-      <div class="options-container" id="options-container-4">
-        <button class="option-button" data-value="Phosphate group">
-          Phosphate group
-        </button>
-        <button class="option-button" data-value="Amino acid">
-          Amino acid
-        </button>
-        <button class="option-button" data-value="Sugar molecule">
-          Sugar molecule
-        </button>
-        <button class="option-button" data-value="Nitrogenous base">
-          Nitrogenous base
-        </button>
-      </div>
-
-      <div class="footer">
-        <button class="check-button" id="check-button-4" disabled>Check</button>
-      </div>
-    </div>
-
-    <!-- Question 5 - Image Selection -->
-    <div id="question5" style="display: none;">
-      <h2 class="quiz-title">Pick the correct image</h2>
-      
-      <div class="question" style="text-align: center;">
-        Which image correctly shows a nucleotide?
-      </div>
-
-      <div class="image-selection-container">
-        <div class="image-grid" id="image-grid">
-          <div class="image-tile" data-image="1">
-            <div class="image-container" data-image="1">
-              <img src="public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/fig-001.webp" 
-                   alt="Image 1"
-                   loading="lazy"
-                   id="img-1">
-            </div>
-            <div class="image-label">Image 1</div>
-          </div>
-          
-          <div class="image-tile" data-image="2">
-            <div class="image-container" data-image="2">
-              <img src="public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/fig-002.webp" 
-                   alt="Image 2"
-                   loading="lazy"
-                   id="img-2">
-            </div>
-            <div class="image-label">Image 2</div>
-          </div>
-          
-          <div class="image-tile" data-image="3">
-            <div class="image-container" data-image="3">
-              <img src="public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/fig-003.webp" 
-                   alt="Image 3"
-                   loading="lazy"
-                   id="img-3">
-            </div>
-            <div class="image-label">Image 3</div>
-          </div>
-          
-          <div class="image-tile" data-image="4">
-            <div class="image-container" data-image="4">
-              <img src="public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/fig-004.webp" 
-                   alt="Image 4"
-                   loading="lazy"
-                   id="img-4">
-            </div>
-            <div class="image-label">Image 4</div>
-          </div>
-        </div>
-        
-        <div class="expand-hint">
-          <i>Tap any image to expand for a closer look</i>
-        </div>
-      </div>
-
-      <div class="footer">
-        <button id="check-button-5" class="check-button" disabled>Check</button>
-      </div>
-    </div>
-
-    <!-- Question 6 - Matching Pairs Game -->
-    <div id="question6" style="display: none;">
-      <h2 class="quiz-title">Match the pairs</h2>
-
-      <div class="game-container">
-        <div class="column" id="leftColumn">
-          <!-- Left column cards will be generated here -->
-        </div>
-
-        <div class="column" id="rightColumn">
-          <!-- Right column cards will be generated here -->
-        </div>
-      </div>
-
-      <button class="btn btn-md btn-carpenter-blue" id="matchingContinueBtn" style="display: none;">Continue</button>
-      
-      <div class="feedback-overlay" id="feedbackOverlay">
-        <div class="matching-feedback" id="feedbackPanel">
-          <div class="result-main">
-            <span class="material-icon" id="cancelIcon">
-              <img src="public/assets/icons/material-symbols/outline/cancel.svg" alt="Cancel">
-            </span>
-            <div class="result-header" id="feedbackTitle">Incorrect</div>
-            <span class="material-icon" id="notesIcon">
-              <img src="public/assets/icons/material-symbols/outline/stylus_note.svg" alt="Note">
-            </span>
-          </div>
-          
-          <div class="feedback-subtitle" id="feedbackMessage">Let's try that again</div>
-          <button class="feedback-button" id="tryAgainBtn">Try Again</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Image Zoom Modal -->
+    <!-- Image Zoom Modal (for Question 6) -->
     <div class="image-zoom-modal" id="imageZoomModal">
       <div class="zoom-content">
         <button class="zoom-close" id="zoomCloseBtn">
@@ -353,85 +731,16 @@
   </div>
 
   <!-- Result Overlays -->
-  <div class="result-overlay" id="resultOverlay-1">
-    <div class="result-container" id="resultContainer-1">
-      <div class="result-main">
-        <span class="material-icon" id="resultIcon-1">
-          <img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check">
-        </span>
-        <div class="result-header" id="resultHeader-1"></div>
-        <span class="material-icon" id="actionIcon-1">
-          <img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend">
-        </span>
-      </div>
-      <div class="explanation-content" id="explanationContainer-1"></div>
-      <button class="result-continue-btn" id="resultContinueBtn-1">Continue</button>
-    </div>
-  </div>
-
-  <div class="result-overlay" id="resultOverlay-2">
-    <div class="result-container" id="resultContainer-2">
-      <div class="result-main">
-        <span class="material-icon" id="resultIcon-2">
-          <img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check">
-        </span>
-        <div class="result-header" id="resultHeader-2"></div>
-        <span class="material-icon" id="actionIcon-2">
-          <img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend">
-        </span>
-      </div>
-      <div class="explanation-content" id="explanationContainer-2"></div>
-      <button class="result-continue-btn" id="resultContinueBtn-2">Continue</button>
-    </div>
-  </div>
-
-  <div class="result-overlay" id="resultOverlay-3">
-    <div class="result-container" id="resultContainer-3">
-      <div class="result-main">
-        <span class="material-icon" id="resultIcon-3">
-          <img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check">
-        </span>
-        <div class="result-header" id="resultHeader-3"></div>
-        <span class="material-icon" id="actionIcon-3">
-          <img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend">
-        </span>
-      </div>
-      <div class="explanation-content" id="explanationContainer-3"></div>
-      <button class="result-continue-btn" id="resultContinueBtn-3">Continue</button>
-    </div>
-  </div>
-
-  <div class="result-overlay" id="resultOverlay-4">
-    <div class="result-container" id="resultContainer-4">
-      <div class="result-main">
-        <span class="material-icon" id="resultIcon-4">
-          <img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check">
-        </span>
-        <div class="result-header" id="resultHeader-4"></div>
-        <span class="material-icon" id="actionIcon-4">
-          <img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend">
-        </span>
-      </div>
-      <div class="explanation-content" id="explanationContainer-4"></div>
-      <button class="result-continue-btn" id="resultContinueBtn-4">Continue</button>
-    </div>
-  </div>
-
-  <div class="result-overlay" id="resultOverlay-5">
-    <div class="result-container" id="resultContainer-5">
-      <div class="result-main">
-        <span class="material-icon" id="resultIcon-5">
-          <img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check">
-        </span>
-        <div class="result-header" id="resultHeader-5"></div>
-        <span class="material-icon" id="actionIcon-5">
-          <img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend">
-        </span>
-      </div>
-      <div class="explanation-content" id="explanationContainer-5"></div>
-      <button class="result-continue-btn" id="resultContinueBtn-5">Continue</button>
-    </div>
-  </div>
+  <div class="result-overlay" id="resultOverlay-1"><div class="result-container" id="resultContainer-1"><div class="result-main"><span class="material-icon" id="resultIcon-1"><img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check"></span><div class="result-header" id="resultHeader-1"></div><span class="material-icon" id="actionIcon-1"><img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend"></span></div><div class="explanation-content" id="explanationContainer-1"></div><button class="result-continue-btn" id="resultContinueBtn-1">Continue</button></div></div>
+  <div class="result-overlay" id="resultOverlay-2"><div class="result-container" id="resultContainer-2"><div class="result-main"><span class="material-icon" id="resultIcon-2"><img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check"></span><div class="result-header" id="resultHeader-2"></div><span class="material-icon" id="actionIcon-2"><img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend"></span></div><div class="explanation-content" id="explanationContainer-2"></div><button class="result-continue-btn" id="resultContinueBtn-2">Continue</button></div></div>
+  <div class="result-overlay" id="resultOverlay-3"><div class="result-container" id="resultContainer-3"><div class="result-main"><span class="material-icon" id="resultIcon-3"><img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check"></span><div class="result-header" id="resultHeader-3"></div><span class="material-icon" id="actionIcon-3"><img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend"></span></div><div class="explanation-content" id="explanationContainer-3"></div><button class="result-continue-btn" id="resultContinueBtn-3">Continue</button></div></div>
+  <div class="result-overlay" id="resultOverlay-4"><div class="result-container" id="resultContainer-4"><div class="result-main"><span class="material-icon" id="resultIcon-4"><img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check"></span><div class="result-header" id="resultHeader-4"></div><span class="material-icon" id="actionIcon-4"><img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend"></span></div><div class="explanation-content" id="explanationContainer-4"></div><button class="result-continue-btn" id="resultContinueBtn-4">Continue</button></div></div>
+  <div class="result-overlay" id="resultOverlay-5"><div class="result-container" id="resultContainer-5"><div class="result-main"><span class="material-icon" id="resultIcon-5"><img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check"></span><div class="result-header" id="resultHeader-5"></div><span class="material-icon" id="actionIcon-5"><img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend"></span></div><div class="explanation-content" id="explanationContainer-5"></div><button class="result-continue-btn" id="resultContinueBtn-5">Continue</button></div></div>
+  <div class="result-overlay" id="resultOverlay-6"><div class="result-container" id="resultContainer-6"><div class="result-main"><span class="material-icon" id="resultIcon-6"><img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check"></span><div class="result-header" id="resultHeader-6"></div><span class="material-icon" id="actionIcon-6"><img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend"></span></div><div class="explanation-content" id="explanationContainer-6"></div><button class="result-continue-btn" id="resultContinueBtn-6">Continue</button></div></div>
+  <div class="result-overlay" id="resultOverlay-7"><div class="result-container" id="resultContainer-7"><div class="result-main"><span class="material-icon" id="resultIcon-7"><img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check"></span><div class="result-header" id="resultHeader-7"></div><span class="material-icon" id="actionIcon-7"><img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend"></span></div><div class="explanation-content" id="explanationContainer-7"></div><button class="result-continue-btn" id="resultContinueBtn-7">Continue</button></div></div>
+  <div class="result-overlay" id="resultOverlay-8"><div class="result-container" id="resultContainer-8"><div class="result-main"><span class="material-icon" id="resultIcon-8"><img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check"></span><div class="result-header" id="resultHeader-8"></div><span class="material-icon" id="actionIcon-8"><img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend"></span></div><div class="explanation-content" id="explanationContainer-8"></div><button class="result-continue-btn" id="resultContinueBtn-8">Continue</button></div></div>
+  <div class="result-overlay" id="resultOverlay-9"><div class="result-container" id="resultContainer-9"><div class="result-main"><span class="material-icon" id="resultIcon-9"><img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check"></span><div class="result-header" id="resultHeader-9"></div><span class="material-icon" id="actionIcon-9"><img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend"></span></div><div class="explanation-content" id="explanationContainer-9"></div><button class="result-continue-btn" id="resultContinueBtn-9">Continue</button></div></div>
+  <div class="result-overlay" id="resultOverlay-10"><div class="result-container" id="resultContainer-10"><div class="result-main"><span class="material-icon" id="resultIcon-10"><img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check"></span><div class="result-header" id="resultHeader-10"></div><span class="material-icon" id="actionIcon-10"><img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend"></span></div><div class="explanation-content" id="explanationContainer-10"></div><button class="result-continue-btn" id="resultContinueBtn-10">Continue</button></div></div>
 
   <!-- Audio elements -->
   <audio id="correctSound" preload="auto">
@@ -446,59 +755,128 @@
     <source src="public/assets/audio/clapping.mp3" type="audio/mpeg">
   </audio>
 
+  <!-- Modal Containers (loaded dynamically when needed) -->
+  <div id="quit-modal" class="modal-container" style="display: none;"></div>
+  <div id="hearts-refill-modal" class="modal-container" style="display: none;"></div>
+  <div id="lesson-complete-modal" class="modal-container" style="display: none;"></div>
+  <div id="streak-modal" class="modal-container" style="display: none;"></div>
+  <div id="achievement-modal" class="modal-container" style="display: none;"></div>
+  <div id="daily-quest-modal" class="modal-container" style="display: none;"></div>
+  <div id="coin-reward-modal" class="modal-container" style="display: none;"></div>
+  <div id="xp-boost-modal" class="modal-container" style="display: none;"></div>
+  <div id="heart-reward-modal" class="modal-container" style="display: none;"></div>
+
   <script>
     // Lesson data - VERBATIM from original
     window.LESSON_DATA = {
       questions: [
         {
-          id: 1,
-          type: "multiple-choice",
-          correctAnswer: 'Nucleus',
-          explanation: "The nucleus contains most of the cell's DNA within the chromatin network. The cytoplasm and ribosomes do not store DNA, and the nuclear membrane only encloses the nucleus.",
-          options: ['Cytoplasm', 'Ribosomes', 'Nucleus', 'Nuclear membrane']
-        },
-        {
-          id: 2,
           type: "complete-sentence",
           options: [
-            { label: "is the site of protein synthesis", value: "protein_synthesis" },
-            { label: "contains DNA", value: "contains_dna" },
-            { label: "produces ribosomes", value: "produces_ribosomes" },
-            { label: "is the site of most metabolic reactions", value: "metabolic_reactions" }
+            { label: "nucleus", value: "nucleus" },
+            { label: "mitochondria", value: "mitochondria" },
+            { label: "chloroplast", value: "chloroplast" },
+            { label: "plastid", value: "plastid" }
           ],
-          correctAnswers: ["contains_dna", "produces_ribosomes"],
-          explanation: "The nucleus contains the cell's DNA and produces ribosomes in the nucleolus. Protein synthesis occurs at ribosomes, and most metabolic reactions take place in the cytoplasm, not the nucleus."
+          correctAnswers: ["nucleus", "mitochondria"],
+          explanationText: "In animal cells, DNA is found in the nucleus as nuclear DNA, which contains most of the cell's genetic material, and in the mitochondria, which contain a small amount of extra-nuclear DNA. Chloroplasts and plastids are found only in plant cells."
         },
         {
-          id: 3,
-          type: "fill-blank",
-          correctAnswer: 'nucleotides',
-          acceptableAnswers: [
-            'nucleotides',
-            'nucleotide',
-            'nucleotides (nucleotide)',
-            'nucleotide (nucleotides)'
-          ],
-          explanation: "DNA and RNA are nucleic acids composed of repeating monomers called nucleotides, each consisting of a phosphate group, a sugar molecule and a nitrogenous base."
+          type: "multiple-choice-fixed",
+          correctAnswer: 'Both of the above',
+          explanationText: "Both of the above. In plant cells, DNA is present in both the <span class='italic'>mitochondria</span> and <span class='italic'>chloroplast</span>, in addition to the nucleus."
         },
         {
-          id: 4,
           type: "multiple-choice",
-          correctAnswer: 'Amino acid',
-          explanation: "Amino acids are building blocks of proteins, not nucleotides. Nucleotides consist of a phosphate group, a sugar (deoxyribose in DNA, ribose in RNA) and a nitrogenous base.",
-          options: ['Phosphate group', 'Amino acid', 'Sugar molecule', 'Nitrogenous base']
+          correctAnswer: 'James Watson and Francis Crick',
+          explanationText: "James Watson and Francis Crick are credited with discovering the helical structure of the DNA molecule in 1953, using data from Rosalind Franklin and Maurice Wilkins' X-ray crystallography work."
         },
         {
-          id: 5,
+          type: "arrange-order",
+          options: [
+            "Rosalind Franklin produced <em>Photograph 51</em>, revealing crucial evidence of DNA's helical structure.",
+            "Maurice Wilkins shared Franklin's data with James Watson and Francis Crick without her consent.",
+            "Watson and Crick used this data to build the first accurate double-helix model of DNA.",
+            "Watson, Crick, and Wilkins later received the Nobel Prize for this discovery; Franklin was not included."
+          ],
+          correctOrder: [
+            "Rosalind Franklin produced <em>Photograph 51</em>, revealing crucial evidence of DNA's helical structure.",
+            "Maurice Wilkins shared Franklin's data with James Watson and Francis Crick without her consent.",
+            "Watson and Crick used this data to build the first accurate double-helix model of DNA.",
+            "Watson, Crick, and Wilkins later received the Nobel Prize for this discovery; Franklin was not included."
+          ],
+          explanationText: "The correct chronological order is 1.) Rosalind Franklin produced <em>Photograph 51</em>, revealing crucial evidence of DNA's helical structure. → 2.) Maurice Wilkins shared Franklin's data with James Watson and Francis Crick without her consent. → 3.) Watson and Crick used this data to build the first accurate double-helix model of DNA → 4.) Watson, Crick, and Wilkins later received the Nobel Prize for this discovery; Franklin was not included."
+        },
+        {
+          type: "fill-blank",
+          correctAnswer: 'double helix',
+          explanationText: 'The natural shape of a DNA molecule is a double helix, which looks like a twisted ladder or a spiral staircase.'
+        },
+        {
           type: "image-selection",
-          correctAnswer: 4,
-          explanation: "A nucleotide consists of three parts: a phosphate group, a sugar molecule (deoxyribose in DNA) and a nitrogenous base, all of which Image 4 correctly represents."
+          correctAnswer: 3,
+          explanationText: "The third image is correct because it shows the most accurate structure of a DNA molecule: a double helix made of two antiparallel sugar-phosphate backbones, with nitrogenous bases (A paired with T, and G paired with C) linked by weak hydrogen bonds."
+        },
+        {
+          type: "dna-diagram",
+          correctAnswer: 'hydrogen bond',
+          acceptableAnswers: ['hydrogen bonds', 'hydrogen bond', 'weak hydrogen bonds', 'weak hydrogen bond', '(weak) hydrogen bonds', '(weak) hydrogen bond'],
+          explanation: "The bond labelled '1' is a (weak) hydrogen bond because it occurs between complementary nitrogenous bases on opposite DNA strands."
+        },
+        {
+          type: "dna-diagram",
+          correctAnswer: 'nucleotide',
+          acceptableAnswers: ['nucleotide', 'nucleotides'],
+          explanation: "Labels '2', '3' and '4' each represent monomers: a phosphate group (2), a sugar portion or sugar portion (3), and a nitrogenous base (4). The collective name for these three monomers is a nucleotide."
+        },
+        {
+          type: "dna-diagram",
+          correctAnswer: 'thymine',
+          acceptableAnswers: ['thymine'],
+          explanation: "The nitrogenous base labelled '5' pairs specifically with the base marked A (adenine) in the diagram. Since adenine always pairs with thymine, the full name of the nitrogenous base labelled 5 is therefore thymine."
+        },
+        {
+          type: "bond-type",
+          correctAnswer: 'hydrogen bonds',
+          acceptableAnswers: ['hydrogen bonds', 'hydrogen bond', 'weak hydrogen bonds', 'weak hydrogen bond', '(weak) hydrogen bonds', '(weak) hydrogen bond'],
+          explanation: "The bonds between nitrogenous bases in a DNA molecule are (weak) hydrogen bonds."
         }
-      ],
-      pairs: [
-        { term: "DNA", meaning: "Deoxyribose" },
-        { term: "RNA", meaning: "Ribose" }
       ]
+    };
+
+    // Modal loading utility
+    const ModalLoader = {
+      async load(modalId, modalPath) {
+        const container = document.getElementById(modalId);
+        if (!container) return null;
+        
+        try {
+          const response = await fetch(modalPath);
+          const html = await response.text();
+          container.innerHTML = html;
+          container.style.display = 'flex';
+          
+          return new Promise((resolve) => {
+            const checkInterval = setInterval(() => {
+              if (container.style.display === 'none') {
+                clearInterval(checkInterval);
+                resolve('closed');
+              }
+            }, 100);
+          });
+        } catch (error) {
+          console.error(`Failed to load modal: ${modalPath}`, error);
+          return null;
+        }
+      },
+      
+      close(modalId) {
+        const container = document.getElementById(modalId);
+        if (container) {
+          container.style.display = 'none';
+          container.innerHTML = '';
+        }
+      }
     };
   </script>
 
@@ -537,12 +915,10 @@
     const closeBtn = document.getElementById('close-btn');
     const streakCounter = document.getElementById('streakCounter');
     const questionSections = [
-      document.getElementById('question1'),
-      document.getElementById('question2'),
-      document.getElementById('question3'),
-      document.getElementById('question4'),
-      document.getElementById('question5'),
-      document.getElementById('question6')
+      document.getElementById('question1'), document.getElementById('question2'), document.getElementById('question3'),
+      document.getElementById('question4'), document.getElementById('question5'), document.getElementById('question6'),
+      document.getElementById('question7'), document.getElementById('question8'), document.getElementById('question9'),
+      document.getElementById('question10')
     ];
     
     // Set streak counter element
@@ -554,6 +930,10 @@
     let answered = false;
     let inRetryMode = false;
     let showedRetryMessage = false;
+    let startTime = Date.now();
+    let totalQuestionsAnswered = 0;
+    let correctCount = 0;
+    let quizCompleted = false;
     
     // Helper functions
     function shuffleArray(array) {
@@ -582,11 +962,53 @@
     }
     
     function normalizeAnswer(answer) {
-      return answer.toLowerCase()
-        .replace(/\s+/g, ' ')
-        .replace(/[()]/g, '')
-        .replace(/\//g, ' ')
-        .trim();
+      return answer.toLowerCase().replace(/\s+/g, ' ').replace(/[()]/g, '').replace(/\//g, ' ').trim();
+    }
+    
+    async function showLessonComplete() {
+      if (quizCompleted) return;
+      quizCompleted = true;
+      
+      const timeTakenSeconds = Math.floor((Date.now() - startTime) / 1000);
+      const totalQuestions = window.LESSON_DATA.questions.length;
+      
+      const accuracyXP = Math.round((correctCount / totalQuestions) * 10);
+      
+      const expectedTime = totalQuestions * 15;
+      const maxTime = expectedTime * 2;
+      let speedXP = 0;
+      
+      if (timeTakenSeconds <= expectedTime) {
+        speedXP = 10;
+      } else if (timeTakenSeconds <= maxTime) {
+        speedXP = Math.round(10 * (2 - (timeTakenSeconds / expectedTime)));
+        speedXP = Math.max(0, speedXP);
+      } else {
+        speedXP = 0;
+      }
+      
+      const totalXP = 10 + accuracyXP + speedXP;
+      
+      const xpData = {
+        totalXP,
+        accuracyXP,
+        speedXP,
+        completionXP: 10,
+        timeTaken: timeTakenSeconds,
+        expectedTime,
+        correctCount,
+        totalQuestions
+      };
+      
+      // TODO: Load lesson-complete.html from src/pages/modals/lesson-complete.html
+      sessionStorage.setItem('lessonCompleteData', JSON.stringify(xpData));
+      await ModalLoader.load('lesson-complete-modal', '/src/pages/modals/lesson-complete.html');
+      
+      // TODO: Load streak-modal.html if first lesson of day
+      // TODO: Check achievements
+      // TODO: Check daily quest progress
+      
+      // window.location.href = `/courses/g12-life-sciences.html`;
     }
     
     function moveToNextQuestion() {
@@ -597,7 +1019,7 @@
           inRetryMode = false;
           retryQueue.endRetry();
           currentQuestion = 0;
-          alert('Quiz completed! You answered all questions correctly.');
+          showLessonComplete();
         }
       } else {
         currentQuestion++;
@@ -615,7 +1037,7 @@
               showQuestion(0);
             }
           } else {
-            alert('Quiz completed! You answered all questions correctly.');
+            showLessonComplete();
           }
         } else {
           showQuestion(currentQuestion);
@@ -657,6 +1079,8 @@
     }
     
     function handleCorrectAnswer() {
+      totalQuestionsAnswered++;
+      correctCount++;
       const newStreak = streakManager.increment();
       
       if (streakManager.isMilestone()) {
@@ -670,474 +1094,308 @@
     }
     
     function handleIncorrectAnswer() {
+      totalQuestionsAnswered++;
       streakManager.reset();
     }
     
-    // Question handlers - VERBATIM logic from original
+    // Initialize ordering question (Question 4)
+    function initOrderingQuestion() {
+      const optionsContainer = document.getElementById('ordering-options-container');
+      const checkButton = document.getElementById('check-button-4');
+      
+      const orderingGameState = { answered: false, filledBlanks: [null,null,null,null], blanks: [], optionButtons: [] };
+      orderingGameState.blanks = [document.getElementById('order-blank-1'), document.getElementById('order-blank-2'), document.getElementById('order-blank-3'), document.getElementById('order-blank-4')];
+      orderingGameState.blanks.forEach(blank => { blank.querySelector('.blank-text').innerHTML = ''; blank.classList.remove('filled','correct','incorrect'); blank.replaceWith(blank.cloneNode(true)); });
+      orderingGameState.blanks = [document.getElementById('order-blank-1'), document.getElementById('order-blank-2'), document.getElementById('order-blank-3'), document.getElementById('order-blank-4')];
+      optionsContainer.innerHTML = '';
+      const shuffledOptions = shuffleArray([...window.LESSON_DATA.questions[3].options]);
+      shuffledOptions.forEach(optionText => {
+        const button = document.createElement('button');
+        button.className = 'ordering-option-button';
+        button.innerHTML = `<span>${optionText}</span>`;
+        orderingGameState.optionButtons.push(button);
+        button.onclick = () => {
+          if (orderingGameState.answered) return;
+          if (orderingGameState.filledBlanks.some(b => b && b.value === optionText)) return;
+          const emptyIdx = orderingGameState.filledBlanks.findIndex(b => b === null);
+          if (emptyIdx === -1) return;
+          const blank = orderingGameState.blanks[emptyIdx];
+          blank.querySelector('.blank-text').innerHTML = optionText;
+          blank.classList.add('filled');
+          orderingGameState.filledBlanks[emptyIdx] = { value: optionText, element: button };
+          button.classList.add('used-option');
+          button.disabled = true;
+          checkButton.disabled = !orderingGameState.filledBlanks.every(b => b !== null);
+        };
+        optionsContainer.appendChild(button);
+      });
+      checkButton.disabled = true;
+      checkButton.onclick = () => {
+        if (!orderingGameState.filledBlanks.every(b => b !== null)) return;
+        orderingGameState.answered = true;
+        let allCorrect = orderingGameState.filledBlanks.every((b,i) => b.value === window.LESSON_DATA.questions[3].correctOrder[i]);
+        audioPlayer.playSound(allCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
+        orderingGameState.optionButtons.forEach(btn => btn.disabled = true);
+        for (let i = 0; i < window.LESSON_DATA.questions[3].correctOrder.length; i++) {
+          const blank = orderingGameState.blanks[i];
+          if (orderingGameState.filledBlanks[i].value === window.LESSON_DATA.questions[3].correctOrder[i]) blank.classList.add('correct');
+          else blank.classList.add('incorrect');
+          blank.classList.remove('filled');
+        }
+        if (allCorrect) {
+          if (!handleCorrectAnswer()) showResultOverlay(4, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[3].explanationText}</span></div>`);
+        } else {
+          handleIncorrectAnswer();
+          retryQueue.addQuestion(3);
+          livesManager.decrement();
+          livesCountElement.textContent = livesManager.getCount();
+          updateHeartIcon();
+          
+          if (livesManager.getCount() === 0) {
+            // TODO: Load hearts-refill-modal
+          }
+          
+          showResultOverlay(4, false, `<div class="correct-answer-section"><span class="correct-text">Correct order:</span> <span class="underlined">Read below</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[3].explanationText}</span></div>`);
+        }
+      };
+    }
+    
     function showQuestion(questionIndex) {
-      questionSections.forEach(section => { section.style.display = 'none'; });
-      const actualQuestionIndex = getCurrentQuestionIndex();
-      questionSections[actualQuestionIndex].style.display = 'block';
-      
-      let progressPercentage;
+      questionSections.forEach(section => { if(section) section.style.display = 'none'; });
+      const actualIdx = getCurrentQuestionIndex();
+      if(questionSections[actualIdx]) questionSections[actualIdx].style.display = 'block';
+      let progPercent;
       if (inRetryMode) {
-        progressPercentage = Math.round(((retryQueue.getCurrentIndex() + 1) / retryQueue.getCount()) * 100);
+        progPercent = Math.round(((retryQueue.getCurrentIndex() + 1) / retryQueue.getCount()) * 100);
       } else {
-        progressPercentage = Math.round(((currentQuestion + 1) / 6) * 100);
+        progPercent = Math.round(((currentQuestion + 1) / 10) * 100);
       }
-      progressBar.style.width = `${progressPercentage}%`;
-      
-      answered = false;
-      selectedOption = null;
+      progressBar.style.width = `${progPercent}%`;
       streakManager.updateDisplay();
       
-      if (actualQuestionIndex === 0) {
-        const optionButtons1 = document.querySelectorAll('#options-container-1 .option-button');
+      if (actualIdx === 0) {
+        const blank11 = document.getElementById('blank-1-1');
+        const blank12 = document.getElementById('blank-1-2');
+        const optionsContainer1 = document.getElementById('options-1');
         const checkButton1 = document.getElementById('check-button-1');
         
-        optionButtons1.forEach(button => {
-          button.classList.remove('selected', 'correct', 'incorrect');
-          button.disabled = false;
-          button.style.cursor = 'pointer';
-        });
-        
+        blank11.textContent = ''; blank12.textContent = '';
+        blank11.classList.remove('filled', 'correct', 'incorrect');
+        blank12.classList.remove('filled', 'correct', 'incorrect');
         checkButton1.disabled = true;
-        checkButton1.textContent = 'Check';
         
-        optionButtons1.forEach(button => {
-          button.onclick = function() {
-            if (answered) return;
-            optionButtons1.forEach(btn => btn.classList.remove('selected'));
-            this.classList.add('selected');
-            selectedOption = this.dataset.value;
-            checkButton1.disabled = false;
-          };
-        });
-        
-        checkButton1.onclick = function() {
-          if (!selectedOption || answered) return;
-          answered = true;
-          
-          const correctButton = Array.from(optionButtons1).find(btn => btn.dataset.value === window.LESSON_DATA.questions[0].correctAnswer);
-          if (correctButton) correctButton.classList.add('correct');
-          
-          if (selectedOption === window.LESSON_DATA.questions[0].correctAnswer) {
-            audioPlayer.playCorrect();
-            const showCelebration = handleCorrectAnswer();
-            if (!showCelebration) {
-              showResultOverlay(1, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[0].explanation}</span></div>`);
-            }
-          } else {
-            audioPlayer.playIncorrect();
-            retryQueue.addQuestion(0);
-            handleIncorrectAnswer();
-            const selectedButton = Array.from(optionButtons1).find(btn => btn.dataset.value === selectedOption);
-            if (selectedButton) selectedButton.classList.add('incorrect');
-            livesManager.decrement();
-            livesCountElement.textContent = livesManager.getCount();
-            updateHeartIcon();
-            showResultOverlay(1, false, `
-              <div class="correct-answer-section">
-                <span class="correct-text">Correct answer:</span>
-                <span class="underlined">${window.LESSON_DATA.questions[0].correctAnswer}</span>
-              </div>
-              <div class="explanation-section">
-                <span class="explanation-label">Explanation:</span>
-                <span class="explanation-text">${window.LESSON_DATA.questions[0].explanation}</span>
-              </div>
-            `);
-          }
-          optionButtons1.forEach(button => { button.disabled = true; button.style.cursor = 'not-allowed'; });
-        };
-      } else if (actualQuestionIndex === 1) {
-        // Question 2 - Complete sentence (identical to original logic, just using window.LESSON_DATA)
-        const blank21 = document.getElementById('blank-2-1');
-        const blank22 = document.getElementById('blank-2-2');
-        const optionsContainer2 = document.getElementById('options-2');
-        const checkButton2 = document.getElementById('check-button-2');
-        
-        blank21.textContent = '';
-        blank22.textContent = '';
-        blank21.classList.remove('filled', 'correct', 'incorrect');
-        blank22.classList.remove('filled', 'correct', 'incorrect');
-        
-        checkButton2.disabled = true;
-        checkButton2.textContent = 'Check';
-        
-        optionsContainer2.innerHTML = '';
-        let filledBlanks2 = [null, null];
-        let optionButtons2 = [];
-        
-        const shuffledOptions = shuffleArray([...window.LESSON_DATA.questions[1].options]);
+        optionsContainer1.innerHTML = '';
+        let filledBlanks1 = [null, null];
+        let optionButtons1 = [];
+        const shuffledOptions = shuffleArray([...window.LESSON_DATA.questions[0].options]);
         
         shuffledOptions.forEach((opt, idx) => {
           const button = document.createElement('button');
           button.className = 'option-button';
           button.dataset.value = opt.value;
-          button.dataset.idx = idx;
           const label = document.createElement('span');
           label.textContent = opt.label;
           button.appendChild(label);
-          optionButtons2.push(button);
-          
-          button.onclick = function() {
+          optionButtons1.push(button);
+          button.onclick = () => {
             if (answered) return;
-            const isAlreadyUsed = filledBlanks2.some(blank => blank && blank.value === opt.value);
-            if (isAlreadyUsed) return;
-            let blankIndex = -1;
-            let targetBlank = null;
-            if (filledBlanks2[0] === null) { blankIndex = 0; targetBlank = blank21; }
-            else if (filledBlanks2[1] === null) { blankIndex = 1; targetBlank = blank22; }
+            if (filledBlanks1.some(b => b && b.value === opt.value)) return;
+            let blankIndex = filledBlanks1[0] === null ? 0 : (filledBlanks1[1] === null ? 1 : -1);
             if (blankIndex === -1) return;
-            filledBlanks2[blankIndex] = { value: opt.value, label: opt.label, idx: idx };
+            const targetBlank = blankIndex === 0 ? blank11 : blank12;
+            filledBlanks1[blankIndex] = { value: opt.value, label: opt.label };
             targetBlank.textContent = opt.label;
             targetBlank.classList.add('filled');
             button.classList.add('used-option');
-            checkButton2.disabled = false;
+            checkButton1.disabled = false;
           };
-          optionsContainer2.appendChild(button);
+          optionsContainer1.appendChild(button);
         });
         
-        blank21.onclick = function() {
-          if (answered || !filledBlanks2[0]) return;
-          const blankData = filledBlanks2[0];
-          const button = optionButtons2.find(btn => btn.dataset.value === blankData.value);
-          if (button) button.classList.remove('used-option');
-          blank21.textContent = '';
-          blank21.classList.remove('filled', 'correct', 'incorrect');
-          filledBlanks2[0] = null;
-          checkButton2.disabled = filledBlanks2[0] === null && filledBlanks2[1] === null;
-        };
+        blank11.onclick = () => { if (!answered && filledBlanks1[0]) { const btn = optionButtons1.find(b => b.dataset.value === filledBlanks1[0].value); if(btn) btn.classList.remove('used-option'); blank11.textContent = ''; blank11.classList.remove('filled','correct','incorrect'); filledBlanks1[0] = null; checkButton1.disabled = !(filledBlanks1[0] && filledBlanks1[1]); } };
+        blank12.onclick = () => { if (!answered && filledBlanks1[1]) { const btn = optionButtons1.find(b => b.dataset.value === filledBlanks1[1].value); if(btn) btn.classList.remove('used-option'); blank12.textContent = ''; blank12.classList.remove('filled','correct','incorrect'); filledBlanks1[1] = null; checkButton1.disabled = !(filledBlanks1[0] && filledBlanks1[1]); } };
         
-        blank22.onclick = function() {
-          if (answered || !filledBlanks2[1]) return;
-          const blankData = filledBlanks2[1];
-          const button = optionButtons2.find(btn => btn.dataset.value === blankData.value);
-          if (button) button.classList.remove('used-option');
-          blank22.textContent = '';
-          blank22.classList.remove('filled', 'correct', 'incorrect');
-          filledBlanks2[1] = null;
-          checkButton2.disabled = filledBlanks2[0] === null && filledBlanks2[1] === null;
-        };
-        
-        checkButton2.onclick = function() {
-          if (answered || !filledBlanks2[0] || !filledBlanks2[1]) return;
+        checkButton1.onclick = () => {
+          if (answered || !filledBlanks1[0] || !filledBlanks1[1]) return;
           answered = true;
-          const userAnswer1 = filledBlanks2[0].value;
-          const userAnswer2 = filledBlanks2[1].value;
-          const isCorrect = (
-            (userAnswer1 === window.LESSON_DATA.questions[1].correctAnswers[0] && userAnswer2 === window.LESSON_DATA.questions[1].correctAnswers[1]) ||
-            (userAnswer1 === window.LESSON_DATA.questions[1].correctAnswers[1] && userAnswer2 === window.LESSON_DATA.questions[1].correctAnswers[0])
-          );
+          const u1 = filledBlanks1[0].value, u2 = filledBlanks1[1].value;
+          const isCorrect = (u1 === 'nucleus' && u2 === 'mitochondria') || (u1 === 'mitochondria' && u2 === 'nucleus');
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
-          optionButtons2.forEach(btn => { btn.disabled = true; btn.style.cursor = 'not-allowed'; });
+          optionButtons1.forEach(btn => { btn.disabled = true; btn.style.cursor = 'not-allowed'; });
           if (isCorrect) {
-            blank21.classList.add('correct'); blank22.classList.add('correct');
-            optionButtons2.forEach(btn => {
-              if (btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[0] || btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[1]) {
-                btn.classList.add('correct');
-              }
-            });
-            const showCelebration = handleCorrectAnswer();
-            if (!showCelebration) {
-              showResultOverlay(2, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[1].explanation}</span></div>`);
-            }
+            blank11.classList.add('correct'); blank12.classList.add('correct');
+            optionButtons1.forEach(btn => { if (btn.dataset.value === 'nucleus' || btn.dataset.value === 'mitochondria') btn.classList.add('correct'); });
+            if (!handleCorrectAnswer()) showResultOverlay(1, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[0].explanationText}</span></div>`);
           } else {
-            blank21.classList.add('incorrect'); blank22.classList.add('incorrect');
-            retryQueue.addQuestion(1);
+            blank11.classList.add('incorrect'); blank12.classList.add('incorrect');
+            retryQueue.addQuestion(0);
             handleIncorrectAnswer();
             livesManager.decrement();
             livesCountElement.textContent = livesManager.getCount();
             updateHeartIcon();
-            optionButtons2.forEach(btn => {
-              if (btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[0] || btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[1]) {
-                btn.classList.add('correct');
-              }
-            });
-            showResultOverlay(2, false, `
-              <div class="correct-answer-section">
-                <span class="correct-text">Correct answer:</span>
-                <span><span class="underlined">contains DNA</span> and <span class="underlined">produces ribosomes</span></span>
-              </div>
-              <div class="explanation-section">
-                <span class="explanation-label">Explanation:</span>
-                <span class="explanation-text">${window.LESSON_DATA.questions[1].explanation}</span>
-              </div>
-            `);
-          }
-        };
-      } else if (actualQuestionIndex === 2) {
-        const nucleotideAnswerInput = document.getElementById('nucleotide-answer-input');
-        const checkButton3 = document.getElementById('check-button-3');
-        nucleotideAnswerInput.value = '';
-        nucleotideAnswerInput.classList.remove('correct', 'incorrect');
-        nucleotideAnswerInput.disabled = false;
-        checkButton3.disabled = true;
-        nucleotideAnswerInput.oninput = function() { checkButton3.disabled = !nucleotideAnswerInput.value.trim(); };
-        nucleotideAnswerInput.onkeypress = function(e) { if (e.key === 'Enter' && !checkButton3.disabled) checkButton3.click(); };
-        checkButton3.onclick = function() {
-          answered = true;
-          const userAnswer = normalizeAnswer(nucleotideAnswerInput.value.trim());
-          const isCorrect = window.LESSON_DATA.questions[2].acceptableAnswers.some(acceptable => userAnswer === normalizeAnswer(acceptable));
-          audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
-          if (isCorrect) {
-            nucleotideAnswerInput.classList.add('correct');
-            const showCelebration = handleCorrectAnswer();
-            if (!showCelebration) {
-              showResultOverlay(3, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[2].explanation}</span></div>`);
+            
+            if (livesManager.getCount() === 0) {
+              // TODO: Load hearts-refill-modal
             }
-          } else {
-            retryQueue.addQuestion(2);
-            handleIncorrectAnswer();
-            nucleotideAnswerInput.classList.add('incorrect');
-            livesManager.decrement();
-            livesCountElement.textContent = livesManager.getCount();
-            updateHeartIcon();
-            showResultOverlay(3, false, `
-              <div class="correct-answer-section">
-                <span class="correct-text">Correct answer:</span>
-                <span class="underlined">Nucleotides (or nucleotide)</span>
-              </div>
-              <div class="explanation-section">
-                <span class="explanation-label">Explanation:</span>
-                <span class="explanation-text">${window.LESSON_DATA.questions[2].explanation}</span>
-              </div>
-            `);
+            
+            optionButtons1.forEach(btn => { if (btn.dataset.value === 'nucleus' || btn.dataset.value === 'mitochondria') btn.classList.add('correct'); });
+            showResultOverlay(1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">nucleus</span> and <span class="underlined">mitochondria</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[0].explanationText}</span></div>`);
           }
-          nucleotideAnswerInput.disabled = true;
         };
-        nucleotideAnswerInput.focus();
-      } else if (actualQuestionIndex === 3) {
-        const container4 = document.getElementById('options-container-4');
-        const checkButton4 = document.getElementById('check-button-4');
-        checkButton4.disabled = true;
-        const options4 = [
-          { label: 'Phosphate group', value: 'Phosphate group' },
-          { label: 'Amino acid', value: 'Amino acid' },
-          { label: 'Sugar molecule', value: 'Sugar molecule' },
-          { label: 'Nitrogenous base', value: 'Nitrogenous base' }
-        ];
-        shuffleArray(options4);
-        container4.innerHTML = '';
-        options4.forEach(opt => {
-          const button = document.createElement('button');
-          button.className = 'option-button';
-          button.dataset.value = opt.value;
-          button.textContent = opt.label;
-          container4.appendChild(button);
-          button.onclick = function() {
-            if (answered) return;
-            document.querySelectorAll('#options-container-4 .option-button').forEach(btn => btn.classList.remove('selected'));
-            this.classList.add('selected');
-            selectedOption = this.dataset.value;
-            checkButton4.disabled = false;
-          };
+      } else if (actualIdx === 1) {
+        const btns = document.querySelectorAll('#options-container-2 .option-button');
+        const cb = document.getElementById('check-button-2');
+        btns.forEach(btn => { btn.classList.remove('selected','correct','incorrect'); btn.disabled = false; btn.style.cursor = 'pointer'; });
+        cb.disabled = true;
+        let selected = null;
+        btns.forEach(btn => {
+          btn.onclick = () => { if(!answered) { btns.forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selected = btn.dataset.value; cb.disabled = false; } };
         });
-        checkButton4.onclick = function() {
-          if (!selectedOption) return;
+        cb.onclick = () => {
+          if(!selected) return;
           answered = true;
-          const optionButtons4 = document.querySelectorAll('#options-container-4 .option-button');
-          const correctButton = Array.from(optionButtons4).find(btn => btn.dataset.value === window.LESSON_DATA.questions[3].correctAnswer);
-          if (correctButton) correctButton.classList.add('correct');
-          if (selectedOption === window.LESSON_DATA.questions[3].correctAnswer) {
-            audioPlayer.playCorrect();
-            const showCelebration = handleCorrectAnswer();
-            if (!showCelebration) {
-              showResultOverlay(4, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[3].explanation}</span></div>`);
-            }
-          } else {
-            audioPlayer.playIncorrect();
-            retryQueue.addQuestion(3);
-            handleIncorrectAnswer();
-            const selectedButton = Array.from(optionButtons4).find(btn => btn.dataset.value === selectedOption);
-            if (selectedButton) selectedButton.classList.add('incorrect');
-            livesManager.decrement();
-            livesCountElement.textContent = livesManager.getCount();
-            updateHeartIcon();
-            showResultOverlay(4, false, `
-              <div class="correct-answer-section">
-                <span class="correct-text">Correct answer:</span>
-                <span class="underlined">${window.LESSON_DATA.questions[3].correctAnswer}</span>
-              </div>
-              <div class="explanation-section">
-                <span class="explanation-label">Explanation:</span>
-                <span class="explanation-text">${window.LESSON_DATA.questions[3].explanation}</span>
-              </div>
-            `);
-          }
-          optionButtons4.forEach(button => { button.disabled = true; button.style.cursor = 'not-allowed'; });
+          const isCorrect = selected === 'Both of the above';
+          audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
+          const correctBtn = Array.from(btns).find(b=>b.dataset.value === 'Both of the above');
+          if(correctBtn) correctBtn.classList.add('correct');
+          if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(2, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[1].explanationText}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(1); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } const selBtn = Array.from(btns).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(2, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Both of the above</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[1].explanationText}</span></div>`); }
+          btns.forEach(b=>{b.disabled=true; b.style.cursor='not-allowed';});
         };
-      } else if (actualQuestionIndex === 4) {
-        const imageTiles = document.querySelectorAll('#question5 .image-tile');
-        const imageContainers = document.querySelectorAll('#question5 .image-container');
-        const checkButton5 = document.getElementById('check-button-5');
-        const imageZoomModal = document.getElementById('imageZoomModal');
-        const zoomedImage = document.getElementById('zoomedImage');
-        const zoomImageLabel = document.getElementById('zoomImageLabel');
-        const zoomCloseBtn = document.getElementById('zoomCloseBtn');
+      } else if (actualIdx === 2) {
+        const btns = document.querySelectorAll('#options-container-3 .option-button');
+        const cb = document.getElementById('check-button-3');
+        btns.forEach(btn => { btn.classList.remove('selected','correct','incorrect'); btn.disabled = false; btn.style.cursor = 'pointer'; });
+        cb.disabled = true;
+        let selected = null;
+        btns.forEach(btn => {
+          btn.onclick = () => { if(!answered) { btns.forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selected = btn.dataset.value; cb.disabled = false; } };
+        });
+        cb.onclick = () => {
+          if(!selected) return;
+          answered = true;
+          const isCorrect = selected === 'James Watson and Francis Crick';
+          audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
+          const correctBtn = Array.from(btns).find(b=>b.dataset.value === 'James Watson and Francis Crick');
+          if(correctBtn) correctBtn.classList.add('correct');
+          if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(3, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[2].explanationText}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(2); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } const selBtn = Array.from(btns).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(3, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">James Watson and Francis Crick</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[2].explanationText}</span></div>`); }
+          btns.forEach(b=>{b.disabled=true; b.style.cursor='not-allowed';});
+        };
+      } else if (actualIdx === 3) { initOrderingQuestion(); }
+      else if (actualIdx === 4) {
+        const input = document.getElementById('dna-answer-input');
+        const cb = document.getElementById('check-button-5');
+        input.value = ''; input.classList.remove('correct','incorrect'); input.disabled = false; cb.disabled = true;
+        input.oninput = () => { cb.disabled = !input.value.trim(); if(answered) input.classList.remove('correct','incorrect'); answered=false; };
+        input.onkeypress = (e) => { if(e.key==='Enter' && !cb.disabled) cb.click(); };
+        cb.onclick = () => {
+          answered = true;
+          const isCorrect = input.value.trim().toLowerCase() === 'double helix';
+          audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
+          if(isCorrect) input.classList.add('correct'); else input.classList.add('incorrect');
+          input.disabled = true;
+          if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(5, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[4].explanationText}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(4); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } showResultOverlay(5, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Double helix</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[4].explanationText}</span></div>`); }
+        };
+      } else if (actualIdx === 5) {
+        const tiles = document.querySelectorAll('#question6 .image-tile');
+        const containers = document.querySelectorAll('#question6 .image-container');
+        const cb = document.getElementById('check-button-6');
+        const modal = document.getElementById('imageZoomModal');
+        const zoomImg = document.getElementById('zoomedImage');
+        const zoomLabel = document.getElementById('zoomImageLabel');
+        const zoomClose = document.getElementById('zoomCloseBtn');
         let imageSelectionState = { selectedImage: null, answered: false };
-        imageTiles.forEach(tile => { tile.classList.remove('selected', 'correct', 'incorrect'); tile.style.cursor = 'pointer'; });
-        checkButton5.disabled = true;
-        imageTiles.forEach(tile => {
-          tile.onclick = function(e) {
-            if (imageSelectionState.answered) return;
-            if (e.target.closest('.image-container')) return;
-            imageTiles.forEach(t => t.classList.remove('selected'));
-            this.classList.add('selected');
-            imageSelectionState.selectedImage = parseInt(this.dataset.image);
-            checkButton5.disabled = false;
+        
+        tiles.forEach(t => { t.classList.remove('selected','correct','incorrect'); t.style.cursor = 'pointer'; });
+        cb.disabled = true;
+        
+        tiles.forEach(tile => {
+          tile.onclick = (e) => {
+            if(imageSelectionState.answered) return;
+            if(e.target.closest('.image-container')) return;
+            tiles.forEach(t=>t.classList.remove('selected'));
+            tile.classList.add('selected');
+            imageSelectionState.selectedImage = parseInt(tile.dataset.image);
+            cb.disabled = false;
           };
         });
-        imageContainers.forEach(container => {
-          container.onclick = function(e) {
+        
+        containers.forEach(container => {
+          container.onclick = (e) => {
             e.stopPropagation();
-            const imgElement = container.querySelector('img');
-            if (imgElement && imgElement.src) {
-              zoomedImage.src = imgElement.src;
-              zoomImageLabel.textContent = `Image ${container.dataset.image}`;
-              imageZoomModal.classList.add('visible');
-              document.addEventListener('keydown', function handleEscapeKey(e) {
-                if (e.key === 'Escape') { imageZoomModal.classList.remove('visible'); zoomedImage.src = ''; document.removeEventListener('keydown', handleEscapeKey); }
-              });
+            const img = container.querySelector('img');
+            if(img && img.src) {
+              zoomImg.src = img.src;
+              zoomLabel.textContent = `Image ${container.dataset.image}`;
+              modal.classList.add('visible');
+              const escHandler = (e) => { if(e.key==='Escape') { modal.classList.remove('visible'); document.removeEventListener('keydown', escHandler); } };
+              document.addEventListener('keydown', escHandler);
             }
           };
         });
-        function closeImageZoom() { imageZoomModal.classList.remove('visible'); zoomedImage.src = ''; }
-        imageZoomModal.onclick = function(e) { if (e.target === imageZoomModal) closeImageZoom(); };
-        zoomCloseBtn.onclick = closeImageZoom;
-        checkButton5.onclick = function() {
-          if (imageSelectionState.selectedImage === null || imageSelectionState.answered) return;
+        
+        modal.onclick = (e) => { if(e.target===modal) modal.classList.remove('visible'); };
+        zoomClose.onclick = () => modal.classList.remove('visible');
+        
+        cb.onclick = () => {
+          if(imageSelectionState.selectedImage === null || imageSelectionState.answered) return;
           imageSelectionState.answered = true;
-          imageTiles.forEach(tile => { tile.style.cursor = 'default'; });
-          imageTiles.forEach(tile => {
-            const imageNum = parseInt(tile.dataset.image);
-            if (imageNum === window.LESSON_DATA.questions[4].correctAnswer) tile.classList.add('correct');
-            else if (imageNum === imageSelectionState.selectedImage && imageSelectionState.selectedImage !== window.LESSON_DATA.questions[4].correctAnswer) tile.classList.add('incorrect');
-            tile.classList.remove('selected');
+          tiles.forEach(t => { t.style.cursor = 'default'; });
+          tiles.forEach(t => {
+            const num = parseInt(t.dataset.image);
+            if(num === window.LESSON_DATA.questions[5].correctAnswer) t.classList.add('correct');
+            else if(num === imageSelectionState.selectedImage && imageSelectionState.selectedImage !== window.LESSON_DATA.questions[5].correctAnswer) t.classList.add('incorrect');
+            t.classList.remove('selected');
           });
-          const isCorrect = imageSelectionState.selectedImage === window.LESSON_DATA.questions[4].correctAnswer;
+          const isCorrect = imageSelectionState.selectedImage === window.LESSON_DATA.questions[5].correctAnswer;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
-          if (isCorrect) {
-            const showCelebration = handleCorrectAnswer();
-            if (!showCelebration) {
-              showResultOverlay(5, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[4].explanation}</span></div>`);
-            }
-          } else {
-            retryQueue.addQuestion(4);
-            handleIncorrectAnswer();
-            livesManager.decrement();
-            livesCountElement.textContent = livesManager.getCount();
-            updateHeartIcon();
-            showResultOverlay(5, false, `
-              <div class="correct-answer-section">
-                <span class="correct-text">Correct answer:</span>
-                <span class="underlined">Image ${window.LESSON_DATA.questions[4].correctAnswer}</span>
-              </div>
-              <div class="explanation-section">
-                <span class="explanation-label">Explanation:</span>
-                <span class="explanation-text">${window.LESSON_DATA.questions[4].explanation}</span>
-              </div>
-            `);
-          }
+          if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(6, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[5].explanationText}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(5); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } showResultOverlay(6, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Image ${window.LESSON_DATA.questions[5].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[5].explanationText}</span></div>`); }
         };
-      } else if (actualQuestionIndex === 5) {
-        const leftColumn = document.getElementById('leftColumn');
-        const rightColumn = document.getElementById('rightColumn');
-        const feedbackOverlay = document.getElementById('feedbackOverlay');
-        const tryAgainBtn = document.getElementById('tryAgainBtn');
-        const matchingContinueBtn = document.getElementById('matchingContinueBtn');
-        const cancelIcon = document.getElementById('cancelIcon');
-        const notesIcon = document.getElementById('notesIcon');
-        const feedbackTitle = document.getElementById('feedbackTitle');
-        const feedbackMessage = document.getElementById('feedbackMessage');
-        let selectedLeftCard = null, selectedRightCard = null, matchedPairs = 0, matchingGameActive = true, matchingGameLifeLost = false;
-        const totalPairs = window.LESSON_DATA.pairs.length;
-        leftColumn.innerHTML = ''; rightColumn.innerHTML = '';
-        const shuffledPairs = shuffleArray([...window.LESSON_DATA.pairs]);
-        shuffledPairs.forEach((pair, index) => {
-          const card = document.createElement('div'); card.className = 'card'; card.dataset.pair = index; card.dataset.type = 'term'; card.textContent = pair.term;
-          leftColumn.appendChild(card);
-          card.onclick = function() {
-            if (feedbackOverlay.classList.contains('visible')) { resetWrongSelections(); return; }
-            if (!matchingGameActive || this.classList.contains('matched')) return;
-            if (this.classList.contains('wrong')) { resetWrongSelections(); return; }
-            document.querySelectorAll('#leftColumn .card.selected').forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected'); selectedLeftCard = this;
-            if (selectedLeftCard && selectedRightCard) checkMatch();
-          };
-        });
-        const shuffledMeanings = shuffleArray([...shuffledPairs]);
-        shuffledMeanings.forEach(pair => {
-          const card = document.createElement('div'); card.className = 'card'; card.dataset.pair = shuffledPairs.findIndex(p => p.meaning === pair.meaning); card.dataset.type = 'meaning'; card.textContent = pair.meaning;
-          rightColumn.appendChild(card);
-          card.onclick = function() {
-            if (feedbackOverlay.classList.contains('visible')) { resetWrongSelections(); return; }
-            if (!matchingGameActive || this.classList.contains('matched')) return;
-            if (this.classList.contains('wrong')) { resetWrongSelections(); return; }
-            document.querySelectorAll('#rightColumn .card.selected').forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected'); selectedRightCard = this;
-            if (selectedLeftCard && selectedRightCard) checkMatch();
-          };
-        });
-        feedbackOverlay.classList.remove('visible');
-        matchingContinueBtn.style.display = 'none';
-        function checkMatch() {
-          if (!selectedLeftCard || !selectedRightCard || !matchingGameActive) return;
-          if (selectedLeftCard.dataset.pair === selectedRightCard.dataset.pair) {
-            audioPlayer.playCorrect();
-            selectedLeftCard.classList.remove('selected'); selectedRightCard.classList.remove('selected');
-            selectedLeftCard.classList.add('correct'); selectedRightCard.classList.add('correct');
-            matchedPairs++;
-            setTimeout(() => { document.querySelectorAll('#question6 .card.correct').forEach(c => { c.classList.remove('correct'); c.classList.add('matched'); }); }, 800);
-            if (matchedPairs === totalPairs) {
-              matchingGameActive = false;
-              const showCelebration = handleCorrectAnswer();
-              if (!showCelebration) { setTimeout(() => { matchingContinueBtn.style.display = 'block'; }, 500); }
-            }
-          } else {
-            audioPlayer.playIncorrect();
-            selectedLeftCard.classList.add('wrong'); selectedRightCard.classList.add('wrong');
-            if (livesManager.getCount() > 0 && !matchingGameLifeLost) {
-              livesManager.decrement();
-              livesCountElement.textContent = livesManager.getCount();
-              updateHeartIcon();
-              matchingGameLifeLost = true;
-            }
-            handleIncorrectAnswer();
-            if (livesManager.getCount() > 0) { feedbackTitle.textContent = 'Incorrect'; feedbackMessage.textContent = 'Let\'s try that again'; }
-            else { feedbackTitle.textContent = 'Game Over'; feedbackMessage.textContent = 'You\'ve run out of lives! Try again from the beginning.'; }
-            feedbackOverlay.classList.add('visible');
-            if (livesManager.getCount() <= 0) matchingGameActive = false;
-          }
-          selectedLeftCard = null; selectedRightCard = null;
-        }
-        function resetWrongSelections() {
-          document.querySelectorAll('#question6 .card.wrong').forEach(c => c.classList.remove('wrong'));
-          document.querySelectorAll('#question6 .card.selected').forEach(c => c.classList.remove('selected'));
-          selectedLeftCard = null; selectedRightCard = null;
-          feedbackOverlay.classList.remove('visible');
-        }
-        tryAgainBtn.onclick = resetWrongSelections;
-        feedbackOverlay.onclick = function(e) { if (e.target === feedbackOverlay) resetWrongSelections(); };
-        matchingContinueBtn.onclick = function() { moveToNextQuestion(); };
-        if (cancelIcon) cancelIcon.onclick = resetWrongSelections;
-        if (notesIcon) notesIcon.onclick = resetWrongSelections;
+      } else if (actualIdx >= 6 && actualIdx <= 8) {
+        const idx = actualIdx + 1;
+        const input = document.getElementById(`bond-answer-input-${idx}`);
+        const cb = document.getElementById(`check-button-${idx}`);
+        if(!input || !cb) return;
+        input.value = ''; input.classList.remove('correct','incorrect'); input.disabled = false; cb.disabled = true;
+        input.oninput = () => { cb.disabled = !input.value.trim(); if(answered) input.classList.remove('correct','incorrect'); };
+        input.onkeypress = (e) => { if(e.key==='Enter' && !cb.disabled) cb.click(); };
+        cb.onclick = () => {
+          if(answered && idx === currentQuestion+1) return;
+          answered = true;
+          const qData = window.LESSON_DATA.questions[idx-1];
+          const isCorrect = qData.acceptableAnswers.some(a => input.value.trim().toLowerCase() === a.toLowerCase());
+          if(isCorrect) input.classList.add('correct'); else input.classList.add('incorrect');
+          input.disabled = true;
+          audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
+          if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(idx, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(idx-1); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } let correctDisplay = qData.correctAnswer; if(idx===7) correctDisplay='(Weak) hydrogen bond'; else if(idx===8) correctDisplay='Nucleotide'; else if(idx===9) correctDisplay='Thymine'; showResultOverlay(idx, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${correctDisplay}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`); }
+        };
+      } else if (actualIdx === 9) {
+        const input = document.getElementById('bond-answer-input-10');
+        const cb = document.getElementById('check-button-10');
+        input.value = ''; input.classList.remove('correct','incorrect'); input.disabled = false; cb.disabled = true;
+        input.oninput = () => { cb.disabled = !input.value.trim(); if(answered) input.classList.remove('correct','incorrect'); answered=false; };
+        input.onkeypress = (e) => { if(e.key==='Enter' && !cb.disabled) cb.click(); };
+        cb.onclick = () => {
+          answered = true;
+          const isCorrect = window.LESSON_DATA.questions[9].acceptableAnswers.some(a => input.value.trim().toLowerCase() === a.toLowerCase());
+          if(isCorrect) input.classList.add('correct'); else input.classList.add('incorrect');
+          input.disabled = true;
+          audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
+          if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(10, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[9].explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(9); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } showResultOverlay(10, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">(Weak) hydrogen bonds</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[9].explanation}</span></div>`); }
+        };
+        input.focus();
       }
     }
     
-    closeBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to exit the quiz?')) {
-        currentQuestion = 0;
-        livesManager.setLives(5);
-        livesCountElement.textContent = livesManager.getCount();
-        streakManager.reset();
-        retryQueue.reset();
-        inRetryMode = false;
-        showedRetryMessage = false;
-        updateHeartIcon();
-        progressBar.style.width = '16.67%';
-        showQuestion(currentQuestion);
-      }
+    // Close button handler with quit confirmation
+    closeBtn.addEventListener('click', async () => {
+      // TODO: Load quit-confirm.html from src/pages/modals/quit-confirm.html
+      await ModalLoader.load('quit-modal', '/src/pages/modals/quit-confirm.html');
     });
     
     showQuestion(currentQuestion);
