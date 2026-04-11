@@ -8,12 +8,6 @@
   <!-- Local Fonts -->
   <link rel="stylesheet" href="public/assets/fonts/fonts.css">
   
-  <!-- Button Component Styles -->
-  <link rel="stylesheet" href="src/styles/components/buttons.css">
-  
-  <!-- Typography Usage -->
-  <link rel="stylesheet" href="src/styles/typography-usage.css">
-  
   <!-- CSS Variables -->
   <link rel="stylesheet" href="src/styles/variables.css">
   
@@ -25,48 +19,73 @@
   <link rel="stylesheet" href="src/styles/components/image-select.css">
   <link rel="stylesheet" href="src/styles/components/matching.css">
   
+  <!-- Button Component -->
+  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  
   <style>
-    /* Additional lesson-specific styles not covered by components */
-    .icon-container {
-      color: #4285F4;
-      font-size: clamp(3rem, 6vw, 4rem);
-      margin-bottom: 0.8rem;
-      flex-shrink: 0;
+    /* Additional specific styles not covered by components */
+    .question1-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      max-width: 100%;
     }
     
     .full-stop {
       color: #4B4B4B;
     }
     
-    #question5 .image-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      margin: 1.5rem 0;
+    .heart-icon, .close-icon, .rabbit-icon, .material-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     
-    @media (max-width: 320px) {
-      .image-grid {
-        grid-template-columns: 1fr;
-        gap: 0.8rem;
-      }
+    .heart-icon img, .close-icon img, .rabbit-icon img, .material-icon img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    
+    .lives-container .heart-icon {
+      width: 24px;
+      height: 24px;
+    }
+    
+    .header .close-icon {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+    
+    .header .close-icon img {
+      filter: brightness(0) saturate(100%) invert(63%) sepia(0%) saturate(0%) hue-rotate(215deg) brightness(96%) contrast(87%);
+    }
+    
+    .icon-container .rabbit-icon {
+      width: 48px;
+      height: 48px;
+    }
+    
+    .result-main .material-icon {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .material-icon {
+      width: 24px;
+      height: 24px;
+    }
+    
+    .share-icon .material-icon,
+    .bottom-icon .material-icon {
+      width: 28px;
+      height: 28px;
     }
   </style>
 </head>
 <body>
-  <!-- Audio elements for sound feedback -->
-  <audio id="correctSound" preload="auto">
-    <source src="public/assets/audio/correct.mp3" type="audio/mpeg">
-  </audio>
-  
-  <audio id="incorrectSound" preload="auto">
-    <source src="public/assets/audio/incorrect.mp3" type="audio/mpeg">
-  </audio>
-  
-  <audio id="clappingAudio" preload="auto">
-    <source src="public/assets/audio/clapping.mp3" type="audio/mpeg">
-  </audio>
-  
   <!-- Celebration Overlay -->
   <div class="celebration-overlay" id="celebrationOverlay">
     <div class="celebration-container">
@@ -75,10 +94,12 @@
       </div>
       
       <div class="celebration-icon-container">
-        <i class="ph-fill ph-rabbit"></i>
+        <span class="rabbit-icon">
+          <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Rabbit">
+        </span>
       </div>
       
-      <button class="celebration-continue-btn" id="celebrationContinueBtn">Continue</button>
+      <button class="btn btn-md btn-carpenter-blue" id="celebrationContinueBtn">Continue</button>
     </div>
   </div>
   
@@ -87,12 +108,16 @@
     <div class="streak-counter" id="streakCounter"></div>
     
     <div class="header">
-      <i class="ph ph-x" id="close-btn"></i>
+      <span class="close-icon" id="close-btn">
+        <img src="public/assets/icons/phosphor/regular/x.svg" alt="Close">
+      </span>
       <div class="progress-bar-container">
         <div class="progress-bar" id="progress-bar"></div>
       </div>
       <div class="lives-container">
-        <i id="lives-icon" class="ph-fill ph-heart"></i>
+        <span class="heart-icon" id="lives-icon">
+          <img src="public/assets/icons/phosphor/fill/heart.svg" alt="Heart">
+        </span>
         <span id="lives-count">5</span>
       </div>
     </div>
@@ -129,9 +154,11 @@
     <div id="question2" style="display: none;">
       <h2 class="quiz-title">Select what is missing</h2>
 
-      <div class="question-container">
+      <div class="question1-container">
         <div class="icon-container">
-          <i class="ph-fill ph-rabbit"></i>
+          <span class="rabbit-icon">
+            <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Rabbit">
+          </span>
         </div>
         
         <div speech-bubble pleft abottom style="--bbColor:#FFFFFF">
@@ -154,9 +181,11 @@
     <div id="question3" style="display: none;">
       <h2 class="quiz-title">Complete the statement</h2>
 
-      <div class="question-container">
+      <div class="question1-container">
         <div class="icon-container">
-          <i class="ph-fill ph-rabbit"></i>
+          <span class="rabbit-icon">
+            <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Rabbit">
+          </span>
         </div>
         
         <div speech-bubble pleft acenter style="--bbColor:#FFFFFF">
@@ -288,14 +317,18 @@
         </div>
       </div>
 
-      <button class="matching-continue-btn" id="matchingContinueBtn" style="display: none;">Continue</button>
+      <button class="btn btn-md btn-carpenter-blue" id="matchingContinueBtn" style="display: none;">Continue</button>
       
       <div class="feedback-overlay" id="feedbackOverlay">
         <div class="matching-feedback" id="feedbackPanel">
           <div class="result-main">
-            <span class="material-symbols-outlined material-icon" id="cancelIcon">cancel</span>
+            <span class="material-icon" id="cancelIcon">
+              <img src="public/assets/icons/material-symbols/outline/cancel.svg" alt="Cancel">
+            </span>
             <div class="result-header" id="feedbackTitle">Incorrect</div>
-            <span class="material-symbols-outlined material-icon" id="notesIcon">stylus_note</span>
+            <span class="material-icon" id="notesIcon">
+              <img src="public/assets/icons/material-symbols/outline/stylus_note.svg" alt="Note">
+            </span>
           </div>
           
           <div class="feedback-subtitle" id="feedbackMessage">Let's try that again</div>
@@ -304,11 +337,13 @@
       </div>
     </div>
 
-    <!-- Image Zoom Modal (for Question 5) -->
+    <!-- Image Zoom Modal -->
     <div class="image-zoom-modal" id="imageZoomModal">
       <div class="zoom-content">
         <button class="zoom-close" id="zoomCloseBtn">
-          <span class="material-symbols-outlined">close</span>
+          <span class="material-icon">
+            <img src="public/assets/icons/material-symbols/outline/close.svg" alt="Close">
+          </span>
         </button>
         <img id="zoomedImage" src="" alt="Zoomed Image">
         <div class="zoom-label" id="zoomImageLabel"></div>
@@ -317,13 +352,17 @@
     </div>
   </div>
 
-  <!-- Result Overlays for each question -->
+  <!-- Result Overlays -->
   <div class="result-overlay" id="resultOverlay-1">
     <div class="result-container" id="resultContainer-1">
       <div class="result-main">
-        <span class="material-symbols-outlined material-icon" id="resultIcon-1"></span>
+        <span class="material-icon" id="resultIcon-1">
+          <img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check">
+        </span>
         <div class="result-header" id="resultHeader-1"></div>
-        <span class="material-symbols-outlined material-icon" id="actionIcon-1"></span>
+        <span class="material-icon" id="actionIcon-1">
+          <img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend">
+        </span>
       </div>
       <div class="explanation-content" id="explanationContainer-1"></div>
       <button class="result-continue-btn" id="resultContinueBtn-1">Continue</button>
@@ -333,9 +372,13 @@
   <div class="result-overlay" id="resultOverlay-2">
     <div class="result-container" id="resultContainer-2">
       <div class="result-main">
-        <span class="material-symbols-outlined material-icon" id="resultIcon-2"></span>
+        <span class="material-icon" id="resultIcon-2">
+          <img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check">
+        </span>
         <div class="result-header" id="resultHeader-2"></div>
-        <span class="material-symbols-outlined material-icon" id="actionIcon-2"></span>
+        <span class="material-icon" id="actionIcon-2">
+          <img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend">
+        </span>
       </div>
       <div class="explanation-content" id="explanationContainer-2"></div>
       <button class="result-continue-btn" id="resultContinueBtn-2">Continue</button>
@@ -345,9 +388,13 @@
   <div class="result-overlay" id="resultOverlay-3">
     <div class="result-container" id="resultContainer-3">
       <div class="result-main">
-        <span class="material-symbols-outlined material-icon" id="resultIcon-3"></span>
+        <span class="material-icon" id="resultIcon-3">
+          <img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check">
+        </span>
         <div class="result-header" id="resultHeader-3"></div>
-        <span class="material-symbols-outlined material-icon" id="actionIcon-3"></span>
+        <span class="material-icon" id="actionIcon-3">
+          <img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend">
+        </span>
       </div>
       <div class="explanation-content" id="explanationContainer-3"></div>
       <button class="result-continue-btn" id="resultContinueBtn-3">Continue</button>
@@ -357,9 +404,13 @@
   <div class="result-overlay" id="resultOverlay-4">
     <div class="result-container" id="resultContainer-4">
       <div class="result-main">
-        <span class="material-symbols-outlined material-icon" id="resultIcon-4"></span>
+        <span class="material-icon" id="resultIcon-4">
+          <img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check">
+        </span>
         <div class="result-header" id="resultHeader-4"></div>
-        <span class="material-symbols-outlined material-icon" id="actionIcon-4"></span>
+        <span class="material-icon" id="actionIcon-4">
+          <img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend">
+        </span>
       </div>
       <div class="explanation-content" id="explanationContainer-4"></div>
       <button class="result-continue-btn" id="resultContinueBtn-4">Continue</button>
@@ -369,29 +420,34 @@
   <div class="result-overlay" id="resultOverlay-5">
     <div class="result-container" id="resultContainer-5">
       <div class="result-main">
-        <span class="material-symbols-outlined material-icon" id="resultIcon-5"></span>
+        <span class="material-icon" id="resultIcon-5">
+          <img src="public/assets/icons/material-symbols/outline/check_circle.svg" alt="Check">
+        </span>
         <div class="result-header" id="resultHeader-5"></div>
-        <span class="material-symbols-outlined material-icon" id="actionIcon-5"></span>
+        <span class="material-icon" id="actionIcon-5">
+          <img src="public/assets/icons/material-symbols/outline/recommend.svg" alt="Recommend">
+        </span>
       </div>
       <div class="explanation-content" id="explanationContainer-5"></div>
       <button class="result-continue-btn" id="resultContinueBtn-5">Continue</button>
     </div>
   </div>
 
-  <!-- Placeholder Modals (to be implemented later) -->
-  <!-- Hearts Intro Modal - First lesson only -->
-  <!-- Quit Confirmation Modal -->
-  <!-- Hearts Refill Modal -->
-  <!-- Lesson Complete Modal -->
-  <!-- Streak Display Modal -->
-  <!-- Achievement Modal -->
-  <!-- Daily Quests Modal -->
-  <!-- Coin Reward Modal -->
-  <!-- XP Boost Reward Modal -->
-  <!-- Heart Reward Modal -->
+  <!-- Audio elements -->
+  <audio id="correctSound" preload="auto">
+    <source src="public/assets/audio/correct.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="incorrectSound" preload="auto">
+    <source src="public/assets/audio/incorrect.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="clappingAudio" preload="auto">
+    <source src="public/assets/audio/clapping.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
-    // LESSON DATA - All content verbatim from original
+    // Lesson data - VERBATIM from original
     window.LESSON_DATA = {
       questions: [
         {
@@ -439,225 +495,247 @@
           explanation: "A nucleotide consists of three parts: a phosphate group, a sugar molecule (deoxyribose in DNA) and a nitrogenous base, all of which Image 4 correctly represents."
         }
       ],
-      matchingPairs: [
+      pairs: [
         { term: "DNA", meaning: "Deoxyribose" },
         { term: "RNA", meaning: "Ribose" }
-      ],
-      totalQuestions: 6
+      ]
     };
   </script>
 
-  <!-- Module Imports -->
-  <script src="src/js/modules/streak.js"></script>
-  <script src="src/js/modules/lives.js"></script>
-  <script src="src/js/modules/audio.js"></script>
-  <script src="src/js/modules/retry-queue.js"></script>
-  <script src="src/js/modules/celebration.js"></script>
-
-  <script>
-    (function() {
-      // ========================================
-      // LESSON-SPECIFIC QUIZ CONTROLLER
-      // ========================================
-      
-      // Initialize modules
-      const streakManager = new StreakManager();
-      const livesManager = new LivesManager();
-      const retryQueue = new RetryQueue();
-      const celebrationManager = new CelebrationManager();
-      
-      // Initialize audio
-      AudioPlayer.init({ basePath: 'public/assets/audio/' });
-      
-      // Set audio reference for lives manager
-      livesManager.setAudioPlayer(AudioPlayer);
-      
-      // Initialize celebration overlay
-      celebrationManager.init('celebrationOverlay', 'celebrationMessage', 'celebrationContinueBtn');
-      
-      // Set streak counter element
-      const streakCounterEl = document.getElementById('streakCounter');
-      if (streakCounterEl) streakManager.setCounterElement(streakCounterEl);
-      
-      // DOM elements
-      const progressBar = document.getElementById('progress-bar');
-      const livesCountElement = document.getElementById('lives-count');
-      const livesIconElement = document.getElementById('lives-icon');
-      const closeBtn = document.getElementById('close-btn');
-      const questionSections = [
-        document.getElementById('question1'),
-        document.getElementById('question2'),
-        document.getElementById('question3'),
-        document.getElementById('question4'),
-        document.getElementById('question5'),
-        document.getElementById('question6')
-      ];
-      
-      // Game state
-      let selectedOption = null;
-      let currentQuestion = 0;
-      let answered = false;
-      let inRetryMode = false;
-      let showedRetryMessage = false;
-      
-      // Question-specific state
-      let filledBlanks1 = [null, null];
-      let optionButtons1 = [];
-      let imageSelectionState = { selectedImage: null, answered: false };
-      
-      // Helper functions
-      function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
+  <script type="module">
+    import { StreakManager } from '../../../../js/modules/streak.js';
+    import { LivesManager } from '../../../../js/modules/lives.js';
+    import { AudioPlayer } from '../../../../js/modules/audio.js';
+    import { RetryQueue } from '../../../../js/modules/retry-queue.js';
+    import { CelebrationManager } from '../../../../js/modules/celebration.js';
+    
+    // Initialize managers
+    const streakManager = new StreakManager();
+    const livesManager = new LivesManager();
+    const audioPlayer = AudioPlayer;
+    const retryQueue = new RetryQueue();
+    const celebrationManager = new CelebrationManager();
+    
+    // Initialize audio
+    audioPlayer.init({
+      basePath: 'public/assets/audio/',
+      correctPath: 'public/assets/audio/correct.mp3',
+      incorrectPath: 'public/assets/audio/incorrect.mp3',
+      celebrationPath: 'public/assets/audio/clapping.mp3'
+    });
+    
+    // Set audio reference in livesManager
+    livesManager.setAudioPlayer(audioPlayer);
+    
+    // Initialize celebration manager
+    celebrationManager.init('celebrationOverlay', 'celebrationMessage', 'celebrationContinueBtn');
+    
+    // DOM elements
+    const progressBar = document.getElementById('progress-bar');
+    const livesCountElement = document.getElementById('lives-count');
+    const livesIconElement = document.getElementById('lives-icon');
+    const closeBtn = document.getElementById('close-btn');
+    const streakCounter = document.getElementById('streakCounter');
+    const questionSections = [
+      document.getElementById('question1'),
+      document.getElementById('question2'),
+      document.getElementById('question3'),
+      document.getElementById('question4'),
+      document.getElementById('question5'),
+      document.getElementById('question6')
+    ];
+    
+    // Set streak counter element
+    streakManager.setCounterElement(streakCounter);
+    
+    // Game state
+    let selectedOption = null;
+    let currentQuestion = 0;
+    let answered = false;
+    let inRetryMode = false;
+    let showedRetryMessage = false;
+    
+    // Helper functions
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
       }
-      
-      function updateHeartIcon() {
-        if (livesManager.getCount() === 0) {
-          livesIconElement.classList.remove('ph-fill');
-          livesIconElement.classList.add('ph');
-        } else {
-          livesIconElement.classList.remove('ph');
-          livesIconElement.classList.add('ph-fill');
-        }
+      return array;
+    }
+    
+    function getCurrentQuestionIndex() {
+      if (inRetryMode) {
+        return retryQueue.getCurrentQuestion();
       }
-      
-      function normalizeAnswer(answer) {
-        return answer.toLowerCase()
-          .replace(/\s+/g, ' ')
-          .replace(/[()]/g, '')
-          .replace(/\//g, ' ')
-          .trim();
+      return currentQuestion;
+    }
+    
+    function updateHeartIcon() {
+      const lives = livesManager.getCount();
+      const heartImg = livesIconElement.querySelector('img');
+      if (lives === 0) {
+        heartImg.src = 'public/assets/icons/phosphor/regular/heart.svg';
+      } else {
+        heartImg.src = 'public/assets/icons/phosphor/fill/heart.svg';
       }
-      
-      function getCurrentQuestionIndex() {
-        if (inRetryMode) {
-          return retryQueue.getCurrentQuestion();
-        }
-        return currentQuestion;
-      }
-      
-      function moveToNextQuestion() {
-        if (inRetryMode) {
-          const hasNext = retryQueue.next();
-          if (!hasNext) {
-            inRetryMode = false;
-            retryQueue.endRetry();
-            alert('Quiz completed! You answered all questions correctly.');
-            return false;
-          }
+    }
+    
+    function normalizeAnswer(answer) {
+      return answer.toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/[()]/g, '')
+        .replace(/\//g, ' ')
+        .trim();
+    }
+    
+    function moveToNextQuestion() {
+      if (inRetryMode) {
+        if (retryQueue.next()) {
           showQuestion(retryQueue.getCurrentIndex());
-          return true;
         } else {
-          currentQuestion++;
-          if (currentQuestion >= questionSections.length) {
-            if (retryQueue.hasQuestions()) {
-              inRetryMode = true;
-              retryQueue.startRetry();
-              if (!showedRetryMessage) {
-                retryQueue.showRetryMessage(() => {
-                  showedRetryMessage = true;
-                  showQuestion(0);
-                });
+          inRetryMode = false;
+          retryQueue.endRetry();
+          currentQuestion = 0;
+          alert('Quiz completed! You answered all questions correctly.');
+        }
+      } else {
+        currentQuestion++;
+        if (currentQuestion >= questionSections.length) {
+          if (retryQueue.hasQuestions()) {
+            inRetryMode = true;
+            retryQueue.startRetry();
+            if (!showedRetryMessage) {
+              retryQueue.showRetryMessage(() => {
                 showedRetryMessage = true;
-                return false;
-              }
-              showQuestion(0);
-              return true;
+                showQuestion(0);
+              });
+              showedRetryMessage = true;
             } else {
-              alert('Quiz completed! You answered all questions correctly.');
-              return false;
+              showQuestion(0);
             }
+          } else {
+            alert('Quiz completed! You answered all questions correctly.');
           }
-          showQuestion(currentQuestion);
-          return true;
-        }
-      }
-      
-      function showResultOverlay(questionNumber, isCorrect, explanationHTML) {
-        const overlay = document.getElementById(`resultOverlay-${questionNumber}`);
-        const container = document.getElementById(`resultContainer-${questionNumber}`);
-        const header = document.getElementById(`resultHeader-${questionNumber}`);
-        const icon = document.getElementById(`resultIcon-${questionNumber}`);
-        const actionIcon = document.getElementById(`actionIcon-${questionNumber}`);
-        const explanation = document.getElementById(`explanationContainer-${questionNumber}`);
-        const continueBtn = document.getElementById(`resultContinueBtn-${questionNumber}`);
-        
-        if (isCorrect) {
-          header.textContent = 'Correct!';
-          icon.textContent = 'check_circle';
-          actionIcon.textContent = 'recommend';
-          container.className = 'result-container correct';
         } else {
-          header.textContent = 'Incorrect';
-          icon.textContent = 'cancel';
-          actionIcon.textContent = 'stylus_note';
-          container.className = 'result-container incorrect';
+          showQuestion(currentQuestion);
         }
-        
-        explanation.innerHTML = explanationHTML;
-        overlay.classList.add('visible');
-        
-        continueBtn.onclick = function() {
-          overlay.classList.remove('visible');
-          moveToNextQuestion();
-        };
+      }
+    }
+    
+    function showResultOverlay(questionNumber, isCorrect, explanationHTML) {
+      const overlay = document.getElementById(`resultOverlay-${questionNumber}`);
+      const container = document.getElementById(`resultContainer-${questionNumber}`);
+      const header = document.getElementById(`resultHeader-${questionNumber}`);
+      const icon = document.getElementById(`resultIcon-${questionNumber}`);
+      const actionIcon = document.getElementById(`actionIcon-${questionNumber}`);
+      const explanation = document.getElementById(`explanationContainer-${questionNumber}`);
+      const continueBtn = document.getElementById(`resultContinueBtn-${questionNumber}`);
+      
+      const iconImg = icon.querySelector('img');
+      const actionImg = actionIcon.querySelector('img');
+      
+      if (isCorrect) {
+        header.textContent = 'Correct!';
+        iconImg.src = 'public/assets/icons/material-symbols/outline/check_circle.svg';
+        actionImg.src = 'public/assets/icons/material-symbols/outline/recommend.svg';
+        container.className = 'result-container correct';
+      } else {
+        header.textContent = 'Incorrect';
+        iconImg.src = 'public/assets/icons/material-symbols/outline/cancel.svg';
+        actionImg.src = 'public/assets/icons/material-symbols/outline/stylus_note.svg';
+        container.className = 'result-container incorrect';
       }
       
-      // Question initialization functions
-      function initQuestion1() {
-        const optionButtons = document.querySelectorAll('#options-container-1 .option-button');
-        const checkButton = document.getElementById('check-button-1');
+      explanation.innerHTML = explanationHTML;
+      overlay.classList.add('visible');
+      
+      continueBtn.onclick = function() {
+        overlay.classList.remove('visible');
+        moveToNextQuestion();
+      };
+    }
+    
+    function handleCorrectAnswer() {
+      const newStreak = streakManager.increment();
+      
+      if (streakManager.isMilestone()) {
+        celebrationManager.show(newStreak, () => {
+          moveToNextQuestion();
+        });
+        audioPlayer.playCelebration();
+        return true;
+      }
+      return false;
+    }
+    
+    function handleIncorrectAnswer() {
+      streakManager.reset();
+    }
+    
+    // Question handlers - VERBATIM logic from original
+    function showQuestion(questionIndex) {
+      questionSections.forEach(section => { section.style.display = 'none'; });
+      const actualQuestionIndex = getCurrentQuestionIndex();
+      questionSections[actualQuestionIndex].style.display = 'block';
+      
+      let progressPercentage;
+      if (inRetryMode) {
+        progressPercentage = Math.round(((retryQueue.getCurrentIndex() + 1) / retryQueue.getCount()) * 100);
+      } else {
+        progressPercentage = Math.round(((currentQuestion + 1) / 6) * 100);
+      }
+      progressBar.style.width = `${progressPercentage}%`;
+      
+      answered = false;
+      selectedOption = null;
+      streakManager.updateDisplay();
+      
+      if (actualQuestionIndex === 0) {
+        const optionButtons1 = document.querySelectorAll('#options-container-1 .option-button');
+        const checkButton1 = document.getElementById('check-button-1');
         
-        optionButtons.forEach(button => {
+        optionButtons1.forEach(button => {
           button.classList.remove('selected', 'correct', 'incorrect');
           button.disabled = false;
           button.style.cursor = 'pointer';
+        });
+        
+        checkButton1.disabled = true;
+        checkButton1.textContent = 'Check';
+        
+        optionButtons1.forEach(button => {
           button.onclick = function() {
             if (answered) return;
-            optionButtons.forEach(btn => btn.classList.remove('selected'));
+            optionButtons1.forEach(btn => btn.classList.remove('selected'));
             this.classList.add('selected');
             selectedOption = this.dataset.value;
-            checkButton.disabled = false;
+            checkButton1.disabled = false;
           };
         });
         
-        checkButton.disabled = true;
-        checkButton.textContent = 'Check';
-        
-        checkButton.onclick = function() {
+        checkButton1.onclick = function() {
           if (!selectedOption || answered) return;
           answered = true;
           
-          const correctButton = Array.from(optionButtons).find(btn => btn.dataset.value === window.LESSON_DATA.questions[0].correctAnswer);
+          const correctButton = Array.from(optionButtons1).find(btn => btn.dataset.value === window.LESSON_DATA.questions[0].correctAnswer);
           if (correctButton) correctButton.classList.add('correct');
           
           if (selectedOption === window.LESSON_DATA.questions[0].correctAnswer) {
-            AudioPlayer.playCorrect();
-            streakManager.increment();
-            
-            if (streakManager.isMilestone()) {
-              celebrationManager.show(streakManager.getCount(), () => {
-                showResultOverlay(1, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[0].explanation}</span></div>`);
-              });
-            } else {
+            audioPlayer.playCorrect();
+            const showCelebration = handleCorrectAnswer();
+            if (!showCelebration) {
               showResultOverlay(1, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[0].explanation}</span></div>`);
             }
           } else {
-            AudioPlayer.playIncorrect();
-            streakManager.reset();
-            
+            audioPlayer.playIncorrect();
             retryQueue.addQuestion(0);
-            
-            const selectedButton = Array.from(optionButtons).find(btn => btn.dataset.value === selectedOption);
+            handleIncorrectAnswer();
+            const selectedButton = Array.from(optionButtons1).find(btn => btn.dataset.value === selectedOption);
             if (selectedButton) selectedButton.classList.add('incorrect');
-            
             livesManager.decrement();
             livesCountElement.textContent = livesManager.getCount();
             updateHeartIcon();
-            
             showResultOverlay(1, false, `
               <div class="correct-answer-section">
                 <span class="correct-text">Correct answer:</span>
@@ -669,31 +747,26 @@
               </div>
             `);
           }
-          
-          optionButtons.forEach(button => {
-            button.disabled = true;
-            button.style.cursor = 'not-allowed';
-          });
+          optionButtons1.forEach(button => { button.disabled = true; button.style.cursor = 'not-allowed'; });
         };
-      }
-      
-      function initQuestion2() {
+      } else if (actualQuestionIndex === 1) {
+        // Question 2 - Complete sentence (identical to original logic, just using window.LESSON_DATA)
         const blank21 = document.getElementById('blank-2-1');
         const blank22 = document.getElementById('blank-2-2');
-        const optionsContainer = document.getElementById('options-2');
-        const checkButton = document.getElementById('check-button-2');
+        const optionsContainer2 = document.getElementById('options-2');
+        const checkButton2 = document.getElementById('check-button-2');
         
         blank21.textContent = '';
         blank22.textContent = '';
         blank21.classList.remove('filled', 'correct', 'incorrect');
         blank22.classList.remove('filled', 'correct', 'incorrect');
         
-        checkButton.disabled = true;
-        checkButton.textContent = 'Check';
+        checkButton2.disabled = true;
+        checkButton2.textContent = 'Check';
         
-        optionsContainer.innerHTML = '';
-        let filledBlanks = [null, null];
-        let optionBtns = [];
+        optionsContainer2.innerHTML = '';
+        let filledBlanks2 = [null, null];
+        let optionButtons2 = [];
         
         const shuffledOptions = shuffleArray([...window.LESSON_DATA.questions[1].options]);
         
@@ -702,129 +775,85 @@
           button.className = 'option-button';
           button.dataset.value = opt.value;
           button.dataset.idx = idx;
-          
           const label = document.createElement('span');
           label.textContent = opt.label;
-          
           button.appendChild(label);
-          optionBtns.push(button);
+          optionButtons2.push(button);
           
           button.onclick = function() {
             if (answered) return;
-            
-            const isAlreadyUsed = filledBlanks.some(blank => blank && blank.value === opt.value);
+            const isAlreadyUsed = filledBlanks2.some(blank => blank && blank.value === opt.value);
             if (isAlreadyUsed) return;
-            
             let blankIndex = -1;
             let targetBlank = null;
-            
-            if (filledBlanks[0] === null) {
-              blankIndex = 0;
-              targetBlank = blank21;
-            } else if (filledBlanks[1] === null) {
-              blankIndex = 1;
-              targetBlank = blank22;
-            }
-            
+            if (filledBlanks2[0] === null) { blankIndex = 0; targetBlank = blank21; }
+            else if (filledBlanks2[1] === null) { blankIndex = 1; targetBlank = blank22; }
             if (blankIndex === -1) return;
-            
-            filledBlanks[blankIndex] = { value: opt.value, label: opt.label, idx: idx };
+            filledBlanks2[blankIndex] = { value: opt.value, label: opt.label, idx: idx };
             targetBlank.textContent = opt.label;
             targetBlank.classList.add('filled');
             button.classList.add('used-option');
-            checkButton.disabled = false;
+            checkButton2.disabled = false;
           };
-          
-          optionsContainer.appendChild(button);
+          optionsContainer2.appendChild(button);
         });
         
         blank21.onclick = function() {
-          if (answered || !filledBlanks[0]) return;
-          
-          const blankData = filledBlanks[0];
-          if (!blankData) return;
-          
-          const button = optionBtns.find(btn => btn.dataset.value === blankData.value);
+          if (answered || !filledBlanks2[0]) return;
+          const blankData = filledBlanks2[0];
+          const button = optionButtons2.find(btn => btn.dataset.value === blankData.value);
           if (button) button.classList.remove('used-option');
-          
           blank21.textContent = '';
           blank21.classList.remove('filled', 'correct', 'incorrect');
-          filledBlanks[0] = null;
-          checkButton.disabled = !(filledBlanks[0] && filledBlanks[1]);
+          filledBlanks2[0] = null;
+          checkButton2.disabled = filledBlanks2[0] === null && filledBlanks2[1] === null;
         };
         
         blank22.onclick = function() {
-          if (answered || !filledBlanks[1]) return;
-          
-          const blankData = filledBlanks[1];
-          if (!blankData) return;
-          
-          const button = optionBtns.find(btn => btn.dataset.value === blankData.value);
+          if (answered || !filledBlanks2[1]) return;
+          const blankData = filledBlanks2[1];
+          const button = optionButtons2.find(btn => btn.dataset.value === blankData.value);
           if (button) button.classList.remove('used-option');
-          
           blank22.textContent = '';
           blank22.classList.remove('filled', 'correct', 'incorrect');
-          filledBlanks[1] = null;
-          checkButton.disabled = !(filledBlanks[0] && filledBlanks[1]);
+          filledBlanks2[1] = null;
+          checkButton2.disabled = filledBlanks2[0] === null && filledBlanks2[1] === null;
         };
         
-        checkButton.onclick = function() {
-          if (answered || !filledBlanks[0] || !filledBlanks[1]) return;
-          
+        checkButton2.onclick = function() {
+          if (answered || !filledBlanks2[0] || !filledBlanks2[1]) return;
           answered = true;
-          const userAnswer1 = filledBlanks[0].value;
-          const userAnswer2 = filledBlanks[1].value;
-          
+          const userAnswer1 = filledBlanks2[0].value;
+          const userAnswer2 = filledBlanks2[1].value;
           const isCorrect = (
             (userAnswer1 === window.LESSON_DATA.questions[1].correctAnswers[0] && userAnswer2 === window.LESSON_DATA.questions[1].correctAnswers[1]) ||
             (userAnswer1 === window.LESSON_DATA.questions[1].correctAnswers[1] && userAnswer2 === window.LESSON_DATA.questions[1].correctAnswers[0])
           );
-          
+          audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
+          optionButtons2.forEach(btn => { btn.disabled = true; btn.style.cursor = 'not-allowed'; });
           if (isCorrect) {
-            AudioPlayer.playCorrect();
-            streakManager.increment();
-            
-            blank21.classList.add('correct');
-            blank22.classList.add('correct');
-            
-            optionBtns.forEach(btn => {
-              if (btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[0] || 
-                  btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[1]) {
+            blank21.classList.add('correct'); blank22.classList.add('correct');
+            optionButtons2.forEach(btn => {
+              if (btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[0] || btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[1]) {
                 btn.classList.add('correct');
               }
-              btn.disabled = true;
-              btn.style.cursor = 'not-allowed';
             });
-            
-            if (streakManager.isMilestone()) {
-              celebrationManager.show(streakManager.getCount(), () => {
-                showResultOverlay(2, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[1].explanation}</span></div>`);
-              });
-            } else {
+            const showCelebration = handleCorrectAnswer();
+            if (!showCelebration) {
               showResultOverlay(2, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[1].explanation}</span></div>`);
             }
           } else {
-            AudioPlayer.playIncorrect();
-            streakManager.reset();
-            
-            blank21.classList.add('incorrect');
-            blank22.classList.add('incorrect');
-            
+            blank21.classList.add('incorrect'); blank22.classList.add('incorrect');
             retryQueue.addQuestion(1);
-            
+            handleIncorrectAnswer();
             livesManager.decrement();
             livesCountElement.textContent = livesManager.getCount();
             updateHeartIcon();
-            
-            optionBtns.forEach(btn => {
-              if (btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[0] || 
-                  btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[1]) {
+            optionButtons2.forEach(btn => {
+              if (btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[0] || btn.dataset.value === window.LESSON_DATA.questions[1].correctAnswers[1]) {
                 btn.classList.add('correct');
               }
-              btn.disabled = true;
-              btn.style.cursor = 'not-allowed';
             });
-            
             showResultOverlay(2, false, `
               <div class="correct-answer-section">
                 <span class="correct-text">Correct answer:</span>
@@ -837,63 +866,33 @@
             `);
           }
         };
-      }
-      
-      function initQuestion3() {
+      } else if (actualQuestionIndex === 2) {
         const nucleotideAnswerInput = document.getElementById('nucleotide-answer-input');
-        const checkButton = document.getElementById('check-button-3');
-        
+        const checkButton3 = document.getElementById('check-button-3');
         nucleotideAnswerInput.value = '';
         nucleotideAnswerInput.classList.remove('correct', 'incorrect');
         nucleotideAnswerInput.disabled = false;
-        checkButton.disabled = true;
-        checkButton.textContent = 'Check';
-        
-        nucleotideAnswerInput.oninput = function() {
-          checkButton.disabled = !nucleotideAnswerInput.value.trim();
-          if (answered) {
-            nucleotideAnswerInput.classList.remove('correct', 'incorrect');
-            answered = false;
-          }
-        };
-        
-        nucleotideAnswerInput.onkeypress = function(e) {
-          if (e.key === 'Enter' && !checkButton.disabled) {
-            checkButton.click();
-          }
-        };
-        
-        checkButton.onclick = function() {
+        checkButton3.disabled = true;
+        nucleotideAnswerInput.oninput = function() { checkButton3.disabled = !nucleotideAnswerInput.value.trim(); };
+        nucleotideAnswerInput.onkeypress = function(e) { if (e.key === 'Enter' && !checkButton3.disabled) checkButton3.click(); };
+        checkButton3.onclick = function() {
           answered = true;
           const userAnswer = normalizeAnswer(nucleotideAnswerInput.value.trim());
-          
-          const isCorrect = window.LESSON_DATA.questions[2].acceptableAnswers.some(
-            acceptable => userAnswer === normalizeAnswer(acceptable)
-          );
-          
+          const isCorrect = window.LESSON_DATA.questions[2].acceptableAnswers.some(acceptable => userAnswer === normalizeAnswer(acceptable));
+          audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           if (isCorrect) {
-            AudioPlayer.playCorrect();
-            streakManager.increment();
             nucleotideAnswerInput.classList.add('correct');
-            
-            if (streakManager.isMilestone()) {
-              celebrationManager.show(streakManager.getCount(), () => {
-                showResultOverlay(3, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[2].explanation}</span></div>`);
-              });
-            } else {
+            const showCelebration = handleCorrectAnswer();
+            if (!showCelebration) {
               showResultOverlay(3, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[2].explanation}</span></div>`);
             }
           } else {
-            AudioPlayer.playIncorrect();
-            streakManager.reset();
-            
             retryQueue.addQuestion(2);
+            handleIncorrectAnswer();
             nucleotideAnswerInput.classList.add('incorrect');
-            
             livesManager.decrement();
             livesCountElement.textContent = livesManager.getCount();
             updateHeartIcon();
-            
             showResultOverlay(3, false, `
               <div class="correct-answer-section">
                 <span class="correct-text">Correct answer:</span>
@@ -905,78 +904,56 @@
               </div>
             `);
           }
-          
           nucleotideAnswerInput.disabled = true;
         };
-        
         nucleotideAnswerInput.focus();
-      }
-      
-      function initQuestion4() {
-        const container = document.getElementById('options-container-4');
-        const checkButton = document.getElementById('check-button-4');
-        
-        checkButton.disabled = true;
-        checkButton.textContent = 'Check';
-        
+      } else if (actualQuestionIndex === 3) {
+        const container4 = document.getElementById('options-container-4');
+        const checkButton4 = document.getElementById('check-button-4');
+        checkButton4.disabled = true;
         const options4 = [
           { label: 'Phosphate group', value: 'Phosphate group' },
           { label: 'Amino acid', value: 'Amino acid' },
           { label: 'Sugar molecule', value: 'Sugar molecule' },
           { label: 'Nitrogenous base', value: 'Nitrogenous base' }
         ];
-        
         shuffleArray(options4);
-        container.innerHTML = '';
-        
+        container4.innerHTML = '';
         options4.forEach(opt => {
           const button = document.createElement('button');
           button.className = 'option-button';
           button.dataset.value = opt.value;
           button.textContent = opt.label;
-          container.appendChild(button);
-          
+          container4.appendChild(button);
           button.onclick = function() {
             if (answered) return;
             document.querySelectorAll('#options-container-4 .option-button').forEach(btn => btn.classList.remove('selected'));
             this.classList.add('selected');
             selectedOption = this.dataset.value;
-            checkButton.disabled = false;
+            checkButton4.disabled = false;
           };
         });
-        
-        checkButton.onclick = function() {
+        checkButton4.onclick = function() {
           if (!selectedOption) return;
           answered = true;
-          
-          const optionButtons = document.querySelectorAll('#options-container-4 .option-button');
-          const correctButton = Array.from(optionButtons).find(btn => btn.dataset.value === window.LESSON_DATA.questions[3].correctAnswer);
+          const optionButtons4 = document.querySelectorAll('#options-container-4 .option-button');
+          const correctButton = Array.from(optionButtons4).find(btn => btn.dataset.value === window.LESSON_DATA.questions[3].correctAnswer);
           if (correctButton) correctButton.classList.add('correct');
-          
           if (selectedOption === window.LESSON_DATA.questions[3].correctAnswer) {
-            AudioPlayer.playCorrect();
-            streakManager.increment();
-            
-            if (streakManager.isMilestone()) {
-              celebrationManager.show(streakManager.getCount(), () => {
-                showResultOverlay(4, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[3].explanation}</span></div>`);
-              });
-            } else {
+            audioPlayer.playCorrect();
+            const showCelebration = handleCorrectAnswer();
+            if (!showCelebration) {
               showResultOverlay(4, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[3].explanation}</span></div>`);
             }
           } else {
-            AudioPlayer.playIncorrect();
-            streakManager.reset();
-            
+            audioPlayer.playIncorrect();
             retryQueue.addQuestion(3);
-            
-            const selectedButton = Array.from(optionButtons).find(btn => btn.dataset.value === selectedOption);
+            handleIncorrectAnswer();
+            const selectedButton = Array.from(optionButtons4).find(btn => btn.dataset.value === selectedOption);
             if (selectedButton) selectedButton.classList.add('incorrect');
-            
             livesManager.decrement();
             livesCountElement.textContent = livesManager.getCount();
             updateHeartIcon();
-            
             showResultOverlay(4, false, `
               <div class="correct-answer-section">
                 <span class="correct-text">Correct answer:</span>
@@ -988,117 +965,69 @@
               </div>
             `);
           }
-          
-          optionButtons.forEach(button => {
-            button.disabled = true;
-            button.style.cursor = 'not-allowed';
-          });
+          optionButtons4.forEach(button => { button.disabled = true; button.style.cursor = 'not-allowed'; });
         };
-      }
-      
-      function initQuestion5() {
+      } else if (actualQuestionIndex === 4) {
         const imageTiles = document.querySelectorAll('#question5 .image-tile');
         const imageContainers = document.querySelectorAll('#question5 .image-container');
-        const checkButton = document.getElementById('check-button-5');
+        const checkButton5 = document.getElementById('check-button-5');
         const imageZoomModal = document.getElementById('imageZoomModal');
         const zoomedImage = document.getElementById('zoomedImage');
         const zoomImageLabel = document.getElementById('zoomImageLabel');
         const zoomCloseBtn = document.getElementById('zoomCloseBtn');
-        
-        imageSelectionState = { selectedImage: null, answered: false };
-        
-        imageTiles.forEach(tile => {
-          tile.classList.remove('selected', 'correct', 'incorrect');
-          tile.style.cursor = 'pointer';
-        });
-        
-        checkButton.disabled = true;
-        checkButton.textContent = 'Check';
-        
+        let imageSelectionState = { selectedImage: null, answered: false };
+        imageTiles.forEach(tile => { tile.classList.remove('selected', 'correct', 'incorrect'); tile.style.cursor = 'pointer'; });
+        checkButton5.disabled = true;
         imageTiles.forEach(tile => {
           tile.onclick = function(e) {
             if (imageSelectionState.answered) return;
             if (e.target.closest('.image-container')) return;
-            
             imageTiles.forEach(t => t.classList.remove('selected'));
             this.classList.add('selected');
             imageSelectionState.selectedImage = parseInt(this.dataset.image);
-            checkButton.disabled = false;
+            checkButton5.disabled = false;
           };
         });
-        
         imageContainers.forEach(container => {
           container.onclick = function(e) {
             e.stopPropagation();
-            const imageNumber = parseInt(this.dataset.image);
-            const imgElement = this.querySelector('img');
-            
+            const imgElement = container.querySelector('img');
             if (imgElement && imgElement.src) {
               zoomedImage.src = imgElement.src;
-              zoomImageLabel.textContent = `Image ${imageNumber}`;
+              zoomImageLabel.textContent = `Image ${container.dataset.image}`;
               imageZoomModal.classList.add('visible');
-              
               document.addEventListener('keydown', function handleEscapeKey(e) {
-                if (e.key === 'Escape') {
-                  imageZoomModal.classList.remove('visible');
-                  zoomedImage.src = '';
-                  document.removeEventListener('keydown', handleEscapeKey);
-                }
+                if (e.key === 'Escape') { imageZoomModal.classList.remove('visible'); zoomedImage.src = ''; document.removeEventListener('keydown', handleEscapeKey); }
               });
             }
           };
         });
-        
-        function closeImageZoom() {
-          imageZoomModal.classList.remove('visible');
-          zoomedImage.src = '';
-        }
-        
-        imageZoomModal.onclick = function(e) {
-          if (e.target === imageZoomModal) closeImageZoom();
-        };
+        function closeImageZoom() { imageZoomModal.classList.remove('visible'); zoomedImage.src = ''; }
+        imageZoomModal.onclick = function(e) { if (e.target === imageZoomModal) closeImageZoom(); };
         zoomCloseBtn.onclick = closeImageZoom;
-        
-        checkButton.onclick = function() {
+        checkButton5.onclick = function() {
           if (imageSelectionState.selectedImage === null || imageSelectionState.answered) return;
-          
           imageSelectionState.answered = true;
-          
           imageTiles.forEach(tile => { tile.style.cursor = 'default'; });
-          
           imageTiles.forEach(tile => {
             const imageNum = parseInt(tile.dataset.image);
-            if (imageNum === window.LESSON_DATA.questions[4].correctAnswer) {
-              tile.classList.add('correct');
-            } else if (imageNum === imageSelectionState.selectedImage && imageSelectionState.selectedImage !== window.LESSON_DATA.questions[4].correctAnswer) {
-              tile.classList.add('incorrect');
-            }
+            if (imageNum === window.LESSON_DATA.questions[4].correctAnswer) tile.classList.add('correct');
+            else if (imageNum === imageSelectionState.selectedImage && imageSelectionState.selectedImage !== window.LESSON_DATA.questions[4].correctAnswer) tile.classList.add('incorrect');
             tile.classList.remove('selected');
           });
-          
           const isCorrect = imageSelectionState.selectedImage === window.LESSON_DATA.questions[4].correctAnswer;
-          
+          audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           if (isCorrect) {
-            AudioPlayer.playCorrect();
-            streakManager.increment();
-            
-            if (streakManager.isMilestone()) {
-              celebrationManager.show(streakManager.getCount(), () => {
-                showResultOverlay(5, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[4].explanation}</span></div>`);
-              });
-            } else {
+            const showCelebration = handleCorrectAnswer();
+            if (!showCelebration) {
               showResultOverlay(5, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[4].explanation}</span></div>`);
             }
           } else {
-            AudioPlayer.playIncorrect();
-            streakManager.reset();
-            
             retryQueue.addQuestion(4);
-            
+            handleIncorrectAnswer();
             livesManager.decrement();
             livesCountElement.textContent = livesManager.getCount();
             updateHeartIcon();
-            
             showResultOverlay(5, false, `
               <div class="correct-answer-section">
                 <span class="correct-text">Correct answer:</span>
@@ -1111,9 +1040,7 @@
             `);
           }
         };
-      }
-      
-      function initQuestion6() {
+      } else if (actualQuestionIndex === 5) {
         const leftColumn = document.getElementById('leftColumn');
         const rightColumn = document.getElementById('rightColumn');
         const feedbackOverlay = document.getElementById('feedbackOverlay');
@@ -1123,194 +1050,98 @@
         const notesIcon = document.getElementById('notesIcon');
         const feedbackTitle = document.getElementById('feedbackTitle');
         const feedbackMessage = document.getElementById('feedbackMessage');
-        
-        let selectedLeftCard = null;
-        let selectedRightCard = null;
-        let matchedPairs = 0;
-        let matchingGameActive = true;
-        let matchingGameLifeLost = false;
-        const totalPairs = window.LESSON_DATA.matchingPairs.length;
-        
-        leftColumn.innerHTML = '';
-        rightColumn.innerHTML = '';
-        
-        const shuffledPairs = shuffleArray([...window.LESSON_DATA.matchingPairs]);
-        
+        let selectedLeftCard = null, selectedRightCard = null, matchedPairs = 0, matchingGameActive = true, matchingGameLifeLost = false;
+        const totalPairs = window.LESSON_DATA.pairs.length;
+        leftColumn.innerHTML = ''; rightColumn.innerHTML = '';
+        const shuffledPairs = shuffleArray([...window.LESSON_DATA.pairs]);
         shuffledPairs.forEach((pair, index) => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.dataset.pair = index;
-          card.dataset.type = 'term';
-          card.textContent = pair.term;
+          const card = document.createElement('div'); card.className = 'card'; card.dataset.pair = index; card.dataset.type = 'term'; card.textContent = pair.term;
           leftColumn.appendChild(card);
-          
           card.onclick = function() {
             if (feedbackOverlay.classList.contains('visible')) { resetWrongSelections(); return; }
             if (!matchingGameActive || this.classList.contains('matched')) return;
             if (this.classList.contains('wrong')) { resetWrongSelections(); return; }
-            
             document.querySelectorAll('#leftColumn .card.selected').forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected');
-            selectedLeftCard = this;
+            this.classList.add('selected'); selectedLeftCard = this;
             if (selectedLeftCard && selectedRightCard) checkMatch();
           };
         });
-        
         const shuffledMeanings = shuffleArray([...shuffledPairs]);
-        
-        shuffledMeanings.forEach((pair, index) => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.dataset.pair = shuffledPairs.findIndex(p => p.meaning === pair.meaning);
-          card.dataset.type = 'meaning';
-          card.textContent = pair.meaning;
+        shuffledMeanings.forEach(pair => {
+          const card = document.createElement('div'); card.className = 'card'; card.dataset.pair = shuffledPairs.findIndex(p => p.meaning === pair.meaning); card.dataset.type = 'meaning'; card.textContent = pair.meaning;
           rightColumn.appendChild(card);
-          
           card.onclick = function() {
             if (feedbackOverlay.classList.contains('visible')) { resetWrongSelections(); return; }
             if (!matchingGameActive || this.classList.contains('matched')) return;
             if (this.classList.contains('wrong')) { resetWrongSelections(); return; }
-            
             document.querySelectorAll('#rightColumn .card.selected').forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected');
-            selectedRightCard = this;
+            this.classList.add('selected'); selectedRightCard = this;
             if (selectedLeftCard && selectedRightCard) checkMatch();
           };
         });
-        
         feedbackOverlay.classList.remove('visible');
         matchingContinueBtn.style.display = 'none';
-        
         function checkMatch() {
           if (!selectedLeftCard || !selectedRightCard || !matchingGameActive) return;
-          
           if (selectedLeftCard.dataset.pair === selectedRightCard.dataset.pair) {
-            AudioPlayer.playCorrect();
-            
-            selectedLeftCard.classList.remove('selected');
-            selectedRightCard.classList.remove('selected');
-            selectedLeftCard.classList.add('correct');
-            selectedRightCard.classList.add('correct');
+            audioPlayer.playCorrect();
+            selectedLeftCard.classList.remove('selected'); selectedRightCard.classList.remove('selected');
+            selectedLeftCard.classList.add('correct'); selectedRightCard.classList.add('correct');
             matchedPairs++;
-            
-            setTimeout(() => {
-              document.querySelectorAll('#question6 .card.correct').forEach(card => {
-                card.classList.remove('correct');
-                card.classList.add('matched');
-              });
-            }, 800);
-            
+            setTimeout(() => { document.querySelectorAll('#question6 .card.correct').forEach(c => { c.classList.remove('correct'); c.classList.add('matched'); }); }, 800);
             if (matchedPairs === totalPairs) {
               matchingGameActive = false;
-              streakManager.increment();
-              
-              if (streakManager.isMilestone()) {
-                celebrationManager.show(streakManager.getCount(), () => {
-                  setTimeout(() => matchingContinueBtn.style.display = 'block', 500);
-                });
-              } else {
-                setTimeout(() => matchingContinueBtn.style.display = 'block', 500);
-              }
+              const showCelebration = handleCorrectAnswer();
+              if (!showCelebration) { setTimeout(() => { matchingContinueBtn.style.display = 'block'; }, 500); }
             }
           } else {
-            AudioPlayer.playIncorrect();
-            
-            selectedLeftCard.classList.add('wrong');
-            selectedRightCard.classList.add('wrong');
-            
+            audioPlayer.playIncorrect();
+            selectedLeftCard.classList.add('wrong'); selectedRightCard.classList.add('wrong');
             if (livesManager.getCount() > 0 && !matchingGameLifeLost) {
               livesManager.decrement();
               livesCountElement.textContent = livesManager.getCount();
               updateHeartIcon();
               matchingGameLifeLost = true;
             }
-            
-            streakManager.reset();
-            
-            if (livesManager.getCount() > 0) {
-              feedbackTitle.textContent = 'Incorrect';
-              feedbackMessage.textContent = 'Let\'s try that again';
-            } else {
-              feedbackTitle.textContent = 'Game Over';
-              feedbackMessage.textContent = 'You\'ve run out of lives! Try again from the beginning.';
-            }
-            
+            handleIncorrectAnswer();
+            if (livesManager.getCount() > 0) { feedbackTitle.textContent = 'Incorrect'; feedbackMessage.textContent = 'Let\'s try that again'; }
+            else { feedbackTitle.textContent = 'Game Over'; feedbackMessage.textContent = 'You\'ve run out of lives! Try again from the beginning.'; }
             feedbackOverlay.classList.add('visible');
             if (livesManager.getCount() <= 0) matchingGameActive = false;
           }
-          
-          selectedLeftCard = null;
-          selectedRightCard = null;
+          selectedLeftCard = null; selectedRightCard = null;
         }
-        
         function resetWrongSelections() {
-          document.querySelectorAll('#question6 .card.wrong').forEach(card => card.classList.remove('wrong'));
-          document.querySelectorAll('#question6 .card.selected').forEach(card => card.classList.remove('selected'));
-          selectedLeftCard = null;
-          selectedRightCard = null;
+          document.querySelectorAll('#question6 .card.wrong').forEach(c => c.classList.remove('wrong'));
+          document.querySelectorAll('#question6 .card.selected').forEach(c => c.classList.remove('selected'));
+          selectedLeftCard = null; selectedRightCard = null;
           feedbackOverlay.classList.remove('visible');
         }
-        
         tryAgainBtn.onclick = resetWrongSelections;
         feedbackOverlay.onclick = function(e) { if (e.target === feedbackOverlay) resetWrongSelections(); };
         matchingContinueBtn.onclick = function() { moveToNextQuestion(); };
-        cancelIcon.onclick = resetWrongSelections;
-        notesIcon.onclick = resetWrongSelections;
+        if (cancelIcon) cancelIcon.onclick = resetWrongSelections;
+        if (notesIcon) notesIcon.onclick = resetWrongSelections;
       }
-      
-      function showQuestion(questionIndex) {
-        questionSections.forEach(section => { if (section) section.style.display = 'none'; });
-        
-        const actualIndex = getCurrentQuestionIndex();
-        if (actualIndex !== undefined && questionSections[actualIndex]) {
-          questionSections[actualIndex].style.display = 'block';
-        }
-        
-        let progressPercentage;
-        if (inRetryMode) {
-          progressPercentage = Math.round(((retryQueue.getCurrentIndex() + 1) / retryQueue.getCount()) * 100);
-        } else {
-          progressPercentage = Math.round(((questionIndex + 1) / window.LESSON_DATA.totalQuestions) * 100);
-        }
-        progressBar.style.width = `${progressPercentage}%`;
-        
-        answered = false;
-        selectedOption = null;
-        
-        streakManager.updateDisplay();
-        
-        if (actualIndex === 0) initQuestion1();
-        else if (actualIndex === 1) initQuestion2();
-        else if (actualIndex === 2) initQuestion3();
-        else if (actualIndex === 3) initQuestion4();
-        else if (actualIndex === 4) initQuestion5();
-        else if (actualIndex === 5) initQuestion6();
+    }
+    
+    closeBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to exit the quiz?')) {
+        currentQuestion = 0;
+        livesManager.setLives(5);
+        livesCountElement.textContent = livesManager.getCount();
+        streakManager.reset();
+        retryQueue.reset();
+        inRetryMode = false;
+        showedRetryMessage = false;
+        updateHeartIcon();
+        progressBar.style.width = '16.67%';
+        showQuestion(currentQuestion);
       }
-      
-      // Initialize progress bar
-      progressBar.style.width = '16.67%';
-      
-      // Close button handler
-      closeBtn.addEventListener('click', () => {
-        if (confirm('Are you sure you want to exit the quiz?')) {
-          currentQuestion = 0;
-          livesManager.setLives(5);
-          streakManager.reset();
-          retryQueue.reset();
-          inRetryMode = false;
-          showedRetryMessage = false;
-          livesCountElement.textContent = livesManager.getCount();
-          streakManager.updateDisplay();
-          updateHeartIcon();
-          progressBar.style.width = '16.67%';
-          showQuestion(currentQuestion);
-        }
-      });
-      
-      // Start the quiz
-      showQuestion(currentQuestion);
-      streakManager.updateDisplay();
-    })();
+    });
+    
+    showQuestion(currentQuestion);
+    streakManager.updateDisplay();
   </script>
 </body>
 </html>
