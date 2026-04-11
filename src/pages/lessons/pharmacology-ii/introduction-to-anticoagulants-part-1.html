@@ -69,6 +69,21 @@
       width: 24px;
       height: 24px;
     }
+    
+    /* Modal Container Styles */
+    .modal-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10000;
+      background: transparent;
+    }
+    .modal-container > * {
+      width: 100%;
+      height: 100%;
+    }
   </style>
 </head>
 <body>
@@ -492,6 +507,17 @@
     <source src="public/assets/audio/clapping.mp3" type="audio/mpeg">
   </audio>
 
+  <!-- Modal Containers (loaded dynamically when needed) -->
+  <div id="quit-modal" class="modal-container" style="display: none;"></div>
+  <div id="hearts-refill-modal" class="modal-container" style="display: none;"></div>
+  <div id="lesson-complete-modal" class="modal-container" style="display: none;"></div>
+  <div id="streak-modal" class="modal-container" style="display: none;"></div>
+  <div id="achievement-modal" class="modal-container" style="display: none;"></div>
+  <div id="daily-quest-modal" class="modal-container" style="display: none;"></div>
+  <div id="coin-reward-modal" class="modal-container" style="display: none;"></div>
+  <div id="xp-boost-modal" class="modal-container" style="display: none;"></div>
+  <div id="heart-reward-modal" class="modal-container" style="display: none;"></div>
+
   <script>
     // Lesson data - VERBATIM from original
     window.LESSON_DATA = {
@@ -575,6 +601,41 @@
         { term: "Heparin", meaning: "Used in vitro and in vivo" }
       ]
     };
+
+    // Modal loading utility
+    const ModalLoader = {
+      async load(modalId, modalPath) {
+        const container = document.getElementById(modalId);
+        if (!container) return null;
+        
+        try {
+          const response = await fetch(modalPath);
+          const html = await response.text();
+          container.innerHTML = html;
+          container.style.display = 'flex';
+          
+          return new Promise((resolve) => {
+            const checkInterval = setInterval(() => {
+              if (container.style.display === 'none') {
+                clearInterval(checkInterval);
+                resolve('closed');
+              }
+            }, 100);
+          });
+        } catch (error) {
+          console.error(`Failed to load modal: ${modalPath}`, error);
+          return null;
+        }
+      },
+      
+      close(modalId) {
+        const container = document.getElementById(modalId);
+        if (container) {
+          container.style.display = 'none';
+          container.innerHTML = '';
+        }
+      }
+    };
   </script>
 
   <script type="module">
@@ -622,11 +683,14 @@
     streakManager.setCounterElement(streakCounter);
     
     // Game state
-    let selectedOption = null;
     let currentQuestion = 0;
     let answered = false;
     let inRetryMode = false;
     let showedRetryMessage = false;
+    let startTime = Date.now();
+    let totalQuestionsAnswered = 0;
+    let correctCount = 0;
+    let quizCompleted = false;
     
     // Helper functions
     function shuffleArray(array) {
@@ -658,6 +722,52 @@
       return answer.toLowerCase().replace(/\s+/g, ' ').replace(/[()]/g, '').replace(/\//g, ' ').trim();
     }
     
+    async function showLessonComplete() {
+      if (quizCompleted) return;
+      quizCompleted = true;
+      
+      const timeTakenSeconds = Math.floor((Date.now() - startTime) / 1000);
+      const totalQuestions = window.LESSON_DATA.questions.length;
+      
+      const accuracyXP = Math.round((correctCount / totalQuestions) * 10);
+      
+      const expectedTime = totalQuestions * 15;
+      const maxTime = expectedTime * 2;
+      let speedXP = 0;
+      
+      if (timeTakenSeconds <= expectedTime) {
+        speedXP = 10;
+      } else if (timeTakenSeconds <= maxTime) {
+        speedXP = Math.round(10 * (2 - (timeTakenSeconds / expectedTime)));
+        speedXP = Math.max(0, speedXP);
+      } else {
+        speedXP = 0;
+      }
+      
+      const totalXP = 10 + accuracyXP + speedXP;
+      
+      const xpData = {
+        totalXP,
+        accuracyXP,
+        speedXP,
+        completionXP: 10,
+        timeTaken: timeTakenSeconds,
+        expectedTime,
+        correctCount,
+        totalQuestions
+      };
+      
+      // TODO: Load lesson-complete.html from src/pages/modals/lesson-complete.html
+      sessionStorage.setItem('lessonCompleteData', JSON.stringify(xpData));
+      await ModalLoader.load('lesson-complete-modal', '/src/pages/modals/lesson-complete.html');
+      
+      // TODO: Load streak-modal.html if first lesson of day
+      // TODO: Check achievements
+      // TODO: Check daily quest progress
+      
+      // window.location.href = `/courses/pharmacology-ii.html`;
+    }
+    
     function moveToNextQuestion() {
       if (inRetryMode) {
         if (retryQueue.next()) {
@@ -666,7 +776,7 @@
           inRetryMode = false;
           retryQueue.endRetry();
           currentQuestion = 0;
-          alert('Quiz completed! You answered all questions correctly.');
+          showLessonComplete();
         }
       } else {
         currentQuestion++;
@@ -684,7 +794,7 @@
               showQuestion(0);
             }
           } else {
-            alert('Quiz completed! You answered all questions correctly.');
+            showLessonComplete();
           }
         } else {
           showQuestion(currentQuestion);
@@ -726,6 +836,8 @@
     }
     
     function handleCorrectAnswer() {
+      totalQuestionsAnswered++;
+      correctCount++;
       const newStreak = streakManager.increment();
       
       if (streakManager.isMilestone()) {
@@ -739,6 +851,7 @@
     }
     
     function handleIncorrectAnswer() {
+      totalQuestionsAnswered++;
       streakManager.reset();
     }
     
@@ -794,6 +907,11 @@
           livesManager.decrement();
           livesCountElement.textContent = livesManager.getCount();
           updateHeartIcon();
+          
+          if (livesManager.getCount() === 0) {
+            // TODO: Load hearts-refill-modal
+          }
+          
           showResultOverlay(5, false, `<div class="correct-answer-section"><span class="correct-text">Correct order:</span> <span class="underlined">Read below</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[4].explanation}</span></div>`);
         }
       };
@@ -874,6 +992,11 @@
             lifeLost = true;
           }
           handleIncorrectAnswer();
+          
+          if (livesManager.getCount() === 0) {
+            // TODO: Load hearts-refill-modal
+          }
+          
           if (livesManager.getCount() > 0) { feedbackTitle.textContent = 'Incorrect'; feedbackMsg.textContent = 'Let\'s try that again'; }
           else { feedbackTitle.textContent = 'Game Over'; feedbackMsg.textContent = 'You\'ve run out of lives! Try again from the beginning.'; }
           feedbackOverlay.classList.add('visible');
@@ -916,12 +1039,13 @@
         input.oninput = () => btn.disabled = !input.value.trim();
         input.onkeypress = e => { if(e.key==='Enter' && !btn.disabled) btn.click(); };
         btn.onclick = () => {
+          answered = true;
           const isCorrect = window.LESSON_DATA.questions[0].acceptableAnswers.some(a => normalizeAnswer(input.value) === normalizeAnswer(a));
           if(isCorrect) input.classList.add('correct'); else input.classList.add('incorrect');
           input.disabled = true;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(1, true, 0); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(0); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); showResultOverlay(1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Anticoagulants</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[0].explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(0); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } showResultOverlay(1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Anticoagulants</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[0].explanation}</span></div>`); }
         };
         input.focus();
       } else if (actualIdx === 1) {
@@ -932,16 +1056,17 @@
         container.innerHTML = '';
         opts.forEach(opt => { const b = document.createElement('button'); b.className='option-button'; b.dataset.value=opt; b.textContent=opt; container.appendChild(b); });
         let selected = null;
-        document.querySelectorAll('#options-container-2 .option-button').forEach(b => { b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ if(!selected) { document.querySelectorAll('#options-container-2 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; } }; });
+        document.querySelectorAll('#options-container-2 .option-button').forEach(b => { b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ if(!answered) { document.querySelectorAll('#options-container-2 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; } }; });
         btn.disabled=true;
         btn.onclick = () => {
           if(!selected) return;
+          answered = true;
           const isCorrect = selected === window.LESSON_DATA.questions[1].correctAnswer;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           const correctBtn = Array.from(document.querySelectorAll('#options-container-2 .option-button')).find(b=>b.dataset.value===window.LESSON_DATA.questions[1].correctAnswer);
           if(correctBtn) correctBtn.classList.add('correct');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(2, true, 1); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(1); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); const selBtn = Array.from(document.querySelectorAll('#options-container-2 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(2, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[1].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[1].explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(1); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } const selBtn = Array.from(document.querySelectorAll('#options-container-2 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(2, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[1].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[1].explanation}</span></div>`); }
           document.querySelectorAll('#options-container-2 .option-button').forEach(b=>{b.disabled=true;});
         };
       } else if (actualIdx === 2) {
@@ -958,6 +1083,7 @@
           button.innerHTML=`<span>${opt.label}</span>`;
           optionBtns.push(button);
           button.onclick = () => {
+            if(answered) return;
             if(filled.some(b=>b&&b.value===opt.value)) return;
             let idx2 = filled[0]===null ? 0 : (filled[1]===null ? 1 : -1);
             if(idx2===-1) return;
@@ -969,17 +1095,18 @@
           };
           optsContainer.appendChild(button);
         });
-        blank1.onclick = () => { if(filled[0]) { const b = optionBtns.find(bb=>bb.dataset.value===filled[0].value); if(b) b.classList.remove('used-option'); blank1.textContent=''; blank1.classList.remove('filled','correct','incorrect'); filled[0]=null; btn.disabled=!(filled[0]&&filled[1]); } };
-        blank2.onclick = () => { if(filled[1]) { const b = optionBtns.find(bb=>bb.dataset.value===filled[1].value); if(b) b.classList.remove('used-option'); blank2.textContent=''; blank2.classList.remove('filled','correct','incorrect'); filled[1]=null; btn.disabled=!(filled[0]&&filled[1]); } };
+        blank1.onclick = () => { if(!answered && filled[0]) { const b = optionBtns.find(bb=>bb.dataset.value===filled[0].value); if(b) b.classList.remove('used-option'); blank1.textContent=''; blank1.classList.remove('filled','correct','incorrect'); filled[0]=null; btn.disabled=!(filled[0]&&filled[1]); } };
+        blank2.onclick = () => { if(!answered && filled[1]) { const b = optionBtns.find(bb=>bb.dataset.value===filled[1].value); if(b) b.classList.remove('used-option'); blank2.textContent=''; blank2.classList.remove('filled','correct','incorrect'); filled[1]=null; btn.disabled=!(filled[0]&&filled[1]); } };
         btn.disabled=true;
         btn.onclick = () => {
           if(!filled[0]||!filled[1]) return;
+          answered = true;
           const u1=filled[0].value, u2=filled[1].value;
           const isCorrect = (u1==='in vitro' && u2==='in vivo') || (u1==='in vivo' && u2==='in vitro');
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           optionBtns.forEach(b=>{b.disabled=true;});
           if(isCorrect) { blank1.classList.add('correct'); blank2.classList.add('correct'); optionBtns.forEach(b=>{if(b.dataset.value==='in vitro'||b.dataset.value==='in vivo') b.classList.add('correct');}); if(!handleCorrectAnswer()) showResultOverlay(3, true, 2); }
-          else { blank1.classList.add('incorrect'); blank2.classList.add('incorrect'); retryQueue.addQuestion(2); handleIncorrectAnswer(); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); optionBtns.forEach(b=>{if(b.dataset.value==='in vitro'||b.dataset.value==='in vivo') b.classList.add('correct');}); showResultOverlay(3, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span><span class="underlined">in vitro</span> and <span class="underlined">in vivo</span></span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[2].explanation}</span></div>`); }
+          else { blank1.classList.add('incorrect'); blank2.classList.add('incorrect'); retryQueue.addQuestion(2); handleIncorrectAnswer(); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } optionBtns.forEach(b=>{if(b.dataset.value==='in vitro'||b.dataset.value==='in vivo') b.classList.add('correct');}); showResultOverlay(3, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span><span class="underlined">in vitro</span> and <span class="underlined">in vivo</span></span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[2].explanation}</span></div>`); }
         };
       } else if (actualIdx === 3) {
         const container = document.getElementById('options-container-4');
@@ -989,16 +1116,17 @@
         container.innerHTML='';
         opts.forEach(opt => { const b = document.createElement('button'); b.className='option-button'; b.dataset.value=opt; b.textContent=opt; container.appendChild(b); });
         let selected = null;
-        document.querySelectorAll('#options-container-4 .option-button').forEach(b=>{b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ document.querySelectorAll('#options-container-4 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; };});
+        document.querySelectorAll('#options-container-4 .option-button').forEach(b=>{b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ if(!answered) { document.querySelectorAll('#options-container-4 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; } };});
         btn.disabled=true;
         btn.onclick = () => {
           if(!selected) return;
+          answered = true;
           const isCorrect = selected === window.LESSON_DATA.questions[3].correctAnswer;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           const correctBtn = Array.from(document.querySelectorAll('#options-container-4 .option-button')).find(b=>b.dataset.value===window.LESSON_DATA.questions[3].correctAnswer);
           if(correctBtn) correctBtn.classList.add('correct');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(4, true, 3); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(3); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); const selBtn = Array.from(document.querySelectorAll('#options-container-4 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(4, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[3].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[3].explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(3); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } const selBtn = Array.from(document.querySelectorAll('#options-container-4 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(4, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[3].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[3].explanation}</span></div>`); }
           document.querySelectorAll('#options-container-4 .option-button').forEach(b=>{b.disabled=true;});
         };
       } else if (actualIdx === 4) { initOrderingQuestion(); }
@@ -1010,16 +1138,17 @@
         container.innerHTML='';
         opts.forEach(opt => { const b = document.createElement('button'); b.className='option-button'; b.dataset.value=opt; b.textContent=opt; container.appendChild(b); });
         let selected = null;
-        document.querySelectorAll('#options-container-6 .option-button').forEach(b=>{b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ document.querySelectorAll('#options-container-6 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; };});
+        document.querySelectorAll('#options-container-6 .option-button').forEach(b=>{b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ if(!answered) { document.querySelectorAll('#options-container-6 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; } };});
         btn.disabled=true;
         btn.onclick = () => {
           if(!selected) return;
+          answered = true;
           const isCorrect = selected === window.LESSON_DATA.questions[5].correctAnswer;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           const correctBtn = Array.from(document.querySelectorAll('#options-container-6 .option-button')).find(b=>b.dataset.value===window.LESSON_DATA.questions[5].correctAnswer);
           if(correctBtn) correctBtn.classList.add('correct');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(6, true, 5); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(5); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); const selBtn = Array.from(document.querySelectorAll('#options-container-6 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(6, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[5].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[5].explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(5); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } const selBtn = Array.from(document.querySelectorAll('#options-container-6 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(6, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[5].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[5].explanation}</span></div>`); }
           document.querySelectorAll('#options-container-6 .option-button').forEach(b=>{b.disabled=true;});
         };
       } else if (actualIdx === 6) {
@@ -1029,12 +1158,13 @@
         input.oninput = () => btn.disabled = !input.value.trim();
         input.onkeypress = e => { if(e.key==='Enter' && !btn.disabled) btn.click(); };
         btn.onclick = () => {
+          answered = true;
           const isCorrect = window.LESSON_DATA.questions[6].acceptableAnswers.some(a => input.value.trim().toLowerCase() === a.toLowerCase());
           if(isCorrect) input.classList.add('correct'); else input.classList.add('incorrect');
           input.disabled=true;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(7, true, 6); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(6); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); showResultOverlay(7, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Reviparin</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[6].explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(6); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } showResultOverlay(7, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Reviparin</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[6].explanation}</span></div>`); }
         };
       } else if (actualIdx === 7) {
         const container = document.getElementById('options-container-8');
@@ -1044,16 +1174,17 @@
         container.innerHTML='';
         opts.forEach(opt => { const b = document.createElement('button'); b.className='option-button'; b.dataset.value=opt; b.textContent=opt; container.appendChild(b); });
         let selected = null;
-        document.querySelectorAll('#options-container-8 .option-button').forEach(b=>{b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ document.querySelectorAll('#options-container-8 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; };});
+        document.querySelectorAll('#options-container-8 .option-button').forEach(b=>{b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ if(!answered) { document.querySelectorAll('#options-container-8 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; } };});
         btn.disabled=true;
         btn.onclick = () => {
           if(!selected) return;
+          answered = true;
           const isCorrect = selected === window.LESSON_DATA.questions[7].correctAnswer;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           const correctBtn = Array.from(document.querySelectorAll('#options-container-8 .option-button')).find(b=>b.dataset.value===window.LESSON_DATA.questions[7].correctAnswer);
           if(correctBtn) correctBtn.classList.add('correct');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(8, true, 7); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(7); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); const selBtn = Array.from(document.querySelectorAll('#options-container-8 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(8, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[7].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[7].explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(7); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } const selBtn = Array.from(document.querySelectorAll('#options-container-8 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(8, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[7].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[7].explanation}</span></div>`); }
           document.querySelectorAll('#options-container-8 .option-button').forEach(b=>{b.disabled=true;});
         };
       } else if (actualIdx === 8) {
@@ -1064,16 +1195,17 @@
         container.innerHTML='';
         opts.forEach(opt => { const b = document.createElement('button'); b.className='option-button'; b.dataset.value=opt; b.textContent=opt; container.appendChild(b); });
         let selected = null;
-        document.querySelectorAll('#options-container-9 .option-button').forEach(b=>{b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ document.querySelectorAll('#options-container-9 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; };});
+        document.querySelectorAll('#options-container-9 .option-button').forEach(b=>{b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ if(!answered) { document.querySelectorAll('#options-container-9 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; } };});
         btn.disabled=true;
         btn.onclick = () => {
           if(!selected) return;
+          answered = true;
           const isCorrect = selected === window.LESSON_DATA.questions[8].correctAnswer;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           const correctBtn = Array.from(document.querySelectorAll('#options-container-9 .option-button')).find(b=>b.dataset.value===window.LESSON_DATA.questions[8].correctAnswer);
           if(correctBtn) correctBtn.classList.add('correct');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(9, true, 8); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(8); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); const selBtn = Array.from(document.querySelectorAll('#options-container-9 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(9, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[8].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[8].explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(8); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } const selBtn = Array.from(document.querySelectorAll('#options-container-9 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(9, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[8].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[8].explanation}</span></div>`); }
           document.querySelectorAll('#options-container-9 .option-button').forEach(b=>{b.disabled=true;});
         };
       } else if (actualIdx === 9) {
@@ -1084,34 +1216,26 @@
         container.innerHTML='';
         opts.forEach(opt => { const b = document.createElement('button'); b.className='option-button'; b.dataset.value=opt; b.textContent=opt; container.appendChild(b); });
         let selected = null;
-        document.querySelectorAll('#options-container-10 .option-button').forEach(b=>{b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ document.querySelectorAll('#options-container-10 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; };});
+        document.querySelectorAll('#options-container-10 .option-button').forEach(b=>{b.classList.remove('selected','correct','incorrect'); b.disabled=false; b.onclick=()=>{ if(!answered) { document.querySelectorAll('#options-container-10 .option-button').forEach(bb=>bb.classList.remove('selected')); b.classList.add('selected'); selected=b.dataset.value; btn.disabled=false; } };});
         btn.disabled=true;
         btn.onclick = () => {
           if(!selected) return;
+          answered = true;
           const isCorrect = selected === window.LESSON_DATA.questions[9].correctAnswer;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           const correctBtn = Array.from(document.querySelectorAll('#options-container-10 .option-button')).find(b=>b.dataset.value===window.LESSON_DATA.questions[9].correctAnswer);
           if(correctBtn) correctBtn.classList.add('correct');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(10, true, 9); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(9); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); const selBtn = Array.from(document.querySelectorAll('#options-container-10 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(10, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[9].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[9].explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(9); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } const selBtn = Array.from(document.querySelectorAll('#options-container-10 .option-button')).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(10, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${window.LESSON_DATA.questions[9].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[9].explanation}</span></div>`); }
           document.querySelectorAll('#options-container-10 .option-button').forEach(b=>{b.disabled=true;});
         };
       } else if (actualIdx === 10) { initMatchingGame(); }
     }
     
-    closeBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to exit the quiz?')) {
-        currentQuestion = 0;
-        livesManager.setLives(5);
-        livesCountElement.textContent = livesManager.getCount();
-        streakManager.reset();
-        retryQueue.reset();
-        inRetryMode = false;
-        showedRetryMessage = false;
-        updateHeartIcon();
-        progressBar.style.width = '9.09%';
-        showQuestion(currentQuestion);
-      }
+    // Close button handler with quit confirmation
+    closeBtn.addEventListener('click', async () => {
+      // TODO: Load quit-confirm.html from src/pages/modals/quit-confirm.html
+      await ModalLoader.load('quit-modal', '/src/pages/modals/quit-confirm.html');
     });
     
     showQuestion(currentQuestion);
