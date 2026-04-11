@@ -1,0 +1,83 @@
+/* ========================================
+   VULANET CSS VARIABLES
+   Core brand colors and design tokens
+   ======================================== */
+
+:root {
+  /* ===== BRAND COLORS ===== */
+  --carpenter-blue: #4285F4;
+  --belly-blue: #7B9FE0;
+  --gecko: #1CB0F6;
+  --ladybug: #EA4335;
+  --bee: #FBBC05;
+  --tiger: #FF6D01;
+  --beetle: #AA00FF;
+  --boa: #34A853;
+  
+  /* ===== NEUTRALS ===== */
+  --basalt: #4B4B4B;
+  --hippo: #777777;
+  --koala: #AFAFAF;
+  --beluga: #E5E5E5;
+  --arctic: #F7F7F7;
+  --cloud: #FFFFFF;
+  
+  /* ===== SEMANTIC COLORS ===== */
+  --primary-blue: var(--carpenter-blue);
+  --accent-red: var(--ladybug);
+  --accent-orange: var(--tiger);
+  --accent-yellow: var(--bee);
+  --accent-green: var(--boa);
+  --accent-turquoise: #40E0D0;
+  --accent-violet: var(--beetle);
+  
+  --text-dark: var(--basalt);
+  --text-medium: var(--hippo);
+  --text-light: var(--cloud);
+  --text-muted: var(--koala);
+  
+  --bg-light: var(--arctic);
+  --bg-white: var(--cloud);
+  --border-light: var(--beluga);
+  
+  /* ===== SPACING ===== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+  
+  /* ===== BORDER RADIUS ===== */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+  
+  /* ===== SHADOWS ===== */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+  
+  /* ===== FONT SIZES ===== */
+  --font-xs: 12px;
+  --font-sm: 14px;
+  --font-md: 16px;
+  --font-lg: 18px;
+  --font-xl: 20px;
+  --font-2xl: 24px;
+  --font-3xl: 28px;
+  --font-4xl: 32px;
+  
+  /* ===== Z-INDEX LAYERS ===== */
+  --z-modal: 100;
+  --z-overlay: 90;
+  --z-dropdown: 80;
+  --z-header: 70;
+  --z-tooltip: 60;
+}
