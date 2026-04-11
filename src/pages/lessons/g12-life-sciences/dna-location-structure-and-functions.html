@@ -424,6 +424,21 @@
       margin-top: 0.5rem;
       font-style: italic;
     }
+    
+    /* Modal Container Styles */
+    .modal-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10000;
+      background: transparent;
+    }
+    .modal-container > * {
+      width: 100%;
+      height: 100%;
+    }
   </style>
 </head>
 <body>
@@ -740,6 +755,17 @@
     <source src="public/assets/audio/clapping.mp3" type="audio/mpeg">
   </audio>
 
+  <!-- Modal Containers (loaded dynamically when needed) -->
+  <div id="quit-modal" class="modal-container" style="display: none;"></div>
+  <div id="hearts-refill-modal" class="modal-container" style="display: none;"></div>
+  <div id="lesson-complete-modal" class="modal-container" style="display: none;"></div>
+  <div id="streak-modal" class="modal-container" style="display: none;"></div>
+  <div id="achievement-modal" class="modal-container" style="display: none;"></div>
+  <div id="daily-quest-modal" class="modal-container" style="display: none;"></div>
+  <div id="coin-reward-modal" class="modal-container" style="display: none;"></div>
+  <div id="xp-boost-modal" class="modal-container" style="display: none;"></div>
+  <div id="heart-reward-modal" class="modal-container" style="display: none;"></div>
+
   <script>
     // Lesson data - VERBATIM from original
     window.LESSON_DATA = {
@@ -817,6 +843,41 @@
         }
       ]
     };
+
+    // Modal loading utility
+    const ModalLoader = {
+      async load(modalId, modalPath) {
+        const container = document.getElementById(modalId);
+        if (!container) return null;
+        
+        try {
+          const response = await fetch(modalPath);
+          const html = await response.text();
+          container.innerHTML = html;
+          container.style.display = 'flex';
+          
+          return new Promise((resolve) => {
+            const checkInterval = setInterval(() => {
+              if (container.style.display === 'none') {
+                clearInterval(checkInterval);
+                resolve('closed');
+              }
+            }, 100);
+          });
+        } catch (error) {
+          console.error(`Failed to load modal: ${modalPath}`, error);
+          return null;
+        }
+      },
+      
+      close(modalId) {
+        const container = document.getElementById(modalId);
+        if (container) {
+          container.style.display = 'none';
+          container.innerHTML = '';
+        }
+      }
+    };
   </script>
 
   <script type="module">
@@ -869,6 +930,10 @@
     let answered = false;
     let inRetryMode = false;
     let showedRetryMessage = false;
+    let startTime = Date.now();
+    let totalQuestionsAnswered = 0;
+    let correctCount = 0;
+    let quizCompleted = false;
     
     // Helper functions
     function shuffleArray(array) {
@@ -900,6 +965,52 @@
       return answer.toLowerCase().replace(/\s+/g, ' ').replace(/[()]/g, '').replace(/\//g, ' ').trim();
     }
     
+    async function showLessonComplete() {
+      if (quizCompleted) return;
+      quizCompleted = true;
+      
+      const timeTakenSeconds = Math.floor((Date.now() - startTime) / 1000);
+      const totalQuestions = window.LESSON_DATA.questions.length;
+      
+      const accuracyXP = Math.round((correctCount / totalQuestions) * 10);
+      
+      const expectedTime = totalQuestions * 15;
+      const maxTime = expectedTime * 2;
+      let speedXP = 0;
+      
+      if (timeTakenSeconds <= expectedTime) {
+        speedXP = 10;
+      } else if (timeTakenSeconds <= maxTime) {
+        speedXP = Math.round(10 * (2 - (timeTakenSeconds / expectedTime)));
+        speedXP = Math.max(0, speedXP);
+      } else {
+        speedXP = 0;
+      }
+      
+      const totalXP = 10 + accuracyXP + speedXP;
+      
+      const xpData = {
+        totalXP,
+        accuracyXP,
+        speedXP,
+        completionXP: 10,
+        timeTaken: timeTakenSeconds,
+        expectedTime,
+        correctCount,
+        totalQuestions
+      };
+      
+      // TODO: Load lesson-complete.html from src/pages/modals/lesson-complete.html
+      sessionStorage.setItem('lessonCompleteData', JSON.stringify(xpData));
+      await ModalLoader.load('lesson-complete-modal', '/src/pages/modals/lesson-complete.html');
+      
+      // TODO: Load streak-modal.html if first lesson of day
+      // TODO: Check achievements
+      // TODO: Check daily quest progress
+      
+      // window.location.href = `/courses/g12-life-sciences.html`;
+    }
+    
     function moveToNextQuestion() {
       if (inRetryMode) {
         if (retryQueue.next()) {
@@ -908,7 +1019,7 @@
           inRetryMode = false;
           retryQueue.endRetry();
           currentQuestion = 0;
-          alert('Quiz completed! You answered all questions correctly.');
+          showLessonComplete();
         }
       } else {
         currentQuestion++;
@@ -926,7 +1037,7 @@
               showQuestion(0);
             }
           } else {
-            alert('Quiz completed! You answered all questions correctly.');
+            showLessonComplete();
           }
         } else {
           showQuestion(currentQuestion);
@@ -968,6 +1079,8 @@
     }
     
     function handleCorrectAnswer() {
+      totalQuestionsAnswered++;
+      correctCount++;
       const newStreak = streakManager.increment();
       
       if (streakManager.isMilestone()) {
@@ -981,6 +1094,7 @@
     }
     
     function handleIncorrectAnswer() {
+      totalQuestionsAnswered++;
       streakManager.reset();
     }
     
@@ -1029,13 +1143,18 @@
           blank.classList.remove('filled');
         }
         if (allCorrect) {
-          if (!handleCorrectAnswer()) showResultOverlay(4, true, 3);
+          if (!handleCorrectAnswer()) showResultOverlay(4, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[3].explanationText}</span></div>`);
         } else {
           handleIncorrectAnswer();
           retryQueue.addQuestion(3);
           livesManager.decrement();
           livesCountElement.textContent = livesManager.getCount();
           updateHeartIcon();
+          
+          if (livesManager.getCount() === 0) {
+            // TODO: Load hearts-refill-modal
+          }
+          
           showResultOverlay(4, false, `<div class="correct-answer-section"><span class="correct-text">Correct order:</span> <span class="underlined">Read below</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[3].explanationText}</span></div>`);
         }
       };
@@ -1114,6 +1233,11 @@
             livesManager.decrement();
             livesCountElement.textContent = livesManager.getCount();
             updateHeartIcon();
+            
+            if (livesManager.getCount() === 0) {
+              // TODO: Load hearts-refill-modal
+            }
+            
             optionButtons1.forEach(btn => { if (btn.dataset.value === 'nucleus' || btn.dataset.value === 'mitochondria') btn.classList.add('correct'); });
             showResultOverlay(1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">nucleus</span> and <span class="underlined">mitochondria</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[0].explanationText}</span></div>`);
           }
@@ -1135,7 +1259,7 @@
           const correctBtn = Array.from(btns).find(b=>b.dataset.value === 'Both of the above');
           if(correctBtn) correctBtn.classList.add('correct');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(2, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[1].explanationText}</span></div>`); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(1); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); const selBtn = Array.from(btns).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(2, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Both of the above</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[1].explanationText}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(1); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } const selBtn = Array.from(btns).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(2, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Both of the above</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[1].explanationText}</span></div>`); }
           btns.forEach(b=>{b.disabled=true; b.style.cursor='not-allowed';});
         };
       } else if (actualIdx === 2) {
@@ -1155,7 +1279,7 @@
           const correctBtn = Array.from(btns).find(b=>b.dataset.value === 'James Watson and Francis Crick');
           if(correctBtn) correctBtn.classList.add('correct');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(3, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[2].explanationText}</span></div>`); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(2); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); const selBtn = Array.from(btns).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(3, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">James Watson and Francis Crick</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[2].explanationText}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(2); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } const selBtn = Array.from(btns).find(b=>b.dataset.value===selected); if(selBtn) selBtn.classList.add('incorrect'); showResultOverlay(3, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">James Watson and Francis Crick</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[2].explanationText}</span></div>`); }
           btns.forEach(b=>{b.disabled=true; b.style.cursor='not-allowed';});
         };
       } else if (actualIdx === 3) { initOrderingQuestion(); }
@@ -1172,7 +1296,7 @@
           if(isCorrect) input.classList.add('correct'); else input.classList.add('incorrect');
           input.disabled = true;
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(5, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[4].explanationText}</span></div>`); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(4); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); showResultOverlay(5, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Double helix</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[4].explanationText}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(4); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } showResultOverlay(5, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Double helix</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[4].explanationText}</span></div>`); }
         };
       } else if (actualIdx === 5) {
         const tiles = document.querySelectorAll('#question6 .image-tile');
@@ -1228,7 +1352,7 @@
           const isCorrect = imageSelectionState.selectedImage === window.LESSON_DATA.questions[5].correctAnswer;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(6, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[5].explanationText}</span></div>`); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(5); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); showResultOverlay(6, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Image ${window.LESSON_DATA.questions[5].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[5].explanationText}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(5); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } showResultOverlay(6, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Image ${window.LESSON_DATA.questions[5].correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[5].explanationText}</span></div>`); }
         };
       } else if (actualIdx >= 6 && actualIdx <= 8) {
         const idx = actualIdx + 1;
@@ -1247,7 +1371,7 @@
           input.disabled = true;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(idx, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(idx-1); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); let correctDisplay = qData.correctAnswer; if(idx===7) correctDisplay='(Weak) hydrogen bond'; else if(idx===8) correctDisplay='Nucleotide'; else if(idx===9) correctDisplay='Thymine'; showResultOverlay(idx, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${correctDisplay}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(idx-1); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } let correctDisplay = qData.correctAnswer; if(idx===7) correctDisplay='(Weak) hydrogen bond'; else if(idx===8) correctDisplay='Nucleotide'; else if(idx===9) correctDisplay='Thymine'; showResultOverlay(idx, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${correctDisplay}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`); }
         };
       } else if (actualIdx === 9) {
         const input = document.getElementById('bond-answer-input-10');
@@ -1262,25 +1386,16 @@
           input.disabled = true;
           audioPlayer.playSound(isCorrect ? 'public/assets/audio/correct.mp3' : 'public/assets/audio/incorrect.mp3');
           if(isCorrect) { if(!handleCorrectAnswer()) showResultOverlay(10, true, `<div class="explanation-section"><span class="explanation-text">${window.LESSON_DATA.questions[9].explanation}</span></div>`); }
-          else { handleIncorrectAnswer(); retryQueue.addQuestion(9); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); showResultOverlay(10, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">(Weak) hydrogen bonds</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[9].explanation}</span></div>`); }
+          else { handleIncorrectAnswer(); retryQueue.addQuestion(9); livesManager.decrement(); livesCountElement.textContent = livesManager.getCount(); updateHeartIcon(); if (livesManager.getCount() === 0) { /* TODO: Load hearts-refill-modal */ } showResultOverlay(10, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">(Weak) hydrogen bonds</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${window.LESSON_DATA.questions[9].explanation}</span></div>`); }
         };
         input.focus();
       }
     }
     
-    closeBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to exit the quiz?')) {
-        currentQuestion = 0;
-        livesManager.setLives(5);
-        livesCountElement.textContent = livesManager.getCount();
-        streakManager.reset();
-        retryQueue.reset();
-        inRetryMode = false;
-        showedRetryMessage = false;
-        updateHeartIcon();
-        progressBar.style.width = '10%';
-        showQuestion(currentQuestion);
-      }
+    // Close button handler with quit confirmation
+    closeBtn.addEventListener('click', async () => {
+      // TODO: Load quit-confirm.html from src/pages/modals/quit-confirm.html
+      await ModalLoader.load('quit-modal', '/src/pages/modals/quit-confirm.html');
     });
     
     showQuestion(currentQuestion);
