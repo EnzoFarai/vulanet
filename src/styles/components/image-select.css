@@ -1,0 +1,239 @@
+/* ========================================
+   IMAGE SELECTION QUESTION COMPONENT
+   Image grid, image tile, zoom modal
+   ======================================== */
+
+/* Image Selection Container */
+.image-selection-container {
+  margin: 2rem 0;
+}
+
+/* Image Grid */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+/* Image Tile */
+.image-tile {
+  position: relative;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 3px solid var(--beluga);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--cloud);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.image-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  border-color: var(--koala);
+}
+
+.image-tile.selected {
+  border-color: var(--gecko);
+  box-shadow: 0 0 0 3px rgba(28, 176, 246, 0.2), 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.image-tile.correct {
+  border-color: var(--boa);
+  box-shadow: 0 0 0 3px rgba(52, 168, 83, 0.2), 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.image-tile.incorrect {
+  border-color: var(--ladybug);
+  box-shadow: 0 0 0 3px rgba(234, 67, 53, 0.2), 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Image Container (zoom area) */
+.image-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--arctic);
+  cursor: pointer;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.image-tile:hover .image-container img {
+  transform: scale(1.05);
+}
+
+/* Image Label */
+.image-label {
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--basalt);
+  background: var(--cloud);
+  border-top: 1px solid var(--arctic);
+}
+
+/* Image Loading States */
+.image-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hippo);
+  font-size: 0.9rem;
+}
+
+.image-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--hippo);
+  padding: 1rem;
+  text-align: center;
+}
+
+.image-error .material-symbols-outlined {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--hippo);
+}
+
+/* Tap to Expand Hint */
+.expand-hint {
+  text-align: center;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--hippo);
+  font-style: italic;
+}
+
+/* Image Zoom Modal */
+.image-zoom-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.image-zoom-modal.visible {
+  display: flex;
+}
+
+.zoom-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.zoom-content img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.zoom-close {
+  position: absolute;
+  top: -2.5rem;
+  right: -0.5rem;
+  color: white;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.zoom-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.zoom-label {
+  color: white;
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.zoom-instructions {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .image-grid {
+    gap: 0.8rem;
+    margin: 1rem 0;
+  }
+  
+  .image-tile {
+    border-width: 2px;
+  }
+  
+  .image-label {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+  
+  .expand-hint {
+    font-size: 0.8rem;
+  }
+  
+  .zoom-content {
+    max-width: 95%;
+  }
+  
+  .zoom-label {
+    font-size: 1rem;
+  }
+  
+  .zoom-close {
+    top: -2rem;
+    right: 0;
+    font-size: 1.5rem;
+  }
+  
+  .zoom-instructions {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .image-grid {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+  
+  .expand-hint {
+    font-size: 0.75rem;
+  }
+}
