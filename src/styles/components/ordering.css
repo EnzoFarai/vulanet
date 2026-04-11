@@ -1,0 +1,187 @@
+/* ========================================
+   ORDERING QUESTION COMPONENT
+   Ordering section, order blanks, ordering option buttons
+   ======================================== */
+
+/* Ordering Section */
+.ordering-section {
+  margin: 1.5rem 0;
+}
+
+.ordering-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Order Item */
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.order-number {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--basalt);
+  flex-shrink: 0;
+  min-width: 2rem;
+}
+
+/* Order Blank */
+.order-blank {
+  flex-grow: 1;
+  min-height: 3.5rem;
+  background-color: var(--arctic);
+  border: 2px dashed var(--koala);
+  border-radius: 0.75rem;
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.order-blank.filled {
+  background-color: rgba(28, 176, 246, 0.12);
+  border: 2px solid var(--gecko);
+  cursor: pointer;
+}
+
+.order-blank.filled:hover {
+  background-color: #CCEEFF;
+}
+
+.order-blank.correct {
+  background-color: #D7FFB8;
+  border-color: var(--boa);
+  cursor: default;
+}
+
+.order-blank.incorrect {
+  background-color: #FFDFE0;
+  border-color: var(--ladybug);
+  cursor: default;
+}
+
+.blank-text {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--basalt);
+  line-height: 1.4;
+  width: 100%;
+}
+
+.blank-text em {
+  font-style: italic;
+}
+
+/* Ordering Options Container */
+.ordering-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  transition: gap 0.3s ease;
+}
+
+/* Ordering Option Button */
+.ordering-option-button {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 400;
+  background-color: var(--cloud);
+  border: 2px solid var(--beluga);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  position: relative;
+  min-height: 3.5rem;
+  color: var(--basalt);
+}
+
+.ordering-option-button:hover:not(.used-option):not(.disabled) {
+  background-color: var(--arctic);
+  transform: translateY(-0.125rem);
+}
+
+/* Used Option (selected and moved to blank) */
+.ordering-option-button.used-option {
+  background-color: #E0E0E0;
+  border-color: var(--koala);
+  position: relative;
+  overflow: hidden;
+  padding: 0.4rem 1rem;
+  min-height: 1.8rem;
+  border-width: 1px;
+  cursor: not-allowed;
+}
+
+.ordering-option-button.used-option::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--koala);
+  border-radius: 0.5rem;
+  z-index: 1;
+  transition: background-color 0.2s ease;
+}
+
+.ordering-option-button.used-option span {
+  visibility: hidden;
+  position: relative;
+  z-index: 2;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Disabled Option Button */
+.ordering-option-button.disabled {
+  background-color: var(--arctic);
+  border-color: var(--beluga);
+  cursor: not-allowed;
+}
+
+.ordering-option-button.disabled span {
+  color: var(--hippo);
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .order-item {
+    gap: 0.8rem;
+    align-items: center;
+  }
+  
+  .order-number {
+    font-size: 1.1rem;
+    min-width: 1.8rem;
+  }
+  
+  .order-blank {
+    min-height: 3rem;
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .blank-text {
+    font-size: 0.95rem;
+  }
+  
+  .ordering-option-button {
+    padding: 0.8rem;
+    min-height: 3rem;
+  }
+  
+  .ordering-option-button.used-option {
+    padding: 0.3rem 0.8rem;
+    min-height: 1.5rem;
+  }
+}
