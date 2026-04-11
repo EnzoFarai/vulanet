@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/lesson/:course/:lesson",
+      "destination": "/src/pages/lessons/:course/:lesson.html"
+    }
+  ],
+  "cleanUrls": true
+}
