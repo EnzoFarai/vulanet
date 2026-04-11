@@ -1,0 +1,352 @@
+/* ========================================
+   SPEECH BUBBLE COMPONENT
+   All speech bubble styles with directional arrows
+   ======================================== */
+
+/* Container for speech bubble with rabbit icon */
+.question-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  max-width: 100%;
+}
+
+.icon-container {
+  color: var(--carpenter-blue);
+  font-size: clamp(3rem, 6vw, 4rem);
+  margin-bottom: 0.8rem;
+  flex-shrink: 0;
+}
+
+/* Speech Bubble Base */
+[speech-bubble], 
+[speech-bubble] * { 
+  box-sizing: border-box;
+}
+
+[speech-bubble] {
+  --bbColor: var(--cloud);
+  --bbArrowSize: clamp(0.8rem, 2vw, 1rem);
+  --bbBorderRadius: 0.4rem;
+  --bbPadding: clamp(1rem, 3vw, 1.5rem);
+  background: var(--bbColor);
+  border-radius: var(--bbBorderRadius);
+  padding: var(--bbPadding);
+  position: relative;
+  border: 2px solid var(--beluga);
+  width: 100%;
+  min-height: min-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Tail base styling */
+[speech-bubble]::before,
+[speech-bubble]::after {
+  content: ''; 
+  position: absolute;
+  z-index: 1;
+}
+
+/* Left arrow - pointing LEFT */
+[speech-bubble][pleft] { 
+  margin-left: var(--bbArrowSize);
+}
+
+[speech-bubble][pleft]::before {
+  right: 100%;
+  border: solid transparent;
+  border-width: calc(var(--bbArrowSize) * 0.75) var(--bbArrowSize) calc(var(--bbArrowSize) * 0.75) 0;
+  border-right-color: var(--beluga);
+}
+
+[speech-bubble][pleft]::after {
+  right: calc(100% - 2px);
+  border: solid transparent;
+  border-width: calc(var(--bbArrowSize) * 0.75 - 2px) calc(var(--bbArrowSize) - 2px) calc(var(--bbArrowSize) * 0.75 - 2px) 0;
+  border-right-color: var(--bbColor);
+}
+
+/* Left arrow - bottom alignment */
+[speech-bubble][pleft][abottom]::before,
+[speech-bubble][pleft][abottom]::after {
+  bottom: clamp(1.2rem, 3vw, 1.8rem);
+}
+
+/* Left arrow - center alignment */
+[speech-bubble][pleft][acenter]::before,
+[speech-bubble][pleft][acenter]::after {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Right arrow - pointing RIGHT */
+[speech-bubble][pright] { 
+  margin-right: var(--bbArrowSize);
+}
+
+[speech-bubble][pright]::before {
+  left: 100%;
+  border: solid transparent;
+  border-width: calc(var(--bbArrowSize) * 0.75) 0 calc(var(--bbArrowSize) * 0.75) var(--bbArrowSize);
+  border-left-color: var(--beluga);
+}
+
+[speech-bubble][pright]::after {
+  left: calc(100% - 2px);
+  border: solid transparent;
+  border-width: calc(var(--bbArrowSize) * 0.75 - 2px) 0 calc(var(--bbArrowSize) * 0.75 - 2px) calc(var(--bbArrowSize) - 2px);
+  border-left-color: var(--bbColor);
+}
+
+/* Right arrow - top alignment */
+[speech-bubble][pright][atop]::before,
+[speech-bubble][pright][atop]::after {
+  top: 1.5rem;
+}
+
+/* Right arrow - center alignment */
+[speech-bubble][pright][acenter]::before,
+[speech-bubble][pright][acenter]::after {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Right arrow - bottom alignment */
+[speech-bubble][pright][abottom]::before,
+[speech-bubble][pright][abottom]::after {
+  bottom: 1.5rem;
+}
+
+/* Top arrow - pointing UP */
+[speech-bubble][ptop] { 
+  margin-top: var(--bbArrowSize);
+}
+
+[speech-bubble][ptop]::before {
+  bottom: 100%;
+  border: solid transparent;
+  border-width: 0 calc(var(--bbArrowSize) * 0.75) var(--bbArrowSize);
+  border-bottom-color: var(--beluga);
+}
+
+[speech-bubble][ptop]::after {
+  bottom: calc(100% - 2px);
+  border: solid transparent;
+  border-width: 0 calc(var(--bbArrowSize) * 0.75 - 2px) calc(var(--bbArrowSize) - 2px);
+  border-bottom-color: var(--bbColor);
+}
+
+/* Top arrow - left alignment */
+[speech-bubble][ptop][aleft]::before,
+[speech-bubble][ptop][aleft]::after {
+  left: 1.5rem;
+}
+
+/* Top arrow - center alignment */
+[speech-bubble][ptop][acenter]::before,
+[speech-bubble][ptop][acenter]::after {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Top arrow - right alignment */
+[speech-bubble][ptop][aright]::before,
+[speech-bubble][ptop][aright]::after {
+  right: 1.5rem;
+}
+
+/* Bottom arrow - pointing DOWN */
+[speech-bubble][pbottom] { 
+  margin-bottom: var(--bbArrowSize);
+}
+
+[speech-bubble][pbottom]::before {
+  top: 100%;
+  border: solid transparent;
+  border-width: var(--bbArrowSize) calc(var(--bbArrowSize) * 0.75) 0;
+  border-top-color: var(--beluga);
+}
+
+[speech-bubble][pbottom]::after {
+  top: calc(100% - 2px);
+  border: solid transparent;
+  border-width: calc(var(--bbArrowSize) - 2px) calc(var(--bbArrowSize) * 0.75 - 2px) 0;
+  border-top-color: var(--bbColor);
+}
+
+/* Bottom arrow - left alignment */
+[speech-bubble][pbottom][aleft]::before,
+[speech-bubble][pbottom][aleft]::after {
+  left: 1.5rem;
+}
+
+/* Bottom arrow - center alignment */
+[speech-bubble][pbottom][acenter]::before,
+[speech-bubble][pbottom][acenter]::after {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Bottom arrow - right alignment */
+[speech-bubble][pbottom][aright]::before,
+[speech-bubble][pbottom][aright]::after {
+  right: 1.5rem;
+}
+
+/* Bubble text content */
+.bubble-text {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--basalt);
+  display: inline;
+}
+
+/* Blank/Fill-in-the-blank styles within speech bubbles */
+.blank {
+  display: inline-block;
+  min-width: 80px;
+  width: auto;
+  max-width: 150px;
+  border-bottom: 2px solid var(--carpenter-blue);
+  margin: 0 0.3rem;
+  padding: 0 0.3rem 2px 0.3rem;
+  position: relative;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+  vertical-align: baseline;
+  height: 1.5em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.blank.filled {
+  border: 2px solid var(--gecko);
+  border-radius: 0.75rem;
+  background: rgba(28, 176, 246, 0.12);
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  min-width: 100px;
+  max-width: 200px;
+  height: auto;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.3rem;
+  line-height: 1.4;
+  white-space: normal;
+  text-overflow: clip;
+}
+
+.blank.correct {
+  background-color: #D7FFB8;
+  border-color: var(--boa);
+  color: #2E7D32;
+}
+
+.blank.incorrect {
+  background-color: #FFDFE0;
+  border-color: var(--ladybug);
+  color: #C5221F;
+}
+
+.full-stop {
+  color: var(--basalt);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  .question-container {
+    gap: 0.8rem;
+    flex-wrap: nowrap;
+  }
+  
+  [speech-bubble] {
+    max-width: 100%;
+    --bbPadding: 1rem;
+  }
+  
+  .icon-container {
+    margin-bottom: 0.5rem;
+  }
+  
+  .bubble-text {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  
+  .blank {
+    min-width: 60px;
+    margin: 0 0.2rem;
+  }
+  
+  .blank.filled {
+    min-width: 80px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .question-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .icon-container {
+    margin-bottom: 0;
+    margin-right: 0;
+    order: 1;
+  }
+  
+  [speech-bubble] {
+    order: 2;
+    margin-left: 0;
+    margin-top: var(--bbArrowSize);
+    --bbArrowSize: 0.8rem;
+  }
+  
+  /* Change arrow to point UP instead of LEFT for very small screens */
+  [speech-bubble][pleft]::before {
+    right: auto;
+    left: 50%;
+    bottom: 100%;
+    transform: translateX(-50%);
+    border-width: 0 calc(var(--bbArrowSize) * 0.75) var(--bbArrowSize);
+    border-right-color: transparent;
+    border-bottom-color: var(--beluga);
+    border-left-color: transparent;
+  }
+  
+  [speech-bubble][pleft]::after {
+    right: auto;
+    left: 50%;
+    bottom: calc(100% - 2px);
+    transform: translateX(-50%);
+    border-width: 0 calc(var(--bbArrowSize) * 0.75 - 2px) calc(var(--bbArrowSize) - 2px);
+    border-right-color: transparent;
+    border-bottom-color: var(--bbColor);
+    border-left-color: transparent;
+  }
+  
+  [speech-bubble][pleft][abottom]::before,
+  [speech-bubble][pleft][abottom]::after {
+    bottom: auto;
+    left: 50%;
+  }
+  
+  [speech-bubble][pleft][acenter]::before,
+  [speech-bubble][pleft][acenter]::after {
+    top: auto;
+    bottom: 100%;
+    transform: translateX(-50%);
+  }
+}
