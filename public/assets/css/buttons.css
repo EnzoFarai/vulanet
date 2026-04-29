@@ -1,55 +1,280 @@
-/* Atkinson Hyperlegible Next*/
-@font-face {
-  font-family: 'Atkinson Hyperlegible Next';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-400-normal.woff2') format('woff2'),
-       url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-400-normal.woff') format('woff');
-}
+/* ========================================
+   VULANET BUTTON SYSTEM
+   Reusable 3D button styles with all brand colors
+   ======================================== */
 
-@font-face {
-  font-family: 'Atkinson Hyperlegible Next';
-  font-style: normal;
+/* Base button styles */
+.btn {
+  display: inline-block;
+  width: auto;
+  max-width: 380px;
+  margin: 0 auto;
+  border-radius: 0.75rem;
+  font-family: 'Atkinson Hyperlegible Next', 'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
   font-weight: 700;
-  font-display: swap;
-  src: url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-700-normal.woff2') format('woff2'),
-       url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-700-normal.woff') format('woff');
+  font-size: 1.1rem;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  height: 52px;
+  padding: 0 1rem;
+  line-height: 1;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
 }
 
-@font-face {
-  font-family: 'Atkinson Hyperlegible Next';
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-800-normal.woff2') format('woff2'),
-       url('/assets/fonts/atkinson-hyperlegible-next/atkinson-hyperlegible-next-latin-800-normal.woff') format('woff');
+/* Button sizes */
+.btn-sm {
+  height: 40px;
+  font-size: 0.9rem;
+  max-width: 200px;
 }
 
-/* Bricolage Grotesque */
-@font-face {
-  font-family: 'Bricolage Grotesque';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-400-normal.woff2') format('woff2'),
-       url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-400-normal.woff') format('woff');
+.btn-md {
+  height: 52px;
+  font-size: 1.1rem;
+  max-width: 380px;
 }
 
-@font-face {
-  font-family: 'Bricolage Grotesque';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-700-normal.woff2') format('woff2'),
-       url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-700-normal.woff') format('woff');
+.btn-lg {
+  height: 64px;
+  font-size: 1.25rem;
+  max-width: 450px;
 }
 
-@font-face {
-  font-family: 'Bricolage Grotesque';
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-800-normal.woff2') format('woff2'),
-       url('/assets/fonts/bricolage-grotesque/bricolage-grotesque-latin-800-normal.woff') format('woff');
+/* Full width modifier */
+.btn-full {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ========================================
+   SOLID BUTTONS (3D effect)
+   ======================================== */
+
+/* Carpenter Blue Solid - Primary action */
+.btn-carpenter-blue {
+  background-color: #4285F4;
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 #2d5bb5, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-carpenter-blue:hover:not(:disabled) {
+  background-color: #3a75d9;
+  box-shadow: 0 2px 0 #2d5bb5, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-carpenter-blue:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #2d5bb5, 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Gecko Solid - Secondary/Accent action */
+.btn-gecko-solid {
+  background-color: #1CB0F6;
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 #0d8bc4, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-gecko-solid:hover:not(:disabled) {
+  background-color: #17a0e0;
+  box-shadow: 0 2px 0 #0d8bc4, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-gecko-solid:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #0d8bc4, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Ladybug Red Solid - Destructive actions */
+.btn-ladybug-solid {
+  background-color: #EA4335;
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 #bc3327, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-ladybug-solid:hover:not(:disabled) {
+  background-color: #d33c2f;
+  box-shadow: 0 2px 0 #bc3327, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-ladybug-solid:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #bc3327, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Bee Yellow Solid - Warning/Achievement actions */
+.btn-bee-solid {
+  background-color: #FBBC05;
+  color: #4B4B4B;
+  box-shadow: 0 4px 0 #d4a104, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-bee-solid:hover:not(:disabled) {
+  background-color: #e6ab04;
+  box-shadow: 0 2px 0 #d4a104, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-bee-solid:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #d4a104, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Boa Green Solid - Success/Completion actions */
+.btn-boa-solid {
+  background-color: #34A853;
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 #288542, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-boa-solid:hover:not(:disabled) {
+  background-color: #2e994a;
+  box-shadow: 0 2px 0 #288542, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-boa-solid:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #288542, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Tiger Solid - Highlight/Streak actions */
+.btn-tiger-solid {
+  background-color: #FF6D01;
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 #cc5701, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-tiger-solid:hover:not(:disabled) {
+  background-color: #e66201;
+  box-shadow: 0 2px 0 #cc5701, 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(2px);
+}
+
+.btn-tiger-solid:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #cc5701, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ========================================
+   OUTLINE BUTTONS (3D effect)
+   ======================================== */
+
+/* Gecko Outline - Secondary action */
+.btn-gecko-outline {
+  background-color: #FFFFFF;
+  color: #1CB0F6;
+  border: 2px solid #1CB0F6;
+  box-shadow: 0 4px 0 #b0d4f5, 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(0);
+}
+
+.btn-gecko-outline:hover:not(:disabled) {
+  background-color: #F0F9FF;
+  box-shadow: 0 2px 0 #b0d4f5, 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(2px);
+}
+
+.btn-gecko-outline:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #b0d4f5, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Ladybug Outline - Destructive secondary */
+.btn-ladybug-outline {
+  background-color: #FFFFFF;
+  color: #EA4335;
+  border: 2px solid #EA4335;
+  box-shadow: 0 4px 0 #f5c6c2, 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(0);
+}
+
+.btn-ladybug-outline:hover:not(:disabled) {
+  background-color: #FFF5F5;
+  box-shadow: 0 2px 0 #f5c6c2, 0 2px 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(2px);
+}
+
+.btn-ladybug-outline:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #f5c6c2, 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Cloud Outline - Tertiary action (white with grey border) */
+.btn-cloud-outline {
+  background-color: #FFFFFF;
+  color: #1CB0F6;
+  border: 2px solid #E5E5E5;
+  border-bottom: 4px solid #AFAFAF;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+}
+
+.btn-cloud-outline:hover:not(:disabled) {
+  background-color: #F7F7F7;
+  border-bottom-color: #777777;
+  transform: translateY(-2px);
+}
+
+.btn-cloud-outline:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+/* ========================================
+   DISABLED STATE
+   ======================================== */
+
+.btn:disabled,
+.btn.disabled {
+  background-color: #E5E5E5;
+  color: #777777;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+  border: none;
+}
+
+/* ========================================
+   FOCUS VISIBLE (Accessibility)
+   ======================================== */
+
+.btn:focus-visible {
+  outline: 3px solid #4285F4;
+  outline-offset: 2px;
+}
+
+/* ========================================
+   MOBILE RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .btn {
+    height: 48px;
+    font-size: 1rem;
+  }
+  
+  .btn-sm {
+    height: 36px;
+    font-size: 0.85rem;
+  }
+  
+  .btn-lg {
+    height: 56px;
+    font-size: 1.1rem;
+  }
 }
