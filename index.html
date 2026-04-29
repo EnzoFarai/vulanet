@@ -131,26 +131,18 @@
       letter-spacing: -0.02em;
     }
     
+    /* Header button uses the .btn .btn-carpenter-blue system */
     .header-btn {
-      padding: 12px 28px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      background: var(--carpenter-blue);
-      color: white;
-      border: none;
-      border-radius: 0.75rem;
-      cursor: pointer;
       opacity: 0;
       visibility: hidden;
-      height: 52px;
-      text-transform: uppercase;
       transition: all 0.2s ease;
-      border-bottom: 0.25rem solid #3a75d9;
+      margin: 0;            /* override the default btn margin */
     }
     
-    .header.scrolled .header-btn { opacity: 1; visibility: visible; }
-    .header-btn:hover { background: #3a75d9; transform: translateY(-2px); }
-    .header-btn:active { transform: translateY(2px); border-bottom-width: 0.125rem; }
+    .header.scrolled .header-btn {
+      opacity: 1;
+      visibility: visible;
+    }
     
     /* ===== WELCOME SECTION ===== */
     .welcome-section {
@@ -276,6 +268,13 @@
     
     .main-btn { margin-bottom: 1.1rem; }
     .secondary-btn { margin-bottom: 0.21rem; }
+    
+    /* Make the “GET STARTED” buttons the same width as the secondary button */
+    .main-btn,
+    .secondary-btn,
+    .cta-button {
+      width: 100%;
+    }
     
     /* ===== CONTENT SECTIONS ===== */
     .content-container {
@@ -838,7 +837,7 @@
         </div>
         <span class="brand-name">vulanet</span>
       </div>
-      <button class="header-btn" onclick="window.location.href='courses.html'">GET STARTED</button>
+      <button class="btn btn-carpenter-blue header-btn" onclick="window.location.href='courses.html'">GET STARTED</button>
     </div>
   </header>
   
