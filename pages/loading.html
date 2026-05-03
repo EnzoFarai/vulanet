@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading…</title>
+
+  <!-- Local Fonts -->
+  <link rel="stylesheet" href="../public/assets/fonts/fonts.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Atkinson Hyperlegible Next', -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+        "Helvetica Neue", sans-serif;
+      background-color: #ffffff;
+      color: #4B4B4B; /* Basalt */
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .mascot {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 40px;
+    }
+
+    .mascot img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .loading-container {
+      margin-bottom: 24px;
+    }
+
+    .letter-holder {
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .letter {
+      float: left;
+      font-size: 32px;
+      font-weight: 700;
+      color: #AFAFAF; /* Koala */
+    }
+
+    .load-6 .letter {
+      animation-name: loadingF;
+      animation-duration: 1.6s;
+      animation-iteration-count: infinite;
+      animation-direction: linear;
+    }
+
+    .l-1 { animation-delay: 0.48s; }
+    .l-2 { animation-delay: 0.6s; }
+    .l-3 { animation-delay: 0.72s; }
+    .l-4 { animation-delay: 0.84s; }
+    .l-5 { animation-delay: 0.96s; }
+    .l-6 { animation-delay: 1.08s; }
+    .l-7 { animation-delay: 1.2s; }
+    .l-8 { animation-delay: 1.32s; }
+    .l-9 { animation-delay: 1.44s; }
+    .l-10 { animation-delay: 1.56s; }
+
+    @keyframes loadingF {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .fun-fact-container {
+      max-width: 600px;
+      margin-top: 8px;
+    }
+
+    .fun-fact-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #4285F4; /* Carpenter Blue */
+      margin-bottom: 8px;
+    }
+
+    .fun-fact-text {
+      font-size: 18px;
+      line-height: 1.5;
+      color: #4B4B4B; /* Basalt */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Vusi the rabbit — local SVG -->
+  <div class="mascot">
+    <img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi the Rabbit">
+  </div>
+
+  <!-- Animated loading text -->
+  <div class="loading-container">
+    <div class="load-6">
+      <div class="letter-holder">
+        <div class="l-1 letter">L</div>
+        <div class="l-2 letter">o</div>
+        <div class="l-3 letter">a</div>
+        <div class="l-4 letter">d</div>
+        <div class="l-5 letter">i</div>
+        <div class="l-6 letter">n</div>
+        <div class="l-7 letter">g</div>
+        <div class="l-8 letter">.</div>
+        <div class="l-9 letter">.</div>
+        <div class="l-10 letter">.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Did You Know? fact dynamically inserted -->
+  <div class="fun-fact-container">
+    <div class="fun-fact-title">Did you know?</div>
+    <div class="fun-fact-text" id="dyk-text">
+      Loading an interesting fact…
+    </div>
+  </div>
+
+  <script type="module">
+    import { dykMap } from '../src/js/dyk-map.js';
+
+    // Get course and target lesson from URL parameters
+    const params = new URLSearchParams(window.location.search);
+    const course = params.get('course') || 'g12-life-sciences';
+    const lesson = params.get('lesson');   // e.g. "introduction-to-nucleic-acids"
+
+    // Determine which DYK files to fetch for this course
+    let fileNames = dykMap[course];
+    if (!fileNames || fileNames.length === 0) {
+      fileNames = dykMap['__default__'];
+    }
+
+    // Fetch all facts from the designated files
+    const facts = [];
+    const fetchPromises = fileNames.map(async (fileName) => {
+      try {
+        const response = await fetch(`../data/dyk/${fileName}.html`);
+        if (!response.ok) return;
+        const text = await response.text();
+        const div = document.createElement('div');
+        div.innerHTML = text;
+        const factElements = div.querySelectorAll('.fact');
+        factElements.forEach(el => {
+          const factText = el.textContent.trim();
+          if (factText) facts.push(factText);
+        });
+      } catch (error) {
+        console.warn(`Could not load DYK file: ${fileName}`, error);
+      }
+    });
+
+    // Wait until all files have been fetched
+    Promise.all(fetchPromises).then(() => {
+      // If no facts were loaded, use a hard‑coded fallback
+      if (facts.length === 0) {
+        facts.push(
+          'Your brain generates about 23 watts of power when awake, enough to power a small light bulb.'
+        );
+      }
+
+      // Pick a random fact
+      const randomFact = facts[Math.floor(Math.random() * facts.length)];
+      document.getElementById('dyk-text').textContent = randomFact;
+
+      // Calculate display duration
+      // Formula: Time (seconds) = (Total Words / 250) × 60
+      const wordCount = randomFact.split(/\s+/).length;
+      const wpm = 250;
+      const minutesToRead = wordCount / wpm;
+      const secondsToRead = Math.ceil(minutesToRead * 60);
+
+      // Ensure a minimum of 3 seconds and a maximum of 15 seconds
+      const displaySeconds = Math.min(Math.max(secondsToRead, 3), 15);
+
+      // Redirect to the actual lesson after the delay
+      setTimeout(() => {
+        window.location.href = `lesson.html?course=${encodeURIComponent(course)}&lesson=${encodeURIComponent(lesson)}`;
+      }, displaySeconds * 1000);
+    });
+  </script>
+</body>
+</html>
