@@ -1,0 +1,67 @@
+{
+  "title": "Introduction to Nucleic Acids",
+  "totalQuestions": 6,
+  "redirectUrl": "https://vulanet.vercel.app/lesson/g12-life-sciences",
+  "streakKey": "dnaStreak",
+  "questions": [
+    {
+      "id": 1,
+      "type": "multiple-choice",
+      "questionText": "Where is most of a cell's DNA located?",
+      "options": ["Cytoplasm", "Ribosomes", "Nucleus", "Nuclear membrane"],
+      "correctAnswer": "Nucleus",
+      "explanation": "The nucleus contains most of the cell's DNA within the chromatin network. The cytoplasm and ribosomes do not store DNA, and the nuclear membrane only encloses the nucleus."
+    },
+    {
+      "id": 2,
+      "type": "complete-sentence",
+      "questionText": "The nucleus is a cell organelle that <span id=\"blank-2-1\" class=\"blank\" tabindex=\"0\"></span> and <span id=\"blank-2-2\" class=\"blank\" tabindex=\"0\"></span><span class=\"full-stop\">.</span>",
+      "options": [
+        { "label": "is the site of protein synthesis", "value": "protein_synthesis" },
+        { "label": "contains DNA", "value": "contains_dna" },
+        { "label": "produces ribosomes", "value": "produces_ribosomes" },
+        { "label": "is the site of most metabolic reactions", "value": "metabolic_reactions" }
+      ],
+      "correctAnswers": ["contains_dna", "produces_ribosomes"],
+      "explanation": "The nucleus contains the cell's DNA and produces ribosomes in the nucleolus. Protein synthesis occurs at ribosomes, and most metabolic reactions take place in the cytoplasm, not the nucleus."
+    },
+    {
+      "id": 3,
+      "type": "fill-blank",
+      "questionText": "The monomers that make up DNA and RNA are called __________.",
+      "correctAnswer": "nucleotides",
+      "acceptableAnswers": ["nucleotides", "nucleotide", "nucleotides (nucleotide)", "nucleotide (nucleotides)"],
+      "explanation": "DNA and RNA are nucleic acids composed of repeating monomers called nucleotides, each consisting of a phosphate group, a sugar molecule and a nitrogenous base."
+    },
+    {
+      "id": 4,
+      "type": "multiple-choice",
+      "questionText": "Which of the following is not a component of a nucleotide?",
+      "options": ["Phosphate group", "Amino acid", "Sugar molecule", "Nitrogenous base"],
+      "correctAnswer": "Amino acid",
+      "explanation": "Amino acids are building blocks of proteins, not nucleotides. Nucleotides consist of a phosphate group, a sugar (deoxyribose in DNA, ribose in RNA) and a nitrogenous base."
+    },
+    {
+      "id": 5,
+      "type": "image-selection",
+      "questionText": "Which image correctly shows a nucleotide?",
+      "images": [
+        { "src": "../public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-001.jpg", "label": "Image 1" },
+        { "src": "../public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-002.jpg", "label": "Image 2" },
+        { "src": "../public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-003.jpg", "label": "Image 3" },
+        { "src": "../public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-004.jpg", "label": "Image 4" }
+      ],
+      "correctAnswer": 4,
+      "explanation": "A nucleotide consists of three parts: a phosphate group, a sugar molecule (deoxyribose in DNA) and a nitrogenous base, all of which Image 4 correctly represents."
+    },
+    {
+      "id": 6,
+      "type": "matching",
+      "pairs": [
+        { "term": "DNA", "meaning": "Deoxyribose" },
+        { "term": "RNA", "meaning": "Ribose" }
+      ],
+      "explanation": "DNA contains deoxyribose sugar while RNA contains ribose sugar. This is one of the key structural differences between DNA and RNA."
+    }
+  ]
+}
