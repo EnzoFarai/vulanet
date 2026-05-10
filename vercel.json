@@ -1,9 +1,7 @@
 {
   "rewrites": [
-    {
-      "source": "/lesson/:course/:lesson",
-      "destination": "/src/pages/lessons/:course/:lesson.html"
-    }
-  ],
-  "cleanUrls": true
+    { "source": "/lesson/:course/:lesson", "destination": "/pages/loading.html" },
+    { "source": "/read/:path*", "destination": "/pages/reading.html" },
+    { "source": "/(.*)", "destination": "/$1" }
+  ]
 }
