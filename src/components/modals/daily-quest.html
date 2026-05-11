@@ -4,26 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Quests</title>
-<link rel="stylesheet" href="../public/assets/fonts/fonts.css">
-<link rel="stylesheet" href="../src/styles/components/buttons.css">
+<link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../src/styles/components/buttons.css">
 <style>
-  /* same as earlier daily-quest styles, using local assets */
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #fff; font-family: 'Atkinson Hyperlegible Next', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px; }
-  .daily-quests-module { max-width: 500px; }
+  body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px; }
+  .daily-quests-module { max-width: 500px; width: 100%; }
   .section-title { font-size: 22px; font-weight: 700; color: #3b3b3b; }
   .time-cta { color: #ff9f1a; font-weight: 700; display: flex; align-items: center; gap: 8px; font-size: 14px; }
   .card { background: #fff; border-radius: 18px; border: 1px solid #eee; box-shadow: 0 6px 18px rgba(15,15,15,0.06); margin-bottom: 24px; }
   .quests { border-radius: 14px; overflow: hidden; border: 1px solid #eee; }
   .quest-row { padding: 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f0f0f0; }
   .quest-info { flex: 1; }
-  .quest-title { font-weight: 700; margin-bottom: 10px; color: #444; }
+  .quest-title { font-weight: 700; margin-bottom: 10px; color: #444; font-size: 15px; }
   .progress-wrapper { position: relative; }
   .progress-bar { height: 28px; background: #e6e6e6; border-radius: 20px; overflow: hidden; display: flex; align-items: center; }
   .progress-inner { height: 12px; background: #ffa726; border-radius: 12px; }
-  .progress-count { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: 700; font-size: 13px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-  .chest { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; }
+  .progress-count { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: 700; font-size: 13px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); pointer-events: none; }
+  .progress-count.dark-text { color: #666; text-shadow: none; }
+  .chest { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; }
   .bronze { color: #cd7f32; } .silver { color: #c0c0c0; } .gold { color: #ffd700; }
+  .chest.claimed { opacity: 0.5; pointer-events: none; cursor: default; }
   .continue-action { margin-top: 8px; }
   .btn { width: 100%; }
 </style>
@@ -32,24 +33,63 @@
   <div class="daily-quests-module">
     <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
       <div class="section-title">Daily Quests</div>
-      <div class="time-cta"><i class="ph-bold ph-clock-countdown"></i> <span id="time-left">20 MINUTES</span></div>
+      <div class="time-cta">
+        <i class="ph-bold ph-clock-countdown"></i>
+        <span id="time-left">20 MINUTES</span>
+      </div>
     </div>
     <div class="card quests" id="questsContainer"></div>
     <div class="continue-action"><button class="btn btn-md btn-carpenter-blue" id="continueBtn">CONTINUE</button></div>
   </div>
-  <script src="../public/assets/icons/phosphor/bold/style.css"></script>
-  <script src="../public/assets/icons/phosphor/duotone/style.css"></script>
   <script>
-    // first‑time quests
-    const quests = [
-      { title: 'Start a streak', current: 1, total: 1, chest: 'bronze', coins: 50, completed: true },
-      { title: 'Score 80% or higher in 3 lessons', current: 0, total: 3, chest: 'silver', coins: 75, completed: false },
-      { title: 'Complete your next 4 lessons', current: 0, total: 4, chest: 'gold', coins: 100, completed: false }
-    ];
+    // Update time remaining every minute
+    function updateTimeLeft() {
+      const now = new Date();
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      const msLeft = endOfDay - now;
+      if (msLeft <= 0) { document.getElementById('time-left').textContent = '0 MINUTES'; return; }
+      const hoursLeft = Math.floor(msLeft / (1000 * 60 * 60));
+      const minutesLeft = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+      if (hoursLeft > 0) {
+        document.getElementById('time-left').textContent = `${hoursLeft} ${hoursLeft === 1 ? 'HOUR' : 'HOURS'}`;
+      } else {
+        const mins = Math.max(1, minutesLeft);
+        document.getElementById('time-left').textContent = `${mins} ${mins === 1 ? 'MINUTE' : 'MINUTES'}`;
+      }
+    }
+    updateTimeLeft();
+    setInterval(updateTimeLeft, 60000);
+
+    const params = new URLSearchParams(window.location.search);
+    const correctAttempts = parseInt(params.get('correctAttempts')) || 0;
+    const totalAttempts = parseInt(params.get('totalAttempts')) || 1;
+    const percentage = Math.round((correctAttempts / totalAttempts) * 100);
+
+    // First-time quests (or load from localStorage)
+    const storageKey = `dailyQuests_${new Date().toISOString().slice(0, 10)}`;
+    let quests = JSON.parse(localStorage.getItem(storageKey));
+    if (!quests) {
+      quests = [
+        { title: 'Start a streak', current: 1, total: 1, chest: 'bronze', coins: 50, claimed: false },
+        { title: 'Score 80% or higher in 3 lessons', current: (percentage >= 80 ? 1 : 0), total: 3, chest: 'silver', coins: 75, claimed: false },
+        { title: 'Complete your next 4 lessons', current: 1, total: 4, chest: 'gold', coins: 100, claimed: false }
+      ];
+    }
+
+    // Update Silver quest progress based on this lesson's accuracy
+    if (percentage >= 80 && quests[1].current < quests[1].total) {
+      quests[1].current++;
+    }
+    // Update Gold quest progress
+    if (quests[2].current < quests[2].total) {
+      quests[2].current++;
+    }
+    localStorage.setItem(storageKey, JSON.stringify(quests));
+
     const container = document.getElementById('questsContainer');
     quests.forEach((q, i) => {
-      const width = q.total > 0 ? (q.current / q.total) * 100 : 0;
       const complete = q.current >= q.total;
+      const width = complete ? 100 : (q.total > 0 ? (q.current / q.total) * 100 : 0);
       const row = document.createElement('div');
       row.className = 'quest-row';
       row.innerHTML = `
@@ -57,29 +97,33 @@
           <div class="quest-title">${q.title}</div>
           <div class="progress-wrapper">
             <div class="progress-bar">
-              <div class="progress-inner" style="width:${complete ? 'calc(100% - 20px)' : (width+'%')}; margin-left:${complete ? '10px' : '0'}; background:${complete ? '#ffa726' : '#d9d9d9'}"></div>
-              <div class="progress-count" style="color:${complete ? '#fff' : '#999'}">${q.current} / ${q.total}</div>
+              <div class="progress-inner" style="width:${complete ? 'calc(100% - 20px)' : (width + '%')}; margin-left:${complete ? '10px' : '0'}; background:${width > 0 ? '#ffa726' : '#d9d9d9'}"></div>
+              <div class="progress-count ${width === 0 ? 'dark-text' : ''}">${q.current} / ${q.total}</div>
             </div>
           </div>
         </div>
-        <div class="chest ${q.chest}" data-coins="${q.coins}" data-completed="${complete}">
+        <div class="chest ${q.chest} ${q.claimed ? 'claimed' : ''}" data-idx="${i}" data-coins="${q.coins}" data-complete="${complete}" data-claimed="${q.claimed}">
           <i class="ph-duotone ph-treasure-chest"></i>
         </div>
       `;
       container.appendChild(row);
     });
 
-    // claim chests
+    // Claim chests
     document.querySelectorAll('.chest').forEach(chest => {
       chest.addEventListener('click', function() {
-        const completed = this.dataset.completed === 'true';
-        if (!completed) return;
+        const complete = this.dataset.complete === 'true';
+        const claimed = this.dataset.claimed === 'true';
+        if (!complete || claimed) return;
+        const idx = parseInt(this.dataset.idx);
         const coins = parseInt(this.dataset.coins);
+        quests[idx].claimed = true;
+        localStorage.setItem(storageKey, JSON.stringify(quests));
+        this.classList.add('claimed');
+        this.dataset.claimed = 'true';
         const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
-        localStorage.setItem('coins', currentCoins + coins);
-        this.style.opacity = '0.5';
-        this.style.pointerEvents = 'none';
-        window.parent.postMessage({type:'questChestClaimed', amount:coins}, '*');
+        localStorage.setItem('coins', String(currentCoins + coins));
+        window.parent.postMessage({ type: 'questChestClaimed', amount: coins, chestId: quests[idx].chest }, '*');
       });
     });
 
