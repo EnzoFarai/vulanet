@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Streak</title>
+<link rel="stylesheet" href="../public/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../src/styles/components/buttons.css">
+<style>
+  body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #f2f2f2; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .container { max-width: 400px; margin: 40px auto; text-align: center; }
+  .flame { visibility: hidden; opacity: 0; transition: opacity 0.3s; }
+  .flame.visible { visibility: visible; opacity: 1; }
+  .streak-number { font-size: 72px; font-weight: 700; color: #FF6D01; text-shadow: -4px -4px 0 #fff, 4px -4px 0 #fff, -4px 4px 0 #fff, 4px 4px 0 #fff; visibility: hidden; opacity: 0; transition: opacity 0.3s; }
+  .streak-number.visible { visibility: visible; opacity: 1; }
+  .streak-text { font-size: 28px; color: #FF6D01; font-weight: 700; margin-top: -6px; visibility: hidden; opacity: 0; transition: opacity 0.3s; }
+  .streak-text.visible { visibility: visible; opacity: 1; }
+  .card { margin-top: 30px; background: white; border-radius: 22px; padding: 18px; box-shadow: 0 0 0 3px #e5e5e5; }
+  .message { font-size: 20px; color: #444; }
+  .btn { margin-top: 24px; width: 100%; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="flame" id="flame"><img src="../public/assets/images/1f525.webp" width="110" alt="flame"></div>
+    <h1 class="streak-number" id="streakNumber">1</h1>
+    <div class="streak-text">day streak!</div>
+    <div class="card"><div class="message" id="streakMessage">You now have an active streak. Do a lesson everyday to extend it.</div></div>
+    <button class="btn btn-md btn-carpenter-blue" id="continueButton">CONTINUE</button>
+  </div>
+  <script>
+    const streakAudio = new Audio('../public/assets/audio/streak.mp3'); streakAudio.play().catch(()=>{});
+    const params = new URLSearchParams(window.location.search);
+    const streakDays = parseInt(params.get('streak')) || 1;
+    document.getElementById('streakNumber').textContent = streakDays;
+    document.getElementById('streakText').textContent = streakDays === 1 ? 'day streak!' : 'day streak!';
+    const flame = document.getElementById('flame');
+    const number = document.getElementById('streakNumber');
+    const text = document.getElementById('streakText');
+    setTimeout(() => { flame.classList.add('visible'); number.classList.add('visible'); text.classList.add('visible'); }, 1000);
+    document.getElementById('continueButton').addEventListener('click', ()=> window.parent.postMessage('modalClose','*'));
+  </script>
+</body>
+</html>
