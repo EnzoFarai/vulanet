@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Mistakes</title>
+<link rel="stylesheet" href="../public/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../src/styles/components/buttons.css">
+<style>
+  body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .container { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; text-align: center; padding: 2rem; }
+  .speech-bubble { --bbColor: white; --bbArrowSize: 1rem; background: var(--bbColor); border-radius: 0.4rem; padding: 1rem 1.2rem; position: relative; border: 2px solid #E5E5E5; max-width: 320px; }
+  .speech-bubble::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: solid transparent; border-width: var(--bbArrowSize) calc(var(--bbArrowSize)*0.75) 0; border-top-color: var(--bbColor); }
+  .bubble-text { font-size: 1rem; line-height: 1.4; color: #4B4B4B; }
+  .rabbit-icon { width: 5rem; height: 5rem; }
+  .btn { width: 100%; max-width: 300px; }
+</style>
+</head>
+<body>
+  <audio id="rewindAudio" preload="auto"><source src="../public/assets/audio/rewind.mp3" type="audio/mpeg"></audio>
+  <div class="container">
+    <div class="speech-bubble"><div class="bubble-text">Practice makes perfect. Let's review your mistakes before we go ahead.</div></div>
+    <img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" class="rabbit-icon">
+    <button class="btn btn-md btn-carpenter-blue" id="continueBtn">Continue</button>
+  </div>
+  <script>
+    document.getElementById('rewindAudio').play().catch(()=>{});
+    document.getElementById('continueBtn').addEventListener('click', ()=> window.parent.postMessage('modalClose','*'));
+  </script>
+</body>
+</html>
