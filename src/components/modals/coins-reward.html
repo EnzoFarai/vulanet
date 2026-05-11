@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coins Reward</title>
+<link rel="stylesheet" href="../public/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../src/styles/components/buttons.css">
+<style>
+  body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .treasure-panel { text-align: center; }
+  .reward-scene { width: 160px; height: 160px; margin: 0 auto; }
+  .large-coin-icon { font-size: 140px; color: #FFD700; filter: drop-shadow(0 4px 8px rgba(255,215,0,0.3)); }
+  .reward-title { font-weight: 700; color: #0f1c22; font-size: 20px; margin-top: 20px; }
+  .reward-subtitle { color: #6b7280; font-size: 14px; margin-bottom: 24px; }
+  .claim-button { margin-top: 20px; }
+</style>
+</head>
+<body>
+  <audio id="coinAudio" preload="auto"><source src="../public/assets/audio/coins.mp3" type="audio/mpeg"></audio>
+  <div class="treasure-panel">
+    <div class="reward-scene"><i class="ph-duotone ph-coins large-coin-icon"></i></div>
+    <div class="reward-title" id="rewardTitle">You have earned 250 coins!</div>
+    <div class="reward-subtitle">Spend them wisely</div>
+    <button class="btn btn-md btn-carpenter-blue" id="claimButton">Claim 250</button>
+  </div>
+  <script src="../public/assets/icons/phosphor/duotone/style.css"></script>
+  <script>
+    document.getElementById('coinAudio').play().catch(()=>{});
+    const params = new URLSearchParams(window.location.search);
+    const amount = parseInt(params.get('amount')) || 250;
+    document.getElementById('rewardTitle').textContent = `You have earned ${amount} coins!`;
+    document.getElementById('claimButton').textContent = `Claim ${amount}`;
+    document.getElementById('claimButton').addEventListener('click', ()=> {
+      // Add coins to localStorage
+      const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
+      localStorage.setItem('coins', currentCoins + amount);
+      window.parent.postMessage('modalClose','*');
+    });
+  </script>
+</body>
+</html>
