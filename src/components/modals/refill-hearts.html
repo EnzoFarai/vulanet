@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refill Hearts</title>
+<link rel="stylesheet" href="../public/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../src/styles/components/buttons.css">
+<style>
+  body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .app { max-width: 420px; width: 100%; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+  .lottie-container { width: 160px; height: 160px; }
+  .title { font-size: 20px; font-weight: 700; color: #4B4B4B; }
+  .subtitle { font-size: 14px; color: #777; }
+  .buttons-container { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+  .btn { width: 100%; }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="lottie-container">
+      <lottie-player src="../public/assets/lottie/1f494.json" background="transparent" speed="1" loop autoplay></lottie-player>
+    </div>
+    <div class="title">You're out of hearts!</div>
+    <div class="subtitle">You can refill with 450 coins.</div>
+    <div class="buttons-container">
+      <button class="btn btn-md btn-carpenter-blue" id="refillBtn">REFILL FOR 450</button>
+      <button class="btn btn-md btn-cloud-outline" id="noThanksBtn">NO THANKS</button>
+    </div>
+  </div>
+  <script src="../src/lib/lottie-player.js"></script>
+  <script>
+    document.getElementById('refillBtn').addEventListener('click', ()=> window.parent.postMessage({type:'refillHearts'},'*'));
+    document.getElementById('noThanksBtn').addEventListener('click', ()=> window.parent.postMessage('modalQuit','*'));
+  </script>
+</body>
+</html>
