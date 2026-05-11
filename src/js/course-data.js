@@ -1,10 +1,12 @@
 // ========================================
 // VULANET COURSE DATA
 // Courses use semantic IDs for permanence
-// Categories are NOT stored here - they are only for UI display
+// Categories are NOT stored here – they are only for UI display
 // ========================================
 
-// Course data with accurate creation dates (actual launch date)
+// ------------------------------------------
+// COURSE DEFINITIONS
+// ------------------------------------------
 export const courses = {
   // Commerce
   "financial-accounting": {
@@ -20,7 +22,7 @@ export const courses = {
     firstReadingId: "introduction-to-financial-accounting-reading",
     dykSources: ["business.html", "mathematics.html"]
   },
-  
+
   // Humanities
   "international-law": {
     id: "international-law",
@@ -35,7 +37,7 @@ export const courses = {
     firstReadingId: "introduction-to-international-law-reading",
     dykSources: ["law.html", "humanities.html"]
   },
-  
+
   // Medical Sciences
   "clinical-pharmacy": {
     id: "clinical-pharmacy",
@@ -63,7 +65,7 @@ export const courses = {
     firstReadingId: "introduction-to-anticoagulants-reading",
     dykSources: ["medicine.html", "biology.html"]
   },
-  
+
   // Science & Technology
   "java-programming": {
     id: "java-programming",
@@ -91,7 +93,7 @@ export const courses = {
     firstReadingId: "introduction-to-web-design-reading",
     dykSources: ["computer-science.html", "engineering.html"]
   },
-  
+
   // Matric (NSC)
   "g12-life-sciences": {
     id: "g12-life-sciences",
@@ -108,8 +110,11 @@ export const courses = {
   }
 };
 
-// Course categories - stored separately for UI display only
-// Courses can appear in multiple categories, and categories can change over time
+// ------------------------------------------
+// CATEGORIES (UI only – not tied to courses)
+// Courses can appear in multiple categories,
+// and categories can be re‑ordered or renamed.
+// ------------------------------------------
 export const courseCategories = [
   {
     id: "commerce",
@@ -144,36 +149,57 @@ export const courseCategories = [
   }
 ];
 
-// Helper function to get course by ID
+// ------------------------------------------
+// HELPER FUNCTIONS
+// ------------------------------------------
+
+/**
+ * Get a single course by its ID.
+ */
 export function getCourseById(id) {
   return courses[id] || null;
 }
 
-// Helper function to get courses by category (UI only)
+/**
+ * Get all courses belonging to a given category.
+ * Returns an array of course objects (in category order).
+ */
 export function getCoursesByCategory(categoryId) {
   const category = courseCategories.find(c => c.id === categoryId);
   if (!category) return [];
-  return category.courseIds.map(id => courses[id]).filter(c => c);
+  return category.courseIds
+    .map(id => courses[id])
+    .filter(course => course !== undefined);
 }
 
-// Helper function to get all courses
+/**
+ * Get every defined course as an array.
+ */
 export function getAllCourses() {
   return Object.values(courses);
 }
 
-// Helper function to get a course's first lesson URL
+/**
+ * Build the URL for the first lesson (or reading) of a course.
+ * @param {string} courseId
+ * @param {"game"|"reading"} startWith – "game" for lesson, "reading" for reading
+ * @returns {string|null} The relative URL, or null if the course doesn't exist.
+ */
 export function getFirstLessonUrl(courseId, startWith = "game") {
   const course = courses[courseId];
   if (!course) return null;
-  
+
   if (startWith === "game") {
-    return `/src/pages/lessons/${courseId}/${course.firstLessonId}.html`;
+    return `/pages/lesson.html?course=${encodeURIComponent(courseId)}&lesson=${encodeURIComponent(course.firstLessonId)}`;
   } else {
-    return `/src/pages/read/${courseId}/${course.firstReadingId}.html`;
+    return `/pages/reading.html?course=${encodeURIComponent(courseId)}&lesson=${encodeURIComponent(course.firstReadingId)}`;
   }
 }
 
-// Helper to get DYK sources for a course
+/**
+ * Return the DYK file names associated with a course.
+ * Falls back to "general.html" if no match is found.
+ */
 export function getCourseDykSources(courseId) {
   const course = courses[courseId];
   if (!course) return ["general.html"];
