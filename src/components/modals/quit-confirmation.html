@@ -5,29 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quit Confirmation</title>
   <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="../../src/styles/components/buttons.css">
+  <script src="../../src/lib/lottie-player.js"></script>
   <style>
-    body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .app { max-width: 420px; width: 100%; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
-    .lottie-container { width: 160px; height: 160px; }
-    .title { font-size: 20px; font-weight: 700; color: #4B4B4B; }
-    .buttons-container { width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 20px; }
-    .btn { width: 100%; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
+    body { background: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .app { width: 100%; max-width: 420px; padding: 24px 18px 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .scene { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+    .emoji-container { width: 160px; height: 160px; }
+    lottie-player { width: 160px !important; height: 160px !important; }
+    .title { margin-top: 20px; text-align: center; font-weight: 700; color: #4B4B4B; font-size: 20px; line-height: 1.4; max-width: 320px; }
+    .buttons-container { width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
+    .action-button {
+      width: 100%; height: 52px; border-radius: 0.75rem; font-weight: 700; letter-spacing: 0.5px;
+      border: none; font-size: 15px; text-transform: uppercase; cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: center; line-height: 1;
+    }
+    .keep-going {
+      color: #ffffff; background-color: #4285F4; border-bottom: 0.25rem solid #3a75d9;
+    }
+    .keep-going:hover { background-color: #3a75d9; transform: translateY(-0.125rem); }
+    .keep-going:active { transform: translateY(0.0625rem); border-bottom-width: 0.125rem; }
+    .quit {
+      color: #EA4335; background-color: #ffffff; border: 2px solid #EA4335; border-bottom: 0.25rem solid #EA4335;
+    }
+    .quit:hover { background-color: #FFF5F5; transform: translateY(-0.125rem); }
+    .quit:active { transform: translateY(0.0625rem); border-bottom-width: 0.125rem; }
   </style>
 </head>
 <body>
   <audio id="quitAudio" preload="auto"><source src="../../public/assets/audio/quit.mp3" type="audio/mpeg"></audio>
   <div class="app">
-    <div class="lottie-container">
-      <lottie-player src="../../public/assets/lottie/1f627.json" background="transparent" speed="1" loop autoplay></lottie-player>
+    <div class="scene">
+      <div class="emoji-container">
+        <lottie-player src="../../public/assets/lottie/1f627.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      </div>
     </div>
     <div class="title">Are you sure you want to quit? You'll lose all XP gained in this lesson.</div>
     <div class="buttons-container">
-      <button class="btn btn-md btn-carpenter-blue" id="keepGoingBtn">KEEP GOING</button>
-      <button class="btn btn-md btn-ladybug-outline" id="quitBtn">QUIT</button>
+      <button class="action-button keep-going" id="keepGoingBtn">KEEP GOING</button>
+      <button class="action-button quit" id="quitBtn">QUIT</button>
     </div>
   </div>
-  <script src="../../src/lib/lottie-player.js"></script>
   <script>
     document.getElementById('quitAudio').play().catch(()=>{});
     document.getElementById('keepGoingBtn').addEventListener('click', ()=> window.parent.postMessage('modalClose','*'));
