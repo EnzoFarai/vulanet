@@ -4,21 +4,82 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hearts Modal</title>
-  <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
+  <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../../src/styles/components/buttons.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #f0f3f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .page-container { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(#f7f9fa, #eef2f5); }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 20; }
-    .modal { width: 88%; max-width: 400px; background: #ffffff; border-radius: 14px; padding: 24px 18px 20px; box-shadow: 0 20px 40px rgba(17,24,39,0.2); text-align: center; animation: modal-appear 0.3s ease-out; }
-    @keyframes modal-appear { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-    .hearts-display { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 18px; }
-    .hearts-display img { width: 36px; height: 36px; }
-    .hearts-count { font-weight: 700; color: #EA4335; font-size: 22px; }
-    .modal-title { font-size: 20px; font-weight: 700; color: #4B4B4B; margin-bottom: 8px; }
-    .modal-description { font-size: 14px; color: #777777; margin-bottom: 20px; line-height: 1.4; }
-    .modal .btn { width: 100%; margin-top: 8px; }
+    body {
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      background: #f0f3f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .page-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(#f7f9fa, #eef2f5);
+    }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+    .modal {
+      width: 88%;
+      max-width: 400px;
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 24px 18px 20px;
+      box-shadow: 0 20px 40px rgba(17,24,39,0.2);
+      text-align: center;
+      animation: modal-appear 0.3s ease-out;
+    }
+    @keyframes modal-appear {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .hearts-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .heart-icon img {
+      width: 36px;
+      height: 36px;
+    }
+    .hearts-count {
+      font-weight: 700;
+      color: #EA4335;
+      font-size: 22px;
+    }
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #4B4B4B;
+      margin-bottom: 8px;
+    }
+    .modal-description {
+      font-size: 14px;
+      color: #777777;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+    .modal .btn {
+      width: 100%;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -27,7 +88,7 @@
       <div class="modal">
         <div class="hearts-display">
           <div class="heart-icon" id="heart-icon">
-            <img src="../../../public/assets/icons/phosphor/fill/heart.svg" alt="heart" id="heart-img">
+            <img src="../../public/assets/icons/phosphor/fill/heart.svg" alt="heart" id="heart-img">
           </div>
           <div class="hearts-count" id="hearts-count">5</div>
         </div>
@@ -40,8 +101,8 @@
   <script>
     const heartImg = document.getElementById('heart-img');
     const heartsCount = document.getElementById('hearts-count');
-    const FILL = '../../../public/assets/icons/phosphor/fill/heart.svg';
-    const EMPTY = '../../../public/assets/icons/phosphor/regular/heart.svg';
+    const FILL = '../../public/assets/icons/phosphor/fill/heart.svg';
+    const EMPTY = '../../public/assets/icons/phosphor/regular/heart.svg';
     let count = 5;
     function startCountdown() {
       const interval = setInterval(() => {
