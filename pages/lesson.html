@@ -4,8 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="lesson-title">Lesson</title>
+
+  <!-- Local Fonts (Atkinson + Material Symbols) -->
   <link rel="stylesheet" href="../public/assets/fonts/fonts.css">
+
+  <!-- Quiz Styles -->
   <link rel="stylesheet" href="../src/styles/quiz.css">
+
+  <!-- Button Styles -->
   <link rel="stylesheet" href="../src/styles/components/buttons.css">
 </head>
 <body>
@@ -25,7 +31,9 @@
         <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
       </svg>
 
-      <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
 
       <div class="lives-container">
         <svg id="lives-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" fill="currentColor" style="color:#EA4335;">
@@ -46,6 +54,7 @@
         <button class="feedback-button" id="tryAgainBtn">Try Again</button>
       </div>
     </div>
+
     <button class="matching-continue-btn" id="matchingContinueBtn" style="display:none;">Continue</button>
   </div>
 
@@ -73,16 +82,27 @@
         const response = await fetch(`../data/lessons/${course}/${lesson}.json`);
         if (!response.ok) throw new Error(`Lesson data not found (status ${response.status})`);
         const lessonData = await response.json();
+
+        if (!lessonData || !lessonData.questions || !Array.isArray(lessonData.questions)) {
+          throw new Error('Lesson data is invalid or missing questions');
+        }
+
+        // Ensure the QuizEngine is available
+        if (typeof QuizEngine === 'undefined') {
+          throw new Error('QuizEngine script failed to load. Check src/js/quiz-engine.js');
+        }
+
         new QuizEngine(lessonData);
       } catch (error) {
-        // Show a warning, don't destroy the page
-        document.body.insertAdjacentHTML('beforeend', `
-          <div style="position:fixed;top:0;left:0;right:0;background:#fff3cd;color:#856404;padding:1rem;text-align:center;z-index:9999;font-family:'Atkinson Hyperlegible Next',sans-serif;">
-            <strong>Oops!</strong> ${error.message}<br>
-            <small>Please check the lesson URL or try again later.</small>
-          </div>
-        `);
-        console.error('Vulanet quiz engine error:', error);
+        console.error('Lesson loading error:', error);
+        // Redirect to a friendly error page with details
+        const errorParams = new URLSearchParams({
+          title: 'Lesson Not Available',
+          message: error.message || 'The lesson could not be loaded.',
+          course: course,
+          lesson: lesson
+        });
+        window.location.href = `../pages/404.html?${errorParams.toString()}`;
       }
     })();
   </script>
