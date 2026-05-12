@@ -5,14 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="lesson-title">Lesson</title>
 
-  <!-- Local Fonts (Atkinson + Material Symbols) -->
+  <!-- Local Fonts (Atkinson Hyperlegible Next + Material Symbols) -->
   <link rel="stylesheet" href="../public/assets/fonts/fonts.css">
 
   <!-- Quiz Styles -->
   <link rel="stylesheet" href="../src/styles/quiz.css">
-
-  <!-- Button Styles -->
-  <link rel="stylesheet" href="../src/styles/components/buttons.css">
 </head>
 <body>
 
@@ -27,7 +24,6 @@
     <div class="streak-counter" id="streakCounter"></div>
 
     <div class="header">
-      <!-- X button – inline SVG with currentColor -->
       <svg id="close-btn" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" fill="currentColor" style="color:#AFAFAF; cursor:pointer;">
         <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
       </svg>
@@ -37,7 +33,7 @@
       </div>
 
       <div class="lives-container">
-        <svg id="lives-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" fill="currentColor" style="color:#EA4335;">
+        <svg id="lives-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" fill="#EA4335">
           <path d="M240,102c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,228.66,16,172,16,102A62.07,62.07,0,0,1,78,40c20.65,0,38.73,8.88,50,23.89C139.27,48.88,157.35,40,178,40A62.07,62.07,0,0,1,240,102Z"/>
         </svg>
         <span id="lives-count">5</span>
@@ -48,9 +44,9 @@
     <div class="feedback-overlay" id="feedbackOverlay" style="display:none;">
       <div class="matching-feedback" id="feedbackPanel">
         <div class="result-main">
-          <span class="material-symbols-outlined material-icon" id="cancelIcon">cancel</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="#C5221F"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
           <div class="result-header" id="feedbackTitle">Incorrect</div>
-          <span class="material-symbols-outlined material-icon" id="notesIcon">stylus_note</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="#C5221F"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
         </div>
         <div class="feedback-subtitle" id="feedbackMessage">Let's try that again</div>
         <button class="feedback-button" id="tryAgainBtn">Try Again</button>
