@@ -4,23 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lesson Complete</title>
-  <link rel="stylesheet" href="/public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+  <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../../src/styles/components/buttons.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; position: relative; overflow: hidden; }
     .app { max-width: 420px; width: 100%; padding: 40px 18px 28px; display: flex; flex-direction: column; align-items: center; z-index: 20; }
     .title { font-size: 34px; font-weight: 900; color: #ffd24a; margin-top: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
     .scene { height: 260px; display: flex; align-items: center; justify-content: center; }
-    lottie-player { width: 160px !important; height: 160px !important; }
-    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px; width: 100%; }
+    lottie-player { width: 160px; height: 160px; }
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px; }
     .stat { background: #fff; border-radius: 16px; border: 2px solid; overflow: hidden; text-align: center; }
     .stat-header { padding: 12px 6px; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .stat-content { padding: 14px 6px; font-size: 18px; font-weight: 900; display: flex; flex-direction: column; align-items: center; gap: 6px; color: inherit; }
+    .stat-content { padding: 14px 6px; font-size: 18px; font-weight: 900; display: flex; flex-direction: column; align-items: center; gap: 6px; }
     .continue-wrap { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 14px 16px 22px; border-top: 1px solid #ededed; z-index: 100; }
     .continue { max-width: 420px; margin: 0 auto; width: 100%; }
     .fireworks-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: flex; justify-content: space-around; align-items: center; padding: 0 50px; }
-    .fireworks { width: 2.5em; height: 2em; animation: flatify-firework 4s infinite; font-size: 2.5em; }
+    .fireworks { width: 2.5em; height: 2em; animation: flatify-firework 4s infinite; font-size: 2.5em; position: relative; }
     .fireworks:before, .spark:before,.spark:after { content: " "; position: absolute; height: 0.25em; border-radius: 50em; background: var(--firework-color); }
     .fireworks:before { top:0; bottom:0; left:0; right:0; width:0.25em; margin:auto; animation: flatify-firework-main 4s infinite; }
     .spark { position: absolute; top:0; left:0; width:100%; height:100%; animation: flatify-firework-sparks 4s infinite; }
@@ -41,60 +41,49 @@
   </style>
 </head>
 <body>
-  <audio id="completeAudio" preload="auto"><source src="/public/assets/audio/complete.mp3" type="audio/mpeg"></audio>
-  <audio id="achievementAudio" preload="auto"><source src="/public/assets/audio/achievement.mp3" type="audio/mpeg"></audio>
   <div class="fireworks-wrapper">
-    <div class="fireworks fireworks-1" style="--firework-color:#5D9CEC"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
-    <div class="fireworks fireworks-2" style="--firework-color:#ffce54"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
-    <div class="fireworks fireworks-3" style="--firework-color:#5D9CEC"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
+    <div class="fireworks" style="--firework-color:#5D9CEC"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
+    <div class="fireworks" style="--firework-color:#ffce54"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
+    <div class="fireworks" style="--firework-color:#5D9CEC"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
   </div>
   <div class="app">
     <div class="title">Lesson complete!</div>
     <div class="scene">
-      <lottie-player src="/public/assets/lottie/1f973.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      <lottie-player src="../../public/assets/lottie/1f973.json" background="transparent" speed="1" loop autoplay></lottie-player>
     </div>
     <div class="stats" id="statsContainer"></div>
   </div>
   <div class="continue-wrap">
     <button class="btn btn-md btn-carpenter-blue continue" id="continueBtn">CONTINUE</button>
   </div>
-  <script src="/src/lib/lottie-player.js"></script>
+  <script src="../../src/lib/lottie-player.js"></script>
   <script>
-    document.getElementById('completeAudio').play().catch(()=>{});
+    const audio = new Audio('../../public/assets/audio/complete.mp3'); audio.play().catch(()=>{});
     const params = new URLSearchParams(window.location.search);
     let correct = parseInt(params.get('correctAttempts'))||0;
     let total = parseInt(params.get('totalAttempts'))||1;
     let time = parseInt(params.get('time'))||0;
     let boost = parseFloat(params.get('boost'))||null;
-    let accuracy = Math.round((correct / total) * 100);
-    let T_expected = 6 * 15;
-    let T_max = 2 * T_expected;
+    const TOTAL_QUESTIONS = 6;
+    const T_expected = TOTAL_QUESTIONS * 15;
+    const T_max = 2 * T_expected;
+    let accuracyXP = Math.round((correct / total) * 10);
+    accuracyXP = Math.min(accuracyXP, 10);
     let speedXP = time <= T_expected ? 10 : (time <= T_max ? Math.round(10 * (2 - time/T_expected)) : 0);
-    let accuracyXP = Math.round((correct/total)*10);
+    if(speedXP < 0) speedXP = 0;
     let totalXP = 10 + accuracyXP + speedXP;
     let displayXP = boost ? Math.round(totalXP * boost) : totalXP;
     let xpColor = boost ? '#FF6D01' : '#FBBC05';
     let xpHeader = boost ? 'XP BOOST' : 'TOTAL XP';
     let timeString = time < 60 ? `${time}s` : `${Math.floor(time/60)}m ${time%60}s`;
-    let accuracyLabel = accuracy === 100 ? 'PERFECT' : accuracy >= 80 ? 'OUTSTANDING' : accuracy >= 50 ? 'NICE' : 'YIKES';
+    let accuracyLabel = accuracyXP === 10 ? 'PERFECT' : accuracyXP >= 8 ? 'OUTSTANDING' : accuracyXP >= 5 ? 'NICE' : 'YIKES';
     let committedLabel = time <= T_expected ? 'WHOA' : 'COMMITTED';
     document.getElementById('statsContainer').innerHTML = `
-      <div class="stat" style="border-color:${xpColor}">
-        <div class="stat-header" style="background:${xpColor}">${xpHeader}</div>
-        <div class="stat-content"><span>${displayXP}</span></div>
-      </div>
-      <div class="stat" style="border-color:#4285F4">
-        <div class="stat-header" style="background:#4285F4">${committedLabel}</div>
-        <div class="stat-content"><span>${timeString}</span></div>
-      </div>
-      <div class="stat" style="border-color:#34A853">
-        <div class="stat-header" style="background:#34A853">${accuracyLabel}</div>
-        <div class="stat-content"><span>${accuracy}%</span></div>
-      </div>
+      <div class="stat" style="border-color:${xpColor}"><div class="stat-header" style="background:${xpColor}">${xpHeader}</div><div class="stat-content"><span>${displayXP}</span></div></div>
+      <div class="stat" style="border-color:#4285F4"><div class="stat-header" style="background:#4285F4">${committedLabel}</div><div class="stat-content"><span>${timeString}</span></div></div>
+      <div class="stat" style="border-color:#34A853"><div class="stat-header" style="background:#34A853">${accuracyLabel}</div><div class="stat-content"><span>${Math.round((correct/total)*100)}%</span></div></div>
     `;
-    document.getElementById('continueBtn').addEventListener('click', ()=> {
-      window.parent.postMessage('modalClose','*');
-    });
+    document.getElementById('continueBtn').addEventListener('click', ()=> window.parent.postMessage('modalClose','*'));
   </script>
 </body>
 </html>
