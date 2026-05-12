@@ -4,102 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Answer Streak Celebration!</title>
-  <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Atkinson Hyperlegible Next', sans-serif;
-      background: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      color: #4B4B4B;
-    }
-    .celebration-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-      max-width: 100%;
-      padding: 2rem;
-      text-align: center;
-    }
-    .celebration-speech-bubble {
-      --bbColor: white;
-      --bbArrowSize: 1rem;
-      background: var(--bbColor);
-      border-radius: 0.4rem;
-      padding: 1rem 1.2rem;
-      position: relative;
-      border: 2px solid #E5E5E5;
-      max-width: 300px;
-      min-height: 70px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
-    }
-    .celebration-speech-bubble::after {
-      content: '';
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border: solid transparent;
-      border-width: var(--bbArrowSize) calc(var(--bbArrowSize)*0.75) 0;
-      border-top-color: var(--bbColor);
-    }
-    .celebration-bubble-text {
-      font-size: 1.1rem;
-      line-height: 1.3;
-      color: black;
-    }
-    .celebration-icon-container {
-      animation: bounce 1.5s ease-in-out infinite;
-    }
-    .celebration-icon-container img {
-      width: 5rem;
-      height: 5rem;
-    }
-    @keyframes bounce {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
-    }
-    .celebration-continue-btn {
-      width: 100%;
-      max-width: 300px;
-      padding: 1rem;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: white;
-      background-color: #4285F4;
-      border: none;
-      border-bottom: 0.25rem solid #3A75D9;
-      border-radius: 0.75rem;
-      cursor: pointer;
-      text-transform: uppercase;
-      transition: all 0.2s ease;
-      font-family: 'Atkinson Hyperlegible Next', sans-serif;
-    }
-    .celebration-continue-btn:hover {
-      background-color: #3A75D9;
-      transform: translateY(-0.125rem);
-    }
-    .celebration-continue-btn:active {
-      transform: translateY(0.0625rem);
-      border-bottom-width: 0.125rem;
-    }
+    body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #4B4B4B; }
+    .celebration-container { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; max-width: 100%; padding: 2rem; text-align: center; }
+    .celebration-speech-bubble { --bbColor: white; --bbArrowSize: 1rem; background: var(--bbColor); border-radius: 0.4rem; padding: 1rem 1.2rem; position: relative; border: 2px solid #E5E5E5; max-width: 300px; min-height: 70px; display: flex; flex-direction: column; justify-content: center; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1)); }
+    .celebration-speech-bubble::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: solid transparent; border-width: var(--bbArrowSize) calc(var(--bbArrowSize)*0.75) 0; border-top-color: var(--bbColor); }
+    .celebration-bubble-text { font-size: 1.1rem; line-height: 1.3; color: black; }
+    .celebration-icon-container { animation: bounce 1.5s ease-in-out infinite; }
+    .celebration-icon-container img { width: 5rem; height: 5rem; }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    .celebration-continue-btn { width: 100%; max-width: 300px; padding: 1rem; font-size: 1.25rem; font-weight: 700; color: white; background-color: #4285F4; border: none; border-bottom: 0.25rem solid #3A75D9; border-radius: 0.75rem; cursor: pointer; text-transform: uppercase; transition: all 0.2s ease; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
+    .celebration-continue-btn:hover { background-color: #3A75D9; transform: translateY(-0.125rem); }
+    .celebration-continue-btn:active { transform: translateY(0.0625rem); border-bottom-width: 0.125rem; }
   </style>
 </head>
 <body>
-  <audio id="clappingAudio" preload="auto"><source src="../../public/assets/audio/clapping.mp3" type="audio/mpeg"></audio>
+  <audio id="clappingAudio" preload="auto"><source src="../../../public/assets/audio/clapping.mp3" type="audio/mpeg"></audio>
   <div class="celebration-container">
     <div class="celebration-speech-bubble">
       <div class="celebration-bubble-text" id="celebrationMessage"></div>
     </div>
     <div class="celebration-icon-container">
-      <img src="../../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi">
+      <img src="../../../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi">
     </div>
     <button class="celebration-continue-btn" id="continueBtn">Continue</button>
   </div>
