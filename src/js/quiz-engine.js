@@ -1,6 +1,5 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Data‑driven, all icons correctly coloured
-// Material Symbols font used for status icons; Phosphor SVGs for Vusi/hearts/X
+// VULANET QUIZ ENGINE – Data‑driven, defensive, local assets
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -11,6 +10,17 @@ function sanitiseHTML(str) {
 
 class QuizEngine {
   constructor(lessonData) {
+    // Safety wrapper: if anything in the constructor fails,
+    // we throw an error that will be caught by lesson.html
+    try {
+      this._init(lessonData);
+    } catch (e) {
+      console.error('QuizEngine init error:', e);
+      throw e;
+    }
+  }
+
+  _init(lessonData) {
     this.title = lessonData.title || 'Lesson';
     this.totalQuestions = lessonData.totalQuestions || 0;
     this.redirectUrl = lessonData.redirectUrl || '/';
@@ -76,7 +86,6 @@ class QuizEngine {
     }
   }
 
-  // --- UI Construction ---
   buildQuizUI() {
     const container = document.querySelector('.quiz-container');
     this.progressBar = document.getElementById('progress-bar');
@@ -86,6 +95,7 @@ class QuizEngine {
     this.fullscreenOverlay = document.getElementById('fullscreenModalOverlay');
     this.modalIframe = document.getElementById('modalIframe');
 
+    this.questionSections = [];
     for (let i = 0; i < this.totalQuestions; i++) {
       const qSection = document.createElement('div');
       qSection.id = `question${i + 1}`;
@@ -111,12 +121,10 @@ class QuizEngine {
     }
   }
 
-  // --- Storage ---
   loadStreakFromStorage() { const s = localStorage.getItem(this.streakKey); if (s) this.currentStreakDays = parseInt(s,10); else localStorage.setItem(this.streakKey,'1'); }
   saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
   incrementStreak() { this.currentStreakDays++; this.saveStreakToStorage(); }
 
-  // --- Helpers ---
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
   updateHeartIcon() {
     this.livesIcon.style.color = this.lives === 0 ? '#AFAFAF' : '#EA4335';
@@ -130,8 +138,8 @@ class QuizEngine {
   normalizeAnswer(a) { return a.toLowerCase().replace(/\s+/g,' ').replace(/[()]/g,'').replace(/\//g,' ').trim(); }
   shuffleArray(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-  // --- Modals ---
   showModal(modalUrl, onClose) {
+    if (!this.modalIframe) return;
     this.modalIframe.src = modalUrl;
     this.fullscreenOverlay.classList.add('visible');
     const handler = (event) => {
@@ -165,7 +173,6 @@ class QuizEngine {
 
   resetCurrentQuestion() { this.showQuestion(this.currentQuestion); }
 
-  // --- Streak handling ---
   handleCorrectAnswer() { this.currentStreak++; this.updateStreakCounter(); if(this.currentStreak%5===0&&this.currentStreak>0){ this.pendingCelebration=true; this.pendingCelebrationStreak=this.currentStreak; } }
   handleIncorrectAnswer() { this.currentStreak=0; this.updateStreakCounter(); }
 
@@ -206,7 +213,6 @@ class QuizEngine {
     continueBtn.onclick = ()=>{ overlay.classList.remove('visible'); this.processAfterExplanation(onComplete); };
   }
 
-  // --- Navigation ---
   moveToNextQuestion() {
     if(this.waitingForCelebration) return false;
     if(this.inRetryMode){
@@ -267,7 +273,6 @@ class QuizEngine {
     });
   }
 
-  // --- Question Rendering (all inline SVGs replaced by either font or inline currentColor SVGs) ---
   showQuestion(questionIndex) {
     this.questionSections.forEach(s=>{ if(s) s.style.display='none'; });
     const actualIdx = this.inRetryMode ? this.retryQueue[this.currentQuestion] : this.currentQuestion;
@@ -293,11 +298,8 @@ class QuizEngine {
     }
   }
 
-  // Inline Vusi SVG helper
   vusiSVG() {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 256 256" fill="#4285F4">
-      <path d="M240,102c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,228.66,16,172,16,102A62.07,62.07,0,0,1,78,40c20.65,0,38.73,8.88,50,23.89C139.27,48.88,157.35,40,178,40A62.07,62.07,0,0,1,240,102Z"/>
-    </svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 256 256" fill="#4285F4"><path d="M240,102c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,228.66,16,172,16,102A62.07,62.07,0,0,1,78,40c20.65,0,38.73,8.88,50,23.89C139.27,48.88,157.35,40,178,40A62.07,62.07,0,0,1,240,102Z"/></svg>`;
   }
 
   renderMultipleChoice(section, qData, actualIdx) {
