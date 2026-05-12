@@ -1,5 +1,5 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Hardened, data‑driven
+// VULANET QUIZ ENGINE – Data‑driven, all icons local SVGs
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -10,18 +10,12 @@ function sanitiseHTML(str) {
 
 class QuizEngine {
   constructor(lessonData) {
-    // --- Data validation ---
-    if (!lessonData || !lessonData.questions) {
-      throw new Error('Lesson data is missing or malformed.');
-    }
-
     this.title = lessonData.title || 'Lesson';
-    this.totalQuestions = lessonData.totalQuestions || lessonData.questions.length;
+    this.totalQuestions = lessonData.totalQuestions || 0;
     this.redirectUrl = lessonData.redirectUrl || '/';
     this.streakKey = lessonData.streakKey || 'userStreakDays';
-    this.questionsData = lessonData.questions;
+    this.questionsData = lessonData.questions || [];
 
-    // --- State ---
     this.lives = 5;
     this.currentQuestion = 0;
     this.retryQueue = [];
@@ -44,18 +38,6 @@ class QuizEngine {
     this.hasCompletedFirstLesson = localStorage.getItem('hasCompletedFirstLesson') === 'true';
     if (!localStorage.getItem('coins')) localStorage.setItem('coins', '500');
 
-    // --- Required DOM elements ---
-    this.progressBar       = this.req('progress-bar');
-    this.livesCountSpan    = this.req('lives-count');
-    this.livesIcon         = this.req('lives-icon');
-    this.streakCounterSpan = this.req('streakCounter');
-    this.fullscreenOverlay = this.req('fullscreenModalOverlay');
-    this.modalIframe       = this.req('modalIframe');
-    this.closeBtn          = this.req('close-btn');
-
-    this.questionSections  = [];
-    this.resultOverlays    = [];
-
     // Bind methods
     this.showQuestion = this.showQuestion.bind(this);
     this.moveToNextQuestion = this.moveToNextQuestion.bind(this);
@@ -71,20 +53,30 @@ class QuizEngine {
     this.normalizeAnswer = this.normalizeAnswer.bind(this);
     this.playSound = this.playSound.bind(this);
 
-    // --- Build UI ---
+    // DOM references
+    this.progressBar = null;
+    this.livesCountSpan = null;
+    this.livesIcon = null;
+    this.streakCounterSpan = null;
+    this.fullscreenOverlay = null;
+    this.modalIframe = null;
+    this.questionSections = [];
+
+    // Build the quiz UI
     this.buildQuizUI();
 
-    // --- Events ---
-    this.closeBtn.addEventListener('click', () => {
+    // Bind close button
+    document.getElementById('close-btn').addEventListener('click', () => {
       this.showModal('../src/components/modals/quit-confirmation.html', () => {});
     });
 
+    // Initialise
     this.loadStreakFromStorage();
     this.updateStreakCounter();
     this.updateHeartIcon();
     this.progressBar.style.width = `${(1 / this.totalQuestions) * 100}%`;
 
-    // --- Start ---
+    // Show hearts modal or start lesson
     if (!this.hasCompletedFirstLesson) {
       this.showModal('../src/components/modals/hearts-modal.html', () => {
         localStorage.setItem('hasCompletedFirstLesson', 'true');
@@ -96,48 +88,37 @@ class QuizEngine {
     }
   }
 
-  /** Get a required element by ID – throws if missing */
-  req(id) {
-    const el = document.getElementById(id);
-    if (!el) throw new Error(`Required DOM element "#${id}" not found.`);
-    return el;
-  }
-
   buildQuizUI() {
     const container = document.querySelector('.quiz-container');
-    if (!container) throw new Error('Quiz container (.quiz-container) not found.');
+    this.progressBar = document.getElementById('progress-bar');
+    this.livesCountSpan = document.getElementById('lives-count');
+    this.livesIcon = document.getElementById('lives-icon');
+    this.streakCounterSpan = document.getElementById('streakCounter');
+    this.fullscreenOverlay = document.getElementById('fullscreenModalOverlay');
+    this.modalIframe = document.getElementById('modalIframe');
 
+    // Create question sections
     for (let i = 0; i < this.totalQuestions; i++) {
       const qSection = document.createElement('div');
       qSection.id = `question${i + 1}`;
       qSection.style.display = 'none';
       container.appendChild(qSection);
-
-      const overlay = document.createElement('div');
-      overlay.className = 'result-overlay';
-      overlay.id = `resultOverlay-${i + 1}`;
-      overlay.innerHTML = `
-        <div class="result-container" id="resultContainer-${i + 1}">
-          <div class="result-main">
-            <span class="material-symbols-outlined material-icon" id="resultIcon-${i + 1}"></span>
-            <div class="result-header" id="resultHeader-${i + 1}"></div>
-            <span class="material-symbols-outlined material-icon" id="actionIcon-${i + 1}"></span>
-          </div>
-          <div class="explanation-content" id="explanationContainer-${i + 1}"></div>
-          <button class="result-continue-btn" id="resultContinueBtn-${i + 1}">Continue</button>
-        </div>
-      `;
-      container.appendChild(overlay);
       this.questionSections.push(qSection);
     }
   }
 
+  // Storage
   loadStreakFromStorage() { const s = localStorage.getItem(this.streakKey); if (s) this.currentStreakDays = parseInt(s,10); else localStorage.setItem(this.streakKey,'1'); }
   saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
   incrementStreak() { this.currentStreakDays++; this.saveStreakToStorage(); }
 
+  // UI helpers
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
-  updateHeartIcon() { this.livesIcon.style.color = this.lives === 0 ? '#AFAFAF' : '#EA4335'; }
+  updateHeartIcon() {
+    this.livesIcon.src = this.lives === 0
+      ? '../public/assets/icons/phosphor/regular/heart.svg'
+      : '../public/assets/icons/phosphor/fill/heart.svg';
+  }
 
   playSound(isCorrect) {
     const audio = isCorrect ? document.getElementById('correctSound') : document.getElementById('incorrectSound');
@@ -196,8 +177,26 @@ class QuizEngine {
   }
 
   showResultOverlay(qNum, isCorrect, explanationHTML, onComplete) {
-    const overlay = document.getElementById(`resultOverlay-${qNum}`);
-    if(!overlay) return;
+    // Create overlay if not exists
+    let overlay = document.getElementById(`resultOverlay-${qNum}`);
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'result-overlay';
+      overlay.id = `resultOverlay-${qNum}`;
+      overlay.innerHTML = `
+        <div class="result-container" id="resultContainer-${qNum}">
+          <div class="result-main">
+            <img id="resultIcon-${qNum}" src="" class="material-icon" alt="" style="width:2.5rem;">
+            <div class="result-header" id="resultHeader-${qNum}"></div>
+            <img id="actionIcon-${qNum}" src="" class="material-icon" alt="" style="width:2.5rem;">
+          </div>
+          <div class="explanation-content" id="explanationContainer-${qNum}"></div>
+          <button class="result-continue-btn" id="resultContinueBtn-${qNum}">Continue</button>
+        </div>
+      `;
+      document.querySelector('.quiz-container').appendChild(overlay);
+    }
+
     const container = document.getElementById(`resultContainer-${qNum}`);
     const header = document.getElementById(`resultHeader-${qNum}`);
     const icon = document.getElementById(`resultIcon-${qNum}`);
@@ -205,20 +204,20 @@ class QuizEngine {
     const explanationDiv = document.getElementById(`explanationContainer-${qNum}`);
     const continueBtn = document.getElementById(`resultContinueBtn-${qNum}`);
 
-    if(isCorrect){
-      header.textContent='Correct!';
-      icon.textContent='check_circle';
-      actionIcon.textContent='recommend';
-      container.className='result-container correct';
+    if (isCorrect) {
+      header.textContent = 'Correct!';
+      icon.src = '../public/assets/icons/material-symbols/outline/check_circle.svg';
+      actionIcon.src = '../public/assets/icons/material-symbols/outline/recommend.svg';
+      container.className = 'result-container correct';
     } else {
-      header.textContent='Incorrect';
-      icon.textContent='cancel';
-      actionIcon.textContent='stylus_note';
-      container.className='result-container incorrect';
+      header.textContent = 'Incorrect';
+      icon.src = '../public/assets/icons/material-symbols/outline/cancel.svg';
+      actionIcon.src = '../public/assets/icons/material-symbols/outline/stylus_note.svg';
+      container.className = 'result-container incorrect';
     }
-    explanationDiv.innerHTML=explanationHTML;
+    explanationDiv.innerHTML = explanationHTML;
     overlay.classList.add('visible');
-    continueBtn.onclick = ()=>{ overlay.classList.remove('visible'); this.processAfterExplanation(onComplete); };
+    continueBtn.onclick = () => { overlay.classList.remove('visible'); this.processAfterExplanation(onComplete); };
   }
 
   moveToNextQuestion() {
@@ -282,39 +281,31 @@ class QuizEngine {
   }
 
   showQuestion(questionIndex) {
-    this.questionSections.forEach(s=>{ if(s) s.style.display='none'; });
+    this.questionSections.forEach(s => { if (s) s.style.display = 'none'; });
     const actualIdx = this.inRetryMode ? this.retryQueue[this.currentQuestion] : this.currentQuestion;
     const section = this.questionSections[actualIdx];
-    if(!section) return;
-    section.style.display='block';
+    if (!section) return;
+    section.style.display = 'block';
 
     const total = this.inRetryMode ? this.retryQueue.length : this.totalQuestions;
-    this.progressBar.style.width=`${Math.round(((this.currentQuestion+1)/total)*100)}%`;
+    const percent = Math.round(((this.currentQuestion + 1) / total) * 100);
+    this.progressBar.style.width = `${percent}%`;
     this.updateStreakCounter();
-    this.answered=false; this.selectedOption=null;
+    this.answered = false;
+    this.selectedOption = null;
 
     const qData = this.questionsData[actualIdx];
-    if(!qData) return;
-    section.innerHTML='';
+    if (!qData) return;
+    section.innerHTML = '';
 
-    switch(qData.type){
-      case 'multiple-choice': this.renderMultipleChoice(section,qData,actualIdx); break;
-      case 'complete-sentence': this.renderCompleteSentence(section,qData,actualIdx); break;
-      case 'fill-blank': this.renderFillBlank(section,qData,actualIdx); break;
-      case 'image-selection': this.renderImageSelection(section,qData,actualIdx); break;
-      case 'matching': this.renderMatching(section,qData,actualIdx); break;
+    switch (qData.type) {
+      case 'multiple-choice': this.renderMultipleChoice(section, qData, actualIdx); break;
+      case 'complete-sentence': this.renderCompleteSentence(section, qData, actualIdx); break;
+      case 'fill-blank': this.renderFillBlank(section, qData, actualIdx); break;
+      case 'image-selection': this.renderImageSelection(section, qData, actualIdx); break;
+      case 'matching': this.renderMatching(section, qData, actualIdx); break;
     }
   }
-
-  vusiSVG() {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 256 256" fill="#4285F4">
-      <path d="M240,102c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,228.66,16,172,16,102A62.07,62.07,0,0,1,78,40c20.65,0,38.73,8.88,50,23.89C139.27,48.88,157.35,40,178,40A62.07,62.07,0,0,1,240,102Z"/>
-    </svg>`;
-  }
-
-  // ============================================================
-  // RENDERING METHODS (complete, uncompromised)
-  // ============================================================
 
   renderMultipleChoice(section, qData, actualIdx) {
     section.innerHTML = `
@@ -330,54 +321,54 @@ class QuizEngine {
 
     shuffledOpts.forEach(opt => {
       const b = document.createElement('button'); b.className = 'option-button'; b.dataset.value = opt; b.textContent = opt;
-      b.addEventListener('click', ()=>{
-        if(this.answered) return;
-        container.querySelectorAll('.option-button').forEach(bb=>bb.classList.remove('selected'));
+      b.addEventListener('click', () => {
+        if (this.answered) return;
+        container.querySelectorAll('.option-button').forEach(bb => bb.classList.remove('selected'));
         b.classList.add('selected'); selected = b.dataset.value; btn.disabled = false;
       });
       container.appendChild(b);
     });
 
-    btn.addEventListener('click', ()=>{
-      if(!selected || this.answered) return;
+    btn.addEventListener('click', () => {
+      if (!selected || this.answered) return;
       this.answered = true; this.totalAttempts++;
       const isCorrect = (selected === qData.correctAnswer);
       this.playSound(isCorrect);
-      const correctBtn = Array.from(container.querySelectorAll('.option-button')).find(b=>b.dataset.value===qData.correctAnswer);
-      if(correctBtn) correctBtn.classList.add('correct');
-      if(isCorrect){
-        if(!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx]=true;
+      const correctBtn = Array.from(container.querySelectorAll('.option-button')).find(b => b.dataset.value === qData.correctAnswer);
+      if (correctBtn) correctBtn.classList.add('correct');
+      if (isCorrect) {
+        if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
         this.handleCorrectAnswer();
-        this.showResultOverlay(actualIdx+1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, ()=> this.moveToNextQuestion());
+        this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
         this.handleIncorrectAnswer();
-        if(!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
-        if(this.lives>0){ this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
-        const selBtn = Array.from(container.querySelectorAll('.option-button')).find(b=>b.dataset.value===selected);
-        if(selBtn) selBtn.classList.add('incorrect');
-        this.showResultOverlay(actualIdx+1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${sanitiseHTML(qData.correctAnswer)}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`, ()=>{
-          if(this.lives===0){
-            const coins=parseInt(localStorage.getItem('coins')||'500',10);
-            if(coins>=450) this.showModal('../src/components/modals/refill-hearts.html',()=>{});
-            else window.location.href=this.redirectUrl;
+        if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
+        if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
+        const selBtn = Array.from(container.querySelectorAll('.option-button')).find(b => b.dataset.value === selected);
+        if (selBtn) selBtn.classList.add('incorrect');
+        this.showResultOverlay(actualIdx + 1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${sanitiseHTML(qData.correctAnswer)}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`, () => {
+          if (this.lives === 0) {
+            const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+            if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
+            else window.location.href = this.redirectUrl;
           } else this.moveToNextQuestion();
         });
       }
-      container.querySelectorAll('.option-button').forEach(b=>{ b.disabled=true; b.style.cursor='not-allowed'; });
+      container.querySelectorAll('.option-button').forEach(b => { b.disabled = true; b.style.cursor = 'not-allowed'; });
     });
   }
 
   renderCompleteSentence(section, qData, actualIdx) {
     const blankIds = []; const re = /id="(blank-[^"]+)"/g; let match;
-    while((match = re.exec(qData.questionText)) !== null) blankIds.push(match[1]);
+    while ((match = re.exec(qData.questionText)) !== null) blankIds.push(match[1]);
     const blanksHTML = blankIds.map(id => `<span id="${id}" class="blank" tabindex="0"></span>`);
     let displayText = qData.questionText;
-    blankIds.forEach((id,i)=>{ displayText = displayText.replace(new RegExp(`<span[^>]*id="${id}"[^>]*>.*?</span>`, 'g'), blanksHTML[i]); });
+    blankIds.forEach((id, i) => { displayText = displayText.replace(new RegExp(`<span[^>]*id="${id}"[^>]*>.*?</span>`, 'g'), blanksHTML[i]); });
 
     section.innerHTML = `
       <h2 class="quiz-title">Select what is missing</h2>
       <div class="question-container">
-        <div class="icon-container">${this.vusiSVG()}</div>
+        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;"></div>
         <div speech-bubble pleft abottom style="--bbColor:#FFFFFF"><div class="bubble-text">${displayText}</div></div>
       </div>
       <div id="options-${actualIdx}" class="options-container"></div>
@@ -387,61 +378,66 @@ class QuizEngine {
     const blankElements = blankIds.map(id => document.getElementById(id));
     const optsContainer = document.getElementById(`options-${actualIdx}`);
     const btn = document.getElementById(`check-button-${actualIdx}`);
-    blankElements.forEach(b=>{ if(b) b.textContent=''; });
+    blankElements.forEach(b => { if (b) b.textContent = ''; });
     let filled = new Array(blankElements.length).fill(null);
     let optionBtns = [];
     const shuffledOpts = this.shuffleArray([...qData.options]);
 
     shuffledOpts.forEach(opt => {
-      const button = document.createElement('button'); button.className='option-button'; button.dataset.value=opt.value; button.innerHTML=`<span>${opt.label}</span>`; optionBtns.push(button);
-      button.addEventListener('click', ()=>{
-        if(this.answered) return;
-        if(filled.some(f=>f&&f.value===opt.value)) return;
-        const idx = filled.findIndex(f=>f===null); if(idx===-1) return;
-        const target = blankElements[idx]; if(!target) return;
-        filled[idx]={value:opt.value, label:opt.label}; target.textContent=opt.label;
-        target.classList.add('filled'); button.classList.add('used-option'); btn.disabled=!filled.every(f=>f!==null);
+      const button = document.createElement('button'); button.className = 'option-button'; button.dataset.value = opt.value;
+      button.innerHTML = `<span>${opt.label}</span>`; optionBtns.push(button);
+      button.addEventListener('click', () => {
+        if (this.answered) return; if (filled.some(f => f && f.value === opt.value)) return;
+        const idx = filled.findIndex(f => f === null); if (idx === -1) return;
+        const target = blankElements[idx]; if (!target) return;
+        filled[idx] = { value: opt.value, label: opt.label }; target.textContent = opt.label;
+        target.classList.add('filled'); button.classList.add('used-option');
+        btn.disabled = !filled.every(f => f !== null);
       });
       optsContainer.appendChild(button);
     });
 
-    blankElements.forEach((blank,idx)=>{
-      if(!blank) return;
-      blank.addEventListener('click', ()=>{
-        if(this.answered) return;
-        if(filled[idx]){
-          const b = optionBtns.find(ob=>ob.dataset.value===filled[idx].value);
-          if(b) b.classList.remove('used-option'); blank.textContent='';
-          blank.classList.remove('filled','correct','incorrect'); filled[idx]=null; btn.disabled=!filled.every(f=>f!==null);
+    blankElements.forEach((blank, idx) => {
+      if (!blank) return;
+      blank.addEventListener('click', () => {
+        if (this.answered) return;
+        if (filled[idx]) {
+          const b = optionBtns.find(ob => ob.dataset.value === filled[idx].value);
+          if (b) b.classList.remove('used-option'); blank.textContent = '';
+          blank.classList.remove('filled', 'correct', 'incorrect'); filled[idx] = null;
+          btn.disabled = !filled.every(f => f !== null);
         }
       });
     });
 
-    btn.addEventListener('click', ()=>{
-      if(!filled.every(f=>f!==null)) return;
-      this.answered=true; this.totalAttempts++;
-      const userAnswers=filled.map(f=>f.value);
-      const correctSet=[...qData.correctAnswers].sort().join(',');
-      const userSet=[...userAnswers].sort().join(',');
-      const isCorrect=(correctSet===userSet);
-      this.playSound(isCorrect); optionBtns.forEach(b=>{b.disabled=true;});
+    btn.addEventListener('click', () => {
+      if (!filled.every(f => f !== null)) return;
+      this.answered = true; this.totalAttempts++;
+      const userAnswers = filled.map(f => f.value);
+      const correctSet = [...qData.correctAnswers].sort().join(',');
+      const userSet = [...userAnswers].sort().join(',');
+      const isCorrect = (correctSet === userSet);
+      this.playSound(isCorrect); optionBtns.forEach(b => { b.disabled = true; });
 
-      if(isCorrect){
-        if(!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx]=true;
-        blankElements.forEach(b=>{if(b)b.classList.add('correct')});
-        optionBtns.forEach(b=>{if(qData.correctAnswers.includes(b.dataset.value))b.classList.add('correct')});
+      if (isCorrect) {
+        if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
+        blankElements.forEach(b => { if (b) b.classList.add('correct'); });
+        optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
         this.handleCorrectAnswer();
-        this.showResultOverlay(actualIdx+1,true,`<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,()=>this.moveToNextQuestion());
+        this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
-        blankElements.forEach(b=>{if(b)b.classList.add('incorrect')});
-        if(!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
+        blankElements.forEach(b => { if (b) b.classList.add('incorrect'); });
+        if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
         this.handleIncorrectAnswer();
-        if(this.lives>0){ this.lives--; this.livesCountSpan.textContent=String(this.lives); this.updateHeartIcon(); }
-        optionBtns.forEach(b=>{if(qData.correctAnswers.includes(b.dataset.value))b.classList.add('correct')});
-        const correctLabels = qData.correctAnswers.map(a=>qData.options.find(o=>o.value===a)?.label||a).join('</span> and <span class="underlined">');
-        this.showResultOverlay(actualIdx+1,false,`<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span><span class="underlined">${correctLabels}</span></span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`,()=>{
-          if(this.lives===0){ const coins=parseInt(localStorage.getItem('coins')||'500',10); if(coins>=450) this.showModal('../src/components/modals/refill-hearts.html',()=>{}); else window.location.href=this.redirectUrl; }
-          else this.moveToNextQuestion();
+        if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
+        optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
+        const correctLabels = qData.correctAnswers.map(a => qData.options.find(o => o.value === a)?.label || a).join('</span> and <span class="underlined">');
+        this.showResultOverlay(actualIdx + 1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span><span class="underlined">${correctLabels}</span></span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`, () => {
+          if (this.lives === 0) {
+            const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+            if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
+            else window.location.href = this.redirectUrl;
+          } else this.moveToNextQuestion();
         });
       }
     });
@@ -451,7 +447,7 @@ class QuizEngine {
     section.innerHTML = `
       <h2 class="quiz-title">Complete the statement</h2>
       <div class="question-container">
-        <div class="icon-container">${this.vusiSVG()}</div>
+        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;"></div>
         <div speech-bubble pleft acenter style="--bbColor:#FFFFFF"><div class="bubble-text">${qData.questionText}</div></div>
       </div>
       <div class="response-container">
@@ -462,27 +458,30 @@ class QuizEngine {
     `;
     const input = document.getElementById(`fill-blank-input-${actualIdx}`);
     const btn = document.getElementById(`check-button-${actualIdx}`);
-    input.addEventListener('input',()=>{ btn.disabled=!input.value.trim(); if(this.answered){input.classList.remove('correct','incorrect'); this.answered=false;} });
-    input.addEventListener('keypress',(e)=>{ if(e.key==='Enter'&&!btn.disabled) btn.click(); });
-    btn.addEventListener('click',()=>{
-      this.answered=true; this.totalAttempts++;
-      const userAnswer=this.normalizeAnswer(input.value.trim());
-      const isCorrect=qData.acceptableAnswers.some(a=>userAnswer===this.normalizeAnswer(a));
+    input.addEventListener('input', () => { btn.disabled = !input.value.trim(); if (this.answered) { input.classList.remove('correct', 'incorrect'); this.answered = false; } });
+    input.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !btn.disabled) btn.click(); });
+    btn.addEventListener('click', () => {
+      this.answered = true; this.totalAttempts++;
+      const userAnswer = this.normalizeAnswer(input.value.trim());
+      const isCorrect = qData.acceptableAnswers.some(a => userAnswer === this.normalizeAnswer(a));
       this.playSound(isCorrect);
-      if(isCorrect){
-        if(!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx]=true;
+      if (isCorrect) {
+        if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
         input.classList.add('correct'); this.handleCorrectAnswer();
-        this.showResultOverlay(actualIdx+1,true,`<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,()=>this.moveToNextQuestion());
+        this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
-        if(!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
+        if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
         this.handleIncorrectAnswer(); input.classList.add('incorrect');
-        if(this.lives>0){ this.lives--; this.livesCountSpan.textContent=String(this.lives); this.updateHeartIcon(); }
-        this.showResultOverlay(actualIdx+1,false,`<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${sanitiseHTML(qData.correctAnswer)}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`,()=>{
-          if(this.lives===0){ const coins=parseInt(localStorage.getItem('coins')||'500',10); if(coins>=450) this.showModal('../src/components/modals/refill-hearts.html',()=>{}); else window.location.href=this.redirectUrl; }
-          else this.moveToNextQuestion();
+        if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
+        this.showResultOverlay(actualIdx + 1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${sanitiseHTML(qData.correctAnswer)}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`, () => {
+          if (this.lives === 0) {
+            const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+            if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
+            else window.location.href = this.redirectUrl;
+          } else this.moveToNextQuestion();
         });
       }
-      input.disabled=true;
+      input.disabled = true;
     });
     input.focus();
   }
@@ -493,7 +492,7 @@ class QuizEngine {
       <h2 class="quiz-title">Pick the correct image</h2>
       <div class="question" style="text-align:center">${qData.questionText}</div>
       <div class="image-selection-container">
-        <div class="image-grid" id="image-grid-${actualIdx}">${imgs.map((img,i)=>`<div class="image-tile" data-image="${i+1}"><div class="image-container" data-image="${i+1}"><img src="${img.src}" alt="${img.label}" loading="lazy"></div><div class="image-label">${img.label}</div></div>`).join('')}</div>
+        <div class="image-grid" id="image-grid-${actualIdx}">${imgs.map((img, i) => `<div class="image-tile" data-image="${i + 1}"><div class="image-container" data-image="${i + 1}"><img src="${img.src}" alt="${img.label}" loading="lazy"></div><div class="image-label">${img.label}</div></div>`).join('')}</div>
         <div class="expand-hint"><i>Tap any image to expand for a closer look</i></div>
       </div>
       <div class="footer"><button id="check-button-${actualIdx}" class="check-button" disabled>Check</button></div>
@@ -507,26 +506,58 @@ class QuizEngine {
     const zoomClose = document.getElementById('zoomCloseBtn');
     let state = { selected: null, answered: false };
 
-    tiles.forEach(t=>{ t.style.cursor='pointer'; t.addEventListener('click',(e)=>{ if(state.answered)return; if(e.target.closest('.image-container'))return; tiles.forEach(tt=>tt.classList.remove('selected')); t.classList.add('selected'); state.selected=parseInt(t.dataset.image,10); btn.disabled=false; }); });
-    containers.forEach(c=>{ c.addEventListener('click',(e)=>{ e.stopPropagation(); const img=c.querySelector('img'); if(img&&img.src){ zoomImg.src=img.src; zoomLabel.textContent=`Image ${c.dataset.image}`; zoomModal.classList.add('visible'); } }); });
-    const closeZoom=()=>{ zoomModal.classList.remove('visible'); zoomImg.src=''; };
-    zoomModal.addEventListener('click',(e)=>{ if(e.target===zoomModal) closeZoom(); });
+    tiles.forEach(t => {
+      t.style.cursor = 'pointer';
+      t.addEventListener('click', (e) => {
+        if (state.answered) return;
+        if (e.target.closest('.image-container')) return;
+        tiles.forEach(tt => tt.classList.remove('selected'));
+        t.classList.add('selected');
+        state.selected = parseInt(t.dataset.image, 10);
+        btn.disabled = false;
+      });
+    });
+    containers.forEach(c => {
+      c.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const img = c.querySelector('img');
+        if (img && img.src) {
+          zoomImg.src = img.src;
+          zoomLabel.textContent = `Image ${c.dataset.image}`;
+          zoomModal.classList.add('visible');
+        }
+      });
+    });
+    const closeZoom = () => { zoomModal.classList.remove('visible'); zoomImg.src = ''; };
+    zoomModal.addEventListener('click', (e) => { if (e.target === zoomModal) closeZoom(); });
     zoomClose.addEventListener('click', closeZoom);
 
-    btn.addEventListener('click',()=>{
-      if(state.selected===null||state.answered) return;
-      state.answered=true; this.totalAttempts++; tiles.forEach(t=>t.style.cursor='default');
-      tiles.forEach(t=>{ const n=parseInt(t.dataset.image,10); if(n===qData.correctAnswer) t.classList.add('correct'); else if(n===state.selected&&n!==qData.correctAnswer) t.classList.add('incorrect'); t.classList.remove('selected'); });
-      const isCorrect=(state.selected===qData.correctAnswer); this.playSound(isCorrect);
-      if(isCorrect){
-        if(!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx]=true;
-        this.handleCorrectAnswer(); this.showResultOverlay(actualIdx+1,true,`<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,()=>this.moveToNextQuestion());
+    btn.addEventListener('click', () => {
+      if (state.selected === null || state.answered) return;
+      state.answered = true; this.totalAttempts++;
+      tiles.forEach(t => t.style.cursor = 'default');
+      tiles.forEach(t => {
+        const n = parseInt(t.dataset.image, 10);
+        if (n === qData.correctAnswer) t.classList.add('correct');
+        else if (n === state.selected && n !== qData.correctAnswer) t.classList.add('incorrect');
+        t.classList.remove('selected');
+      });
+      const isCorrect = (state.selected === qData.correctAnswer);
+      this.playSound(isCorrect);
+      if (isCorrect) {
+        if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
+        this.handleCorrectAnswer();
+        this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
-        if(!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
-        this.handleIncorrectAnswer(); if(this.lives>0){ this.lives--; this.livesCountSpan.textContent=String(this.lives); this.updateHeartIcon(); }
-        this.showResultOverlay(actualIdx+1,false,`<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Image ${qData.correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`,()=>{
-          if(this.lives===0){ const coins=parseInt(localStorage.getItem('coins')||'500',10); if(coins>=450) this.showModal('../src/components/modals/refill-hearts.html',()=>{}); else window.location.href=this.redirectUrl; }
-          else this.moveToNextQuestion();
+        if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
+        this.handleIncorrectAnswer();
+        if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
+        this.showResultOverlay(actualIdx + 1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Image ${qData.correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`, () => {
+          if (this.lives === 0) {
+            const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+            if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
+            else window.location.href = this.redirectUrl;
+          } else this.moveToNextQuestion();
         });
       }
     });
@@ -545,56 +576,77 @@ class QuizEngine {
     const feedbackTitle = document.getElementById('feedbackTitle');
     const feedbackMsg = document.getElementById('feedbackMessage');
 
-    feedbackOverlay.classList.remove('visible'); matchingContinueBtn.style.display='none';
-    let selectedLeft=null, selectedRight=null, matched=0, gameActive=true, lifeLostInThisGame=false, completed=false;
+    feedbackOverlay.classList.remove('visible'); matchingContinueBtn.style.display = 'none';
+    let selectedLeft = null, selectedRight = null, matched = 0, gameActive = true, lifeLostInThisGame = false, completed = false;
     const pairs = qData.pairs || [], shuffledPairs = this.shuffleArray([...pairs]);
 
-    leftCol.innerHTML=''; shuffledPairs.forEach((pair,idx)=>{
-      const card=document.createElement('div'); card.className='card'; card.dataset.pair=String(idx); card.dataset.type='term'; card.textContent=pair.term;
-      card.addEventListener('click',()=>{ if(!gameActive||card.classList.contains('matched')) return; if(card.classList.contains('wrong')) resetWrong(); leftCol.querySelectorAll('.card.selected').forEach(c=>c.classList.remove('selected')); card.classList.add('selected'); selectedLeft=card; if(selectedLeft&&selectedRight) checkMatch(); });
+    leftCol.innerHTML = ''; shuffledPairs.forEach((pair, idx) => {
+      const card = document.createElement('div'); card.className = 'card'; card.dataset.pair = String(idx); card.dataset.type = 'term'; card.textContent = pair.term;
+      card.addEventListener('click', () => {
+        if (!gameActive || card.classList.contains('matched')) return;
+        if (card.classList.contains('wrong')) resetWrong();
+        leftCol.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected'); selectedLeft = card;
+        if (selectedLeft && selectedRight) checkMatch();
+      });
       leftCol.appendChild(card);
     });
-    rightCol.innerHTML=''; const shuffledMeanings=this.shuffleArray([...shuffledPairs]);
-    shuffledMeanings.forEach(pair=>{
-      const card=document.createElement('div'); card.className='card'; card.dataset.pair=String(shuffledPairs.findIndex(p=>p.meaning===pair.meaning)); card.dataset.type='meaning'; card.textContent=pair.meaning;
-      card.addEventListener('click',()=>{ if(!gameActive||card.classList.contains('matched')) return; if(card.classList.contains('wrong')) resetWrong(); rightCol.querySelectorAll('.card.selected').forEach(c=>c.classList.remove('selected')); card.classList.add('selected'); selectedRight=card; if(selectedLeft&&selectedRight) checkMatch(); });
+    rightCol.innerHTML = ''; const shuffledMeanings = this.shuffleArray([...shuffledPairs]);
+    shuffledMeanings.forEach(pair => {
+      const card = document.createElement('div'); card.className = 'card'; card.dataset.pair = String(shuffledPairs.findIndex(p => p.meaning === pair.meaning)); card.dataset.type = 'meaning'; card.textContent = pair.meaning;
+      card.addEventListener('click', () => {
+        if (!gameActive || card.classList.contains('matched')) return;
+        if (card.classList.contains('wrong')) resetWrong();
+        rightCol.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected'); selectedRight = card;
+        if (selectedLeft && selectedRight) checkMatch();
+      });
       rightCol.appendChild(card);
     });
 
-    const checkMatch = ()=>{
-      if(!selectedLeft||!selectedRight||!gameActive) return;
-      if(selectedLeft.dataset.pair===selectedRight.dataset.pair){
+    const checkMatch = () => {
+      if (!selectedLeft || !selectedRight || !gameActive) return;
+      if (selectedLeft.dataset.pair === selectedRight.dataset.pair) {
         this.playSound(true); selectedLeft.classList.remove('selected'); selectedRight.classList.remove('selected');
         selectedLeft.classList.add('correct'); selectedRight.classList.add('correct'); matched++;
-        setTimeout(()=>{ document.querySelectorAll(`#leftColumn-${actualIdx} .card.correct, #rightColumn-${actualIdx} .card.correct`).forEach(c=>{ c.classList.remove('correct'); c.classList.add('matched'); }); },800);
-        if(matched===pairs.length&&!completed){
-          gameActive=false; completed=true; this.totalAttempts++;
-          if(!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx]=true;
+        setTimeout(() => {
+          document.querySelectorAll(`#leftColumn-${actualIdx} .card.correct, #rightColumn-${actualIdx} .card.correct`).forEach(c => { c.classList.remove('correct'); c.classList.add('matched'); });
+        }, 800);
+        if (matched === pairs.length && !completed) {
+          gameActive = false; completed = true; this.totalAttempts++;
+          if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
           this.currentStreak++; this.updateStreakCounter();
-          if(this.currentStreak%5===0&&this.currentStreak>0){ this.pendingCelebration=true; this.pendingCelebrationStreak=this.currentStreak; this.processAfterExplanation(()=>this.moveToNextQuestion()); }
-          else this.moveToNextQuestion();
+          if (this.currentStreak % 5 === 0 && this.currentStreak > 0) {
+            this.pendingCelebration = true; this.pendingCelebrationStreak = this.currentStreak;
+            this.processAfterExplanation(() => this.moveToNextQuestion());
+          } else this.moveToNextQuestion();
         }
       } else {
         this.playSound(false); selectedLeft.classList.add('wrong'); selectedRight.classList.add('wrong');
-        if(!lifeLostInThisGame){
-          if(this.lives>0){ this.lives--; this.livesCountSpan.textContent=String(this.lives); this.updateHeartIcon(); lifeLostInThisGame=true;
-            if(this.lives===0){ feedbackTitle.textContent='Game Over'; feedbackMsg.textContent="You've run out of lives!"; feedbackOverlay.classList.add('visible'); gameActive=false;
-              const coins=parseInt(localStorage.getItem('coins')||'500',10); if(coins>=450) this.showModal('../src/components/modals/refill-hearts.html',()=>{}); else window.location.href=this.redirectUrl; return; }
+        if (!lifeLostInThisGame) {
+          if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); lifeLostInThisGame = true;
+            if (this.lives === 0) { feedbackTitle.textContent = 'Game Over'; feedbackMsg.textContent = "You've run out of lives!"; feedbackOverlay.classList.add('visible'); gameActive = false;
+              const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+              if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
+              else window.location.href = this.redirectUrl;
+              return;
+            }
           }
         }
-        this.handleIncorrectAnswer(); feedbackTitle.textContent='Incorrect'; feedbackMsg.textContent="Let's try that again"; feedbackOverlay.classList.add('visible');
+        this.handleIncorrectAnswer(); feedbackTitle.textContent = 'Incorrect'; feedbackMsg.textContent = "Let's try that again"; feedbackOverlay.classList.add('visible');
       }
-      selectedLeft=null; selectedRight=null;
+      selectedLeft = null; selectedRight = null;
     };
 
-    const resetWrong = ()=>{
-      document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c=>c.classList.remove('wrong'));
-      document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c=>c.classList.remove('selected'));
-      selectedLeft=null; selectedRight=null; feedbackOverlay.classList.remove('visible');
+    const resetWrong = () => {
+      document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c => c.classList.remove('wrong'));
+      document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c => c.classList.remove('selected'));
+      selectedLeft = null; selectedRight = null; feedbackOverlay.classList.remove('visible');
     };
+
     tryAgainBtn.onclick = resetWrong;
-    feedbackOverlay.addEventListener('click',(e)=>{ if(e.target===feedbackOverlay) resetWrong(); });
-    matchingContinueBtn.addEventListener('click', ()=> this.moveToNextQuestion());
+    feedbackOverlay.addEventListener('click', (e) => { if (e.target === feedbackOverlay) resetWrong(); });
+    matchingContinueBtn.addEventListener('click', () => this.moveToNextQuestion());
   }
 }
 
