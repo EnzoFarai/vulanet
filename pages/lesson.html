@@ -75,7 +75,7 @@
         const lessonData = await response.json();
         new QuizEngine(lessonData);
       } catch (error) {
-        // Keep the UI intact and show an error message
+        // Show a warning, don't destroy the page
         document.body.insertAdjacentHTML('beforeend', `
           <div style="position:fixed;top:0;left:0;right:0;background:#fff3cd;color:#856404;padding:1rem;text-align:center;z-index:9999;font-family:'Atkinson Hyperlegible Next',sans-serif;">
             <strong>Oops!</strong> ${error.message}<br>
