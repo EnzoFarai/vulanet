@@ -5,39 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lesson Complete</title>
   <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="../../src/styles/components/buttons.css">
+  <script src="../../src/lib/lottie-player.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; position: relative; overflow: hidden; }
-    .app { max-width: 420px; width: 100%; padding: 40px 18px 28px; display: flex; flex-direction: column; align-items: center; z-index: 20; }
-    .title { font-size: 34px; font-weight: 900; color: #ffd24a; margin-top: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-    .scene { height: 260px; display: flex; align-items: center; justify-content: center; }
-    lottie-player { width: 160px; height: 160px; }
-    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px; }
-    .stat { background: #fff; border-radius: 16px; border: 2px solid; overflow: hidden; text-align: center; }
-    .stat-header { padding: 12px 6px; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .stat-content { padding: 14px 6px; font-size: 18px; font-weight: 900; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .continue-wrap { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 14px 16px 22px; border-top: 1px solid #ededed; z-index: 100; }
-    .continue { max-width: 420px; margin: 0 auto; width: 100%; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
+    body { background: #FFFFFF; display: flex; justify-content: center; position: relative; overflow: hidden; min-height: 100vh; }
+    .app { width: 100%; max-width: 420px; min-height: 100vh; padding: 24px 18px 28px; display: flex; flex-direction: column; align-items: center; z-index: 20; }
+    .title { margin-top: 12px; text-align: center; font-weight: 900; color: #ffd24a; font-size: 34px; line-height: 1.1; text-shadow: 0 1px 2px rgba(0,0,0,0.1); z-index: 30; }
+    .scene { width: 100%; height: 260px; margin-top: 10px; display: flex; justify-content: center; align-items: center; z-index: 30; }
+    .emoji-container { width: 160px; height: 160px; animation: bounce 2s ease-in-out infinite; z-index: 40; }
+    lottie-player { width: 160px !important; height: 160px !important; filter: drop-shadow(0 4px 8px rgba(255,210,74,0.3)); }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    .stats { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; z-index: 30; }
+    .stat { background: #FFFFFF; border-radius: 16px; padding: 0; text-align: center; border: 2px solid; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
+    .stat-header { padding: 12px 6px; color: #FFFFFF; font-size: 11px; letter-spacing: .8px; font-weight: 700; text-transform: uppercase; }
+    .stat-content { padding: 14px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; gap: 6px; }
+    .continue-wrap { position: fixed; bottom: 0; left: 0; right: 0; background: #FFFFFF; padding: 14px 16px 22px; border-top: 1px solid #ededed; z-index: 100; }
+    .continue { width: 100%; max-width: 420px; margin: 0 auto; height: 52px; border-radius: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border: none; font-size: 15px; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.2s ease; display: block; color: #FFFFFF; background-color: #4285F4; border-bottom: 0.25rem solid #3a75d9; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
+    .continue:hover { background-color: #3a75d9; transform: translateY(-0.125rem); }
+    .continue:active { transform: translateY(0.0625rem); border-bottom-width: 0.125rem; }
     .fireworks-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: flex; justify-content: space-around; align-items: center; padding: 0 50px; }
-    .fireworks { width: 2.5em; height: 2em; animation: flatify-firework 4s infinite; font-size: 2.5em; position: relative; }
-    .fireworks:before, .spark:before,.spark:after { content: " "; position: absolute; height: 0.25em; border-radius: 50em; background: var(--firework-color); }
-    .fireworks:before { top:0; bottom:0; left:0; right:0; width:0.25em; margin:auto; animation: flatify-firework-main 4s infinite; }
-    .spark { position: absolute; top:0; left:0; width:100%; height:100%; animation: flatify-firework-sparks 4s infinite; }
-    .spark:nth-child(1):before,.spark:nth-child(2):before { left:-0.25em; animation: flatify-firework-spark-left 4s infinite; }
-    .spark:nth-child(1):after,.spark:nth-child(2):after { right:-0.25em; animation: flatify-firework-spark-right 4s infinite; }
+    .fireworks { position: relative; width: 2.5em; height: 2em; animation: flatify-firework 4s infinite; font-size: 2.5em; }
+    .fireworks:before, .fireworks .spark:before, .fireworks .spark:after {
+      content: " "; position: absolute; height: 0.25em; border-radius: 50em; background: var(--firework-color);
+    }
+    .fireworks:before { top: 0; bottom: 0; left: 0; right: 0; width: 0.25em; margin: auto; animation: flatify-firework-main 4s infinite; }
+    .spark { position: absolute; top: 0; left: 0; width: 100%; height: 100%; animation: flatify-firework-sparks 4s infinite; }
+    .spark:nth-child(1):before, .spark:nth-child(2):before { left: -0.25em; animation: flatify-firework-spark-left 4s infinite; }
+    .spark:nth-child(1):after, .spark:nth-child(2):after { right: -0.25em; animation: flatify-firework-spark-right 4s infinite; }
     .spark:nth-child(2) { transform: rotate(90deg); }
-    .spark:nth-child(3),.spark:nth-child(4) { left:0; }
-    .spark:nth-child(3):before,.spark:nth-child(4):before { top:0; transform: rotate(45deg); animation: flatify-firework-spark-corner-top 4s infinite; }
-    .spark:nth-child(3):after,.spark:nth-child(4):after { bottom:0; transform: rotate(-45deg); animation: flatify-firework-spark-corner-bottom 4s infinite; }
+    .spark:nth-child(3), .spark:nth-child(4) { left: 0; }
+    .spark:nth-child(3):before, .spark:nth-child(4):before { top: 0; transform: rotate(45deg); animation: flatify-firework-spark-corner-top 4s infinite; }
+    .spark:nth-child(3):after, .spark:nth-child(4):after { bottom: 0; transform: rotate(-45deg); animation: flatify-firework-spark-corner-bottom 4s infinite; }
     .spark:nth-child(4) { transform: rotate(180deg); }
-    @keyframes flatify-firework { 0%,20%{transform:translateY(0)} 40%{transform:translateY(-1em)} 80%,100%{transform:translateY(0.5em)} }
-    @keyframes flatify-firework-main { 0%{opacity:0;transform:scale(0) translateY(1em)} 5%{opacity:1;transform:scale(0,6) translateY(1em)} 26%{transform:scaleY(2) translateY(0)} 30%{transform:scale(9) translateY(0)} 40%,100%{transform:scale(0) translateY(0)} }
-    @keyframes flatify-firework-sparks { 0%,30%{opacity:0} 38%{opacity:1} 65%,100%{opacity:0} }
-    @keyframes flatify-firework-spark-corner-top { 0%,30%{opacity:1;clip-path:circle(100% at left);transform:scale(1) translate(0) rotate(45deg)} 40%{clip-path:circle(100% at left)} 60%,100%{opacity:0;clip-path:circle(0 at left);transform:scale(1.5) translate(-0.5em,-0.25em) rotate(45deg)} }
-    @keyframes flatify-firework-spark-corner-bottom { 0%,30%{opacity:1;clip-path:circle(100% at left);transform:scale(1) translate(0) rotate(-45deg)} 40%{clip-path:circle(100% at left)} 60%,100%{opacity:0;clip-path:circle(0 at left);transform:scale(1.5) translate(-0.5em,0.25em) rotate(-45deg)} }
-    @keyframes flatify-firework-spark-left { 0%,30%{opacity:1;clip-path:circle(100% at left);transform:scale(1) translate(0)} 40%{clip-path:circle(100% at left)} 60%,100%{opacity:0;clip-path:circle(0 at left);transform:scaleX(2) translate(-0.5em)} }
-    @keyframes flatify-firework-spark-right { 0%,30%{opacity:1;clip-path:circle(100% at right);transform:scale(1) translate(0)} 40%{clip-path:circle(100% at right)} 60%,100%{opacity:0;clip-path:circle(0 at right);transform:scaleX(2) translate(0.5em)} }
+    @keyframes flatify-firework { 0%,20% { transform: translateY(0); } 40% { transform: translateY(-1em); } 80%,100% { transform: translateY(0.5em); } }
+    @keyframes flatify-firework-main { 0% { opacity: 0; transform: scale(0) translateY(1em); } 5% { opacity: 1; transform: scale(0,6) translateY(1em); } 26% { transform: scaleY(2) translateY(0); } 30% { transform: scale(9) translateY(0); } 40%,100% { transform: scale(0) translateY(0); } }
+    @keyframes flatify-firework-sparks { 0%,30% { opacity: 0; } 38% { opacity: 1; } 65%,100% { opacity: 0; } }
+    @keyframes flatify-firework-spark-corner-top { 0%,30% { opacity:1; clip-path:circle(100% at left); transform:scale(1) translate(0) rotate(45deg); } 40% { clip-path:circle(100% at left); } 60%,100% { opacity:0; clip-path:circle(0 at left); transform:scale(1.5) translate(-0.5em,-0.25em) rotate(45deg); } }
+    @keyframes flatify-firework-spark-corner-bottom { 0%,30% { opacity:1; clip-path:circle(100% at left); transform:scale(1) translate(0) rotate(-45deg); } 40% { clip-path:circle(100% at left); } 60%,100% { opacity:0; clip-path:circle(0 at left); transform:scale(1.5) translate(-0.5em,0.25em) rotate(-45deg); } }
+    @keyframes flatify-firework-spark-left { 0%,30% { opacity:1; clip-path:circle(100% at left); transform:scale(1) translate(0); } 40% { clip-path:circle(100% at left); } 60%,100% { opacity:0; clip-path:circle(0 at left); transform:scaleX(2) translate(-0.5em); } }
+    @keyframes flatify-firework-spark-right { 0%,30% { opacity:1; clip-path:circle(100% at right); transform:scale(1) translate(0); } 40% { clip-path:circle(100% at right); } 60%,100% { opacity:0; clip-path:circle(0 at right); transform:scaleX(2) translate(0.5em); } }
   </style>
 </head>
 <body>
@@ -49,14 +55,15 @@
   <div class="app">
     <div class="title">Lesson complete!</div>
     <div class="scene">
-      <lottie-player src="../../public/assets/lottie/1f973.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      <div class="emoji-container">
+        <lottie-player src="../../public/assets/lottie/1f973.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      </div>
     </div>
     <div class="stats" id="statsContainer"></div>
   </div>
   <div class="continue-wrap">
-    <button class="btn btn-md btn-carpenter-blue continue" id="continueBtn">CONTINUE</button>
+    <button class="continue" id="continueBtn">CONTINUE</button>
   </div>
-  <script src="../../src/lib/lottie-player.js"></script>
   <script>
     const audio = new Audio('../../public/assets/audio/complete.mp3'); audio.play().catch(()=>{});
     const params = new URLSearchParams(window.location.search);
@@ -64,24 +71,27 @@
     let total = parseInt(params.get('totalAttempts'))||1;
     let time = parseInt(params.get('time'))||0;
     let boost = parseFloat(params.get('boost'))||null;
-    const TOTAL_QUESTIONS = 6;
-    const T_expected = TOTAL_QUESTIONS * 15;
+    const totalQuestions = 6;
+    const T_expected = totalQuestions * 15;
     const T_max = 2 * T_expected;
     let accuracyXP = Math.round((correct / total) * 10);
     accuracyXP = Math.min(accuracyXP, 10);
-    let speedXP = time <= T_expected ? 10 : (time <= T_max ? Math.round(10 * (2 - time/T_expected)) : 0);
-    if(speedXP < 0) speedXP = 0;
+    let speedXP = 0;
+    if (time <= T_expected) speedXP = 10;
+    else if (time > T_expected && time <= T_max) speedXP = Math.round(10 * (2 - (time / T_expected)));
+    if (speedXP < 0) speedXP = 0;
     let totalXP = 10 + accuracyXP + speedXP;
     let displayXP = boost ? Math.round(totalXP * boost) : totalXP;
     let xpColor = boost ? '#FF6D01' : '#FBBC05';
     let xpHeader = boost ? 'XP BOOST' : 'TOTAL XP';
-    let timeString = time < 60 ? `${time}s` : `${Math.floor(time/60)}m ${time%60}s`;
-    let accuracyLabel = accuracyXP === 10 ? 'PERFECT' : accuracyXP >= 8 ? 'OUTSTANDING' : accuracyXP >= 5 ? 'NICE' : 'YIKES';
+    let timeStr = time < 60 ? `${time}s` : time < 3600 ? `${Math.floor(time/60)}m ${time%60}s` : `${Math.floor(time/3600)}h`;
     let committedLabel = time <= T_expected ? 'WHOA' : 'COMMITTED';
+    let percentage = Math.round((correct / total) * 100);
+    let accuracyLabel = percentage === 100 ? 'PERFECT' : percentage >= 80 ? 'OUTSTANDING' : percentage >= 50 ? 'NICE' : 'YIKES';
     document.getElementById('statsContainer').innerHTML = `
-      <div class="stat" style="border-color:${xpColor}"><div class="stat-header" style="background:${xpColor}">${xpHeader}</div><div class="stat-content"><span>${displayXP}</span></div></div>
-      <div class="stat" style="border-color:#4285F4"><div class="stat-header" style="background:#4285F4">${committedLabel}</div><div class="stat-content"><span>${timeString}</span></div></div>
-      <div class="stat" style="border-color:#34A853"><div class="stat-header" style="background:#34A853">${accuracyLabel}</div><div class="stat-content"><span>${Math.round((correct/total)*100)}%</span></div></div>
+      <div class="stat" style="border-color:${xpColor}"><div class="stat-header" style="background:${xpColor}">${xpHeader}</div><div class="stat-content"><img src="../../public/assets/icons/phosphor/fill/lightning.svg" style="width:20px;height:20px;filter:${boost ? 'brightness(0) invert(1)' : 'none'}"><span id="xpValue">${displayXP}</span></div></div>
+      <div class="stat" style="border-color:#4285F4"><div class="stat-header" style="background:#4285F4">${committedLabel}</div><div class="stat-content"><img src="../../public/assets/icons/phosphor/duotone/clock-countdown.svg" style="width:20px;height:20px;"><span>${timeStr}</span></div></div>
+      <div class="stat" style="border-color:#34A853"><div class="stat-header" style="background:#34A853">${accuracyLabel}</div><div class="stat-content"><img src="../../public/assets/icons/phosphor/duotone/target.svg" style="width:20px;height:20px;"><span>${percentage}%</span></div></div>
     `;
     document.getElementById('continueBtn').addEventListener('click', ()=> window.parent.postMessage('modalClose','*'));
   </script>
