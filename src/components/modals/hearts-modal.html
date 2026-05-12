@@ -4,29 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hearts Modal</title>
-  <link rel="stylesheet" href="/public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="/src/styles/components/buttons.css">
-  <link rel="stylesheet" href="/public/assets/icons/phosphor/fill/style.css">
-  <link rel="stylesheet" href="/public/assets/icons/phosphor/regular/style.css">
+  <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../../src/styles/components/buttons.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; }
     .modal { width: 88%; max-width: 400px; background: #fff; border-radius: 14px; padding: 24px 18px 20px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
     .hearts-display { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 18px; }
-    .heart-icon { width: 36px; height: 36px; }
-    .heart-icon img { width: 100%; height: 100%; }
+    .hearts-display img { width: 36px; height: 36px; }
     .hearts-count { font-weight: 700; font-size: 22px; color: #EA4335; margin-left: 4px; }
     .modal-title { font-size: 20px; font-weight: 700; color: #4B4B4B; margin-bottom: 8px; }
     .modal-description { font-size: 14px; color: #777; margin-bottom: 20px; line-height: 1.4; }
-    .btn { width: 100%; }
   </style>
 </head>
 <body>
   <div class="modal-overlay">
     <div class="modal">
       <div class="hearts-display">
-        <div class="heart-icon"><img src="/public/assets/icons/phosphor/fill/heart.svg" alt="heart"></div>
+        <img src="../../public/assets/icons/phosphor/fill/heart.svg" alt="heart" id="heart-img">
         <div class="hearts-count" id="hearts-count">5</div>
       </div>
       <h2 class="modal-title">Each mistake costs 1 heart!</h2>
@@ -35,25 +31,20 @@
     </div>
   </div>
   <script>
-    const heartImg = document.querySelector('.heart-icon img');
+    const heartImg = document.getElementById('heart-img');
     const heartsCount = document.getElementById('hearts-count');
-    const HEART_FILL = '/public/assets/icons/phosphor/fill/heart.svg';
-    const HEART_EMPTY = '/public/assets/icons/phosphor/regular/heart.svg';
+    const FILL = '../../public/assets/icons/phosphor/fill/heart.svg';
+    const EMPTY = '../../public/assets/icons/phosphor/regular/heart.svg';
     let count = 5;
-    function startCountdown() {
-      const interval = setInterval(() => {
-        count--;
-        heartsCount.textContent = count;
-        heartsCount.style.transform = 'scale(1.2)';
-        setTimeout(() => heartsCount.style.transform = 'scale(1)', 150);
-        if (count > 0) heartImg.src = HEART_FILL;
-        else heartImg.src = HEART_EMPTY;
-        if (count === 0) {
-          clearInterval(interval);
-          setTimeout(() => { count = 5; heartsCount.textContent = count; heartImg.src = HEART_FILL; startCountdown(); }, 1000);
-        }
-      }, 600);
-    }
+    const interval = setInterval(() => {
+      count--;
+      heartsCount.textContent = count;
+      heartsCount.style.transform = 'scale(1.2)';
+      setTimeout(() => heartsCount.style.transform = 'scale(1)', 150);
+      heartImg.src = count > 0 ? FILL : EMPTY;
+      if (count === 0) { clearInterval(interval); setTimeout(() => { count = 5; heartsCount.textContent = '5'; heartImg.src = FILL; startCountdown(); }, 1000); }
+    }, 600);
+    function startCountdown() { /* reset and restart interval */ }
     startCountdown();
     document.getElementById('action-button').addEventListener('click', () => window.parent.postMessage('modalClose', '*'));
   </script>
