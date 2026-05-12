@@ -3,51 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Page Not Found – Vulanet</title>
-  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  <title>Page Not Found</title>
+  <link rel="stylesheet" href="../public/assets/fonts/fonts.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Atkinson Hyperlegible Next', sans-serif;
-      background: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      text-align: center;
-      padding: 2rem;
-    }
-    .container {
-      max-width: 500px;
-    }
-    .rabbit {
-      width: 120px;
-      margin-bottom: 2rem;
-    }
-    h1 {
-      font-size: 2.5rem;
-      color: #4285F4;
-      margin-bottom: 1rem;
-    }
-    p {
-      font-size: 1.2rem;
+      background: #FFFFFF;
       color: #4B4B4B;
-      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      text-align: center;
     }
-    .btn {
-      display: inline-block;
-      margin: 0.5rem;
-    }
+    .rabbit-icon { width: 120px; height: 120px; margin-bottom: 24px; }
+    .rabbit-icon img { width: 100%; height: 100%; }
+    h1 { font-size: 28px; font-weight: 700; color: #4285F4; margin-bottom: 12px; }
+    p { font-size: 16px; color: #777; margin-bottom: 24px; max-width: 400px; line-height: 1.5; }
+    .btn { display: inline-block; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" class="rabbit">
-    <h1>Oops! Page not found</h1>
-    <p>The page you're looking for doesn't exist or has been moved.</p>
-    <a href="/vulanet/" class="btn btn-md btn-carpenter-blue">Go to Home</a>
-    <a href="/vulanet/courses.html" class="btn btn-md btn-cloud-outline">Choose a Course</a>
+  <div class="rabbit-icon">
+    <img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi">
   </div>
+  <h1 id="error-title">Page Not Found</h1>
+  <p id="error-message">The page you're looking for doesn't exist or has been moved.</p>
+  <button class="btn btn-md btn-carpenter-blue" onclick="window.location.href='/'">Go Home</button>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const title = params.get('title');
+    const message = params.get('message');
+    const course = params.get('course');
+    const lesson = params.get('lesson');
+
+    if (title) {
+      document.getElementById('error-title').textContent = title;
+    }
+    if (message) {
+      document.getElementById('error-message').textContent = message;
+    }
+    if (course && lesson) {
+      const extraInfo = document.createElement('p');
+      extraInfo.style.cssText = 'font-size:13px;color:#AFAFAF;margin-top:8px;';
+      extraInfo.textContent = `Course: ${course} / Lesson: ${lesson}`;
+      document.querySelector('p').after(extraInfo);
+    }
+  </script>
 </body>
 </html>
