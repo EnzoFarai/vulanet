@@ -3,36 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Refill Hearts</title>
+  <title>Hearts Refill</title>
   <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="../../src/styles/components/buttons.css">
+  <script src="../../src/lib/lottie-player.js"></script>
   <style>
-    body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .app { max-width: 420px; width: 100%; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
-    .lottie-container { width: 160px; height: 160px; }
-    .title { font-size: 20px; font-weight: 700; color: #4B4B4B; }
-    .subtitle { font-size: 14px; color: #777; }
-    .buttons-container { width: 100%; display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-    .btn { width: 100%; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
+    body { background: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .app { width: 100%; max-width: 420px; padding: 24px 18px 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .scene { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+    .emoji-container { width: 160px; height: 160px; }
+    lottie-player { width: 160px !important; height: 160px !important; }
+    .title { margin-top: 20px; text-align: center; font-weight: 700; color: #4B4B4B; font-size: 20px; max-width: 320px; }
+    .subtitle { margin-top: 8px; text-align: center; font-weight: 400; color: #4B4B4B; font-size: 14px; max-width: 280px; }
+    .buttons-container { width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
+    .action-button {
+      width: 100%; height: 52px; border-radius: 0.75rem; font-weight: 700; letter-spacing: 0.5px;
+      border: none; font-size: 15px; text-transform: uppercase; cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: center; line-height: 1; gap: 6px;
+    }
+    .refill {
+      color: #ffffff; background-color: #4285F4; border-bottom: 0.25rem solid #3a75d9;
+    }
+    .refill:hover { background-color: #3a75d9; transform: translateY(-0.125rem); }
+    .refill:active { transform: translateY(0.0625rem); border-bottom-width: 0.125rem; }
+    .no-thanks {
+      color: #4285F4; background-color: #ffffff; border: 2px solid #4285F4; border-bottom: 0.25rem solid #4285F4;
+    }
+    .no-thanks:hover { background-color: #f0f7ff; transform: translateY(-0.125rem); }
+    .no-thanks:active { transform: translateY(0.0625rem); border-bottom-width: 0.125rem; }
   </style>
 </head>
 <body>
   <audio id="outOfHeartsAudio" preload="auto"><source src="../../public/assets/audio/out-of-hearts.mp3" type="audio/mpeg"></audio>
   <div class="app">
-    <div class="lottie-container">
-      <lottie-player src="../../public/assets/lottie/1f494.json" background="transparent" speed="1" loop autoplay></lottie-player>
+    <div class="scene">
+      <div class="emoji-container">
+        <lottie-player src="../../public/assets/lottie/1f494.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      </div>
     </div>
     <div class="title">You're out of hearts!</div>
-    <div class="subtitle">You can refill with 450 coins.</div>
+    <div class="subtitle">You need hearts to progress and keep learning.</div>
     <div class="buttons-container">
-      <button class="btn btn-md btn-carpenter-blue" id="refillBtn">REFILL FOR 450</button>
-      <button class="btn btn-md btn-cloud-outline" id="noThanksBtn">NO THANKS</button>
+      <button class="action-button refill" id="refillBtn">
+        REFILL FOR <img src="../../public/assets/icons/phosphor/duotone/coins.svg" style="width:18px; height:18px; filter: brightness(0) invert(1);">450
+      </button>
+      <button class="action-button no-thanks" id="noThanksBtn">NO THANKS</button>
     </div>
   </div>
-  <script src="../../src/lib/lottie-player.js"></script>
   <script>
-    document.getElementById('refillBtn').addEventListener('click', ()=> window.parent.postMessage({type:'refillHearts'},'*'));
-    document.getElementById('noThanksBtn').addEventListener('click', ()=> window.parent.postMessage('modalQuit','*'));
+    document.getElementById('outOfHeartsAudio').play().catch(()=>{});
+    document.getElementById('refillBtn').addEventListener('click', () => {
+      window.parent.postMessage({ type: 'refillHearts' }, '*');
+    });
+    document.getElementById('noThanksBtn').addEventListener('click', () => {
+      window.parent.postMessage('modalQuit', '*');
+    });
   </script>
 </body>
 </html>
