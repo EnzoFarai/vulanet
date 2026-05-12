@@ -1,36 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XP Boost Reward</title>
-<link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
-<link rel="stylesheet" href="../../src/styles/components/buttons.css">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-  .treasure-panel { width: 100%; max-width: 420px; padding: 40px 24px 48px; display: flex; flex-direction: column; align-items: center; text-align: center; margin: 0 auto; }
-  .reward-scene { width: 100%; height: 200px; display: flex; justify-content: center; align-items: center; }
-  .rocket-container { width: 160px; height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-  .large-rocket-icon { font-size: 140px; color: #FF9600; filter: drop-shadow(0 4px 8px rgba(255,150,0,0.3)); }
-  .xp-multiplier { font-size: 24px; font-weight: 900; color: #FF9600; margin-top: -10px; }
-  .reward-title { margin-top: 20px; font-weight: 700; color: #0f1c22; font-size: 20px; max-width: 320px; }
-  .reward-subtitle { margin-top: 8px; color: #6b7280; font-size: 14px; max-width: 280px; margin-bottom: 24px; }
-  .claim-button { width: 100%; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XP Boost Reward</title>
+  <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      background: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .treasure-panel { width: 100%; max-width: 420px; padding: 40px 24px 48px; display: flex; flex-direction: column; align-items: center; text-align: center; margin: 0 auto; }
+    .reward-scene { width: 100%; height: 200px; margin-top: 20px; display: flex; justify-content: center; align-items: center; }
+    .rocket-container { width: 160px; height: 160px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .rocket-container img { width: 140px; height: 140px; filter: drop-shadow(0 4px 8px rgba(255,150,0,0.3)); }
+    .xp-multiplier { font-size: 24px; font-weight: 900; color: #FF9600; text-align: center; margin-top: -10px; text-shadow: 0 2px 4px rgba(255,150,0,0.2); }
+    .reward-title { margin-top: 20px; font-weight: 700; color: #0f1c22; font-size: 20px; max-width: 320px; }
+    .reward-subtitle { margin-top: 8px; font-weight: 400; color: #6b7280; font-size: 14px; max-width: 280px; margin-bottom: 24px; }
+    .claim-button {
+      width: 100%; height: 58px; border-radius: 0.75rem; font-weight: 700; letter-spacing: 0.5px;
+      border: none; font-size: 16px; text-transform: uppercase; cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.2s ease;
+      color: #ffffff; background-color: #4285F4; border-bottom: 0.25rem solid #3a75d9;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    }
+    .claim-button:hover { background-color: #3a75d9; transform: translateY(-0.125rem); }
+    .claim-button:active { transform: translateY(0.0625rem); border-bottom-width: 0.125rem; }
+  </style>
 </head>
 <body>
   <audio id="boostAudio" preload="auto"><source src="../../public/assets/audio/boost.mp3" type="audio/mpeg"></audio>
   <div class="treasure-panel">
     <div class="reward-scene">
       <div class="rocket-container">
-        <i class="ph-duotone ph-rocket-launch large-rocket-icon"></i>
+        <img src="../../public/assets/icons/phosphor/duotone/rocket-launch.svg" alt="rocket">
         <div class="xp-multiplier" id="multiplierDisplay">x1.5</div>
       </div>
     </div>
     <div class="reward-title" id="rewardTitle">You found an XP Boost!</div>
     <div class="reward-subtitle" id="rewardSubtitle">Congrats! You now have 1.5x XP in lessons for the next 30 minutes.</div>
-    <button class="btn btn-md btn-carpenter-blue claim-button" id="claimButton">Claim XP Boost</button>
+    <button class="claim-button" id="claimButton">Claim XP Boost</button>
   </div>
   <script>
     document.getElementById('boostAudio').play().catch(()=>{});
@@ -39,7 +53,7 @@
     const duration = parseInt(params.get('duration')) || 30;
     document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
     document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
-    document.getElementById('claimButton').addEventListener('click', () => window.parent.postMessage('modalClose', '*'));
+    document.getElementById('claimButton').addEventListener('click', ()=> window.parent.postMessage('modalClose','*'));
   </script>
 </body>
 </html>
