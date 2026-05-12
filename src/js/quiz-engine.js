@@ -1,5 +1,5 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Data‑driven, defensive, local assets
+// VULANET QUIZ ENGINE – Hardened, data‑driven
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -10,23 +10,18 @@ function sanitiseHTML(str) {
 
 class QuizEngine {
   constructor(lessonData) {
-    // Safety wrapper: if anything in the constructor fails,
-    // we throw an error that will be caught by lesson.html
-    try {
-      this._init(lessonData);
-    } catch (e) {
-      console.error('QuizEngine init error:', e);
-      throw e;
+    // --- Data validation ---
+    if (!lessonData || !lessonData.questions) {
+      throw new Error('Lesson data is missing or malformed.');
     }
-  }
 
-  _init(lessonData) {
     this.title = lessonData.title || 'Lesson';
-    this.totalQuestions = lessonData.totalQuestions || 0;
+    this.totalQuestions = lessonData.totalQuestions || lessonData.questions.length;
     this.redirectUrl = lessonData.redirectUrl || '/';
     this.streakKey = lessonData.streakKey || 'userStreakDays';
-    this.questionsData = lessonData.questions || [];
+    this.questionsData = lessonData.questions;
 
+    // --- State ---
     this.lives = 5;
     this.currentQuestion = 0;
     this.retryQueue = [];
@@ -49,7 +44,19 @@ class QuizEngine {
     this.hasCompletedFirstLesson = localStorage.getItem('hasCompletedFirstLesson') === 'true';
     if (!localStorage.getItem('coins')) localStorage.setItem('coins', '500');
 
-    // Bindings
+    // --- Required DOM elements ---
+    this.progressBar       = this.req('progress-bar');
+    this.livesCountSpan    = this.req('lives-count');
+    this.livesIcon         = this.req('lives-icon');
+    this.streakCounterSpan = this.req('streakCounter');
+    this.fullscreenOverlay = this.req('fullscreenModalOverlay');
+    this.modalIframe       = this.req('modalIframe');
+    this.closeBtn          = this.req('close-btn');
+
+    this.questionSections  = [];
+    this.resultOverlays    = [];
+
+    // Bind methods
     this.showQuestion = this.showQuestion.bind(this);
     this.moveToNextQuestion = this.moveToNextQuestion.bind(this);
     this.finishQuiz = this.finishQuiz.bind(this);
@@ -64,9 +71,11 @@ class QuizEngine {
     this.normalizeAnswer = this.normalizeAnswer.bind(this);
     this.playSound = this.playSound.bind(this);
 
+    // --- Build UI ---
     this.buildQuizUI();
 
-    document.getElementById('close-btn').addEventListener('click', () => {
+    // --- Events ---
+    this.closeBtn.addEventListener('click', () => {
       this.showModal('../src/components/modals/quit-confirmation.html', () => {});
     });
 
@@ -75,6 +84,7 @@ class QuizEngine {
     this.updateHeartIcon();
     this.progressBar.style.width = `${(1 / this.totalQuestions) * 100}%`;
 
+    // --- Start ---
     if (!this.hasCompletedFirstLesson) {
       this.showModal('../src/components/modals/hearts-modal.html', () => {
         localStorage.setItem('hasCompletedFirstLesson', 'true');
@@ -86,16 +96,17 @@ class QuizEngine {
     }
   }
 
+  /** Get a required element by ID – throws if missing */
+  req(id) {
+    const el = document.getElementById(id);
+    if (!el) throw new Error(`Required DOM element "#${id}" not found.`);
+    return el;
+  }
+
   buildQuizUI() {
     const container = document.querySelector('.quiz-container');
-    this.progressBar = document.getElementById('progress-bar');
-    this.livesCountSpan = document.getElementById('lives-count');
-    this.livesIcon = document.getElementById('lives-icon');
-    this.streakCounterSpan = document.getElementById('streakCounter');
-    this.fullscreenOverlay = document.getElementById('fullscreenModalOverlay');
-    this.modalIframe = document.getElementById('modalIframe');
+    if (!container) throw new Error('Quiz container (.quiz-container) not found.');
 
-    this.questionSections = [];
     for (let i = 0; i < this.totalQuestions; i++) {
       const qSection = document.createElement('div');
       qSection.id = `question${i + 1}`;
@@ -126,9 +137,7 @@ class QuizEngine {
   incrementStreak() { this.currentStreakDays++; this.saveStreakToStorage(); }
 
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
-  updateHeartIcon() {
-    this.livesIcon.style.color = this.lives === 0 ? '#AFAFAF' : '#EA4335';
-  }
+  updateHeartIcon() { this.livesIcon.style.color = this.lives === 0 ? '#AFAFAF' : '#EA4335'; }
 
   playSound(isCorrect) {
     const audio = isCorrect ? document.getElementById('correctSound') : document.getElementById('incorrectSound');
@@ -139,7 +148,6 @@ class QuizEngine {
   shuffleArray(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
 
   showModal(modalUrl, onClose) {
-    if (!this.modalIframe) return;
     this.modalIframe.src = modalUrl;
     this.fullscreenOverlay.classList.add('visible');
     const handler = (event) => {
@@ -299,8 +307,14 @@ class QuizEngine {
   }
 
   vusiSVG() {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 256 256" fill="#4285F4"><path d="M240,102c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,228.66,16,172,16,102A62.07,62.07,0,0,1,78,40c20.65,0,38.73,8.88,50,23.89C139.27,48.88,157.35,40,178,40A62.07,62.07,0,0,1,240,102Z"/></svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 256 256" fill="#4285F4">
+      <path d="M240,102c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,228.66,16,172,16,102A62.07,62.07,0,0,1,78,40c20.65,0,38.73,8.88,50,23.89C139.27,48.88,157.35,40,178,40A62.07,62.07,0,0,1,240,102Z"/>
+    </svg>`;
   }
+
+  // ============================================================
+  // RENDERING METHODS (complete, uncompromised)
+  // ============================================================
 
   renderMultipleChoice(section, qData, actualIdx) {
     section.innerHTML = `
