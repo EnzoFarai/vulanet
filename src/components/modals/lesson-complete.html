@@ -1,45 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lesson Complete</title>
-<link rel="stylesheet" href="../public/assets/fonts/fonts.css">
-<link rel="stylesheet" href="../src/styles/components/buttons.css">
-<style>
-  body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; position: relative; overflow: hidden; }
-  .app { max-width: 420px; width: 100%; padding: 40px 18px 28px; display: flex; flex-direction: column; align-items: center; z-index: 20; }
-  .title { font-size: 34px; font-weight: 900; color: #ffd24a; margin-top: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-  .scene { height: 260px; display: flex; align-items: center; justify-content: center; }
-  lottie-player { width: 160px; height: 160px; }
-  .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px; }
-  .stat { background: #fff; border-radius: 16px; border: 2px solid; overflow: hidden; text-align: center; }
-  .stat-header { padding: 12px 6px; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-  .stat-content { padding: 14px 6px; font-size: 18px; font-weight: 900; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .continue-wrap { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 14px 16px 22px; border-top: 1px solid #ededed; z-index: 100; }
-  .continue { max-width: 420px; margin: 0 auto; width: 100%; }
-  .fireworks-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: flex; justify-content: space-around; align-items: center; padding: 0 50px; }
-  .fireworks { width: 2.5em; height: 2em; animation: flatify-firework 4s infinite; font-size: 2.5em; }
-  .fireworks:before, .spark:before,.spark:after { content: " "; position: absolute; height: 0.25em; border-radius: 50em; background: var(--firework-color); }
-  .fireworks:before { top:0; bottom:0; left:0; right:0; width:0.25em; margin:auto; animation: flatify-firework-main 4s infinite; }
-  .spark { position: absolute; top:0; left:0; width:100%; height:100%; animation: flatify-firework-sparks 4s infinite; }
-  .spark:nth-child(1):before,.spark:nth-child(2):before { left:-0.25em; animation: flatify-firework-spark-left 4s infinite; }
-  .spark:nth-child(1):after,.spark:nth-child(2):after { right:-0.25em; animation: flatify-firework-spark-right 4s infinite; }
-  .spark:nth-child(2) { transform: rotate(90deg); }
-  .spark:nth-child(3),.spark:nth-child(4) { left:0; }
-  .spark:nth-child(3):before,.spark:nth-child(4):before { top:0; transform: rotate(45deg); animation: flatify-firework-spark-corner-top 4s infinite; }
-  .spark:nth-child(3):after,.spark:nth-child(4):after { bottom:0; transform: rotate(-45deg); animation: flatify-firework-spark-corner-bottom 4s infinite; }
-  .spark:nth-child(4) { transform: rotate(180deg); }
-  @keyframes flatify-firework { 0%,20%{transform:translateY(0)} 40%{transform:translateY(-1em)} 80%,100%{transform:translateY(0.5em)} }
-  @keyframes flatify-firework-main { 0%{opacity:0;transform:scale(0) translateY(1em)} 5%{opacity:1;transform:scale(0,6) translateY(1em)} 26%{transform:scaleY(2) translateY(0)} 30%{transform:scale(9) translateY(0)} 40%,100%{transform:scale(0) translateY(0)} }
-  @keyframes flatify-firework-sparks { 0%,30%{opacity:0} 38%{opacity:1} 65%,100%{opacity:0} }
-  @keyframes flatify-firework-spark-corner-top { 0%,30%{opacity:1;clip-path:circle(100% at left);transform:scale(1) translate(0) rotate(45deg)} 40%{clip-path:circle(100% at left)} 60%,100%{opacity:0;clip-path:circle(0 at left);transform:scale(1.5) translate(-0.5em,-0.25em) rotate(45deg)} }
-  @keyframes flatify-firework-spark-corner-bottom { 0%,30%{opacity:1;clip-path:circle(100% at left);transform:scale(1) translate(0) rotate(-45deg)} 40%{clip-path:circle(100% at left)} 60%,100%{opacity:0;clip-path:circle(0 at left);transform:scale(1.5) translate(-0.5em,0.25em) rotate(-45deg)} }
-  @keyframes flatify-firework-spark-left { 0%,30%{opacity:1;clip-path:circle(100% at left);transform:scale(1) translate(0)} 40%{clip-path:circle(100% at left)} 60%,100%{opacity:0;clip-path:circle(0 at left);transform:scaleX(2) translate(-0.5em)} }
-  @keyframes flatify-firework-spark-right { 0%,30%{opacity:1;clip-path:circle(100% at right);transform:scale(1) translate(0)} 40%{clip-path:circle(100% at right)} 60%,100%{opacity:0;clip-path:circle(0 at right);transform:scaleX(2) translate(0.5em)} }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson Complete</title>
+  <link rel="stylesheet" href="/public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; position: relative; overflow: hidden; }
+    .app { max-width: 420px; width: 100%; padding: 40px 18px 28px; display: flex; flex-direction: column; align-items: center; z-index: 20; }
+    .title { font-size: 34px; font-weight: 900; color: #ffd24a; margin-top: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    .scene { height: 260px; display: flex; align-items: center; justify-content: center; }
+    lottie-player { width: 160px !important; height: 160px !important; }
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px; width: 100%; }
+    .stat { background: #fff; border-radius: 16px; border: 2px solid; overflow: hidden; text-align: center; }
+    .stat-header { padding: 12px 6px; color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .stat-content { padding: 14px 6px; font-size: 18px; font-weight: 900; display: flex; flex-direction: column; align-items: center; gap: 6px; color: inherit; }
+    .continue-wrap { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 14px 16px 22px; border-top: 1px solid #ededed; z-index: 100; }
+    .continue { max-width: 420px; margin: 0 auto; width: 100%; }
+    .fireworks-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: flex; justify-content: space-around; align-items: center; padding: 0 50px; }
+    .fireworks { width: 2.5em; height: 2em; animation: flatify-firework 4s infinite; font-size: 2.5em; }
+    .fireworks:before, .spark:before,.spark:after { content: " "; position: absolute; height: 0.25em; border-radius: 50em; background: var(--firework-color); }
+    .fireworks:before { top:0; bottom:0; left:0; right:0; width:0.25em; margin:auto; animation: flatify-firework-main 4s infinite; }
+    .spark { position: absolute; top:0; left:0; width:100%; height:100%; animation: flatify-firework-sparks 4s infinite; }
+    .spark:nth-child(1):before,.spark:nth-child(2):before { left:-0.25em; animation: flatify-firework-spark-left 4s infinite; }
+    .spark:nth-child(1):after,.spark:nth-child(2):after { right:-0.25em; animation: flatify-firework-spark-right 4s infinite; }
+    .spark:nth-child(2) { transform: rotate(90deg); }
+    .spark:nth-child(3),.spark:nth-child(4) { left:0; }
+    .spark:nth-child(3):before,.spark:nth-child(4):before { top:0; transform: rotate(45deg); animation: flatify-firework-spark-corner-top 4s infinite; }
+    .spark:nth-child(3):after,.spark:nth-child(4):after { bottom:0; transform: rotate(-45deg); animation: flatify-firework-spark-corner-bottom 4s infinite; }
+    .spark:nth-child(4) { transform: rotate(180deg); }
+    @keyframes flatify-firework { 0%,20%{transform:translateY(0)} 40%{transform:translateY(-1em)} 80%,100%{transform:translateY(0.5em)} }
+    @keyframes flatify-firework-main { 0%{opacity:0;transform:scale(0) translateY(1em)} 5%{opacity:1;transform:scale(0,6) translateY(1em)} 26%{transform:scaleY(2) translateY(0)} 30%{transform:scale(9) translateY(0)} 40%,100%{transform:scale(0) translateY(0)} }
+    @keyframes flatify-firework-sparks { 0%,30%{opacity:0} 38%{opacity:1} 65%,100%{opacity:0} }
+    @keyframes flatify-firework-spark-corner-top { 0%,30%{opacity:1;clip-path:circle(100% at left);transform:scale(1) translate(0) rotate(45deg)} 40%{clip-path:circle(100% at left)} 60%,100%{opacity:0;clip-path:circle(0 at left);transform:scale(1.5) translate(-0.5em,-0.25em) rotate(45deg)} }
+    @keyframes flatify-firework-spark-corner-bottom { 0%,30%{opacity:1;clip-path:circle(100% at left);transform:scale(1) translate(0) rotate(-45deg)} 40%{clip-path:circle(100% at left)} 60%,100%{opacity:0;clip-path:circle(0 at left);transform:scale(1.5) translate(-0.5em,0.25em) rotate(-45deg)} }
+    @keyframes flatify-firework-spark-left { 0%,30%{opacity:1;clip-path:circle(100% at left);transform:scale(1) translate(0)} 40%{clip-path:circle(100% at left)} 60%,100%{opacity:0;clip-path:circle(0 at left);transform:scaleX(2) translate(-0.5em)} }
+    @keyframes flatify-firework-spark-right { 0%,30%{opacity:1;clip-path:circle(100% at right);transform:scale(1) translate(0)} 40%{clip-path:circle(100% at right)} 60%,100%{opacity:0;clip-path:circle(0 at right);transform:scaleX(2) translate(0.5em)} }
+  </style>
 </head>
 <body>
+  <audio id="completeAudio" preload="auto"><source src="/public/assets/audio/complete.mp3" type="audio/mpeg"></audio>
+  <audio id="achievementAudio" preload="auto"><source src="/public/assets/audio/achievement.mp3" type="audio/mpeg"></audio>
   <div class="fireworks-wrapper">
     <div class="fireworks fireworks-1" style="--firework-color:#5D9CEC"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
     <div class="fireworks fireworks-2" style="--firework-color:#ffce54"><span class="spark"></span><span class="spark"></span><span class="spark"></span><span class="spark"></span></div>
@@ -48,17 +51,16 @@
   <div class="app">
     <div class="title">Lesson complete!</div>
     <div class="scene">
-      <lottie-player src="../public/assets/lottie/1f973.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      <lottie-player src="/public/assets/lottie/1f973.json" background="transparent" speed="1" loop autoplay></lottie-player>
     </div>
     <div class="stats" id="statsContainer"></div>
   </div>
   <div class="continue-wrap">
     <button class="btn btn-md btn-carpenter-blue continue" id="continueBtn">CONTINUE</button>
   </div>
-  <script src="../src/lib/lottie-player.js"></script>
+  <script src="/src/lib/lottie-player.js"></script>
   <script>
-    const audio = new Audio('../public/assets/audio/complete.mp3');
-    audio.play().catch(()=>{});
+    document.getElementById('completeAudio').play().catch(()=>{});
     const params = new URLSearchParams(window.location.search);
     let correct = parseInt(params.get('correctAttempts'))||0;
     let total = parseInt(params.get('totalAttempts'))||1;
@@ -90,7 +92,9 @@
         <div class="stat-content"><span>${accuracy}%</span></div>
       </div>
     `;
-    document.getElementById('continueBtn').addEventListener('click', ()=> window.parent.postMessage('modalClose','*'));
+    document.getElementById('continueBtn').addEventListener('click', ()=> {
+      window.parent.postMessage('modalClose','*');
+    });
   </script>
 </body>
 </html>
