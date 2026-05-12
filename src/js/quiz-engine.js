@@ -1,5 +1,6 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Data‑driven, all icons local SVGs
+// VULANET QUIZ ENGINE – Data‑driven, all icons correctly coloured
+// Material Symbols font used for status icons; Phosphor SVGs for Vusi/hearts/X
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -38,6 +39,7 @@ class QuizEngine {
     this.hasCompletedFirstLesson = localStorage.getItem('hasCompletedFirstLesson') === 'true';
     if (!localStorage.getItem('coins')) localStorage.setItem('coins', '500');
 
+    // Bindings
     this.showQuestion = this.showQuestion.bind(this);
     this.moveToNextQuestion = this.moveToNextQuestion.bind(this);
     this.finishQuiz = this.finishQuiz.bind(this);
@@ -51,15 +53,6 @@ class QuizEngine {
     this.shuffleArray = this.shuffleArray.bind(this);
     this.normalizeAnswer = this.normalizeAnswer.bind(this);
     this.playSound = this.playSound.bind(this);
-
-    this.progressBar = null;
-    this.livesCountSpan = null;
-    this.livesIcon = null;
-    this.streakCounterSpan = null;
-    this.fullscreenOverlay = null;
-    this.modalIframe = null;
-    this.questionSections = [];
-    this.resultOverlays = [];
 
     this.buildQuizUI();
 
@@ -83,6 +76,7 @@ class QuizEngine {
     }
   }
 
+  // --- UI Construction ---
   buildQuizUI() {
     const container = document.querySelector('.quiz-container');
     this.progressBar = document.getElementById('progress-bar');
@@ -104,9 +98,9 @@ class QuizEngine {
       overlay.innerHTML = `
         <div class="result-container" id="resultContainer-${i + 1}">
           <div class="result-main">
-            <img id="resultIcon-${i + 1}" src="" class="material-icon" alt="" style="width:2.5rem;">
+            <span class="material-symbols-outlined material-icon" id="resultIcon-${i + 1}"></span>
             <div class="result-header" id="resultHeader-${i + 1}"></div>
-            <img id="actionIcon-${i + 1}" src="" class="material-icon" alt="" style="width:2.5rem;">
+            <span class="material-symbols-outlined material-icon" id="actionIcon-${i + 1}"></span>
           </div>
           <div class="explanation-content" id="explanationContainer-${i + 1}"></div>
           <button class="result-continue-btn" id="resultContinueBtn-${i + 1}">Continue</button>
@@ -117,17 +111,15 @@ class QuizEngine {
     }
   }
 
-  // Storage
+  // --- Storage ---
   loadStreakFromStorage() { const s = localStorage.getItem(this.streakKey); if (s) this.currentStreakDays = parseInt(s,10); else localStorage.setItem(this.streakKey,'1'); }
   saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
   incrementStreak() { this.currentStreakDays++; this.saveStreakToStorage(); }
 
-  // UI helpers
+  // --- Helpers ---
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
   updateHeartIcon() {
-    this.livesIcon.src = this.lives === 0
-      ? '../public/assets/icons/phosphor/regular/heart.svg'
-      : '../public/assets/icons/phosphor/fill/heart.svg';
+    this.livesIcon.style.color = this.lives === 0 ? '#AFAFAF' : '#EA4335';
   }
 
   playSound(isCorrect) {
@@ -138,6 +130,7 @@ class QuizEngine {
   normalizeAnswer(a) { return a.toLowerCase().replace(/\s+/g,' ').replace(/[()]/g,'').replace(/\//g,' ').trim(); }
   shuffleArray(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
 
+  // --- Modals ---
   showModal(modalUrl, onClose) {
     this.modalIframe.src = modalUrl;
     this.fullscreenOverlay.classList.add('visible');
@@ -172,6 +165,7 @@ class QuizEngine {
 
   resetCurrentQuestion() { this.showQuestion(this.currentQuestion); }
 
+  // --- Streak handling ---
   handleCorrectAnswer() { this.currentStreak++; this.updateStreakCounter(); if(this.currentStreak%5===0&&this.currentStreak>0){ this.pendingCelebration=true; this.pendingCelebrationStreak=this.currentStreak; } }
   handleIncorrectAnswer() { this.currentStreak=0; this.updateStreakCounter(); }
 
@@ -198,13 +192,13 @@ class QuizEngine {
 
     if(isCorrect){
       header.textContent='Correct!';
-      icon.src='../public/assets/icons/material-symbols/outline/check_circle.svg';
-      actionIcon.src='../public/assets/icons/material-symbols/outline/recommend.svg';
+      icon.textContent='check_circle';
+      actionIcon.textContent='recommend';
       container.className='result-container correct';
     } else {
       header.textContent='Incorrect';
-      icon.src='../public/assets/icons/material-symbols/outline/cancel.svg';
-      actionIcon.src='../public/assets/icons/material-symbols/outline/stylus_note.svg';
+      icon.textContent='cancel';
+      actionIcon.textContent='stylus_note';
       container.className='result-container incorrect';
     }
     explanationDiv.innerHTML=explanationHTML;
@@ -212,6 +206,7 @@ class QuizEngine {
     continueBtn.onclick = ()=>{ overlay.classList.remove('visible'); this.processAfterExplanation(onComplete); };
   }
 
+  // --- Navigation ---
   moveToNextQuestion() {
     if(this.waitingForCelebration) return false;
     if(this.inRetryMode){
@@ -272,6 +267,7 @@ class QuizEngine {
     });
   }
 
+  // --- Question Rendering (all inline SVGs replaced by either font or inline currentColor SVGs) ---
   showQuestion(questionIndex) {
     this.questionSections.forEach(s=>{ if(s) s.style.display='none'; });
     const actualIdx = this.inRetryMode ? this.retryQueue[this.currentQuestion] : this.currentQuestion;
@@ -297,7 +293,12 @@ class QuizEngine {
     }
   }
 
-  // ---- RENDERING METHODS ----
+  // Inline Vusi SVG helper
+  vusiSVG() {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 256 256" fill="#4285F4">
+      <path d="M240,102c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,228.66,16,172,16,102A62.07,62.07,0,0,1,78,40c20.65,0,38.73,8.88,50,23.89C139.27,48.88,157.35,40,178,40A62.07,62.07,0,0,1,240,102Z"/>
+    </svg>`;
+  }
 
   renderMultipleChoice(section, qData, actualIdx) {
     section.innerHTML = `
@@ -360,7 +361,7 @@ class QuizEngine {
     section.innerHTML = `
       <h2 class="quiz-title">Select what is missing</h2>
       <div class="question-container">
-        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;"></div>
+        <div class="icon-container">${this.vusiSVG()}</div>
         <div speech-bubble pleft abottom style="--bbColor:#FFFFFF"><div class="bubble-text">${displayText}</div></div>
       </div>
       <div id="options-${actualIdx}" class="options-container"></div>
@@ -434,7 +435,7 @@ class QuizEngine {
     section.innerHTML = `
       <h2 class="quiz-title">Complete the statement</h2>
       <div class="question-container">
-        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;"></div>
+        <div class="icon-container">${this.vusiSVG()}</div>
         <div speech-bubble pleft acenter style="--bbColor:#FFFFFF"><div class="bubble-text">${qData.questionText}</div></div>
       </div>
       <div class="response-container">
