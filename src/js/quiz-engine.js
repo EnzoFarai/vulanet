@@ -114,6 +114,8 @@ class QuizEngine {
 
   // UI helpers
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
+  
+  // FIXED: Heart icon switches correctly – filled when lives > 0, empty only when lives === 0
   updateHeartIcon() {
     this.livesIcon.src = this.lives === 0
       ? '../public/assets/icons/phosphor/regular/heart.svg'
