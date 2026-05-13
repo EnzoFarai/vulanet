@@ -14,40 +14,30 @@
   <!-- Button Styles -->
   <link rel="stylesheet" href="../src/styles/components/buttons.css">
 
+  <!-- ========== CSS FILTERS FOR ICON COLOURS ========== -->
   <style>
-    /* ========== CSS FILTERS FOR MONOCHROME SVG ICONS ========== */
-    /* Target all images used in the quiz engine and lesson.html */
-    img {
-      /* Default: no filter (keeps original colors for already coloured SVGs like rabbit) */
+    /* Close (X) icon – #AFAFAF */
+    #close-btn {
+      filter: brightness(0) saturate(100%) invert(77%) sepia(10%) saturate(214%) hue-rotate(174deg) brightness(88%) contrast(92%);
     }
 
-    /* Heart icons – brand red #EA4335 */
-    img[src*="heart.svg"] {
+    /* Lives (heart) icon – #EA4335 */
+    #lives-icon {
       filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
     }
 
-    /* Close (X) icon – light grey #AFAFAF */
-    img[src*="x.svg"] {
-      filter: brightness(0) saturate(100%) invert(77%) sepia(0%) saturate(0%) brightness(91%) contrast(88%);
+    /* All material‑symbols icons used in result overlays and matching feedback */
+    img[src*="check_circle.svg"],
+    img[src*="recommend.svg"] {
+      filter: brightness(0) saturate(100%) invert(29%) sepia(51%) saturate(2878%) hue-rotate(108deg) brightness(95%) contrast(94%);
     }
 
-    /* Check circle (correct) – success green #2E7D32 */
-    img[src*="check_circle.svg"] {
-      filter: brightness(0) saturate(100%) invert(26%) sepia(57%) saturate(1439%) hue-rotate(86deg) brightness(92%) contrast(92%);
-    }
-
-    /* Cancel & stylus_note (incorrect) – error red #C5221F */
     img[src*="cancel.svg"],
     img[src*="stylus_note.svg"] {
-      filter: brightness(0) saturate(100%) invert(17%) sepia(89%) saturate(4055%) hue-rotate(346deg) brightness(93%) contrast(91%);
+      filter: brightness(0) saturate(100%) invert(21%) sepia(98%) saturate(4140%) hue-rotate(348deg) brightness(91%) contrast(94%);
     }
 
-    /* Recommend icon – blue #4285F4 (used in correct result) */
-    img[src*="recommend.svg"] {
-      filter: brightness(0) saturate(100%) invert(40%) sepia(84%) saturate(2558%) hue-rotate(199deg) brightness(98%) contrast(92%);
-    }
-
-    /* Optional: ensure the rabbit stays as-is (no filter) */
+    /* The rabbit‑blue icon is already #4285F4 – leave it untouched */
     img[src*="rabbit-blue.svg"] {
       filter: none;
     }
