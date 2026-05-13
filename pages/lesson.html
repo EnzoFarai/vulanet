@@ -15,14 +15,26 @@
   <link rel="stylesheet" href="../src/styles/components/buttons.css">
   
   <style>
-    /* CSS filter to make hearts #EA4335 */
-    .lives-container img {
+    /* CSS filter to make ALL icons #EA4335 where needed */
+    .lives-container img,
+    .result-main img,
+    .result-container img,
+    .matching-feedback img,
+    .feedback-overlay img,
+    .material-icon,
+    [class*="material-icon"] {
       filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
     }
     
     /* Ensure rabbit icon is NOT affected */
     .icon-container img {
-      filter: none;
+      filter: none !important;
+    }
+    
+    /* Override for any icons that should stay their original color */
+    .zoom-close img,
+    #close-btn {
+      filter: none !important;
     }
   </style>
 </head>
