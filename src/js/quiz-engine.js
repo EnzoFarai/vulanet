@@ -118,6 +118,9 @@ class QuizEngine {
     this.livesIcon.src = this.lives === 0
       ? '../public/assets/icons/phosphor/regular/heart.svg'
       : '../public/assets/icons/phosphor/fill/heart.svg';
+    
+    // Apply CSS filter to ensure hearts are #EA4335
+    this.livesIcon.style.filter = 'brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)';
   }
 
   playSound(isCorrect) {
@@ -368,7 +371,7 @@ class QuizEngine {
     section.innerHTML = `
       <h2 class="quiz-title">Select what is missing</h2>
       <div class="question-container">
-        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;"></div>
+        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;filter:none;"></div>
         <div speech-bubble pleft abottom style="--bbColor:#FFFFFF"><div class="bubble-text">${displayText}</div></div>
       </div>
       <div id="options-${actualIdx}" class="options-container"></div>
@@ -447,7 +450,7 @@ class QuizEngine {
     section.innerHTML = `
       <h2 class="quiz-title">Complete the statement</h2>
       <div class="question-container">
-        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;"></div>
+        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;filter:none;"></div>
         <div speech-bubble pleft acenter style="--bbColor:#FFFFFF"><div class="bubble-text">${qData.questionText}</div></div>
       </div>
       <div class="response-container">
