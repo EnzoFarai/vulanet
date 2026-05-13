@@ -4,183 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Streak</title>
-  <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
-  <script src="../../src/lib/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: #F7F7F7;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      font-family: 'Atkinson Hyperlegible Next', sans-serif;
-      padding: 16px;
-    }
-    .container { max-width: 400px; width: 100%; text-align: center; }
+    body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #f2f2f2; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
+    .container { max-width: 400px; margin: 40px auto; text-align: center; }
     .flame { visibility: hidden; opacity: 0; transition: opacity 0.3s; }
     .flame.visible { visibility: visible; opacity: 1; }
-    .flame img { width: 110px; height: auto; }
-    .streak-number {
-      font-size: 72px; font-weight: 700; color: #FF6D01;
-      text-shadow: -4px -4px 0 #fff, 4px -4px 0 #fff, -4px 4px 0 #fff, 4px 4px 0 #fff;
-      visibility: hidden; opacity: 0; transition: opacity 0.3s;
-    }
+    .flame img { width: 110px; height: auto; margin: 0 auto 4px; }
+    .streak-number { font-size: 72px; font-weight: 700; color: #FF6D01; text-shadow: -4px -4px 0 #fff, 4px -4px 0 #fff, -4px 4px 0 #fff, 4px 4px 0 #fff; visibility: hidden; opacity: 0; transition: opacity 0.3s; }
     .streak-number.visible { visibility: visible; opacity: 1; }
-    .streak-text {
-      font-size: 28px; color: #FF6D01; font-weight: 700; margin-top: -6px;
-      visibility: hidden; opacity: 0; transition: opacity 0.3s;
-    }
+    .streak-text { font-size: 28px; color: #FF6D01; font-weight: 700; margin-top: -6px; visibility: hidden; opacity: 0; transition: opacity 0.3s; }
     .streak-text.visible { visibility: visible; opacity: 1; }
-    .card {
-      margin-top: 30px; background: #FFFFFF; border-radius: 22px; padding: 18px;
-      box-shadow: 0 0 0 3px #E5E5E5;
-    }
-    .days { display: flex; justify-content: space-between; color: #999; font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; }
-    .days span { width: 38px; text-align: center; }
-    .days span.active { color: #FF6D01; }
-    .ticks { display: flex; justify-content: space-between; margin-bottom: 16px; }
-    .tick { width: 38px; height: 38px; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all 0.3s; }
-    .tick.orange { background: #FF6D01; }
-    .tick.grey { background: #AFAFAF; }
-    .tick i { font-size: 22px; color: white; }
-    .divider { height: 1px; background: #E5E5E5; margin: 18px 0; }
+    .card { margin-top: 30px; background: white; border-radius: 22px; padding: 18px; box-shadow: 0 0 0 3px #e5e5e5; }
     .message { font-size: 20px; color: #444; }
-    .continue-btn {
-      width: 100%; height: 52px; border-radius: 0.75rem; font-weight: 700; border: none;
-      font-size: 15px; text-transform: uppercase; cursor: pointer;
-      background: #4285F4; color: white; border-bottom: 4px solid #3a75d9;
-      margin-top: 24px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .share-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-    .share-content { width: 100%; max-width: 357px; background: #f5f5f7; border-radius: 24px; overflow: hidden; }
-    .share-card { background: white; border-radius: 24px; padding: 32px 24px; text-align: center; }
-    .share-sheet { background: white; border-top: 1px solid #dadada; border-radius: 24px 24px 0 0; padding: 16px 12px; }
-    .share-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
-    .share-item, .bottom-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-    .share-icon-circle, .bottom-icon-circle { width: 44px; height: 44px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
-    .share-icon img { width: 28px; height: 28px; object-fit: contain; }
-    .share-text, .bottom-text { font-size: 11px; color: #333; }
-    .bottom-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 20px; padding: 0 20px; }
-    .mini-streak { display: flex; flex-direction: column; align-items: center; }
-    .share-streak-number { font-size: 48px; font-weight: 700; color: #FF6D01; text-shadow: -2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,2px 2px 0 #fff; }
-    .share-streak-text { font-size: 22px; color: #FF6D01; font-weight: 700; }
-    .share-message { font-size: 18px; color: #444; margin: 8px 0; }
-    .share-brand { margin-top: 16px; font-weight: 700; color: #4285F4; font-size: 24px; }
+    .btn { margin-top: 24px; width: 100%; }
   </style>
 </head>
 <body>
-  <audio id="streakAudio" preload="auto"><source src="../../public/assets/audio/streak.mp3" type="audio/mpeg"></audio>
   <div class="container">
-    <div class="flame" id="flame"><img src="../../public/assets/lottie/1f525-static.png" alt="flame"></div>
+    <div class="flame" id="flame">
+      <img src="../../../public/assets/lottie/1f525-static.png" alt="flame">
+    </div>
     <h1 class="streak-number" id="streakNumber">1</h1>
     <div class="streak-text" id="streakText">day streak!</div>
     <div class="card">
-      <div class="days" id="daysContainer"></div>
-      <div class="ticks" id="ticksContainer"></div>
-      <div class="divider"></div>
       <div class="message" id="streakMessage">You now have an active streak. Do a lesson everyday to extend it.</div>
     </div>
-    <button class="continue-btn" id="continueButton">CONTINUE</button>
+    <button class="btn btn-md btn-carpenter-blue" id="continueButton">CONTINUE</button>
   </div>
-
-  <div class="share-overlay" id="share-overlay">
-    <div class="share-content">
-      <div class="share-card" id="share-card">
-        <div class="mini-streak">
-          <img src="../../public/assets/lottie/1f525-static.png" width="60" alt="flame">
-          <div class="share-streak-number" id="shareStreakNumber">1</div>
-          <div class="share-streak-text">day streak!</div>
-          <div class="share-message" id="shareMessage">I now have an active streak on Vulanet.</div>
-        </div>
-        <div class="share-brand">vulanet</div>
-      </div>
-      <div class="share-sheet">
-        <div class="share-grid">
-          <div class="share-item" id="share-facebook"><div class="share-icon-circle"><div class="share-icon"><img src="../../public/assets/icons/social/facebook-full.svg"></div></div><div class="share-text">Facebook</div></div>
-          <div class="share-item" id="share-x"><div class="share-icon-circle"><div class="share-icon"><img src="../../public/assets/icons/social/x-twitter-brands-solid-full.svg"></div></div><div class="share-text">X</div></div>
-          <div class="share-item" id="share-whatsapp"><div class="share-icon-circle"><div class="share-icon"><img src="../../public/assets/icons/social/whatsapp.svg"></div></div><div class="share-text">WhatsApp</div></div>
-          <div class="share-item" id="share-sms"><div class="share-icon-circle"><div class="share-icon"><span class="material-symbols-outlined">sms</span></div></div><div class="share-text">Message</div></div>
-        </div>
-        <div class="bottom-grid">
-          <div class="bottom-item" id="save-image"><div class="bottom-icon-circle"><div class="bottom-icon"><span class="material-symbols-outlined">download</span></div></div><div class="bottom-text">Save image</div></div>
-          <div class="bottom-item" id="more-options"><div class="bottom-icon-circle"><div class="bottom-icon"><span class="material-symbols-outlined">more_horiz</span></div></div><div class="bottom-text">More</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    document.getElementById('streakAudio').play().catch(()=>{});
+    const streakAudio = new Audio('../../../public/assets/audio/streak.mp3'); streakAudio.play().catch(()=>{});
     const params = new URLSearchParams(window.location.search);
-    let streakDays = parseInt(params.get('streak')) || 1;
-
-    const today = new Date();
-    let dayIdx = today.getDay();
-    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    let displayDays = [];
-    for (let i=0;i<7;i++) { displayDays.push(dayNames[(dayIdx+i)%7]); }
-    document.getElementById('daysContainer').innerHTML = displayDays.map((d,i)=> `<span${i===0?' class="active"':''}>${d}</span>`).join('');
-
-    const ticksContainer = document.getElementById('ticksContainer');
-    ticksContainer.innerHTML = '';
-    for (let i=0;i<7;i++){
-      const tick = document.createElement('div');
-      tick.className = 'tick grey';
-      tick.id = 'tick-'+i;
-      tick.innerHTML = '<span class="material-symbols-outlined" style="font-size:22px; color:white;">check</span>';
-      ticksContainer.appendChild(tick);
-    }
-
+    const streakDays = parseInt(params.get('streak')) || 1;
     document.getElementById('streakNumber').textContent = streakDays;
     document.getElementById('streakText').textContent = streakDays === 1 ? 'day streak!' : 'day streak!';
-    document.getElementById('shareStreakNumber').textContent = streakDays;
-    document.getElementById('shareMessage').textContent = streakDays === 1 ? 'I now have an active streak on Vulanet.' : 'Check out my streak!';
-
-    setTimeout(() => {
-      const ticks = document.querySelectorAll('.tick');
-      let count = Math.min(streakDays, 7);
-      for (let i=0; i<count; i++) {
-        ticks[i].classList.remove('grey');
-        ticks[i].classList.add('orange');
-      }
-      document.getElementById('flame').classList.add('visible');
-      document.getElementById('streakNumber').classList.add('visible');
-      document.getElementById('streakText').classList.add('visible');
-    }, 1000);
-
-    const shareOverlay = document.getElementById('share-overlay');
-    document.getElementById('share-button')?.addEventListener('click', ()=> shareOverlay.style.display='flex');
-    shareOverlay.addEventListener('click', e=>{ if(e.target===shareOverlay) shareOverlay.style.display='none'; });
-    document.getElementById('save-image').addEventListener('click', async ()=>{
-      const card = document.getElementById('share-card');
-      await document.fonts.ready;
-      html2canvas(card,{scale:2,useCORS:true}).then(canvas=>{
-        const a=document.createElement('a'); a.download='streak.png'; a.href=canvas.toDataURL('image/png'); a.click();
-      });
-    });
-    document.getElementById('share-facebook').addEventListener('click', ()=>{
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://vulanet.com/streak")}&quote=${encodeURIComponent(getShareText())}`,'fb-share','width=626,height=436');
-    });
-    function getShareText(){ return `I have a ${streakDays} day streak on Vulanet!`; }
-    document.getElementById('share-x').addEventListener('click', ()=>{
-      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`,'twitter-share','width=550,height=420');
-    });
-    document.getElementById('share-whatsapp').addEventListener('click', ()=>{
-      window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`,'whatsapp-share','width=600,height=600');
-    });
-    document.getElementById('share-sms').addEventListener('click', ()=>{
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      if(isMobile) window.location.href = `sms:?body=${encodeURIComponent(getShareText())}`;
-      else navigator.clipboard.writeText(getShareText());
-    });
-    document.getElementById('more-options').addEventListener('click', async ()=>{
-      if(navigator.share) await navigator.share({ title:'My Vulanet Streak', text:getShareText(), url:'https://vulanet.com/streak' });
-    });
-    document.getElementById('continueButton').addEventListener('click', ()=>{
-      window.parent.postMessage({ type:'streakClosed', streakDays }, '*');
-      window.parent.postMessage('modalClose','*');
-    });
+    const flame = document.getElementById('flame'), number = document.getElementById('streakNumber'), text = document.getElementById('streakText');
+    setTimeout(() => { flame.classList.add('visible'); number.classList.add('visible'); text.classList.add('visible'); }, 1000);
+    document.getElementById('continueButton').addEventListener('click', () => window.parent.postMessage('modalClose', '*'));
   </script>
 </body>
 </html>
