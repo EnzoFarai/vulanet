@@ -52,7 +52,6 @@ class QuizEngine {
     this.shuffleArray = this.shuffleArray.bind(this);
     this.normalizeAnswer = this.normalizeAnswer.bind(this);
     this.playSound = this.playSound.bind(this);
-    this.applyHeartFilter = this.applyHeartFilter.bind(this);
 
     // DOM references
     this.progressBar = null;
@@ -108,13 +107,6 @@ class QuizEngine {
     }
   }
 
-  // Apply CSS filter to heart icons to make them #EA4335
-  applyHeartFilter(element) {
-    if (element) {
-      element.style.filter = 'brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)';
-    }
-  }
-
   // Storage
   loadStreakFromStorage() { const s = localStorage.getItem(this.streakKey); if (s) this.currentStreakDays = parseInt(s,10); else localStorage.setItem(this.streakKey,'1'); }
   saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
@@ -122,16 +114,10 @@ class QuizEngine {
 
   // UI helpers
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
-  
   updateHeartIcon() {
-    // Set the correct icon based on lives count
-    if (this.lives === 0) {
-      this.livesIcon.src = '../public/assets/icons/phosphor/regular/heart.svg';
-    } else {
-      this.livesIcon.src = '../public/assets/icons/phosphor/fill/heart.svg';
-    }
-    // Apply the color filter
-    this.applyHeartFilter(this.livesIcon);
+    this.livesIcon.src = this.lives === 0
+      ? '../public/assets/icons/phosphor/regular/heart.svg'
+      : '../public/assets/icons/phosphor/fill/heart.svg';
   }
 
   playSound(isCorrect) {
@@ -319,13 +305,6 @@ class QuizEngine {
       case 'image-selection': this.renderImageSelection(section, qData, actualIdx); break;
       case 'matching': this.renderMatching(section, qData, actualIdx); break;
     }
-    
-    // Apply heart filter to any hearts in modals or dynamically created content
-    setTimeout(() => {
-      document.querySelectorAll('img[src*="heart.svg"]').forEach(img => {
-        this.applyHeartFilter(img);
-      });
-    }, 100);
   }
 
   renderMultipleChoice(section, qData, actualIdx) {
