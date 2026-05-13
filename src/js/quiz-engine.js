@@ -52,6 +52,7 @@ class QuizEngine {
     this.shuffleArray = this.shuffleArray.bind(this);
     this.normalizeAnswer = this.normalizeAnswer.bind(this);
     this.playSound = this.playSound.bind(this);
+    this.applyHeartFilter = this.applyHeartFilter.bind(this);
 
     // DOM references
     this.progressBar = null;
@@ -107,6 +108,13 @@ class QuizEngine {
     }
   }
 
+  // Apply CSS filter to heart icons to make them #EA4335
+  applyHeartFilter(element) {
+    if (element) {
+      element.style.filter = 'brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)';
+    }
+  }
+
   // Storage
   loadStreakFromStorage() { const s = localStorage.getItem(this.streakKey); if (s) this.currentStreakDays = parseInt(s,10); else localStorage.setItem(this.streakKey,'1'); }
   saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
@@ -114,13 +122,16 @@ class QuizEngine {
 
   // UI helpers
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
+  
   updateHeartIcon() {
-    this.livesIcon.src = this.lives === 0
-      ? '../public/assets/icons/phosphor/regular/heart.svg'
-      : '../public/assets/icons/phosphor/fill/heart.svg';
-    
-    // Apply CSS filter to ensure hearts are #EA4335
-    this.livesIcon.style.filter = 'brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)';
+    // Set the correct icon based on lives count
+    if (this.lives === 0) {
+      this.livesIcon.src = '../public/assets/icons/phosphor/regular/heart.svg';
+    } else {
+      this.livesIcon.src = '../public/assets/icons/phosphor/fill/heart.svg';
+    }
+    // Apply the color filter
+    this.applyHeartFilter(this.livesIcon);
   }
 
   playSound(isCorrect) {
@@ -308,6 +319,13 @@ class QuizEngine {
       case 'image-selection': this.renderImageSelection(section, qData, actualIdx); break;
       case 'matching': this.renderMatching(section, qData, actualIdx); break;
     }
+    
+    // Apply heart filter to any hearts in modals or dynamically created content
+    setTimeout(() => {
+      document.querySelectorAll('img[src*="heart.svg"]').forEach(img => {
+        this.applyHeartFilter(img);
+      });
+    }, 100);
   }
 
   renderMultipleChoice(section, qData, actualIdx) {
@@ -371,7 +389,7 @@ class QuizEngine {
     section.innerHTML = `
       <h2 class="quiz-title">Select what is missing</h2>
       <div class="question-container">
-        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;filter:none;"></div>
+        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;"></div>
         <div speech-bubble pleft abottom style="--bbColor:#FFFFFF"><div class="bubble-text">${displayText}</div></div>
       </div>
       <div id="options-${actualIdx}" class="options-container"></div>
@@ -450,7 +468,7 @@ class QuizEngine {
     section.innerHTML = `
       <h2 class="quiz-title">Complete the statement</h2>
       <div class="question-container">
-        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;filter:none;"></div>
+        <div class="icon-container"><img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi" style="width:4rem;height:4rem;"></div>
         <div speech-bubble pleft acenter style="--bbColor:#FFFFFF"><div class="bubble-text">${qData.questionText}</div></div>
       </div>
       <div class="response-container">
