@@ -13,6 +13,18 @@
 
   <!-- Button Styles -->
   <link rel="stylesheet" href="../src/styles/components/buttons.css">
+
+  <style>
+    /* CSS Filters to colorize heart icons to #EA4335 */
+    .lives-container img {
+      filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
+    }
+    
+    /* Any other heart icons in modals or elsewhere */
+    img[src*="heart.svg"] {
+      filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
+    }
+  </style>
 </head>
 <body>
 
