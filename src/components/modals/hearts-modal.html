@@ -73,9 +73,13 @@
     const HEART_EMPTY_PATH = '../../../public/assets/icons/phosphor/regular/heart.svg';
     let count = 5;
     
-    // Both heart images will be colorized by the CSS filter to #EA4335
-    function updateHeartIcon(isFull) { 
-      heartImg.src = isFull ? HEART_FILL_PATH : HEART_EMPTY_PATH; 
+    function updateHeartIcon() {
+      // Show filled heart when count > 0, empty heart only when count === 0
+      if (count > 0) {
+        heartImg.src = HEART_FILL_PATH;
+      } else {
+        heartImg.src = HEART_EMPTY_PATH;
+      }
     }
     
     function startCountdown() {
@@ -84,10 +88,22 @@
         heartsCount.textContent = count;
         heartsCount.style.transform = 'scale(1.2)';
         setTimeout(() => heartsCount.style.transform = 'scale(1)', 150);
-        if (count > 0) updateHeartIcon(true); else updateHeartIcon(false);
-        if (count === 0) { clearInterval(interval); setTimeout(() => { count = 5; heartsCount.textContent = '5'; updateHeartIcon(true); startCountdown(); }, 1000); }
+        
+        // Update heart icon based on new count value
+        updateHeartIcon();
+        
+        if (count === 0) { 
+          clearInterval(interval); 
+          setTimeout(() => { 
+            count = 5; 
+            heartsCount.textContent = '5'; 
+            updateHeartIcon(); 
+            startCountdown(); 
+          }, 1000); 
+        }
       }, 600);
     }
+    
     startCountdown();
     actionButton.addEventListener('click', () => window.parent.postMessage('modalClose', '*'));
   </script>
