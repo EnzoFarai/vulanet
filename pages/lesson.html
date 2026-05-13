@@ -13,6 +13,18 @@
 
   <!-- Button Styles -->
   <link rel="stylesheet" href="../src/styles/components/buttons.css">
+  
+  <style>
+    /* CSS filter to make hearts #EA4335 */
+    .lives-container img {
+      filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
+    }
+    
+    /* Ensure rabbit icon is NOT affected */
+    .icon-container img {
+      filter: none;
+    }
+  </style>
 </head>
 <body>
 
