@@ -15,14 +15,39 @@
   <link rel="stylesheet" href="../src/styles/components/buttons.css">
 
   <style>
-    /* CSS Filters to colorize heart icons to #EA4335 */
-    .lives-container img {
-      filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
-    }
-    
-    /* Any other heart icons in modals or elsewhere */
+    /* === CSS FILTERS FOR ALL LOCAL ICONS (EXCEPT rabbit-blue) === */
+    /* Hearts → #EA4335 */
+    #lives-icon,
+    .heart-icon img,
     img[src*="heart.svg"] {
-      filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
+      filter: brightness(0) saturate(100%) invert(27%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
+    }
+
+    /* Correct / success icons → green (#2E7D32) */
+    img[src*="check_circle.svg"],
+    img[src*="recommend.svg"] {
+      filter: brightness(0) saturate(100%) invert(28%) sepia(67%) saturate(1460%) hue-rotate(101deg) brightness(96%) contrast(96%);
+    }
+
+    /* Incorrect / cancel / note icons → red (#C62828) */
+    img[src*="cancel.svg"],
+    img[src*="stylus_note.svg"] {
+      filter: brightness(0) saturate(100%) invert(17%) sepia(92%) saturate(5135%) hue-rotate(358deg) brightness(90%) contrast(112%);
+    }
+
+    /* X (close) icon → dark grey */
+    img[src*="x.svg"] {
+      filter: brightness(0) saturate(100%) invert(33%) sepia(0%) saturate(0%) brightness(40%) contrast(100%);
+    }
+
+    /* Ensure rabbit-blue stays original */
+    img[src*="rabbit-blue.svg"] {
+      filter: none !important;
+    }
+
+    /* Optional: make any other phosphor fill icons neutral */
+    img[src*="/fill/"]:not([src*="heart"]):not([src*="rabbit"]) {
+      filter: brightness(0) saturate(100%) invert(40%) sepia(0%) saturate(0%) brightness(95%) contrast(85%);
     }
   </style>
 </head>
