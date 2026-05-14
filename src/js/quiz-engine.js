@@ -114,8 +114,6 @@ class QuizEngine {
 
   // UI helpers
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
-  
-  // HEART ICON FIX: shows filled when lives > 0, regular/empty only when lives === 0
   updateHeartIcon() {
     this.livesIcon.src = this.lives === 0
       ? '../public/assets/icons/phosphor/regular/heart.svg'
@@ -179,7 +177,6 @@ class QuizEngine {
   }
 
   showResultOverlay(qNum, isCorrect, explanationHTML, onComplete) {
-    // Create overlay if not exists
     let overlay = document.getElementById(`resultOverlay-${qNum}`);
     if (!overlay) {
       overlay = document.createElement('div');
@@ -578,29 +575,77 @@ class QuizEngine {
     const feedbackTitle = document.getElementById('feedbackTitle');
     const feedbackMsg = document.getElementById('feedbackMessage');
 
-    feedbackOverlay.classList.remove('visible'); matchingContinueBtn.style.display = 'none';
+    feedbackOverlay.classList.remove('visible');
+    matchingContinueBtn.style.display = 'none';
+    
     let selectedLeft = null, selectedRight = null, matched = 0, gameActive = true, lifeLostInThisGame = false, completed = false;
     const pairs = qData.pairs || [], shuffledPairs = this.shuffleArray([...pairs]);
 
-    leftCol.innerHTML = ''; shuffledPairs.forEach((pair, idx) => {
-      const card = document.createElement('div'); card.className = 'card'; card.dataset.pair = String(idx); card.dataset.type = 'term'; card.textContent = pair.term;
+    leftCol.innerHTML = ''; 
+    shuffledPairs.forEach((pair, idx) => {
+      const card = document.createElement('div'); 
+      card.className = 'card'; 
+      card.dataset.pair = String(idx); 
+      card.dataset.type = 'term'; 
+      card.textContent = pair.term;
+      
+      // Define resetWrong function inside the closure
+      const resetWrong = () => {
+        document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c => c.classList.remove('wrong'));
+        document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c => c.classList.remove('selected'));
+        selectedLeft = null; 
+        selectedRight = null; 
+        feedbackOverlay.classList.remove('visible');
+      };
+      
       card.addEventListener('click', () => {
+        if (feedbackOverlay.classList.contains('visible')) {
+          resetWrong();
+          return;
+        }
         if (!gameActive || card.classList.contains('matched')) return;
-        if (card.classList.contains('wrong')) resetWrong();
+        if (card.classList.contains('wrong')) {
+          resetWrong();
+          return;
+        }
         leftCol.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected'); selectedLeft = card;
+        card.classList.add('selected'); 
+        selectedLeft = card;
         if (selectedLeft && selectedRight) checkMatch();
       });
       leftCol.appendChild(card);
     });
-    rightCol.innerHTML = ''; const shuffledMeanings = this.shuffleArray([...shuffledPairs]);
+    
+    rightCol.innerHTML = ''; 
+    const shuffledMeanings = this.shuffleArray([...shuffledPairs]);
     shuffledMeanings.forEach(pair => {
-      const card = document.createElement('div'); card.className = 'card'; card.dataset.pair = String(shuffledPairs.findIndex(p => p.meaning === pair.meaning)); card.dataset.type = 'meaning'; card.textContent = pair.meaning;
+      const card = document.createElement('div'); 
+      card.className = 'card'; 
+      card.dataset.pair = String(shuffledPairs.findIndex(p => p.meaning === pair.meaning)); 
+      card.dataset.type = 'meaning'; 
+      card.textContent = pair.meaning;
+      
+      const resetWrong = () => {
+        document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c => c.classList.remove('wrong'));
+        document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c => c.classList.remove('selected'));
+        selectedLeft = null; 
+        selectedRight = null; 
+        feedbackOverlay.classList.remove('visible');
+      };
+      
       card.addEventListener('click', () => {
+        if (feedbackOverlay.classList.contains('visible')) {
+          resetWrong();
+          return;
+        }
         if (!gameActive || card.classList.contains('matched')) return;
-        if (card.classList.contains('wrong')) resetWrong();
+        if (card.classList.contains('wrong')) {
+          resetWrong();
+          return;
+        }
         rightCol.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected'); selectedRight = card;
+        card.classList.add('selected'); 
+        selectedRight = card;
         if (selectedLeft && selectedRight) checkMatch();
       });
       rightCol.appendChild(card);
@@ -609,25 +654,48 @@ class QuizEngine {
     const checkMatch = () => {
       if (!selectedLeft || !selectedRight || !gameActive) return;
       if (selectedLeft.dataset.pair === selectedRight.dataset.pair) {
-        this.playSound(true); selectedLeft.classList.remove('selected'); selectedRight.classList.remove('selected');
-        selectedLeft.classList.add('correct'); selectedRight.classList.add('correct'); matched++;
+        this.playSound(true); 
+        selectedLeft.classList.remove('selected'); 
+        selectedRight.classList.remove('selected');
+        selectedLeft.classList.add('correct'); 
+        selectedRight.classList.add('correct'); 
+        matched++;
         setTimeout(() => {
-          document.querySelectorAll(`#leftColumn-${actualIdx} .card.correct, #rightColumn-${actualIdx} .card.correct`).forEach(c => { c.classList.remove('correct'); c.classList.add('matched'); });
+          document.querySelectorAll(`#leftColumn-${actualIdx} .card.correct, #rightColumn-${actualIdx} .card.correct`).forEach(c => { 
+            c.classList.remove('correct'); 
+            c.classList.add('matched'); 
+          });
         }, 800);
         if (matched === pairs.length && !completed) {
-          gameActive = false; completed = true; this.totalAttempts++;
+          gameActive = false; 
+          completed = true; 
+          this.totalAttempts++;
           if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
-          this.currentStreak++; this.updateStreakCounter();
+          this.currentStreak++; 
+          this.updateStreakCounter();
           if (this.currentStreak % 5 === 0 && this.currentStreak > 0) {
-            this.pendingCelebration = true; this.pendingCelebrationStreak = this.currentStreak;
+            this.pendingCelebration = true; 
+            this.pendingCelebrationStreak = this.currentStreak;
             this.processAfterExplanation(() => this.moveToNextQuestion());
-          } else this.moveToNextQuestion();
+          } else {
+            matchingContinueBtn.style.display = 'block';
+          }
         }
       } else {
-        this.playSound(false); selectedLeft.classList.add('wrong'); selectedRight.classList.add('wrong');
+        this.playSound(false); 
+        selectedLeft.classList.add('wrong'); 
+        selectedRight.classList.add('wrong');
         if (!lifeLostInThisGame) {
-          if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); lifeLostInThisGame = true;
-            if (this.lives === 0) { feedbackTitle.textContent = 'Game Over'; feedbackMsg.textContent = "You've run out of lives!"; feedbackOverlay.classList.add('visible'); gameActive = false;
+          if (this.lives > 0) { 
+            this.lives--; 
+            this.livesCountSpan.textContent = String(this.lives); 
+            this.updateHeartIcon(); 
+            lifeLostInThisGame = true;
+            if (this.lives === 0) { 
+              feedbackTitle.textContent = 'Game Over'; 
+              feedbackMsg.textContent = "You've run out of lives!"; 
+              feedbackOverlay.classList.add('visible'); 
+              gameActive = false;
               const coins = parseInt(localStorage.getItem('coins') || '500', 10);
               if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
               else window.location.href = this.redirectUrl;
@@ -635,17 +703,24 @@ class QuizEngine {
             }
           }
         }
-        this.handleIncorrectAnswer(); feedbackTitle.textContent = 'Incorrect'; feedbackMsg.textContent = "Let's try that again"; feedbackOverlay.classList.add('visible');
+        this.handleIncorrectAnswer(); 
+        feedbackTitle.textContent = 'Incorrect'; 
+        feedbackMsg.textContent = "Let's try that again"; 
+        feedbackOverlay.classList.add('visible');
       }
-      selectedLeft = null; selectedRight = null;
+      selectedLeft = null; 
+      selectedRight = null;
     };
 
     const resetWrong = () => {
       document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c => c.classList.remove('wrong'));
       document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c => c.classList.remove('selected'));
-      selectedLeft = null; selectedRight = null; feedbackOverlay.classList.remove('visible');
+      selectedLeft = null; 
+      selectedRight = null; 
+      feedbackOverlay.classList.remove('visible');
     };
 
+    // Set up event listeners
     tryAgainBtn.onclick = resetWrong;
     feedbackOverlay.addEventListener('click', (e) => { if (e.target === feedbackOverlay) resetWrong(); });
     matchingContinueBtn.addEventListener('click', () => this.moveToNextQuestion());
