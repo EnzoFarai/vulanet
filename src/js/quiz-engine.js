@@ -1,5 +1,5 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Data‑driven, all icons local SVGs
+// VULANET QUIZ ENGINE – Fixed percentage & matching attempts
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -31,6 +31,7 @@ class QuizEngine {
     this.quizStartTime = Date.now();
     this.quizCompleted = false;
     this.totalAttempts = 0;
+    this.totalCorrectAttempts = 0;          // NEW: count correct answers (including retries)
     this.questionFinalCorrect = new Array(this.totalQuestions).fill(false);
     this.heartsAtCompletion = 5;
     this.currentStreakDays = 1;
@@ -62,21 +63,17 @@ class QuizEngine {
     this.modalIframe = null;
     this.questionSections = [];
 
-    // Build the quiz UI
     this.buildQuizUI();
 
-    // Bind close button
     document.getElementById('close-btn').addEventListener('click', () => {
       this.showModal('../src/components/modals/quit-confirmation.html', () => {});
     });
 
-    // Initialise
     this.loadStreakFromStorage();
     this.updateStreakCounter();
     this.updateHeartIcon();
     this.progressBar.style.width = `${(1 / this.totalQuestions) * 100}%`;
 
-    // Show hearts modal or start lesson
     if (!this.hasCompletedFirstLesson) {
       this.showModal('../src/components/modals/hearts-modal.html', () => {
         localStorage.setItem('hasCompletedFirstLesson', 'true');
@@ -97,7 +94,6 @@ class QuizEngine {
     this.fullscreenOverlay = document.getElementById('fullscreenModalOverlay');
     this.modalIframe = document.getElementById('modalIframe');
 
-    // Create question sections
     for (let i = 0; i < this.totalQuestions; i++) {
       const qSection = document.createElement('div');
       qSection.id = `question${i + 1}`;
@@ -107,12 +103,10 @@ class QuizEngine {
     }
   }
 
-  // Storage
   loadStreakFromStorage() { const s = localStorage.getItem(this.streakKey); if (s) this.currentStreakDays = parseInt(s,10); else localStorage.setItem(this.streakKey,'1'); }
   saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
   incrementStreak() { this.currentStreakDays++; this.saveStreakToStorage(); }
 
-  // UI helpers
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
   
   updateHeartIcon() {
@@ -163,7 +157,14 @@ class QuizEngine {
 
   resetCurrentQuestion() { this.showQuestion(this.currentQuestion); }
 
-  handleCorrectAnswer() { this.currentStreak++; this.updateStreakCounter(); if(this.currentStreak%5===0&&this.currentStreak>0){ this.pendingCelebration=true; this.pendingCelebrationStreak=this.currentStreak; } }
+  handleCorrectAnswer() { 
+    this.currentStreak++; 
+    this.updateStreakCounter(); 
+    if(this.currentStreak%5===0&&this.currentStreak>0){ 
+      this.pendingCelebration=true; 
+      this.pendingCelebrationStreak=this.currentStreak; 
+    } 
+  }
   handleIncorrectAnswer() { this.currentStreak=0; this.updateStreakCounter(); }
 
   processAfterExplanation(onComplete) {
@@ -249,7 +250,8 @@ class QuizEngine {
     this.heartsAtCompletion=this.lives;
     this.incrementStreak();
 
-    this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${finalCorrect}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, ()=>{
+    // Pass totalCorrectAttempts AND totalAttempts to lesson-complete
+    this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, ()=>{
       this.showModal('../src/components/modals/streak.html', ()=>{
         const isMilestone=(this.currentStreakDays%5===0);
         if(isMilestone){
@@ -331,16 +333,20 @@ class QuizEngine {
 
     btn.addEventListener('click', () => {
       if (!selected || this.answered) return;
-      this.answered = true; this.totalAttempts++;
+      this.answered = true;
       const isCorrect = (selected === qData.correctAnswer);
       this.playSound(isCorrect);
       const correctBtn = Array.from(container.querySelectorAll('.option-button')).find(b => b.dataset.value === qData.correctAnswer);
       if (correctBtn) correctBtn.classList.add('correct');
+      
       if (isCorrect) {
+        this.totalCorrectAttempts++;
+        this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
         this.handleCorrectAnswer();
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
+        this.totalAttempts++;
         this.handleIncorrectAnswer();
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
         if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
@@ -412,7 +418,7 @@ class QuizEngine {
 
     btn.addEventListener('click', () => {
       if (!filled.every(f => f !== null)) return;
-      this.answered = true; this.totalAttempts++;
+      this.answered = true;
       const userAnswers = filled.map(f => f.value);
       const correctSet = [...qData.correctAnswers].sort().join(',');
       const userSet = [...userAnswers].sort().join(',');
@@ -420,12 +426,15 @@ class QuizEngine {
       this.playSound(isCorrect); optionBtns.forEach(b => { b.disabled = true; });
 
       if (isCorrect) {
+        this.totalCorrectAttempts++;
+        this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
         blankElements.forEach(b => { if (b) b.classList.add('correct'); });
         optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
         this.handleCorrectAnswer();
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
+        this.totalAttempts++;
         blankElements.forEach(b => { if (b) b.classList.add('incorrect'); });
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
         this.handleIncorrectAnswer();
@@ -461,15 +470,18 @@ class QuizEngine {
     input.addEventListener('input', () => { btn.disabled = !input.value.trim(); if (this.answered) { input.classList.remove('correct', 'incorrect'); this.answered = false; } });
     input.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !btn.disabled) btn.click(); });
     btn.addEventListener('click', () => {
-      this.answered = true; this.totalAttempts++;
+      this.answered = true;
       const userAnswer = this.normalizeAnswer(input.value.trim());
       const isCorrect = qData.acceptableAnswers.some(a => userAnswer === this.normalizeAnswer(a));
       this.playSound(isCorrect);
       if (isCorrect) {
+        this.totalCorrectAttempts++;
+        this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
         input.classList.add('correct'); this.handleCorrectAnswer();
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
+        this.totalAttempts++;
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
         this.handleIncorrectAnswer(); input.classList.add('incorrect');
         if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
@@ -534,7 +546,7 @@ class QuizEngine {
 
     btn.addEventListener('click', () => {
       if (state.selected === null || state.answered) return;
-      state.answered = true; this.totalAttempts++;
+      state.answered = true;
       tiles.forEach(t => t.style.cursor = 'default');
       tiles.forEach(t => {
         const n = parseInt(t.dataset.image, 10);
@@ -545,10 +557,13 @@ class QuizEngine {
       const isCorrect = (state.selected === qData.correctAnswer);
       this.playSound(isCorrect);
       if (isCorrect) {
+        this.totalCorrectAttempts++;
+        this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
         this.handleCorrectAnswer();
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
+        this.totalAttempts++;
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
         this.handleIncorrectAnswer();
         if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
@@ -658,6 +673,8 @@ class QuizEngine {
         if (matched === pairs.length && !completed) {
           gameActive = false; 
           completed = true; 
+          // Completion counts as a correct attempt
+          this.totalCorrectAttempts++;
           this.totalAttempts++;
           if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
           this.currentStreak++; 
@@ -676,6 +693,8 @@ class QuizEngine {
         this.playSound(false); 
         selectedLeft.classList.add('wrong'); 
         selectedRight.classList.add('wrong');
+        // Each wrong match counts as an incorrect attempt
+        this.totalAttempts++;
         
         if (!lifeLostInThisGame) {
           if (this.lives > 0) { 
