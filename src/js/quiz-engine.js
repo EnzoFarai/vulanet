@@ -1,5 +1,5 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Fixed percentage & matching attempts
+// VULANET QUIZ ENGINE – Fixed attempt counting for matching game
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -30,8 +30,8 @@ class QuizEngine {
 
     this.quizStartTime = Date.now();
     this.quizCompleted = false;
-    this.totalAttempts = 0;
-    this.totalCorrectAttempts = 0;          // NEW: count correct answers (including retries)
+    this.totalAttempts = 0;           // ← every answer attempt (right or wrong)
+    this.totalCorrectAttempts = 0;    // ← every correct answer (including retries)
     this.questionFinalCorrect = new Array(this.totalQuestions).fill(false);
     this.heartsAtCompletion = 5;
     this.currentStreakDays = 1;
@@ -63,17 +63,21 @@ class QuizEngine {
     this.modalIframe = null;
     this.questionSections = [];
 
+    // Build the quiz UI
     this.buildQuizUI();
 
+    // Bind close button
     document.getElementById('close-btn').addEventListener('click', () => {
       this.showModal('../src/components/modals/quit-confirmation.html', () => {});
     });
 
+    // Initialise
     this.loadStreakFromStorage();
     this.updateStreakCounter();
     this.updateHeartIcon();
     this.progressBar.style.width = `${(1 / this.totalQuestions) * 100}%`;
 
+    // Show hearts modal or start lesson
     if (!this.hasCompletedFirstLesson) {
       this.showModal('../src/components/modals/hearts-modal.html', () => {
         localStorage.setItem('hasCompletedFirstLesson', 'true');
@@ -94,6 +98,7 @@ class QuizEngine {
     this.fullscreenOverlay = document.getElementById('fullscreenModalOverlay');
     this.modalIframe = document.getElementById('modalIframe');
 
+    // Create question sections
     for (let i = 0; i < this.totalQuestions; i++) {
       const qSection = document.createElement('div');
       qSection.id = `question${i + 1}`;
@@ -103,10 +108,12 @@ class QuizEngine {
     }
   }
 
+  // Storage
   loadStreakFromStorage() { const s = localStorage.getItem(this.streakKey); if (s) this.currentStreakDays = parseInt(s,10); else localStorage.setItem(this.streakKey,'1'); }
   saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
   incrementStreak() { this.currentStreakDays++; this.saveStreakToStorage(); }
 
+  // UI helpers
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
   
   updateHeartIcon() {
@@ -157,14 +164,7 @@ class QuizEngine {
 
   resetCurrentQuestion() { this.showQuestion(this.currentQuestion); }
 
-  handleCorrectAnswer() { 
-    this.currentStreak++; 
-    this.updateStreakCounter(); 
-    if(this.currentStreak%5===0&&this.currentStreak>0){ 
-      this.pendingCelebration=true; 
-      this.pendingCelebrationStreak=this.currentStreak; 
-    } 
-  }
+  handleCorrectAnswer() { this.currentStreak++; this.updateStreakCounter(); if(this.currentStreak%5===0&&this.currentStreak>0){ this.pendingCelebration=true; this.pendingCelebrationStreak=this.currentStreak; } }
   handleIncorrectAnswer() { this.currentStreak=0; this.updateStreakCounter(); }
 
   processAfterExplanation(onComplete) {
@@ -244,31 +244,25 @@ class QuizEngine {
     if(this.quizCompleted) return;
     this.quizCompleted=true;
     const timeSeconds=Math.floor((Date.now()-this.quizStartTime)/1000);
-    let finalCorrect=0;
-    for(let i=0;i<this.questionFinalCorrect.length;i++) if(this.questionFinalCorrect[i]) finalCorrect++;
-    if(this.totalAttempts<finalCorrect) this.totalAttempts=finalCorrect;
-    this.heartsAtCompletion=this.lives;
-    this.incrementStreak();
-
-    // Pass totalCorrectAttempts AND totalAttempts to lesson-complete
+    // Pass totalCorrectAttempts and totalAttempts (not first-time only)
     this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, ()=>{
       this.showModal('../src/components/modals/streak.html', ()=>{
         const isMilestone=(this.currentStreakDays%5===0);
         if(isMilestone){
           let coinsAmount=250;
           if(this.currentStreakDays>=30&&this.currentStreakDays<=70) coinsAmount=500;
-          this.showModal(`../src/components/modals/coins-reward.html?amount=${coinsAmount}`,()=>{ this.showDailyQuest(finalCorrect,this.totalAttempts); });
+          this.showModal(`../src/components/modals/coins-reward.html?amount=${coinsAmount}`,()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
         } else {
           const rand=Math.random();
           if(rand<0.5){
             const multipliers=[{mult:1.5,dur:30},{mult:2,dur:20},{mult:3,dur:15}];
             const chosen=multipliers[Math.floor(Math.random()*multipliers.length)];
-            this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`,()=>{ this.showDailyQuest(finalCorrect,this.totalAttempts); });
+            this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`,()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
           } else {
             if(this.heartsAtCompletion<=2){
-              this.showModal('../src/components/modals/heart-reward.html?hearts=full',()=>{ this.showDailyQuest(finalCorrect,this.totalAttempts); });
+              this.showModal('../src/components/modals/heart-reward.html?hearts=full',()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
             } else {
-              this.showModal('../src/components/modals/boost-reward.html?multiplier=1.5&duration=30',()=>{ this.showDailyQuest(finalCorrect,this.totalAttempts); });
+              this.showModal('../src/components/modals/boost-reward.html?multiplier=1.5&duration=30',()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
             }
           }
         }
@@ -673,7 +667,7 @@ class QuizEngine {
         if (matched === pairs.length && !completed) {
           gameActive = false; 
           completed = true; 
-          // Completion counts as a correct attempt
+          // ✅ Completion counts as a correct attempt
           this.totalCorrectAttempts++;
           this.totalAttempts++;
           if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
@@ -693,7 +687,7 @@ class QuizEngine {
         this.playSound(false); 
         selectedLeft.classList.add('wrong'); 
         selectedRight.classList.add('wrong');
-        // Each wrong match counts as an incorrect attempt
+        // ✅ Each wrong match counts as an incorrect attempt
         this.totalAttempts++;
         
         if (!lifeLostInThisGame) {
