@@ -16,12 +16,16 @@
   lottie-player { width: 160px !important; height: 160px !important; }
   @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
   .stats { width: 100%; display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px; z-index: 30; }
-  .stat { background: #FFFFFF; border-radius: 16px; border: 2px solid; overflow: hidden; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+  .stat { background: #FFFFFF; border-radius: 16px; border: 2px solid; overflow: hidden; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; transition: all 0.3s ease; }
   .stat-header { padding: 12px 6px; color: #FFFFFF; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; }
-  .stat-content { padding: 14px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .stat .value { font-size: 18px; font-weight: 900; letter-spacing: .5px; }
+  .stat-content { padding: 14px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .stat .value { font-size: 18px; font-weight: 900; letter-spacing: .5px; display: flex; align-items: center; gap: 6px; }
+  .stat-icon { width: 20px; height: 20px; display: inline-block; }
+  .stat-icon img { width: 100%; height: 100%; object-fit: contain; }
   .continue-wrap { position: fixed; bottom: 0; left: 0; right: 0; background: #FFFFFF; padding: 14px 16px 22px; border-top: 1px solid #ededed; z-index: 100; width: 100%; }
   .continue { width: 100%; max-width: 420px; margin: 0 auto; height: 52px; border-radius: 0.75rem; font-weight: 700; letter-spacing: 0.5px; border: none; font-size: 15px; text-transform: uppercase; cursor: pointer; font-family: 'Atkinson Hyperlegible Next', sans-serif; display: block; }
+  
+  /* Fireworks - Restored to original complex animation */
   .fireworks-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; display: flex; justify-content: space-around; align-items: center; padding: 0 50px; }
   .fireworks { position: relative; z-index: 15; width: 2.5em; height: 2em; background: transparent; animation: flatify-firework 4s infinite; font-size: 2.5em; }
   .fireworks:before,.fireworks .spark:before,.fireworks .spark:after { content: " "; position: absolute; height: 0.25em; border-radius: 50em; background: var(--flatify__firework-color-main); }
@@ -37,6 +41,7 @@
   .fireworks-1 { align-self: flex-start; transform: rotate(-30deg); position: relative; top: 200px; left: 50px; }
   .fireworks-2 { align-self: center; position: relative; top: 200px; }
   .fireworks-3 { align-self: flex-start; transform: rotate(30deg); position: relative; top: 200px; right: 50px; }
+  
   @keyframes flatify-firework { 0%,20%{transform:translateY(0)} 40%{transform:translateY(-1em)} 80%,100%{transform:translateY(0.5em)} }
   @keyframes flatify-firework-main { 0%{opacity:0;transform:scale(0) translateY(1em)} 5%{opacity:1;transform:scale(0,6) translateY(1em)} 26%{transform:scaleY(2) translateY(0)} 30%{transform:scale(9) translateY(0)} 40%,100%{transform:scale(0) translateY(0)} }
   @keyframes flatify-firework-sparks { 0%,30%{opacity:0} 38%{opacity:1} 65%,100%{opacity:0} }
@@ -68,30 +73,106 @@
 <script>
   const audio = new Audio('../../../public/assets/audio/complete.mp3'); audio.play().catch(()=>{});
   const params = new URLSearchParams(window.location.search);
-  let correct = parseInt(params.get('correctAttempts'))||0;
-  let total = parseInt(params.get('totalAttempts'))||1;
-  let time = parseInt(params.get('time'))||0;
-  let boost = parseFloat(params.get('boost'))||null;
-  const totalQuestions = 6;
+  
+  // IMPORTANT: correctAttempts = number of UNIQUE questions correct on first attempt
+  // totalQuestions = total number of questions in the lesson
+  let correct = parseInt(params.get('correctAttempts')) || 0;
+  let totalQuestions = parseInt(params.get('totalQuestions')) || 6;
+  let time = parseInt(params.get('time')) || 0;
+  let boost = parseFloat(params.get('boost')) || null;
+  
+  // Calculate percentage based on unique questions correct vs total questions
+  let percentage = Math.round((correct / totalQuestions) * 100);
+  
+  // Accuracy XP = round((correct / total_questions) × 10), max 10
+  let accuracyXP = Math.round((correct / totalQuestions) * 10);
+  accuracyXP = Math.min(accuracyXP, 10);
+  
+  // Speed XP calculation
   const T_expected = totalQuestions * 15;
   const T_max = 2 * T_expected;
-  let accuracyXP = Math.round((correct / total) * 10);
-  accuracyXP = Math.min(accuracyXP, 10);
-  let speedXP = time <= T_expected ? 10 : (time <= T_max ? Math.round(10 * (2 - time / T_expected)) : 0);
-  if (speedXP < 0) speedXP = 0;
+  let speedXP = 0;
+  if (time <= T_expected) {
+    speedXP = 10;
+  } else if (time > T_expected && time <= T_max) {
+    speedXP = Math.round(10 * (2 - (time / T_expected)));
+    if (speedXP < 0) speedXP = 0;
+  } else {
+    speedXP = 0;
+  }
+  
+  // Total XP = 10 (completion) + accuracyXP + speedXP
   let totalXP = 10 + accuracyXP + speedXP;
-  let displayXP = boost ? Math.round(totalXP * boost) : totalXP;
-  let xpColor = boost ? '#FF6D01' : '#FBBC05';
-  let xpHeader = boost ? 'XP BOOST' : 'TOTAL XP';
-  let timeString = time < 60 ? `${time}s` : `${Math.floor(time/60)}m ${time%60}s`;
-  let committedLabel = time <= T_expected ? 'WHOA' : 'COMMITTED';
-  let percentage = Math.round((correct / total) * 100);
-  let accuracyLabel = percentage === 100 ? 'PERFECT' : percentage >= 80 ? 'OUTSTANDING' : percentage >= 50 ? 'NICE' : 'YIKES';
+  
+  // Apply boost if active
+  let displayXP = totalXP;
+  let xpHeader = "TOTAL XP";
+  let xpColor = "#FBBC05"; // Bee color (default)
+  if (boost !== null && boost > 1) {
+    displayXP = Math.round(totalXP * boost);
+    xpHeader = "XP BOOST";
+    xpColor = "#FF6D01"; // Tiger color (only for boost)
+  }
+  
+  // Format time string
+  let timeString = "";
+  if (time < 60) {
+    timeString = `${time}s`;
+  } else if (time < 3600) {
+    let minutes = Math.floor(time / 60);
+    let seconds = time % 60;
+    timeString = seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+  } else {
+    let hours = Math.floor(time / 3600);
+    let remainingMinutes = Math.floor((time % 3600) / 60);
+    timeString = remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+  }
+  
+  // Committed/WHOA label
+  let committedLabel = time <= T_expected ? "WHOA" : "COMMITTED";
+  
+  // Accuracy label based on percentage
+  let accuracyLabel = "";
+  if (percentage === 100) accuracyLabel = "PERFECT";
+  else if (percentage >= 80) accuracyLabel = "OUTSTANDING";
+  else if (percentage >= 50) accuracyLabel = "NICE";
+  else accuracyLabel = "YIKES";
+  
+  // CSS filters for icon colors
+  const lightningFilter = "brightness(0) saturate(100%) invert(85%) sepia(24%) saturate(1148%) hue-rotate(3deg) brightness(104%) contrast(103%)";
+  const clockFilter = "brightness(0) saturate(100%) invert(44%) sepia(57%) saturate(1662%) hue-rotate(198deg) brightness(96%) contrast(94%)";
+  const targetFilter = "brightness(0) saturate(100%) invert(53%) sepia(78%) saturate(500%) hue-rotate(86deg) brightness(94%) contrast(91%)";
+  
   document.getElementById('statsContainer').innerHTML = `
-    <div class="stat" style="border-color:${xpColor}"><div class="stat-header" style="background:${xpColor}">${xpHeader}</div><div class="stat-content"><div class="value">${displayXP}</div></div></div>
-    <div class="stat" style="border-color:#4285F4"><div class="stat-header" style="background:#4285F4">${committedLabel}</div><div class="stat-content"><div class="value">${timeString}</div></div></div>
-    <div class="stat" style="border-color:#34A853"><div class="stat-header" style="background:#34A853">${accuracyLabel}</div><div class="stat-content"><div class="value">${percentage}%</div></div></div>
+    <div class="stat" style="border-color: ${xpColor}">
+      <div class="stat-header" style="background: ${xpColor}">${xpHeader}</div>
+      <div class="stat-content">
+        <div class="value">
+          <span class="stat-icon"><img src="../../../public/assets/icons/phosphor/fill/lightning.svg" alt="XP" style="filter: ${lightningFilter}; width:20px;height:20px;"></span>
+          <span>${displayXP}</span>
+        </div>
+      </div>
+    </div>
+    <div class="stat" style="border-color: #4285F4">
+      <div class="stat-header" style="background: #4285F4">${committedLabel}</div>
+      <div class="stat-content">
+        <div class="value">
+          <span class="stat-icon"><img src="../../../public/assets/icons/phosphor/duotone/clock-countdown.svg" alt="Time" style="filter: ${clockFilter}; width:20px;height:20px;"></span>
+          <span>${timeString}</span>
+        </div>
+      </div>
+    </div>
+    <div class="stat" style="border-color: #34A853">
+      <div class="stat-header" style="background: #34A853">${accuracyLabel}</div>
+      <div class="stat-content">
+        <div class="value">
+          <span class="stat-icon"><img src="../../../public/assets/icons/phosphor/duotone/target.svg" alt="Percentage" style="filter: ${targetFilter}; width:20px;height:20px;"></span>
+          <span>${percentage}%</span>
+        </div>
+      </div>
+    </div>
   `;
+  
   document.getElementById('continueBtn').addEventListener('click', () => window.parent.postMessage('modalClose', '*'));
 </script>
 </body>
