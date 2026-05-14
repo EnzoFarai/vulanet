@@ -114,6 +114,7 @@ class QuizEngine {
 
   // UI helpers
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
+  
   updateHeartIcon() {
     this.livesIcon.src = this.lives === 0
       ? '../public/assets/icons/phosphor/regular/heart.svg'
@@ -566,16 +567,29 @@ class QuizEngine {
     section.innerHTML = `
       <h2 class="quiz-title">Match the pairs</h2>
       <div class="game-container"><div class="column" id="leftColumn-${actualIdx}"></div><div class="column" id="rightColumn-${actualIdx}"></div></div>
+      <button class="matching-continue-btn" id="matchingContinueBtn-${actualIdx}" style="display: none;">Continue</button>
+      <div class="feedback-overlay" id="feedbackOverlay-${actualIdx}" style="display: none;">
+        <div class="matching-feedback">
+          <div class="result-main">
+            <img src="../public/assets/icons/material-symbols/outline/cancel.svg" class="material-icon" alt="cancel" style="width:2.5rem;">
+            <div class="result-header" id="feedbackTitle-${actualIdx}">Incorrect</div>
+            <img src="../public/assets/icons/material-symbols/outline/stylus_note.svg" class="material-icon" alt="note" style="width:2.5rem;">
+          </div>
+          <div class="feedback-subtitle" id="feedbackMessage-${actualIdx}">Let's try that again</div>
+          <button class="feedback-button" id="tryAgainBtn-${actualIdx}">Try Again</button>
+        </div>
+      </div>
     `;
+    
     const leftCol = document.getElementById(`leftColumn-${actualIdx}`);
     const rightCol = document.getElementById(`rightColumn-${actualIdx}`);
-    const feedbackOverlay = document.getElementById('feedbackOverlay');
-    const tryAgainBtn = document.getElementById('tryAgainBtn');
-    const matchingContinueBtn = document.getElementById('matchingContinueBtn');
-    const feedbackTitle = document.getElementById('feedbackTitle');
-    const feedbackMsg = document.getElementById('feedbackMessage');
+    const feedbackOverlay = document.getElementById(`feedbackOverlay-${actualIdx}`);
+    const tryAgainBtn = document.getElementById(`tryAgainBtn-${actualIdx}`);
+    const matchingContinueBtn = document.getElementById(`matchingContinueBtn-${actualIdx}`);
+    const feedbackTitle = document.getElementById(`feedbackTitle-${actualIdx}`);
+    const feedbackMessage = document.getElementById(`feedbackMessage-${actualIdx}`);
 
-    feedbackOverlay.classList.remove('visible');
+    feedbackOverlay.style.display = 'none';
     matchingContinueBtn.style.display = 'none';
     
     let selectedLeft = null, selectedRight = null, matched = 0, gameActive = true, lifeLostInThisGame = false, completed = false;
@@ -588,26 +602,9 @@ class QuizEngine {
       card.dataset.pair = String(idx); 
       card.dataset.type = 'term'; 
       card.textContent = pair.term;
-      
-      // Define resetWrong function inside the closure
-      const resetWrong = () => {
-        document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c => c.classList.remove('wrong'));
-        document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c => c.classList.remove('selected'));
-        selectedLeft = null; 
-        selectedRight = null; 
-        feedbackOverlay.classList.remove('visible');
-      };
-      
       card.addEventListener('click', () => {
-        if (feedbackOverlay.classList.contains('visible')) {
-          resetWrong();
-          return;
-        }
         if (!gameActive || card.classList.contains('matched')) return;
-        if (card.classList.contains('wrong')) {
-          resetWrong();
-          return;
-        }
+        if (card.classList.contains('wrong')) resetWrong();
         leftCol.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected'); 
         selectedLeft = card;
@@ -624,25 +621,9 @@ class QuizEngine {
       card.dataset.pair = String(shuffledPairs.findIndex(p => p.meaning === pair.meaning)); 
       card.dataset.type = 'meaning'; 
       card.textContent = pair.meaning;
-      
-      const resetWrong = () => {
-        document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c => c.classList.remove('wrong'));
-        document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c => c.classList.remove('selected'));
-        selectedLeft = null; 
-        selectedRight = null; 
-        feedbackOverlay.classList.remove('visible');
-      };
-      
       card.addEventListener('click', () => {
-        if (feedbackOverlay.classList.contains('visible')) {
-          resetWrong();
-          return;
-        }
         if (!gameActive || card.classList.contains('matched')) return;
-        if (card.classList.contains('wrong')) {
-          resetWrong();
-          return;
-        }
+        if (card.classList.contains('wrong')) resetWrong();
         rightCol.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected'); 
         selectedRight = card;
@@ -650,6 +631,14 @@ class QuizEngine {
       });
       rightCol.appendChild(card);
     });
+
+    const resetWrong = () => {
+      document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c => c.classList.remove('wrong'));
+      document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c => c.classList.remove('selected'));
+      selectedLeft = null; 
+      selectedRight = null; 
+      feedbackOverlay.style.display = 'none';
+    };
 
     const checkMatch = () => {
       if (!selectedLeft || !selectedRight || !gameActive) return;
@@ -676,7 +665,9 @@ class QuizEngine {
           if (this.currentStreak % 5 === 0 && this.currentStreak > 0) {
             this.pendingCelebration = true; 
             this.pendingCelebrationStreak = this.currentStreak;
-            this.processAfterExplanation(() => this.moveToNextQuestion());
+            this.processAfterExplanation(() => {
+              matchingContinueBtn.style.display = 'block';
+            });
           } else {
             matchingContinueBtn.style.display = 'block';
           }
@@ -685,6 +676,7 @@ class QuizEngine {
         this.playSound(false); 
         selectedLeft.classList.add('wrong'); 
         selectedRight.classList.add('wrong');
+        
         if (!lifeLostInThisGame) {
           if (this.lives > 0) { 
             this.lives--; 
@@ -693,8 +685,8 @@ class QuizEngine {
             lifeLostInThisGame = true;
             if (this.lives === 0) { 
               feedbackTitle.textContent = 'Game Over'; 
-              feedbackMsg.textContent = "You've run out of lives!"; 
-              feedbackOverlay.classList.add('visible'); 
+              feedbackMessage.textContent = "You've run out of lives!"; 
+              feedbackOverlay.style.display = 'flex'; 
               gameActive = false;
               const coins = parseInt(localStorage.getItem('coins') || '500', 10);
               if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
@@ -705,24 +697,17 @@ class QuizEngine {
         }
         this.handleIncorrectAnswer(); 
         feedbackTitle.textContent = 'Incorrect'; 
-        feedbackMsg.textContent = "Let's try that again"; 
-        feedbackOverlay.classList.add('visible');
+        feedbackMessage.textContent = "Let's try that again"; 
+        feedbackOverlay.style.display = 'flex';
       }
       selectedLeft = null; 
       selectedRight = null;
     };
 
-    const resetWrong = () => {
-      document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c => c.classList.remove('wrong'));
-      document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c => c.classList.remove('selected'));
-      selectedLeft = null; 
-      selectedRight = null; 
-      feedbackOverlay.classList.remove('visible');
-    };
-
-    // Set up event listeners
-    tryAgainBtn.onclick = resetWrong;
-    feedbackOverlay.addEventListener('click', (e) => { if (e.target === feedbackOverlay) resetWrong(); });
+    tryAgainBtn.onclick = () => resetWrong();
+    feedbackOverlay.addEventListener('click', (e) => { 
+      if (e.target === feedbackOverlay) resetWrong(); 
+    });
     matchingContinueBtn.addEventListener('click', () => this.moveToNextQuestion());
   }
 }
