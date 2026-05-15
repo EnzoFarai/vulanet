@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hearts Refill</title>
+<title>Refill Hearts</title>
 <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
 <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
 <style>
@@ -16,6 +16,14 @@
   .title { margin-top: 20px; text-align: center; font-weight: 700; color: #4B4B4B; font-size: 20px; max-width: 320px; }
   .subtitle { margin-top: 8px; text-align: center; font-weight: 400; color: #4B4B4B; font-size: 14px; max-width: 280px; }
   .buttons-container { width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
+  /* Force buttons to be full width inside the container */
+  .buttons-container .btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+  }
 </style>
 </head>
 <body>
