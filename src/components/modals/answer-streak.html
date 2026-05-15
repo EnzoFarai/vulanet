@@ -16,7 +16,6 @@
       align-items: center; 
       min-height: 100vh; 
       color: #4B4B4B;
-      padding: 1rem;
     }
     
     .app {
@@ -26,7 +25,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       padding: 24px 18px 28px;
     }
     
@@ -35,9 +34,10 @@
       flex-direction: column; 
       align-items: center; 
       justify-content: center;
-      gap: 2rem; 
+      gap: 1.5rem; 
       width: 100%;
-      text-align: center; 
+      text-align: center;
+      flex: 1;
     }
     
     .celebration-speech-bubble { 
@@ -113,13 +113,14 @@
       50% { transform: translateY(-15px); } 
     }
     
-    /* Button container to ensure full width */
+    /* Button wrapper - stays at bottom */
     .button-wrapper {
       width: 100%;
-      margin-top: 1rem;
+      margin-top: auto;
+      padding-top: 20px;
     }
     
-    /* Force button to be full width and match demo styling */
+    /* Force button to be full width */
     .button-wrapper .btn {
       width: 100%;
       display: flex;
@@ -143,10 +144,10 @@
       <div class="celebration-icon-container">
         <img src="../../../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi">
       </div>
-      
-      <div class="button-wrapper">
-        <button class="btn btn-md btn-carpenter-blue" id="continueBtn">CONTINUE</button>
-      </div>
+    </div>
+    
+    <div class="button-wrapper">
+      <button class="btn btn-md btn-carpenter-blue" id="continueBtn">CONTINUE</button>
     </div>
   </div>
   
