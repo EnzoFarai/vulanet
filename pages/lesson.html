@@ -14,35 +14,19 @@
   <!-- Button Styles -->
   <link rel="stylesheet" href="../src/styles/components/buttons.css">
 
-  <!-- CSS filters for icons (as before) -->
+  <!-- CSS Filters for Icon Colours -->
   <style>
-    #close-btn {
-      filter: brightness(0) saturate(100%) invert(77%) sepia(10%) saturate(214%) hue-rotate(174deg) brightness(88%) contrast(92%);
-    }
-    #lives-icon {
-      filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
-    }
-    img[src*="check_circle.svg"],
-    img[src*="recommend.svg"] {
-      filter: brightness(0) saturate(100%) invert(29%) sepia(51%) saturate(2878%) hue-rotate(108deg) brightness(95%) contrast(94%);
-    }
-    img[src*="cancel.svg"],
-    img[src*="stylus_note.svg"] {
-      filter: brightness(0) saturate(100%) invert(21%) sepia(98%) saturate(4140%) hue-rotate(348deg) brightness(91%) contrast(94%);
-    }
-    img[src*="rabbit-blue.svg"] {
-      filter: none;
-    }
+    #close-btn { filter: brightness(0) saturate(100%) invert(77%) sepia(10%) saturate(214%) hue-rotate(174deg) brightness(88%) contrast(92%); }
+    #lives-icon { filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%); }
+    img[src*="check_circle.svg"], img[src*="recommend.svg"] { filter: brightness(0) saturate(100%) invert(29%) sepia(51%) saturate(2878%) hue-rotate(108deg) brightness(95%) contrast(94%); }
+    img[src*="cancel.svg"], img[src*="stylus_note.svg"] { filter: brightness(0) saturate(100%) invert(21%) sepia(98%) saturate(4140%) hue-rotate(348deg) brightness(91%) contrast(94%); }
+    img[src*="rabbit-blue.svg"] { filter: none; }
   </style>
 </head>
 <body>
 
-  <audio id="correctSound" preload="auto">
-    <source src="../public/assets/audio/correct.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="incorrectSound" preload="auto">
-    <source src="../public/assets/audio/incorrect.mp3" type="audio/mpeg">
-  </audio>
+  <audio id="correctSound" preload="auto"><source src="../public/assets/audio/correct.mp3" type="audio/mpeg"></audio>
+  <audio id="incorrectSound" preload="auto"><source src="../public/assets/audio/incorrect.mp3" type="audio/mpeg"></audio>
 
   <div id="fullscreenModalOverlay" class="fullscreen-modal-overlay">
     <iframe id="modalIframe" src="about:blank"></iframe>
@@ -50,33 +34,26 @@
 
   <div class="quiz-container">
     <div class="streak-counter" id="streakCounter"></div>
-
     <div class="header">
       <img id="close-btn" src="../public/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:1.5rem; cursor:pointer;">
-      <div class="progress-bar-container">
-        <div class="progress-bar" id="progress-bar"></div>
-      </div>
+      <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
       <div class="lives-container">
         <img id="lives-icon" src="../public/assets/icons/phosphor/fill/heart.svg" alt="Heart" style="width:1.5rem;">
         <span id="lives-count">5</span>
       </div>
     </div>
+  </div>
 
-    <!-- Image Zoom Modal -->
-    <div class="image-zoom-modal" id="imageZoomModal">
-      <div class="zoom-content">
-        <button class="zoom-close" id="zoomCloseBtn">
-          <img src="../public/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:1.5rem;">
-        </button>
-        <img id="zoomedImage" src="" alt="Zoomed Image">
-        <div class="zoom-label" id="zoomImageLabel"></div>
-        <div class="zoom-instructions">Click outside or press ESC to close</div>
-      </div>
+  <div class="image-zoom-modal" id="imageZoomModal">
+    <div class="zoom-content">
+      <button class="zoom-close" id="zoomCloseBtn"><img src="../public/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:1.5rem;"></button>
+      <img id="zoomedImage" src="" alt="Zoomed Image">
+      <div class="zoom-label" id="zoomImageLabel"></div>
+      <div class="zoom-instructions">Click outside or press ESC to close</div>
     </div>
   </div>
 
   <script src="../src/js/quiz-engine.js"></script>
-
   <script>
     (async function() {
       const params = new URLSearchParams(window.location.search);
@@ -92,7 +69,7 @@
         const lessonData = await response.json();
         new QuizEngine(lessonData);
       } catch (error) {
-        // Redirect to 404 page instead of showing inline error
+        // Redirect to custom 404 page
         window.location.href = '/404.html';
       }
     })();
