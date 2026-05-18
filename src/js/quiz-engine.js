@@ -1,5 +1,5 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Per‑pair scoring for matching games
+// VULANET QUIZ ENGINE – Fixed refill + infinite review
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -53,6 +53,7 @@ class QuizEngine {
     this.shuffleArray = this.shuffleArray.bind(this);
     this.normalizeAnswer = this.normalizeAnswer.bind(this);
     this.playSound = this.playSound.bind(this);
+    this.continueAfterRefill = this.continueAfterRefill.bind(this);
 
     // DOM references
     this.progressBar = null;
@@ -123,6 +124,27 @@ class QuizEngine {
   normalizeAnswer(a) { return a.toLowerCase().replace(/\s+/g,' ').replace(/[()]/g,'').replace(/\//g,' ').trim(); }
   shuffleArray(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
 
+  continueAfterRefill() {
+    // After refill, move to next question or finish
+    if (this.inRetryMode) {
+      // In retry mode, move to next retry question
+      this.currentQuestion++;
+      if (this.currentQuestion >= this.retryQueue.length) {
+        // All retry questions done
+        this.inRetryMode = false;
+        this.retryQueue = [];
+        this.showedRetryMessage = false;
+        this.currentQuestion = 0;
+        this.finishQuiz();
+      } else {
+        this.showQuestion(this.currentQuestion);
+      }
+    } else {
+      // Normal mode - move forward
+      this.moveToNextQuestion();
+    }
+  }
+
   showModal(modalUrl, onClose) {
     this.modalIframe.src = modalUrl;
     this.fullscreenOverlay.classList.add('visible');
@@ -140,8 +162,16 @@ class QuizEngine {
         this.fullscreenOverlay.classList.remove('visible');
         this.modalIframe.src = 'about:blank';
         const coins = parseInt(localStorage.getItem('coins')||'500',10);
-        if (coins >= 450) { localStorage.setItem('coins',String(coins-450)); this.lives=5; this.livesCountSpan.textContent='5'; this.updateHeartIcon(); this.resetCurrentQuestion(); }
-        else window.location.href = this.redirectUrl;
+        if (coins >= 450) { 
+          localStorage.setItem('coins', String(coins - 450)); 
+          this.lives = 5; 
+          this.livesCountSpan.textContent = '5'; 
+          this.updateHeartIcon();
+          // Continue to next question after refill
+          this.continueAfterRefill();
+        } else {
+          window.location.href = this.redirectUrl;
+        }
         if (onClose) onClose();
       } else if (event.data && event.data.type === 'streakClosed') {
         this.currentStreakDays = event.data.streakDays;
@@ -149,7 +179,7 @@ class QuizEngine {
         if (onClose) onClose();
       } else if (event.data && event.data.type === 'questChestClaimed') {
         const coins = parseInt(localStorage.getItem('coins')||'500',10);
-        localStorage.setItem('coins',String(coins + (event.data.amount||0)));
+        localStorage.setItem('coins', String(coins + (event.data.amount||0)));
       }
     };
     window.addEventListener('message', handler);
@@ -218,18 +248,38 @@ class QuizEngine {
     if(this.waitingForCelebration) return false;
     if(this.inRetryMode){
       this.currentQuestion++;
-      if(this.currentQuestion>=this.retryQueue.length){ this.inRetryMode=false; this.retryQueue=[]; this.showedRetryMessage=false; this.currentQuestion=0; this.finishQuiz(); return false; }
-      this.showQuestion(this.currentQuestion); return true;
+      if(this.currentQuestion >= this.retryQueue.length){ 
+        this.inRetryMode = false; 
+        this.retryQueue = []; 
+        this.showedRetryMessage = false; 
+        this.currentQuestion = 0; 
+        this.finishQuiz(); 
+        return false; 
+      }
+      this.showQuestion(this.currentQuestion); 
+      return true;
     } else {
       this.currentQuestion++;
-      if(this.currentQuestion>=this.totalQuestions){
-        if(this.retryQueue.length>0){
-          this.inRetryMode=true; this.currentQuestion=0;
-          if(!this.showedRetryMessage){ this.showedRetryMessage=true; this.showModal('../src/components/modals/review-questions.html',()=>{ this.showQuestion(this.currentQuestion); }); return false; }
-          this.showQuestion(this.currentQuestion); return true;
-        } else { this.finishQuiz(); return false; }
+      if(this.currentQuestion >= this.totalQuestions){
+        if(this.retryQueue.length > 0){
+          this.inRetryMode = true; 
+          this.currentQuestion = 0;
+          if(!this.showedRetryMessage){ 
+            this.showedRetryMessage = true; 
+            this.showModal('../src/components/modals/review-questions.html', () => { 
+              this.showQuestion(this.currentQuestion); 
+            }); 
+            return false; 
+          }
+          this.showQuestion(this.currentQuestion); 
+          return true;
+        } else { 
+          this.finishQuiz(); 
+          return false; 
+        }
       }
-      this.showQuestion(this.currentQuestion); return true;
+      this.showQuestion(this.currentQuestion); 
+      return true;
     }
   }
 
@@ -329,11 +379,15 @@ class QuizEngine {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
+        // Remove from retryQueue if it was there
+        const queueIndex = this.retryQueue.indexOf(actualIdx);
+        if (queueIndex !== -1) this.retryQueue.splice(queueIndex, 1);
         this.handleCorrectAnswer();
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
         this.totalAttempts++;
         this.handleIncorrectAnswer();
+        // Only add to retryQueue if not already there (prevents duplicates)
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
         if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
         const selBtn = Array.from(container.querySelectorAll('.option-button')).find(b => b.dataset.value === selected);
@@ -415,6 +469,8 @@ class QuizEngine {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
+        const queueIndex = this.retryQueue.indexOf(actualIdx);
+        if (queueIndex !== -1) this.retryQueue.splice(queueIndex, 1);
         blankElements.forEach(b => { if (b) b.classList.add('correct'); });
         optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
         this.handleCorrectAnswer();
@@ -464,6 +520,8 @@ class QuizEngine {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
+        const queueIndex = this.retryQueue.indexOf(actualIdx);
+        if (queueIndex !== -1) this.retryQueue.splice(queueIndex, 1);
         input.classList.add('correct'); this.handleCorrectAnswer();
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
@@ -546,6 +604,8 @@ class QuizEngine {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
+        const queueIndex = this.retryQueue.indexOf(actualIdx);
+        if (queueIndex !== -1) this.retryQueue.splice(queueIndex, 1);
         this.handleCorrectAnswer();
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
@@ -595,6 +655,7 @@ class QuizEngine {
     
     let selectedLeft = null, selectedRight = null, matched = 0, gameActive = true, lifeLostInThisGame = false, completed = false;
     const pairs = qData.pairs || [], shuffledPairs = this.shuffleArray([...pairs]);
+    const matchedPairsSet = new Set(); // Track which pairs have been matched
 
     leftCol.innerHTML = ''; 
     shuffledPairs.forEach((pair, idx) => {
@@ -643,27 +704,22 @@ class QuizEngine {
 
     const checkMatch = () => {
       if (!selectedLeft || !selectedRight || !gameActive) return;
-      if (selectedLeft.dataset.pair === selectedRight.dataset.pair) {
+      const pairId = selectedLeft.dataset.pair;
+      if (pairId === selectedRight.dataset.pair) {
         this.playSound(true);
-        // If this pair hasn't been matched before, count as a correct attempt
-        const leftCard = selectedLeft;
-        const rightCard = selectedRight;
-        const wasAlreadyMatched = leftCard.classList.contains('matched') || rightCard.classList.contains('matched');
+        
+        // Only count as correct attempt if this pair hasn't been matched before
+        if (!matchedPairsSet.has(pairId)) {
+          matchedPairsSet.add(pairId);
+          this.totalCorrectAttempts++;
+          this.totalAttempts++;
+          matched++;
+        }
         
         selectedLeft.classList.remove('selected');
         selectedRight.classList.remove('selected');
         selectedLeft.classList.add('correct');
         selectedRight.classList.add('correct');
-        
-        if (!wasAlreadyMatched) {
-          // New correct match: increment both counters
-          this.totalCorrectAttempts++;
-          this.totalAttempts++;
-          matched++;
-        } else {
-          // This should not happen because we prevent clicking matched cards, but safety
-          matched++;
-        }
         
         setTimeout(() => {
           document.querySelectorAll(`#leftColumn-${actualIdx} .card.correct, #rightColumn-${actualIdx} .card.correct`).forEach(c => {
@@ -675,6 +731,9 @@ class QuizEngine {
         if (matched === pairs.length && !completed) {
           gameActive = false;
           completed = true;
+          // Remove from retryQueue if it was there
+          const queueIndex = this.retryQueue.indexOf(actualIdx);
+          if (queueIndex !== -1) this.retryQueue.splice(queueIndex, 1);
           if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
           this.currentStreak++;
           this.updateStreakCounter();
@@ -692,7 +751,6 @@ class QuizEngine {
         this.playSound(false);
         selectedLeft.classList.add('wrong');
         selectedRight.classList.add('wrong');
-        // Each wrong match counts as an incorrect attempt
         this.totalAttempts++;
         
         if (!lifeLostInThisGame) {
