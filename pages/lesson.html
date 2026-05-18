@@ -14,29 +14,22 @@
   <!-- Button Styles -->
   <link rel="stylesheet" href="../src/styles/components/buttons.css">
 
+  <!-- CSS filters for icons (as before) -->
   <style>
-    /* Close (X) icon – #AFAFAF */
     #close-btn {
       filter: brightness(0) saturate(100%) invert(77%) sepia(10%) saturate(214%) hue-rotate(174deg) brightness(88%) contrast(92%);
     }
-
-    /* Lives (heart) icon – #EA4335 */
     #lives-icon {
       filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
     }
-
-    /* All material‑symbols icons used in result overlays and matching feedback */
     img[src*="check_circle.svg"],
     img[src*="recommend.svg"] {
       filter: brightness(0) saturate(100%) invert(29%) sepia(51%) saturate(2878%) hue-rotate(108deg) brightness(95%) contrast(94%);
     }
-
     img[src*="cancel.svg"],
     img[src*="stylus_note.svg"] {
       filter: brightness(0) saturate(100%) invert(21%) sepia(98%) saturate(4140%) hue-rotate(348deg) brightness(91%) contrast(94%);
     }
-
-    /* The rabbit‑blue icon is already #4285F4 – leave it untouched */
     img[src*="rabbit-blue.svg"] {
       filter: none;
     }
@@ -44,7 +37,6 @@
 </head>
 <body>
 
-  <!-- Audio elements -->
   <audio id="correctSound" preload="auto">
     <source src="../public/assets/audio/correct.mp3" type="audio/mpeg">
   </audio>
@@ -52,22 +44,18 @@
     <source src="../public/assets/audio/incorrect.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Fullscreen modal overlay for iframe modals -->
   <div id="fullscreenModalOverlay" class="fullscreen-modal-overlay">
     <iframe id="modalIframe" src="about:blank"></iframe>
   </div>
 
-  <!-- Quiz Container -->
   <div class="quiz-container">
     <div class="streak-counter" id="streakCounter"></div>
 
     <div class="header">
       <img id="close-btn" src="../public/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:1.5rem; cursor:pointer;">
-
       <div class="progress-bar-container">
         <div class="progress-bar" id="progress-bar"></div>
       </div>
-
       <div class="lives-container">
         <img id="lives-icon" src="../public/assets/icons/phosphor/fill/heart.svg" alt="Heart" style="width:1.5rem;">
         <span id="lives-count">5</span>
@@ -87,7 +75,6 @@
     </div>
   </div>
 
-  <!-- Quiz Engine -->
   <script src="../src/js/quiz-engine.js"></script>
 
   <script>
@@ -101,15 +88,11 @@
 
       try {
         const response = await fetch(`../data/lessons/${course}/${lesson}.json`);
-        if (!response.ok) {
-          // Redirect to 404 page if lesson not found
-          window.location.href = '/404.html';
-          return;
-        }
+        if (!response.ok) throw new Error('Lesson data not found');
         const lessonData = await response.json();
         new QuizEngine(lessonData);
       } catch (error) {
-        console.error('Error loading lesson:', error);
+        // Redirect to 404 page instead of showing inline error
         window.location.href = '/404.html';
       }
     })();
