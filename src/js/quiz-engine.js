@@ -1,5 +1,5 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Fixed refill + infinite review
+// VULANET QUIZ ENGINE – Fixed retry queue, refill behaviour
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -53,7 +53,7 @@ class QuizEngine {
     this.shuffleArray = this.shuffleArray.bind(this);
     this.normalizeAnswer = this.normalizeAnswer.bind(this);
     this.playSound = this.playSound.bind(this);
-    this.continueAfterRefill = this.continueAfterRefill.bind(this);
+    this.removeFromRetryQueue = this.removeFromRetryQueue.bind(this); // new
 
     // DOM references
     this.progressBar = null;
@@ -124,25 +124,10 @@ class QuizEngine {
   normalizeAnswer(a) { return a.toLowerCase().replace(/\s+/g,' ').replace(/[()]/g,'').replace(/\//g,' ').trim(); }
   shuffleArray(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
 
-  continueAfterRefill() {
-    // After refill, move to next question or finish
-    if (this.inRetryMode) {
-      // In retry mode, move to next retry question
-      this.currentQuestion++;
-      if (this.currentQuestion >= this.retryQueue.length) {
-        // All retry questions done
-        this.inRetryMode = false;
-        this.retryQueue = [];
-        this.showedRetryMessage = false;
-        this.currentQuestion = 0;
-        this.finishQuiz();
-      } else {
-        this.showQuestion(this.currentQuestion);
-      }
-    } else {
-      // Normal mode - move forward
-      this.moveToNextQuestion();
-    }
+  // NEW: remove a question from retry queue (when answered correctly)
+  removeFromRetryQueue(questionIndex) {
+    const pos = this.retryQueue.indexOf(questionIndex);
+    if (pos !== -1) this.retryQueue.splice(pos, 1);
   }
 
   showModal(modalUrl, onClose) {
@@ -162,13 +147,13 @@ class QuizEngine {
         this.fullscreenOverlay.classList.remove('visible');
         this.modalIframe.src = 'about:blank';
         const coins = parseInt(localStorage.getItem('coins')||'500',10);
-        if (coins >= 450) { 
-          localStorage.setItem('coins', String(coins - 450)); 
-          this.lives = 5; 
-          this.livesCountSpan.textContent = '5'; 
+        if (coins >= 450) {
+          localStorage.setItem('coins', String(coins - 450));
+          this.lives = 5;
+          this.livesCountSpan.textContent = '5';
           this.updateHeartIcon();
-          // Continue to next question after refill
-          this.continueAfterRefill();
+          // Do NOT reset current question – just continue from the same question.
+          // The user will answer it (correctly hopefully) and then move on.
         } else {
           window.location.href = this.redirectUrl;
         }
@@ -185,20 +170,34 @@ class QuizEngine {
     window.addEventListener('message', handler);
   }
 
-  resetCurrentQuestion() { this.showQuestion(this.currentQuestion); }
+  // No longer used resetCurrentQuestion – removed.
+  // handleCorrectAnswer now also removes the question from retry queue.
+  handleCorrectAnswer(actualIdx) {
+    this.currentStreak++;
+    this.updateStreakCounter();
+    if (this.currentStreak % 5 === 0 && this.currentStreak > 0) {
+      this.pendingCelebration = true;
+      this.pendingCelebrationStreak = this.currentStreak;
+    }
+    // Remove this question from retry queue if present
+    this.removeFromRetryQueue(actualIdx);
+  }
 
-  handleCorrectAnswer() { this.currentStreak++; this.updateStreakCounter(); if(this.currentStreak%5===0&&this.currentStreak>0){ this.pendingCelebration=true; this.pendingCelebrationStreak=this.currentStreak; } }
-  handleIncorrectAnswer() { this.currentStreak=0; this.updateStreakCounter(); }
+  handleIncorrectAnswer() { this.currentStreak = 0; this.updateStreakCounter(); }
 
   processAfterExplanation(onComplete) {
-    if(this.pendingCelebration){
-      const streak=this.pendingCelebrationStreak;
-      this.pendingCelebration=false; this.pendingCelebrationStreak=null; this.waitingForCelebration=true;
-      this.showModal(`../src/components/modals/answer-streak.html?streak=${streak}`, ()=>{
-        this.waitingForCelebration=false;
-        if(onComplete) onComplete();
+    if (this.pendingCelebration) {
+      const streak = this.pendingCelebrationStreak;
+      this.pendingCelebration = false;
+      this.pendingCelebrationStreak = null;
+      this.waitingForCelebration = true;
+      this.showModal(`../src/components/modals/answer-streak.html?streak=${streak}`, () => {
+        this.waitingForCelebration = false;
+        if (onComplete) onComplete();
       });
-    } else { if(onComplete) onComplete(); }
+    } else {
+      if (onComplete) onComplete();
+    }
   }
 
   showResultOverlay(qNum, isCorrect, explanationHTML, onComplete) {
@@ -245,66 +244,75 @@ class QuizEngine {
   }
 
   moveToNextQuestion() {
-    if(this.waitingForCelebration) return false;
-    if(this.inRetryMode){
+    if (this.waitingForCelebration) return false;
+    if (this.inRetryMode) {
       this.currentQuestion++;
-      if(this.currentQuestion >= this.retryQueue.length){ 
-        this.inRetryMode = false; 
-        this.retryQueue = []; 
-        this.showedRetryMessage = false; 
-        this.currentQuestion = 0; 
-        this.finishQuiz(); 
-        return false; 
+      if (this.currentQuestion >= this.retryQueue.length) {
+        // All review questions answered correctly
+        this.inRetryMode = false;
+        this.retryQueue = [];
+        this.showedRetryMessage = false;
+        this.currentQuestion = 0;
+        this.finishQuiz();
+        return false;
       }
-      this.showQuestion(this.currentQuestion); 
+      this.showQuestion(this.currentQuestion);
       return true;
     } else {
       this.currentQuestion++;
-      if(this.currentQuestion >= this.totalQuestions){
-        if(this.retryQueue.length > 0){
-          this.inRetryMode = true; 
+      if (this.currentQuestion >= this.totalQuestions) {
+        if (this.retryQueue.length > 0) {
+          this.inRetryMode = true;
           this.currentQuestion = 0;
-          if(!this.showedRetryMessage){ 
-            this.showedRetryMessage = true; 
-            this.showModal('../src/components/modals/review-questions.html', () => { 
-              this.showQuestion(this.currentQuestion); 
-            }); 
-            return false; 
+          if (!this.showedRetryMessage) {
+            this.showedRetryMessage = true;
+            this.showModal('../src/components/modals/review-questions.html', () => {
+              this.showQuestion(this.currentQuestion);
+            });
+            return false;
           }
-          this.showQuestion(this.currentQuestion); 
+          this.showQuestion(this.currentQuestion);
           return true;
-        } else { 
-          this.finishQuiz(); 
-          return false; 
+        } else {
+          this.finishQuiz();
+          return false;
         }
       }
-      this.showQuestion(this.currentQuestion); 
+      this.showQuestion(this.currentQuestion);
       return true;
     }
   }
 
   finishQuiz() {
-    if(this.quizCompleted) return;
-    this.quizCompleted=true;
-    const timeSeconds=Math.floor((Date.now()-this.quizStartTime)/1000);
-    this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, ()=>{
-      this.showModal('../src/components/modals/streak.html', ()=>{
-        const isMilestone=(this.currentStreakDays%5===0);
-        if(isMilestone){
-          let coinsAmount=250;
-          if(this.currentStreakDays>=30&&this.currentStreakDays<=70) coinsAmount=500;
-          this.showModal(`../src/components/modals/coins-reward.html?amount=${coinsAmount}`,()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
+    if (this.quizCompleted) return;
+    this.quizCompleted = true;
+    const timeSeconds = Math.floor((Date.now() - this.quizStartTime) / 1000);
+    this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, () => {
+      this.showModal('../src/components/modals/streak.html', () => {
+        const isMilestone = (this.currentStreakDays % 5 === 0);
+        if (isMilestone) {
+          let coinsAmount = 250;
+          if (this.currentStreakDays >= 30 && this.currentStreakDays <= 70) coinsAmount = 500;
+          this.showModal(`../src/components/modals/coins-reward.html?amount=${coinsAmount}`, () => {
+            this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts);
+          });
         } else {
-          const rand=Math.random();
-          if(rand<0.5){
-            const multipliers=[{mult:1.5,dur:30},{mult:2,dur:20},{mult:3,dur:15}];
-            const chosen=multipliers[Math.floor(Math.random()*multipliers.length)];
-            this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`,()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
+          const rand = Math.random();
+          if (rand < 0.5) {
+            const multipliers = [{mult:1.5,dur:30},{mult:2,dur:20},{mult:3,dur:15}];
+            const chosen = multipliers[Math.floor(Math.random() * multipliers.length)];
+            this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
+              this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts);
+            });
           } else {
-            if(this.heartsAtCompletion<=2){
-              this.showModal('../src/components/modals/heart-reward.html?hearts=full',()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
+            if (this.heartsAtCompletion <= 2) {
+              this.showModal('../src/components/modals/heart-reward.html?hearts=full', () => {
+                this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts);
+              });
             } else {
-              this.showModal('../src/components/modals/boost-reward.html?multiplier=1.5&duration=30',()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
+              this.showModal('../src/components/modals/boost-reward.html?multiplier=1.5&duration=30', () => {
+                this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts);
+              });
             }
           }
         }
@@ -312,8 +320,8 @@ class QuizEngine {
     });
   }
 
-  showDailyQuest(correct,total) {
-    this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${correct}&totalAttempts=${total}&completed=true`,()=>{
+  showDailyQuest(correct, total) {
+    this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${correct}&totalAttempts=${total}&completed=true`, () => {
       window.location.href = this.redirectUrl;
     });
   }
@@ -344,6 +352,13 @@ class QuizEngine {
       case 'matching': this.renderMatching(section, qData, actualIdx); break;
     }
   }
+
+  // All render methods are identical to the previous correct version,
+  // except that when a correct answer occurs, they call:
+  //   this.handleCorrectAnswer(actualIdx);
+  // instead of this.handleCorrectAnswer().
+  // And they pass actualIdx to it.
+  // Below are the updated render methods with that change.
 
   renderMultipleChoice(section, qData, actualIdx) {
     section.innerHTML = `
@@ -379,15 +394,11 @@ class QuizEngine {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
-        // Remove from retryQueue if it was there
-        const queueIndex = this.retryQueue.indexOf(actualIdx);
-        if (queueIndex !== -1) this.retryQueue.splice(queueIndex, 1);
-        this.handleCorrectAnswer();
+        this.handleCorrectAnswer(actualIdx); // passes actualIdx to remove from queue
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
         this.totalAttempts++;
         this.handleIncorrectAnswer();
-        // Only add to retryQueue if not already there (prevents duplicates)
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
         if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
         const selBtn = Array.from(container.querySelectorAll('.option-button')).find(b => b.dataset.value === selected);
@@ -469,11 +480,9 @@ class QuizEngine {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
-        const queueIndex = this.retryQueue.indexOf(actualIdx);
-        if (queueIndex !== -1) this.retryQueue.splice(queueIndex, 1);
+        this.handleCorrectAnswer(actualIdx);
         blankElements.forEach(b => { if (b) b.classList.add('correct'); });
         optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
-        this.handleCorrectAnswer();
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
         this.totalAttempts++;
@@ -520,9 +529,8 @@ class QuizEngine {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
-        const queueIndex = this.retryQueue.indexOf(actualIdx);
-        if (queueIndex !== -1) this.retryQueue.splice(queueIndex, 1);
-        input.classList.add('correct'); this.handleCorrectAnswer();
+        this.handleCorrectAnswer(actualIdx);
+        input.classList.add('correct');
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
         this.totalAttempts++;
@@ -604,9 +612,7 @@ class QuizEngine {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
-        const queueIndex = this.retryQueue.indexOf(actualIdx);
-        if (queueIndex !== -1) this.retryQueue.splice(queueIndex, 1);
-        this.handleCorrectAnswer();
+        this.handleCorrectAnswer(actualIdx);
         this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
       } else {
         this.totalAttempts++;
@@ -655,7 +661,6 @@ class QuizEngine {
     
     let selectedLeft = null, selectedRight = null, matched = 0, gameActive = true, lifeLostInThisGame = false, completed = false;
     const pairs = qData.pairs || [], shuffledPairs = this.shuffleArray([...pairs]);
-    const matchedPairsSet = new Set(); // Track which pairs have been matched
 
     leftCol.innerHTML = ''; 
     shuffledPairs.forEach((pair, idx) => {
@@ -704,22 +709,22 @@ class QuizEngine {
 
     const checkMatch = () => {
       if (!selectedLeft || !selectedRight || !gameActive) return;
-      const pairId = selectedLeft.dataset.pair;
-      if (pairId === selectedRight.dataset.pair) {
+      if (selectedLeft.dataset.pair === selectedRight.dataset.pair) {
         this.playSound(true);
-        
-        // Only count as correct attempt if this pair hasn't been matched before
-        if (!matchedPairsSet.has(pairId)) {
-          matchedPairsSet.add(pairId);
-          this.totalCorrectAttempts++;
-          this.totalAttempts++;
-          matched++;
-        }
+        const wasAlreadyMatched = selectedLeft.classList.contains('matched') || selectedRight.classList.contains('matched');
         
         selectedLeft.classList.remove('selected');
         selectedRight.classList.remove('selected');
         selectedLeft.classList.add('correct');
         selectedRight.classList.add('correct');
+        
+        if (!wasAlreadyMatched) {
+          this.totalCorrectAttempts++;
+          this.totalAttempts++;
+          matched++;
+        } else {
+          matched++;
+        }
         
         setTimeout(() => {
           document.querySelectorAll(`#leftColumn-${actualIdx} .card.correct, #rightColumn-${actualIdx} .card.correct`).forEach(c => {
@@ -731,10 +736,9 @@ class QuizEngine {
         if (matched === pairs.length && !completed) {
           gameActive = false;
           completed = true;
-          // Remove from retryQueue if it was there
-          const queueIndex = this.retryQueue.indexOf(actualIdx);
-          if (queueIndex !== -1) this.retryQueue.splice(queueIndex, 1);
           if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
+          // Remove this question from retry queue if present (when completed)
+          this.removeFromRetryQueue(actualIdx);
           this.currentStreak++;
           this.updateStreakCounter();
           if (this.currentStreak % 5 === 0 && this.currentStreak > 0) {
