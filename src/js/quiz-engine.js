@@ -1,8 +1,5 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Final version with:
-// - Per‑pair scoring for matching games
-// - Refill skip logic (no double replay)
-// - Review queue removal on correct answer
+// VULANET QUIZ ENGINE – Final version with infinite review loop
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -147,14 +144,12 @@ class QuizEngine {
           this.livesCountSpan.textContent = '5';
           this.updateHeartIcon();
           
-          // --- FIX #2: Skip the current failed question and move forward ---
-          // Remove current question from retryQueue if present
+          // Skip the current failed question and move forward
           const currentActualIdx = this.inRetryMode ? this.retryQueue[this.currentQuestion] : this.currentQuestion;
           const idxInQueue = this.retryQueue.indexOf(currentActualIdx);
           if (idxInQueue !== -1) {
             this.retryQueue.splice(idxInQueue, 1);
           }
-          // Move to next question (or finish if none)
           this.moveToNextQuestion();
         } else {
           window.location.href = this.redirectUrl;
@@ -231,18 +226,28 @@ class QuizEngine {
     continueBtn.onclick = () => { overlay.classList.remove('visible'); this.processAfterExplanation(onComplete); };
   }
 
+  // ========== FIXED moveToNextQuestion with infinite review loop ==========
   moveToNextQuestion() {
     if(this.waitingForCelebration) return false;
+    
     if(this.inRetryMode){
       this.currentQuestion++;
+      // If we've finished the current review queue
       if(this.currentQuestion >= this.retryQueue.length){
-        // All retry questions answered correctly
-        this.inRetryMode = false;
-        this.retryQueue = [];
-        this.showedRetryMessage = false;
-        this.currentQuestion = 0;
-        this.finishQuiz();
-        return false;
+        // If there are still questions in the retryQueue (new mistakes were added), loop again
+        if(this.retryQueue.length > 0){
+          this.currentQuestion = 0;
+          this.showQuestion(this.currentQuestion);
+          return true;
+        } else {
+          // No more wrong questions – exit retry mode and finish
+          this.inRetryMode = false;
+          this.retryQueue = [];
+          this.showedRetryMessage = false;
+          this.currentQuestion = 0;
+          this.finishQuiz();
+          return false;
+        }
       }
       this.showQuestion(this.currentQuestion);
       return true;
@@ -333,9 +338,10 @@ class QuizEngine {
     }
   }
 
-  // ----- renderMultipleChoice, renderCompleteSentence, renderFillBlank, renderImageSelection are unchanged from previous correct version -----
-  // (They already increment totalAttempts/totalCorrectAttempts correctly and remove from retryQueue on correct answer)
-  // For brevity, I include them here fully, but they are identical to the last working version.
+  // The rest of the render methods remain exactly as in the previous working version
+  // (multiple-choice, complete-sentence, fill-blank, image-selection, matching)
+  // They already remove from retryQueue on correct answer and add on incorrect.
+  // For brevity, I include them fully – they are unchanged from the last provided code.
 
   renderMultipleChoice(section, qData, actualIdx) {
     section.innerHTML = `
@@ -371,7 +377,6 @@ class QuizEngine {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
-        // Remove from retryQueue if present (fix #3)
         const idx = this.retryQueue.indexOf(actualIdx);
         if (idx !== -1) this.retryQueue.splice(idx, 1);
         this.handleCorrectAnswer();
@@ -724,7 +729,6 @@ class QuizEngine {
           gameActive = false;
           completed = true;
           if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
-          // Remove from retryQueue if present (fix #3)
           const idx = this.retryQueue.indexOf(actualIdx);
           if (idx !== -1) this.retryQueue.splice(idx, 1);
           this.currentStreak++;
