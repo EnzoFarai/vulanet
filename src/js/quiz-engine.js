@@ -1,5 +1,5 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Final version with infinite review loop
+// VULANET QUIZ ENGINE – Fixed review queue ordering
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -144,7 +144,6 @@ class QuizEngine {
           this.livesCountSpan.textContent = '5';
           this.updateHeartIcon();
           
-          // Skip the current failed question and move forward
           const currentActualIdx = this.inRetryMode ? this.retryQueue[this.currentQuestion] : this.currentQuestion;
           const idxInQueue = this.retryQueue.indexOf(currentActualIdx);
           if (idxInQueue !== -1) {
@@ -226,12 +225,14 @@ class QuizEngine {
     continueBtn.onclick = () => { overlay.classList.remove('visible'); this.processAfterExplanation(onComplete); };
   }
 
-  // ========== FIXED moveToNextQuestion with infinite review loop ==========
-  moveToNextQuestion() {
+  // ========== moveToNextQuestion with skipIncrement parameter ==========
+  moveToNextQuestion(skipIncrement = false) {
     if(this.waitingForCelebration) return false;
     
     if(this.inRetryMode){
-      this.currentQuestion++;
+      if (!skipIncrement) {
+        this.currentQuestion++;
+      }
       // If we've finished the current review queue
       if(this.currentQuestion >= this.retryQueue.length){
         // If there are still questions in the retryQueue (new mistakes were added), loop again
@@ -252,7 +253,9 @@ class QuizEngine {
       this.showQuestion(this.currentQuestion);
       return true;
     } else {
-      this.currentQuestion++;
+      if (!skipIncrement) {
+        this.currentQuestion++;
+      }
       if(this.currentQuestion >= this.totalQuestions){
         if(this.retryQueue.length > 0){
           this.inRetryMode = true;
@@ -338,10 +341,7 @@ class QuizEngine {
     }
   }
 
-  // The rest of the render methods remain exactly as in the previous working version
-  // (multiple-choice, complete-sentence, fill-blank, image-selection, matching)
-  // They already remove from retryQueue on correct answer and add on incorrect.
-  // For brevity, I include them fully – they are unchanged from the last provided code.
+  // ========== RENDER METHODS (all corrected to call moveToNextQuestion(true) on correct answer in retry mode) ==========
 
   renderMultipleChoice(section, qData, actualIdx) {
     section.innerHTML = `
@@ -378,9 +378,16 @@ class QuizEngine {
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
         const idx = this.retryQueue.indexOf(actualIdx);
-        if (idx !== -1) this.retryQueue.splice(idx, 1);
-        this.handleCorrectAnswer();
-        this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+        if (idx !== -1) {
+          this.retryQueue.splice(idx, 1);
+          // If we are in retry mode and removed the current question, we must not increment the pointer
+          const skip = this.inRetryMode && idx === this.currentQuestion;
+          this.handleCorrectAnswer();
+          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion(skip));
+        } else {
+          this.handleCorrectAnswer();
+          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+        }
       } else {
         this.totalAttempts++;
         this.handleIncorrectAnswer();
@@ -466,11 +473,19 @@ class QuizEngine {
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
         const idx = this.retryQueue.indexOf(actualIdx);
-        if (idx !== -1) this.retryQueue.splice(idx, 1);
-        blankElements.forEach(b => { if (b) b.classList.add('correct'); });
-        optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
-        this.handleCorrectAnswer();
-        this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+        if (idx !== -1) {
+          this.retryQueue.splice(idx, 1);
+          const skip = this.inRetryMode && idx === this.currentQuestion;
+          blankElements.forEach(b => { if (b) b.classList.add('correct'); });
+          optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
+          this.handleCorrectAnswer();
+          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion(skip));
+        } else {
+          blankElements.forEach(b => { if (b) b.classList.add('correct'); });
+          optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
+          this.handleCorrectAnswer();
+          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+        }
       } else {
         this.totalAttempts++;
         blankElements.forEach(b => { if (b) b.classList.add('incorrect'); });
@@ -517,9 +532,17 @@ class QuizEngine {
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
         const idx = this.retryQueue.indexOf(actualIdx);
-        if (idx !== -1) this.retryQueue.splice(idx, 1);
-        input.classList.add('correct'); this.handleCorrectAnswer();
-        this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+        if (idx !== -1) {
+          this.retryQueue.splice(idx, 1);
+          const skip = this.inRetryMode && idx === this.currentQuestion;
+          input.classList.add('correct');
+          this.handleCorrectAnswer();
+          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion(skip));
+        } else {
+          input.classList.add('correct');
+          this.handleCorrectAnswer();
+          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+        }
       } else {
         this.totalAttempts++;
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
@@ -601,9 +624,15 @@ class QuizEngine {
         this.totalAttempts++;
         if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
         const idx = this.retryQueue.indexOf(actualIdx);
-        if (idx !== -1) this.retryQueue.splice(idx, 1);
-        this.handleCorrectAnswer();
-        this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+        if (idx !== -1) {
+          this.retryQueue.splice(idx, 1);
+          const skip = this.inRetryMode && idx === this.currentQuestion;
+          this.handleCorrectAnswer();
+          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion(skip));
+        } else {
+          this.handleCorrectAnswer();
+          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+        }
       } else {
         this.totalAttempts++;
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
@@ -730,7 +759,13 @@ class QuizEngine {
           completed = true;
           if (!this.questionFinalCorrect[actualIdx]) this.questionFinalCorrect[actualIdx] = true;
           const idx = this.retryQueue.indexOf(actualIdx);
-          if (idx !== -1) this.retryQueue.splice(idx, 1);
+          if (idx !== -1) {
+            this.retryQueue.splice(idx, 1);
+            // For matching game, completion happens after all pairs are matched.
+            // The "continue" button will be clicked, so we handle skip increment there.
+            // We'll store a flag that the current question was removed.
+            this._skipNextIncrement = this.inRetryMode && idx === this.currentQuestion;
+          }
           this.currentStreak++;
           this.updateStreakCounter();
           if (this.currentStreak % 5 === 0 && this.currentStreak > 0) {
@@ -776,11 +811,18 @@ class QuizEngine {
       selectedRight = null;
     };
 
+    // For matching game continue button, we need to use the skip flag
+    const originalMatchingContinueClick = matchingContinueBtn.onclick;
+    matchingContinueBtn.onclick = () => {
+      const skip = this._skipNextIncrement || false;
+      this._skipNextIncrement = false;
+      this.moveToNextQuestion(skip);
+    };
+
     tryAgainBtn.onclick = () => resetWrong();
     feedbackOverlay.addEventListener('click', (e) => {
       if (e.target === feedbackOverlay) resetWrong();
     });
-    matchingContinueBtn.addEventListener('click', () => this.moveToNextQuestion());
   }
 }
 
