@@ -4,23 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Streak</title>
-  <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
+  <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../../src/styles/components/buttons.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: 'Atkinson Hyperlegible Next', sans-serif;
-      background: #f2f2f2;
+      background: #F7F7F7;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       margin: 0;
       padding: 16px;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
+
     .header {
       position: fixed;
-      top: 0; left: 0; right: 0;
+      top: 0;
+      left: 0;
+      right: 0;
       height: 60px;
       display: flex;
       justify-content: space-between;
@@ -29,351 +38,532 @@
       background: transparent;
       z-index: 100;
     }
+
     .header-icon {
-      width: 40px; height: 40px;
-      display: flex; align-items: center; justify-content: center;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       color: #777777;
     }
-    .header-icon img { width: 28px; height: 28px; }
+
+    .header-icon img {
+      width: 24px;
+      height: 24px;
+    }
+
     .container {
-      max-width: 400px; width: 100%;
-      margin-top: 40px; text-align: center;
+      max-width: 400px;
+      width: 100%;
+      margin: 40px auto 0;
+      text-align: center;
     }
-    .flame { visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s ease; }
-    .flame.visible { visibility: visible; opacity: 1; }
-    .flame img { width: 110px; height: auto; margin: 0 auto 4px; }
+
+    .flame {
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s 0.3s, opacity 0.3s ease;
+    }
+    .flame.visible {
+      visibility: visible;
+      opacity: 1;
+      transition: visibility 0s 0s, opacity 0.3s ease;
+    }
+    .flame img {
+      width: 110px;
+      height: auto;
+      margin: 0 auto 4px;
+    }
+
     .streak-number {
-      font-size: 72px; font-weight: 700; color: #FF6D01;
-      text-shadow: -4px -4px 0 #fff, 4px -4px 0 #fff, -4px 4px 0 #fff, 4px 4px 0 #fff;
-      margin: 0; line-height: 1.1;
-      visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s ease;
+      font-size: 72px;
+      font-weight: 700;
+      color: #FF6D01;
+      text-shadow:
+        -4px -4px 0 #FFFFFF,
+         4px -4px 0 #FFFFFF,
+        -4px  4px 0 #FFFFFF,
+         4px  4px 0 #FFFFFF;
+      margin: 0;
+      line-height: 1.1;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s 0.3s, opacity 0.3s ease;
     }
-    .streak-number.visible { visibility: visible; opacity: 1; }
+    .streak-number.visible {
+      visibility: visible;
+      opacity: 1;
+      transition: visibility 0s 0s, opacity 0.3s ease;
+    }
+
     .streak-text {
-      font-size: 28px; color: #FF6D01; font-weight: 700; margin-top: -6px;
-      visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s ease;
+      font-size: 28px;
+      color: #FF6D01;
+      font-weight: 700;
+      margin-top: -6px;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s 0.3s, opacity 0.3s ease;
     }
-    .streak-text.visible { visibility: visible; opacity: 1; }
+    .streak-text.visible {
+      visibility: visible;
+      opacity: 1;
+      transition: visibility 0s 0s, opacity 0.3s ease;
+    }
+
     .card {
-      margin-top: 30px; background: #FFFFFF; border-radius: 22px; padding: 18px;
+      margin-top: 30px;
+      background: #FFFFFF;
+      border-radius: 22px;
+      padding: 18px;
       box-shadow: 0 0 0 3px #E5E5E5;
     }
-    .days { display: flex; justify-content: space-between; margin-bottom: 10px; color: #999; font-weight: 600; font-size: 0.9rem; }
-    .days span { width: 38px; text-align: center; }
-    .days span.active { color: #FF6D01; }
-    .ticks { display: flex; justify-content: space-between; margin-bottom: 16px; }
+
+    .days {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: #999;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .days span {
+      width: 38px;
+      text-align: center;
+    }
+
+    .days span.active {
+      color: #FF6D01;
+    }
+
+    .ticks {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
     .tick {
-      width: 38px; height: 38px; border-radius: 50%;
-      display: flex; justify-content: center; align-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       transition: all 0.3s ease;
+      background: #AFAFAF;
+      color: white;
     }
-    .tick.orange { background: #FF6D01; color: white; }
-    .tick.grey { background: #AFAFAF; color: white; }
-    .tick.freeze { background: white; border: 2px solid #EA4335; }
-    .tick i { font-size: 22px; }
-    .tick img { width: 22px; height: 22px; }
-    .divider { height: 1px; background: #E5E5E5; margin: 18px 0; }
-    .message { font-size: 20px; color: #444; }
+
+    .tick.orange {
+      background: #FF6D01;
+    }
+
+    .tick.freeze {
+      background: white;
+      border: 2px solid #EA4335;
+    }
+    .tick.freeze img {
+      filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
+    }
+
+    .tick img {
+      width: 22px;
+      height: 22px;
+    }
+
+    .divider {
+      height: 1px;
+      background: #E5E5E5;
+      margin: 18px 0;
+    }
+
+    .message {
+      font-size: 20px;
+      color: #444;
+      line-height: 1.4;
+    }
+
     .continue-btn {
-      width: 100%; height: 52px; border-radius: 0.75rem; font-weight: 700;
-      border: none; font-size: 15px; text-transform: uppercase; cursor: pointer;
-      background: #4285F4; color: white; border-bottom: 4px solid #3a75d9;
-      margin-top: 24px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      height: 52px;
+      border-radius: 0.75rem;
+      font-weight: 700;
+      border: none;
+      font-size: 15px;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: #4285F4;
+      color: white;
+      border-bottom: 4px solid #3a75d9;
+      margin-top: 24px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
     }
+    .continue-btn:hover {
+      background: #3a75d9;
+      border-bottom-color: #3166c4;
+      transform: translateY(-0.125rem);
+    }
+    .continue-btn:active {
+      transform: translateY(0.0625rem);
+      border-bottom-width: 0.125rem;
+    }
+
     .share-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5); display: none;
-      justify-content: center; align-items: center; z-index: 1000; padding: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
     }
-    .share-content { width: 100%; max-width: 357px; background: #f5f5f7; border-radius: 24px; overflow: hidden; }
-    .share-card { background: #ffffff; border-radius: 24px; padding: 32px 24px 28px; margin-bottom: 10px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-    .share-brand { margin-top: 16px; font-weight: 700; color: #4285F4; font-size: 24px; }
-    .share-sheet { background: #fff; border-top: 1px solid #dadada; border-radius: 24px 24px 0 0; padding: 16px 12px; }
-    .share-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-    .share-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-    .share-icon-circle { width: 44px; height: 44px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
-    .share-icon img { width: 28px; height: 28px; object-fit: contain; }
-    .share-text { font-size: 11px; color: #333; }
-    .bottom-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 0 20px; }
-    .bottom-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-    .bottom-icon-circle { width: 44px; height: 44px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
-    .bottom-text { font-size: 11px; color: #333; }
+    .share-content {
+      width: 100%;
+      max-width: 357px;
+      background: #f5f5f7;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+    .share-card {
+      background: white;
+      border-radius: 24px;
+      padding: 32px 24px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .share-sheet {
+      background: white;
+      border-top: 1px solid #dadada;
+      border-radius: 24px 24px 0 0;
+      padding: 16px 12px;
+    }
+    .share-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .share-item, .bottom-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .share-icon-circle, .bottom-icon-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .share-icon, .bottom-icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .share-icon img { width: 100%; height: 100%; object-fit: contain; }
+    .share-text, .bottom-text { font-size: 11px; color: #333; }
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      padding: 0 20px;
+    }
     .mini-streak { display: flex; flex-direction: column; align-items: center; }
     .share-streak-number {
-      font-size: 48px; font-weight: 700; color: #FF6D01;
+      font-size: 48px;
+      font-weight: 700;
+      color: #FF6D01;
       text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
     }
     .share-streak-text { font-size: 22px; color: #FF6D01; font-weight: 700; }
     .share-message { font-size: 18px; color: #444; margin: 8px 0; }
+    .share-brand { margin-top: 16px; font-weight: 700; color: #4285F4; font-size: 24px; }
+
+    @media (max-width: 480px) {
+      .streak-number { font-size: 56px; }
+    }
   </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="header-icon" id="exit-button"><img src="../../../public/assets/icons/phosphor/regular/x.svg" alt="close"></div>
-  <div class="header-icon" id="share-button"><img src="../../../public/assets/icons/phosphor/regular/export.svg" alt="share"></div>
-</div>
-
-<div class="container">
-  <div class="flame" id="flame"><img src="../../../public/assets/lottie/1f525-static.png" alt="flame"></div>
-  <h1 class="streak-number" id="streakNumber">1</h1>
-  <div class="streak-text" id="streakText">day streak!</div>
-  <div class="card">
-    <div class="days" id="daysContainer"></div>
-    <div class="ticks" id="ticksContainer"></div>
-    <div class="divider"></div>
-    <div class="message" id="streakMessage">You now have an active streak. Do a lesson everyday to extend it.</div>
-  </div>
-  <button class="continue-btn" id="continueButton">CONTINUE</button>
-</div>
-
-<div class="share-overlay" id="share-overlay">
-  <div class="share-content">
-    <div class="share-card" id="share-card">
-      <div class="mini-streak">
-        <img src="../../../public/assets/lottie/1f525-static.png" width="60" alt="flame" style="margin-bottom:4px;">
-        <div class="share-streak-number">1</div>
-        <div class="share-streak-text">day streak!</div>
-        <div class="share-message" id="shareMessage">I now have an active streak on Vulanet.</div>
-      </div>
-      <div class="share-brand">vulanet</div>
+  <div class="header">
+    <div class="header-icon" id="exit-button">
+      <img src="../../public/assets/icons/phosphor/regular/x.svg" alt="Close">
     </div>
-    <div class="share-sheet">
-      <div class="share-grid">
-        <div class="share-item" id="share-facebook"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/facebook-full.svg"></div></div><div class="share-text">Facebook</div></div>
-        <div class="share-item" id="share-x"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/x-twitter-brands-solid-full.svg"></div></div><div class="share-text">X</div></div>
-        <div class="share-item" id="share-whatsapp"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/whatsapp-full.svg"></div></div><div class="share-text">WhatsApp</div></div>
-        <div class="share-item" id="share-sms"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/phosphor/regular/sms.svg"></div></div><div class="share-text">Message</div></div>
-      </div>
-      <div class="bottom-grid">
-        <div class="bottom-item" id="save-image"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../../public/assets/icons/phosphor/regular/download.svg"></div></div><div class="bottom-text">Save image</div></div>
-        <div class="bottom-item" id="more-options"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../../public/assets/icons/phosphor/regular/more_horiz.svg"></div></div><div class="bottom-text">More</div></div>
-      </div>
+    <div class="header-icon" id="share-button">
+      <img src="../../public/assets/icons/phosphor/regular/upload.svg" alt="Share">
     </div>
   </div>
-</div>
 
-<script src="../../../src/lib/html2canvas.min.js"></script>
-<script>
-  const streakAudio = new Audio('../../../public/assets/audio/streak.mp3');
-  streakAudio.play().catch(e => console.log("Audio play failed:", e));
+  <div class="container">
+    <div class="flame" id="flame">
+      <img src="../../public/assets/lottie/1f525-static.png" alt="flame">
+    </div>
 
-  // ---- STATE ----
-  const STORAGE_KEY = 'vulanetStreak';
-  let today = new Date().toISOString().slice(0,10);
-  let streak = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-    days: 0,
-    lastDate: null,
-    firstDate: today,
-    revivalsUsed: 0,
-    usualHour: null,
-    lessonTimestamps: []
-  };
+    <h1 class="streak-number" id="streakNumber">1</h1>
+    <div class="streak-text" id="streakText">day streak!</div>
 
-  // Update streak: called when first lesson of the day is completed
-  function updateStreak() {
-    const now = new Date();
-    const nowDate = now.toISOString().slice(0,10);
-    if (nowDate === streak.lastDate) return streak; // already done today
+    <div class="card">
+      <div class="days" id="daysContainer"></div>
+      <div class="ticks" id="ticksContainer"></div>
+      <div class="divider"></div>
+      <div class="message" id="streakMessage"></div>
+    </div>
 
-    const lastDateObj = streak.lastDate ? new Date(streak.lastDate + 'T00:00:00') : null;
-    const diffDays = lastDateObj ? Math.floor((now - lastDateObj) / (1000*60*60*24)) : 99;
+    <button class="continue-btn" id="continueButton">CONTINUE</button>
+  </div>
 
-    if (!streak.lastDate || diffDays === 1) {
-      // consecutive day
-      streak.days++;
-    } else if (diffDays > 1 && streak.revivalsUsed > 0) {
-      // streak revival used
-      streak.revivalsUsed--;
-      streak.days++;
-    } else {
-      // reset
-      streak.days = 1;
-      streak.firstDate = nowDate;
-    }
-    streak.lastDate = nowDate;
-    streak.lessonTimestamps.push(now.getTime());
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(streak));
-    return streak;
-  }
+  <div class="share-overlay" id="share-overlay">
+    <div class="share-content">
+      <div class="share-card" id="share-card">
+        <div class="mini-streak">
+          <img src="../../public/assets/lottie/1f525-static.png" width="60" alt="flame" style="margin-bottom: 4px;">
+          <div class="share-streak-number" id="shareStreakNumber">1</div>
+          <div class="share-streak-text" id="shareStreakText">day streak!</div>
+          <div class="share-message" id="shareMessage"></div>
+        </div>
+        <div class="share-brand">vulanet</div>
+      </div>
+      <div class="share-sheet">
+        <div class="share-grid">
+          <div class="share-item" id="share-facebook">
+            <div class="share-icon-circle"><div class="share-icon"><img src="../../public/assets/icons/social/facebook-full.svg" alt="Facebook"></div></div>
+            <div class="share-text">Facebook</div>
+          </div>
+          <div class="share-item" id="share-x">
+            <div class="share-icon-circle"><div class="share-icon"><img src="../../public/assets/icons/social/x-twitter-brands-solid-full.svg" alt="X"></div></div>
+            <div class="share-text">X</div>
+          </div>
+          <div class="share-item" id="share-whatsapp">
+            <div class="share-icon-circle"><div class="share-icon"><img src="../../public/assets/icons/social/whatsapp.svg" alt="WhatsApp"></div></div>
+            <div class="share-text">WhatsApp</div>
+          </div>
+          <div class="share-item" id="share-sms">
+            <div class="share-icon-circle"><div class="share-icon"><img src="../../public/assets/icons/phosphor/regular/sms.svg" alt="Message"></div></div>
+            <div class="share-text">Message</div>
+          </div>
+        </div>
+        <div class="bottom-grid">
+          <div class="bottom-item" id="save-image">
+            <div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../public/assets/icons/phosphor/regular/download.svg" alt="Download"></div></div>
+            <div class="bottom-text">Save image</div>
+          </div>
+          <div class="bottom-item" id="more-options">
+            <div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../public/assets/icons/phosphor/regular/more-horiz.svg" alt="More"></div></div>
+            <div class="bottom-text">More</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  // Determine message based on time of day and usual hour
-  function getStreakMessage(streakDays, streakData) {
-    const now = new Date();
-    const hour = now.getHours();
-    const minutes = now.getMinutes();
-    const totalMinutes = hour * 60 + minutes;
+  <script src="../../src/lib/html2canvas.min.js"></script>
+  <script>
+    (function() {
+      // ---------- AUDIO ----------
+      const streakAudio = new Audio('../../public/assets/audio/streak.mp3');
+      streakAudio.play().catch(function() {});
 
-    const usualHour = streakData.usualHour;
-    if (!usualHour || streakData.lessonTimestamps.length < 2) {
-      // first lesson ever or after reset
-      if (streakDays === 1 && !streakData.lastDate) return "You now have an active streak. Do a lesson everyday to extend it.";
-    }
-
-    // Determine time window
-    if (totalMinutes >= 0 && totalMinutes < 180) {
-      // midnight - 3am
-      return "Night Owl! You extended your streak.";
-    } else if (totalMinutes >= 360 && totalMinutes < 540) {
-      // 6am - 9am
-      return "Early Bird! You extended your streak.";
-    }
-
-    if (usualHour !== null) {
-      const usualMinutes = usualHour * 60;
-      if (totalMinutes < usualMinutes) {
-        const diff = usualMinutes - totalMinutes;
-        const hours = Math.floor(diff / 60);
-        if (hours >= 1) {
-          return `You extended your streak ${hours} hour${hours>1?'s':''} earlier than usual.`;
-        } else {
-          return `You extended your streak ${diff} minute${diff>1?'s':''} earlier than usual.`;
+      // ---------- PARAMETERS (passed by parent) ----------
+      const params = new URLSearchParams(window.location.search);
+      const streakDays = parseInt(params.get('streak')) || 1;
+      const lessonHour = parseInt(params.get('lessonHour')) || (new Date()).getHours();
+      const avgLessonHour = params.get('avgLessonHour') ? parseFloat(params.get('avgLessonHour')) : null;
+      const daysDataJson = params.get('daysData');
+      let daysData = [];
+      if (daysDataJson) {
+        try {
+          daysData = JSON.parse(decodeURIComponent(daysDataJson));
+        } catch(e) {
+          daysData = [];
         }
       }
-    }
-    return "You extended your streak!";
-  }
 
-  // Update usual hour average
-  function updateUsualHour(streakData) {
-    if (streakData.lessonTimestamps.length > 0) {
-      let total = 0;
-      streakData.lessonTimestamps.forEach(ts => {
-        const d = new Date(ts);
-        total += d.getHours();
+      // ---------- FLAME, NUMBER, TEXT ----------
+      const flameEl = document.getElementById('flame');
+      const numberEl = document.getElementById('streakNumber');
+      const textEl = document.getElementById('streakText');
+      numberEl.textContent = streakDays;
+      textEl.textContent = (streakDays === 1) ? 'day streak!' : 'day streak!';
+
+      // ---------- DAY LABELS & TICKS ----------
+      const daysContainer = document.getElementById('daysContainer');
+      const ticksContainer = document.getElementById('ticksContainer');
+      daysContainer.innerHTML = '';
+      ticksContainer.innerHTML = '';
+
+      const today = new Date();
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      // Determine the label for each of the 7 positions: today + previous 6 days
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const label = dayNames[d.getDay()];
+        const span = document.createElement('span');
+        span.textContent = label;
+        if (i === 0) span.classList.add('active');
+        daysContainer.appendChild(span);
+      }
+
+      // Default tick data if none provided: build from streakDays
+      if (!daysData.length) {
+        for (let i = 0; i < 7; i++) {
+          const dayNum = i + 1; // 1-based relative to how many days the streak has existed? We'll just light up based on streakDays count.
+          daysData.push({
+            completed: (i < streakDays), // simplistic
+            revival: false
+          });
+        }
+      }
+
+      daysData.forEach(function(day, idx) {
+        const tickDiv = document.createElement('div');
+        tickDiv.className = 'tick';
+        if (day.revival) {
+          tickDiv.classList.add('freeze');
+          tickDiv.innerHTML = '<img src="../../public/assets/icons/phosphor/fill/first-aid.svg" alt="Revival">';
+        } else if (day.completed) {
+          tickDiv.classList.add('orange');
+          tickDiv.innerHTML = '<img src="../../public/assets/icons/phosphor/fill/check-fat.svg" alt="Check">';
+        } else {
+          // grey default
+          tickDiv.innerHTML = '<img src="../../public/assets/icons/phosphor/fill/check-fat.svg" alt="Check">';
+        }
+        ticksContainer.appendChild(tickDiv);
       });
-      const avg = Math.round(total / streakData.lessonTimestamps.length);
-      streak.usualHour = avg;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(streak));
-    }
-  }
 
-  // On load, simulate streak update (normally engine would pass data)
-  // For demo, we'll use localStorage to track days.
-  const params = new URLSearchParams(window.location.search);
-  let streakDays = parseInt(params.get('streak')) || 1;
-  // If not provided, use localStorage
-  if (!params.has('streak')) {
-    streak = updateStreak();
-    streakDays = streak.days;
-    updateUsualHour(streak);
-  } else {
-    // Use supplied streak and update localStorage
-    streak.days = streakDays;
-    streak.lastDate = today;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(streak));
-  }
+      // ---------- DYNAMIC MESSAGE ----------
+      function getStreakMessage() {
+        if (streakDays === 1) {
+          return 'You now have an active streak. Do a lesson everyday to extend it.';
+        }
 
-  // ---- UI ----
-  const message = getStreakMessage(streakDays, streak);
-  document.getElementById('streakMessage').textContent = message;
-  document.getElementById('shareMessage').textContent = message;
+        // Night Owl / Early Bird checks
+        if (lessonHour >= 0 && lessonHour < 3) {
+          return 'Night Owl! You extended your streak.';
+        }
+        if (lessonHour >= 6 && lessonHour < 9) {
+          return 'Early Bird! You extended your streak.';
+        }
 
-  document.getElementById('streakNumber').textContent = streakDays;
-  document.getElementById('streakText').textContent = streakDays === 1 ? 'day streak!' : 'day streak!';
-  document.querySelector('.share-streak-number').textContent = streakDays;
-  document.querySelector('.share-streak-text').textContent = streakDays === 1 ? 'day streak!' : 'day streak!';
+        // Check if earlier than usual
+        if (avgLessonHour !== null && !isNaN(avgLessonHour)) {
+          const diffMinutes = (avgLessonHour - lessonHour) * 60;
+          if (diffMinutes > 0) {
+            if (diffMinutes >= 60) {
+              const hours = Math.round(diffMinutes / 60);
+              return `You extended your streak ${hours} hour${hours > 1 ? 's' : ''} earlier than usual.`;
+            } else {
+              const mins = Math.round(diffMinutes);
+              return `You extended your streak ${mins} minute${mins > 1 ? 's' : ''} earlier than usual.`;
+            }
+          }
+        }
 
-  // Day labels & ticks (last 6 days + today)
-  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const now = new Date();
-  const todayIdx = now.getDay();
-  const displayDays = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    displayDays.push(dayNames[d.getDay()]);
-  }
-  const daysContainer = document.getElementById('daysContainer');
-  daysContainer.innerHTML = '';
-  displayDays.forEach((day, idx) => {
-    const span = document.createElement('span');
-    span.textContent = day;
-    if (idx === 6) span.classList.add('active');
-    daysContainer.appendChild(span);
-  });
+        return 'You extended your streak!';
+      }
 
-  const ticksContainer = document.getElementById('ticksContainer');
-  ticksContainer.innerHTML = '';
-  // Simulate ticks based on streak data (real app would have full history)
-  // For demo, we'll show orange for the number of streak days, capped at 7.
-  const startDate = new Date(streak.firstDate);
-  const totalDaysSinceStart = Math.floor((now - startDate) / (1000*60*60*24)) + 1;
-  const streakStartDay = Math.max(1, totalDaysSinceStart - streakDays + 1);
-  for (let i = 1; i <= 7; i++) {
-    const tickDiv = document.createElement('div');
-    if (i >= streakStartDay && i <= totalDaysSinceStart) {
-      tickDiv.className = 'tick orange';
-      tickDiv.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/check-fat.svg" alt="done">';
-    } else {
-      // Check if revival was used on that day? For now, grey.
-      tickDiv.className = 'tick grey';
-      tickDiv.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/check-fat.svg" alt="none">';
-    }
-    tickDiv.id = `tick-${i}`;
-    ticksContainer.appendChild(tickDiv);
-  }
+      const msg = getStreakMessage();
+      document.getElementById('streakMessage').textContent = msg;
 
-  // Animation: reveal flame and numbers
-  setTimeout(() => {
-    document.getElementById('flame').classList.add('visible');
-    document.getElementById('streakNumber').classList.add('visible');
-    document.getElementById('streakText').classList.add('visible');
-  }, 1000);
+      // ---------- ANIMATION ----------
+      setTimeout(function() {
+        flameEl.classList.add('visible');
+        numberEl.classList.add('visible');
+        textEl.classList.add('visible');
+      }, 1000);
 
-  // ---- Share & navigation ----
-  const shareOverlay = document.getElementById('share-overlay');
-  document.getElementById('share-button').addEventListener('click', () => shareOverlay.style.display = 'flex');
-  shareOverlay.addEventListener('click', (e) => { if (e.target === shareOverlay) shareOverlay.style.display = 'none'; });
+      // ---------- SHARE OVERLAY ----------
+      const shareOverlay = document.getElementById('share-overlay');
+      document.getElementById('share-button').addEventListener('click', function() {
+        // Update share preview
+        document.getElementById('shareStreakNumber').textContent = streakDays;
+        document.getElementById('shareStreakText').textContent = (streakDays === 1) ? 'day streak!' : 'day streak!';
+        document.getElementById('shareMessage').textContent = msg;
+        shareOverlay.style.display = 'flex';
+      });
 
-  document.getElementById('save-image').addEventListener('click', async () => {
-    const card = document.getElementById('share-card');
-    await document.fonts.ready;
-    html2canvas(card, { scale: 2, useCORS: true }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = 'streak.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    });
-  });
+      shareOverlay.addEventListener('click', function(e) {
+        if (e.target === shareOverlay) shareOverlay.style.display = 'none';
+      });
 
-  function getShareText() { return message; }
-  document.getElementById('share-facebook').addEventListener('click', () => {
-    const text = encodeURIComponent(getShareText() + '\n\n');
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://vulanet.com/streak")}&quote=${text}`, 'fb-share');
-  });
-  document.getElementById('share-x').addEventListener('click', () => {
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`, 'twitter-share');
-  });
-  document.getElementById('share-whatsapp').addEventListener('click', () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`, 'whatsapp-share');
-  });
-  document.getElementById('share-sms').addEventListener('click', () => {
-    const text = getShareText();
-    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      window.location.href = `sms:?body=${encodeURIComponent(text)}`;
-    } else {
-      navigator.clipboard.writeText(text).then(() => alert("Copied!"));
-    }
-  });
-  document.getElementById('more-options').addEventListener('click', async () => {
-    if (navigator.share) {
-      await navigator.share({ title: 'My Vulanet Streak', text: getShareText(), url: 'https://vulanet.com/streak' });
-    } else {
-      alert("Share not supported.");
-    }
-  });
+      // Save image
+      document.getElementById('save-image').addEventListener('click', async function() {
+        const card = document.getElementById('share-card');
+        if (!card) return;
+        await document.fonts.ready;
+        html2canvas(card, { scale: 2, useCORS: true }).then(function(canvas) {
+          const link = document.createElement('a');
+          link.download = 'vulanet-streak.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        }).catch(function(err) {
+          console.warn('html2canvas error:', err);
+        });
+      });
 
-  document.getElementById('exit-button').addEventListener('click', () => {
-    window.parent.postMessage({ type: 'streakClosed', streakDays: streakDays }, '*');
-    window.parent.postMessage('modalClose', '*');
-  });
-  document.getElementById('continueButton').addEventListener('click', () => {
-    window.parent.postMessage({ type: 'streakClosed', streakDays: streakDays }, '*');
-    window.parent.postMessage('modalClose', '*');
-  });
-</script>
+      // Social share functions
+      function getFullShareText() {
+        return `${msg} ${streakDays} days on Vulanet!`;
+      }
+
+      document.getElementById('share-facebook').addEventListener('click', function() {
+        const text = encodeURIComponent(getFullShareText());
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=https://vulanet.com/streak&quote=${text}`, 'fb-share');
+      });
+      document.getElementById('share-x').addEventListener('click', function() {
+        const text = encodeURIComponent(getFullShareText());
+        window.open(`https://twitter.com/intent/tweet?text=${text}`, 'x-share');
+      });
+      document.getElementById('share-whatsapp').addEventListener('click', function() {
+        const text = encodeURIComponent(getFullShareText());
+        window.open(`https://wa.me/?text=${text}`, 'whatsapp-share');
+      });
+      document.getElementById('share-sms').addEventListener('click', function() {
+        const text = getFullShareText();
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          window.location.href = `sms:?body=${encodeURIComponent(text)}`;
+        } else {
+          navigator.clipboard.writeText(text).then(function() {
+            alert('Text copied!');
+          });
+        }
+      });
+      document.getElementById('more-options').addEventListener('click', async function() {
+        const text = getFullShareText();
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: 'My Vulanet Streak', text: text, url: 'https://vulanet.com/streak' });
+          } catch(e) {}
+        } else {
+          alert('Share not supported. Save the image instead!');
+        }
+      });
+
+      // ---------- EXIT / CONTINUE ----------
+      function closeModal() {
+        window.parent.postMessage({ type: 'streakClosed', streakDays: streakDays }, '*');
+        window.parent.postMessage('modalClose', '*');
+      }
+
+      document.getElementById('exit-button').addEventListener('click', closeModal);
+      document.getElementById('continueButton').addEventListener('click', closeModal);
+    })();
+  </script>
 </body>
 </html>
