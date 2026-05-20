@@ -8,85 +8,245 @@
   <!-- Local Fonts -->
   <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
 
-  <!-- Button Styles -->
-  <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
-
-  <!-- html2canvas for share image (CDN as required) -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <!-- html2canvas (local) -->
+  <script src="../../../src/lib/html2canvas.min.js"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #F7F7F7; /* Arctic */
-      display: flex; justify-content: center; align-items: center;
-      min-height: 100vh; padding: 16px;
+      background: #f2f2f2;  /* kept from original design */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px;
       font-family: 'Atkinson Hyperlegible Next', sans-serif;
     }
     .header {
-      position: fixed; top: 0; left: 0; right: 0; height: 60px;
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0 20px; background: transparent; z-index: 100;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      background: transparent;
+      z-index: 100;
     }
     .header-icon {
-      width: 40px; height: 40px; display: flex;
-      align-items: center; justify-content: center; cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
     }
-    .header-icon img { width: 24px; height: 24px; }
-    .container { max-width: 400px; width: 100%; margin-top: 40px; text-align: center; }
+    .header-icon img {
+      width: 24px;
+      height: 24px;
+      /* colour icons as in original design */
+      filter: brightness(0) saturate(100%) invert(55%) sepia(7%) saturate(256%) hue-rotate(174deg) brightness(91%) contrast(85%);
+    }
+    .container {
+      max-width: 400px;
+      width: 100%;
+      margin-top: 40px;
+      text-align: center;
+    }
     .flame { visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s ease; }
     .flame.visible { visibility: visible; opacity: 1; }
     .flame img { width: 110px; height: auto; margin: 0 auto 4px; }
     .streak-number {
-      font-size: 72px; font-weight: 700; color: #FF6D01; /* Tiger */
-      text-shadow: -4px -4px 0 #FFFFFF, 4px -4px 0 #FFFFFF, -4px 4px 0 #FFFFFF, 4px 4px 0 #FFFFFF;
-      margin: 0; line-height: 1.1; visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s ease;
+      font-size: 72px;
+      font-weight: 700;
+      color: #FF6D01; /* Tiger */
+      text-shadow:
+        -4px -4px 0 #fff,
+         4px -4px 0 #fff,
+        -4px  4px 0 #fff,
+         4px  4px 0 #fff;
+      margin: 0;
+      line-height: 1.1;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s, opacity 0.3s ease;
     }
     .streak-number.visible { visibility: visible; opacity: 1; }
     .streak-text {
-      font-size: 28px; color: #FF6D01; font-weight: 700; margin-top: -6px;
-      visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s ease;
+      font-size: 28px;
+      color: #FF6D01;
+      font-weight: 700;
+      margin-top: -6px;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s, opacity 0.3s ease;
     }
     .streak-text.visible { visibility: visible; opacity: 1; }
     .card {
-      margin-top: 30px; background: #FFFFFF; border-radius: 22px;
-      padding: 18px; box-shadow: 0 0 0 3px #E5E5E5;
+      margin-top: 30px;
+      background: white;
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 0 0 3px #e5e5e5;
     }
-    .days { display: flex; justify-content: space-between; margin-bottom: 10px; color: #999; font-weight: 600; font-size: 0.9rem; }
+    .days {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: #999;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
     .days span { width: 38px; text-align: center; }
     .days span.active { color: #FF6D01; }
-    .ticks { display: flex; justify-content: space-between; margin-bottom: 16px; }
-    .tick { width: 38px; height: 38px; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; }
-    .tick.orange { background: #FF6D01; }
-    .tick.grey { background: #AFAFAF; }
-    .tick.freeze { background: white; border: 2px solid #EA4335; }
-    .tick img { width: 22px; height: 22px; }
-    /* Color the first-aid icon red */
-    .tick.freeze img { filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%); }
-    .divider { height: 1px; background: #E5E5E5; margin: 18px 0; }
-    .message { font-size: 20px; color: #4B4B4B; font-weight: 600; }
-    .continue-wrap { margin-top: 24px; width: 100%; }
-    .btn { width: 100%; }
-
-    /* Share overlay */
-    .share-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5); display: none; justify-content: center;
-      align-items: center; z-index: 1000; padding: 20px;
+    .ticks {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
     }
-    .share-content { width: 100%; max-width: 357px; background: #f5f5f7; border-radius: 24px; overflow: hidden; }
-    .share-card { background: #ffffff; border-radius: 24px; padding: 32px 24px; margin-bottom: 10px; text-align: center; }
-    .share-sheet { background: #fff; border-top: 1px solid #dadada; border-radius: 24px 24px 0 0; padding: 16px 12px; }
-    .share-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-    .share-item, .bottom-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-    .share-icon-circle, .bottom-icon-circle { width: 44px; height: 44px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
-    .share-icon, .bottom-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+    .tick {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    .tick.orange { background: #FF6D01; }
+    .tick.grey { background: #cccccc; }   /* kept original grey */
+    .tick.freeze { background: white; border: 2px solid #EA4335; }
+    .tick img {
+      width: 22px;
+      height: 22px;
+    }
+    /* Make the check icon white when on grey or orange background */
+    .tick.grey img,
+    .tick.orange img {
+      filter: brightness(0) saturate(100%) invert(100%);
+    }
+    /* Make the first-aid icon red */
+    .tick.freeze img {
+      filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
+    }
+    .divider { height: 1px; background: #e5e5e5; margin: 18px 0; }
+    .message {
+      font-size: 20px;
+      color: #444;
+      font-weight: normal;   /* not bold */
+    }
+    .continue-btn {
+      width: 100%;
+      height: 52px;
+      border-radius: 0.75rem;
+      font-weight: 700;
+      border: none;
+      font-size: 15px;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: #4285F4;
+      color: white;
+      border-bottom: 4px solid #3a75d9;
+      margin-top: 24px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+    }
+    .continue-btn:hover {
+      background: #2a75f0;
+      transform: translateY(-1px);
+    }
+    .continue-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+    .share-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .share-content {
+      width: 100%;
+      max-width: 357px;
+      background: #f5f5f7;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+    .share-card {
+      background: white;
+      border-radius: 24px;
+      padding: 32px 24px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .share-sheet {
+      background: white;
+      border-top: 1px solid #dadada;
+      border-radius: 24px 24px 0 0;
+      padding: 16px 12px;
+    }
+    .share-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .share-item, .bottom-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+    .share-icon-circle, .bottom-icon-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .share-icon, .bottom-icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .share-icon img { width: 100%; height: 100%; object-fit: contain; }
     .share-text, .bottom-text { font-size: 11px; color: #333; }
-    .bottom-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 0 20px; }
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      padding: 0 20px;
+    }
     .mini-streak { display: flex; flex-direction: column; align-items: center; }
-    .share-streak-number { font-size: 48px; font-weight: 700; color: #FF6D01; text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff; }
+    .share-streak-number {
+      font-size: 48px;
+      font-weight: 700;
+      color: #FF6D01;
+      text-shadow:
+        -2px -2px 0 #fff,
+         2px -2px 0 #fff,
+        -2px  2px 0 #fff,
+         2px  2px 0 #fff;
+    }
     .share-streak-text { font-size: 22px; color: #FF6D01; font-weight: 700; }
-    .share-message { font-size: 18px; color: #4B4B4B; margin: 8px 0; }
+    .share-message { font-size: 18px; color: #444; margin: 8px 0; }
     .share-brand { margin-top: 16px; font-weight: 700; color: #4285F4; font-size: 24px; }
   </style>
 </head>
@@ -94,14 +254,17 @@
 
 <div class="header">
   <div class="header-icon" id="exit-button">
-    <img src="../../../public/assets/icons/phosphor/regular/x.svg" alt="Close">
+    <!-- close icon (x) -->
+    <img src="../../../public/assets/icons/material-symbols/outline/close.svg" alt="Close">
   </div>
   <div class="header-icon" id="share-button">
-    <img src="../../../public/assets/icons/phosphor/regular/export.svg" alt="Share">
+    <!-- upload/share icon -->
+    <img src="../../../public/assets/icons/material-symbols/outline/upload.svg" alt="Share">
   </div>
 </div>
 
 <div class="container">
+  <!-- Flame: static image, fades in after 1s -->
   <div class="flame" id="flame">
     <img src="../../../public/assets/lottie/1f525-static.png" alt="flame">
   </div>
@@ -113,9 +276,7 @@
     <div class="divider"></div>
     <div class="message" id="streakMessage"></div>
   </div>
-  <div class="continue-wrap">
-    <button class="btn btn-md btn-carpenter-blue" id="continueButton">CONTINUE</button>
-  </div>
+  <button class="continue-btn" id="continueButton">CONTINUE</button>
 </div>
 
 <!-- Share overlay -->
@@ -133,29 +294,54 @@
     <div class="share-sheet">
       <div class="share-grid">
         <div class="share-item" id="share-facebook">
-          <div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/facebook-full.svg" alt="Facebook"></div></div>
+          <div class="share-icon-circle">
+            <div class="share-icon">
+              <img src="../../../public/assets/icons/social/facebook-full.svg" alt="Facebook">
+            </div>
+          </div>
           <div class="share-text">Facebook</div>
         </div>
         <div class="share-item" id="share-x">
-          <div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/x-twitter.svg" alt="X"></div></div>
+          <div class="share-icon-circle">
+            <div class="share-icon">
+              <img src="../../../public/assets/icons/social/x-twitter.svg" alt="X">
+            </div>
+          </div>
           <div class="share-text">X</div>
         </div>
         <div class="share-item" id="share-whatsapp">
-          <div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/whatsapp.svg" alt="WhatsApp"></div></div>
+          <div class="share-icon-circle">
+            <div class="share-icon">
+              <img src="../../../public/assets/icons/social/whatsapp.svg" alt="WhatsApp">
+            </div>
+          </div>
           <div class="share-text">WhatsApp</div>
         </div>
         <div class="share-item" id="share-sms">
-          <div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/phosphor/regular/sms.svg" alt="SMS"></div></div>
+          <div class="share-icon-circle">
+            <div class="share-icon">
+              <!-- SMS icon from Material Symbols outline -->
+              <img src="../../../public/assets/icons/material-symbols/outline/sms.svg" alt="SMS">
+            </div>
+          </div>
           <div class="share-text">Message</div>
         </div>
       </div>
       <div class="bottom-grid">
         <div class="bottom-item" id="save-image">
-          <div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../../public/assets/icons/phosphor/regular/download.svg" alt="Download"></div></div>
+          <div class="bottom-icon-circle">
+            <div class="bottom-icon">
+              <img src="../../../public/assets/icons/material-symbols/outline/download.svg" alt="Download">
+            </div>
+          </div>
           <div class="bottom-text">Save image</div>
         </div>
         <div class="bottom-item" id="more-options">
-          <div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../../public/assets/icons/phosphor/regular/dots-three-outline.svg" alt="More"></div></div>
+          <div class="bottom-icon-circle">
+            <div class="bottom-icon">
+              <img src="../../../public/assets/icons/material-symbols/outline/more_horiz.svg" alt="More">
+            </div>
+          </div>
           <div class="bottom-text">More</div>
         </div>
       </div>
@@ -165,40 +351,32 @@
 
 <script>
   (function() {
-    // ================================================================
-    //  HELPER: get today's date string in the user's stored timezone
-    // ================================================================
+    // Play streak sound
+    const streakAudio = new Audio('../../../public/assets/audio/streak.mp3');
+    streakAudio.play().catch(e => console.log("Audio play failed:", e));
+
+    // ---------- HELPER: today in user's timezone ----------
     function getTodayInTimezone(tz) {
       try {
         const parts = new Intl.DateTimeFormat('en-CA', {
-          timeZone: tz,
-          year: 'numeric', month: '2-digit', day: '2-digit'
+          timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit'
         }).formatToParts(new Date());
-        const year = parts.find(p => p.type === 'year').value;
-        const month = parts.find(p => p.type === 'month').value;
-        const day = parts.find(p => p.type === 'day').value;
-        return `${year}-${month}-${day}`;
+        const y = parts.find(p => p.type === 'year').value;
+        const m = parts.find(p => p.type === 'month').value;
+        const d = parts.find(p => p.type === 'day').value;
+        return `${y}-${m}-${d}`;
       } catch (e) {
         const d = new Date();
         return d.toISOString().slice(0,10);
       }
     }
 
-    function getDayNameFromDate(dateStr, tz) {
-      const d = new Date(dateStr + 'T12:00:00');
-      return d.toLocaleDateString('en-US', { weekday: 'short', timeZone: tz });
-    }
-
-    // ================================================================
-    //  LOAD STATE
-    // ================================================================
+    // ---------- LOAD STREAK DATA ----------
     const params = new URLSearchParams(window.location.search);
     let streakData = {};
 
     if (params.get('data')) {
-      try {
-        streakData = JSON.parse(decodeURIComponent(params.get('data')));
-      } catch(e) {}
+      try { streakData = JSON.parse(decodeURIComponent(params.get('data'))); } catch(e){}
     }
     if (!streakData.currentStreak) {
       const stored = localStorage.getItem('streakState');
@@ -219,11 +397,8 @@
       streakData.recentDays = [{ date: todayStr, status: 'completed' }];
     } else {
       const hasToday = streakData.recentDays.some(d => d.date === todayStr);
-      if (!hasToday) {
-        streakData.recentDays.push({ date: todayStr, status: 'completed' });
-      }
+      if (!hasToday) streakData.recentDays.push({ date: todayStr, status: 'completed' });
     }
-
     if (streakData.totalAppDays < streakData.recentDays.length) {
       streakData.totalAppDays = streakData.recentDays.length;
     }
@@ -231,129 +406,16 @@
     const currentStreak = streakData.currentStreak;
     const totalAppDays = streakData.totalAppDays;
     const timezone = streakData.timezone || 'UTC';
-
-    // ================================================================
-    //  TIMELINE POSITION LOGIC (the fix)
-    // ================================================================
-    // For users with less than 7 total app days:
-    //   - The timeline starts filling from the LEFT.
-    //   - The active (today) circle is at position = totalAppDays (1-indexed).
-    //   - The remaining circles to the right stay grey/empty.
-    //
-    // For users with 7+ total app days:
-    //   - The timeline is a rolling 7-day window.
-    //   - TODAY is always the RIGHTMOST circle.
-    //   - Day labels reflect the last 7 calendar days.
-    // ================================================================
-
     const isEarlyUser = totalAppDays < 7;
 
-    // Build the 7 day labels
-    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const daysContainer = document.getElementById('daysContainer');
-    daysContainer.innerHTML = '';
-
-    let dates = [];
-    if (isEarlyUser) {
-      // For early users, we need to work backward from the user's first lesson date
-      // to fill the 7 circles. The first circle is the user's Day 1.
-      // We'll use the recentDays array to determine the actual calendar dates.
-      // The first entry in recentDays is Day 1.
-      if (streakData.recentDays.length > 0) {
-        const firstDateStr = streakData.recentDays[0].date;
-        const firstDate = new Date(firstDateStr + 'T12:00:00');
-        for (let i = 0; i < 7; i++) {
-          const d = new Date(firstDate);
-          d.setDate(d.getDate() + i);
-          dates.push(d.toISOString().slice(0,10));
-        }
-      } else {
-        // Fallback: start from today
-        for (let i = 6; i >= 0; i--) {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          dates.push(d.toISOString().slice(0,10));
-        }
-      }
-    } else {
-      // Rolling 7-day window: last 6 days + today
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        dates.push(d.toISOString().slice(0,10));
-      }
-    }
-
-    // Render day labels
-    dates.forEach((dateStr, idx) => {
-      const d = new Date(dateStr + 'T12:00:00');
-      const dayName = dayNames[d.getDay()];
-      const span = document.createElement('span');
-      span.textContent = dayName;
-      // For early users, highlight the circle at position = totalAppDays (1-indexed)
-      // For experienced users, highlight the rightmost (today)
-      if (isEarlyUser && idx === totalAppDays - 1) {
-        span.classList.add('active');
-      } else if (!isEarlyUser && idx === 6) {
-        span.classList.add('active');
-      }
-      daysContainer.appendChild(span);
-    });
-
-    // Build ticks
-    const ticksContainer = document.getElementById('ticksContainer');
-    ticksContainer.innerHTML = '';
-
-    // Create status map from recentDays
-    const statusMap = {};
-    if (streakData.recentDays) {
-      streakData.recentDays.forEach(day => { statusMap[day.date] = day.status; });
-    }
-
-    dates.forEach((dateStr, idx) => {
-      const status = statusMap[dateStr] || 'missed';
-      const tickDiv = document.createElement('div');
-      tickDiv.className = 'tick';
-
-      if (status === 'completed') {
-        tickDiv.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/check-fat.svg" alt="✓">';
-        // For early users, completed circles up to totalAppDays are orange immediately
-        // For experienced users, all past completed circles are orange immediately
-        const isActivePosition = isEarlyUser ? (idx < totalAppDays) : (idx < 6 || status === 'completed');
-        if (isActivePosition) {
-          // If this is today's position (the one that should animate)
-          const isTodayPosition = isEarlyUser ? (idx === totalAppDays - 1) : (idx === 6);
-          if (isTodayPosition && status === 'completed') {
-            // Start grey, will animate
-            tickDiv.classList.add('grey');
-          } else {
-            tickDiv.classList.add('orange');
-          }
-        } else {
-          tickDiv.classList.add('grey');
-        }
-      } else if (status === 'revived') {
-        tickDiv.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/first-aid.svg" alt="Revive">';
-        tickDiv.classList.add('freeze');
-      } else {
-        // missed or empty (for early users, future circles are empty/missed)
-        tickDiv.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/x.svg" alt="✗">';
-        tickDiv.classList.add('grey');
-      }
-
-      ticksContainer.appendChild(tickDiv);
-    });
-
-    // ================================================================
-    //  MESSAGE LOGIC
-    // ================================================================
+    // ---------- DYNAMIC MESSAGE ----------
     const now = new Date();
     const currentHour = now.getHours();
     let message = '';
 
     if (currentStreak === 1) {
-      const everHadStreak = localStorage.getItem('everHadStreak') === 'true';
-      if (!everHadStreak) {
+      const everHad = localStorage.getItem('everHadStreak') === 'true';
+      if (!everHad) {
         message = 'You now have an active streak. Do a lesson everyday to extend it.';
         localStorage.setItem('everHadStreak', 'true');
       } else {
@@ -361,32 +423,103 @@
       }
     } else {
       const avgTime = parseFloat(localStorage.getItem('avgFirstLessonHour')) || 8;
-      const currentHourDecimal = currentHour + now.getMinutes()/60;
+      const curDec = currentHour + now.getMinutes()/60;
 
       if (currentHour >= 0 && currentHour < 3) {
         message = 'Night Owl! You extended your streak.';
       } else if (currentHour >= 6 && currentHour < 9) {
         message = 'Early Bird! You extended your streak.';
-      } else if (currentHourDecimal < avgTime - 0.5) {
-        const diffMinutes = Math.round((avgTime - currentHourDecimal) * 60);
-        if (diffMinutes >= 60) {
-          const hours = Math.round(diffMinutes / 60);
-          message = `You extended your streak ${hours} hour${hours > 1 ? 's' : ''} earlier than usual.`;
+      } else if (curDec < avgTime - 0.5) {
+        const diffMin = Math.round((avgTime - curDec) * 60);
+        if (diffMin >= 60) {
+          const hrs = Math.round(diffMin / 60);
+          message = `You extended your streak ${hrs} hour${hrs > 1 ? 's' : ''} earlier than usual.`;
         } else {
-          message = `You extended your streak ${diffMinutes} minutes earlier than usual.`;
+          message = `You extended your streak ${diffMin} minutes earlier than usual.`;
         }
       } else {
         message = 'You extended your streak!';
       }
 
+      // update moving average
       const alpha = 0.2;
-      const newAvg = alpha * currentHourDecimal + (1 - alpha) * avgTime;
-      localStorage.setItem('avgFirstLessonHour', newAvg.toString());
+      localStorage.setItem('avgFirstLessonHour', (alpha * curDec + (1-alpha) * avgTime).toString());
     }
 
-    // ================================================================
-    //  ANIMATION (only today's active circle)
-    // ================================================================
+    // ---------- BUILD 7‑DAY TIMELINE ----------
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const daysContainer = document.getElementById('daysContainer');
+    const ticksContainer = document.getElementById('ticksContainer');
+    daysContainer.innerHTML = '';
+    ticksContainer.innerHTML = '';
+
+    let dates = [];
+    if (isEarlyUser) {
+      // start from the user's first lesson date
+      const firstDate = streakData.recentDays.length > 0
+        ? new Date(streakData.recentDays[0].date + 'T12:00:00')
+        : new Date();
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(firstDate);
+        d.setDate(d.getDate() + i);
+        dates.push(d.toISOString().slice(0,10));
+      }
+    } else {
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        dates.push(d.toISOString().slice(0,10));
+      }
+    }
+
+    // day labels
+    dates.forEach((dateStr, idx) => {
+      const d = new Date(dateStr + 'T12:00:00');
+      const span = document.createElement('span');
+      span.textContent = dayNames[d.getDay()];
+      if (isEarlyUser) {
+        if (idx === totalAppDays - 1) span.classList.add('active');
+      } else {
+        if (idx === 6) span.classList.add('active');
+      }
+      daysContainer.appendChild(span);
+    });
+
+    // status map
+    const statusMap = {};
+    (streakData.recentDays || []).forEach(day => { statusMap[day.date] = day.status; });
+
+    // tick circles
+    dates.forEach((dateStr, idx) => {
+      const status = statusMap[dateStr] || 'missed';
+      const tick = document.createElement('div');
+      tick.className = 'tick';
+
+      if (status === 'revived') {
+        tick.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/first-aid.svg" alt="Revive">';
+        tick.classList.add('freeze');
+      } else {
+        // both completed and missed use the check icon
+        tick.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/check-fat.svg" alt="✓">';
+
+        if (status === 'completed') {
+          // determine if this is the circle that should animate
+          const isTodayPos = isEarlyUser ? (idx === totalAppDays - 1) : (idx === 6);
+          if (isTodayPos) {
+            tick.classList.add('grey');   // will animate to orange
+          } else {
+            tick.classList.add('orange');
+          }
+        } else {
+          // missed
+          tick.classList.add('grey');
+        }
+      }
+
+      ticksContainer.appendChild(tick);
+    });
+
+    // ---------- ANIMATION (only today's circle) ----------
     const flame = document.getElementById('flame');
     const streakNumber = document.getElementById('streakNumber');
     const streakText = document.getElementById('streakText');
@@ -396,15 +529,15 @@
     streakText.textContent = currentStreak === 1 ? 'day streak!' : 'day streak!';
     streakMessage.textContent = message;
 
+    // update share card
     document.getElementById('shareStreakNumber').textContent = currentStreak;
     document.querySelector('.share-streak-text').textContent = currentStreak === 1 ? 'day streak!' : 'day streak!';
     document.getElementById('shareMessage').textContent = message;
 
-    // Find today's tick (the one that started grey but should animate to orange)
-    const todayPosition = isEarlyUser ? totalAppDays - 1 : 6;
-    const todayTick = ticksContainer.children[todayPosition];
+    const todayPos = isEarlyUser ? totalAppDays - 1 : 6;
+    const todayTick = ticksContainer.children[todayPos];
 
-    if (todayTick && todayTick.classList.contains('grey') && statusMap[dates[todayPosition]] === 'completed') {
+    if (todayTick && statusMap[dates[todayPos]] === 'completed') {
       setTimeout(() => {
         todayTick.classList.remove('grey');
         todayTick.classList.add('orange');
@@ -420,10 +553,8 @@
       }, 1000);
     }
 
-    // ================================================================
-    //  BUTTONS
-    // ================================================================
-    document.getElementById('exit-button').addEventListener('click', () => {
+    // ---------- BUTTONS ----------
+    function notifyParent() {
       window.parent.postMessage({
         type: 'streakClosed',
         streakDays: currentStreak,
@@ -431,21 +562,12 @@
         heartsAtCompletion: parseInt(localStorage.getItem('heartsAtCompletion') || '5')
       }, '*');
       window.parent.postMessage('modalClose', '*');
-    });
+    }
 
-    document.getElementById('continueButton').addEventListener('click', () => {
-      window.parent.postMessage({
-        type: 'streakClosed',
-        streakDays: currentStreak,
-        isMilestone: (currentStreak % 5 === 0),
-        heartsAtCompletion: parseInt(localStorage.getItem('heartsAtCompletion') || '5')
-      }, '*');
-      window.parent.postMessage('modalClose', '*');
-    });
+    document.getElementById('exit-button').addEventListener('click', notifyParent);
+    document.getElementById('continueButton').addEventListener('click', notifyParent);
 
-    // ================================================================
-    //  SHARE (unchanged)
-    // ================================================================
+    // ---------- SHARE ----------
     const shareOverlay = document.getElementById('share-overlay');
     document.getElementById('share-button').addEventListener('click', () => {
       shareOverlay.style.display = 'flex';
@@ -453,6 +575,7 @@
     shareOverlay.addEventListener('click', (e) => {
       if (e.target === shareOverlay) shareOverlay.style.display = 'none';
     });
+
     document.getElementById('save-image').addEventListener('click', async () => {
       const card = document.getElementById('share-card');
       await document.fonts.ready;
@@ -463,9 +586,11 @@
         link.click();
       });
     });
+
     function getShareText() {
       return message + ` ${currentStreak} day streak! #Vulanet`;
     }
+
     document.getElementById('share-facebook').addEventListener('click', () => {
       window.open(`https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fvulanet.com&quote=${encodeURIComponent(getShareText())}`);
     });
@@ -489,7 +614,6 @@
         alert('Share not supported.');
       }
     });
-
   })();
 </script>
 </body>
