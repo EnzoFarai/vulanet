@@ -1,5 +1,5 @@
 // ============================================================
-// VULANET QUIZ ENGINE – Fixed review queue ordering
+// VULANET QUIZ ENGINE – Complete lesson / streak / reward pipeline
 // ============================================================
 
 function sanitiseHTML(str) {
@@ -35,6 +35,7 @@ class QuizEngine {
     this.questionFinalCorrect = new Array(this.totalQuestions).fill(false);
     this.heartsAtCompletion = 5;
     this.currentStreakDays = 1;
+    this._streakRewardProcessed = false; // prevent double processing
 
     this.hasCompletedFirstLesson = localStorage.getItem('hasCompletedFirstLesson') === 'true';
     if (!localStorage.getItem('coins')) localStorage.setItem('coins', '500');
@@ -101,12 +102,172 @@ class QuizEngine {
     }
   }
 
-  loadStreakFromStorage() { const s = localStorage.getItem(this.streakKey); if (s) this.currentStreakDays = parseInt(s,10); else localStorage.setItem(this.streakKey,'1'); }
+  // ---------- Streak state management ----------
+  loadStreakFromStorage() {
+    const saved = localStorage.getItem(this.streakKey);
+    if (saved) this.currentStreakDays = parseInt(saved, 10);
+    else localStorage.setItem(this.streakKey, '1');
+  }
   saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
   incrementStreak() { this.currentStreakDays++; this.saveStreakToStorage(); }
 
+  /** Returns true if this lesson is the first completed one today (in user's timezone). */
+  isFirstLessonOfDay() {
+    const tz = localStorage.getItem('userTimezone') || 'UTC';
+    const today = this.getDateInTimezone(tz);
+    const last = localStorage.getItem('lastLessonDate');
+    return last !== today;
+  }
+
+  /** Get today's date string YYYY-MM-DD in a given timezone. */
+  getDateInTimezone(tz) {
+    try {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit'
+      }).formatToParts(new Date());
+      return `${parts.find(p => p.type === 'year').value}-${parts.find(p => p.type === 'month').value}-${parts.find(p => p.type === 'day').value}`;
+    } catch (e) {
+      return new Date().toISOString().slice(0, 10);
+    }
+  }
+
+  /** Build the full streak data object expected by streak.html */
+  buildStreakData() {
+    const tz = localStorage.getItem('userTimezone') || 'UTC';
+    const todayStr = this.getDateInTimezone(tz);
+    let streakData = {};
+
+    const stored = localStorage.getItem('streakState');
+    if (stored) streakData = JSON.parse(stored);
+
+    // Defaults
+    const defaults = {
+      currentStreak: 1,
+      totalAppDays: 1,
+      lastLessonDate: todayStr,
+      timezone: tz,
+      recentDays: []
+    };
+    streakData = Object.assign({}, defaults, streakData);
+
+    // If this is the first ever lesson
+    if (!streakData.recentDays || streakData.recentDays.length === 0) {
+      streakData.recentDays = [{ date: todayStr, status: 'completed' }];
+      streakData.totalAppDays = 1;
+      streakData.currentStreak = 1;
+      localStorage.setItem('firstLessonDate', todayStr);
+    } else {
+      // Ensure today is in recentDays
+      const todayEntry = streakData.recentDays.find(d => d.date === todayStr);
+      if (!todayEntry) {
+        // Check if previous day was completed or revived to keep streak
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().slice(0, 10);
+        const prevDay = streakData.recentDays.find(d => d.date === yesterdayStr);
+        if (prevDay && (prevDay.status === 'completed' || prevDay.status === 'revived')) {
+          // streak continues
+          streakData.currentStreak = (streakData.currentStreak || 0) + 1;
+        } else {
+          // streak resets
+          streakData.currentStreak = 1;
+          // Add previous days as missed if not already
+          // (simplified: we just add today as completed and trust recentDays to reflect history)
+        }
+        // Add today as completed
+        streakData.recentDays.push({ date: todayStr, status: 'completed' });
+        // Keep only last 7
+        if (streakData.recentDays.length > 7) {
+          streakData.recentDays = streakData.recentDays.slice(-7);
+        }
+        // Update totalAppDays: count unique days since firstLessonDate
+        const first = localStorage.getItem('firstLessonDate');
+        if (first) {
+          const firstDate = new Date(first + 'T12:00:00Z');
+          const now = new Date(todayStr + 'T12:00:00Z');
+          const diffDays = Math.floor((now - firstDate) / 86400000) + 1;
+          streakData.totalAppDays = diffDays;
+        } else {
+          streakData.totalAppDays = streakData.recentDays.length;
+        }
+      } else {
+        // Today already exists (maybe they already completed a lesson earlier today? unlikely because this is first-of-day check)
+        // Keep as is
+      }
+    }
+
+    streakData.lastLessonDate = todayStr;
+    localStorage.setItem('streakState', JSON.stringify(streakData));
+    localStorage.setItem('lastLessonDate', todayStr);
+    // Update streak key
+    this.currentStreakDays = streakData.currentStreak;
+    this.saveStreakToStorage();
+    return streakData;
+  }
+
+  /** Process the streak reward after the streak modal closes. */
+  processStreakReward(rewardInfo) {
+    if (this._streakRewardProcessed) return;
+    this._streakRewardProcessed = true;
+
+    const { isMilestone, heartsAtCompletion } = rewardInfo;
+    const streakDays = this.currentStreakDays;
+
+    if (isMilestone) {
+      let coins = 250;
+      if (streakDays >= 30 && streakDays <= 70) coins = 500;
+      if (streakDays > 70 && streakDays <= 360) coins = 750;
+      if (streakDays > 360) coins = 1000;
+      // Milestone replaces all other rewards
+      this.showModal(`../src/components/modals/coins-reward.html?amount=${coins}`, () => {
+        this.openDailyQuest();
+      });
+    } else {
+      // Non‑milestone
+      const hearts = heartsAtCompletion;
+      if (hearts >= 3 && hearts <= 5) {
+        const random = Math.random();
+        const multipliers = [
+          { mult: 1.5, dur: 30 },
+          { mult: 2, dur: 20 },
+          { mult: 3, dur: 15 }
+        ];
+        const chosen = multipliers[Math.floor(random * multipliers.length)];
+        this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
+          this.openDailyQuest();
+        });
+      } else if (hearts >= 1 && hearts <= 2) {
+        if (Math.random() < 0.5) {
+          this.showModal(`../src/components/modals/heart-reward.html?hearts=full`, () => {
+            this.openDailyQuest();
+          });
+        } else {
+          const multipliers = [
+            { mult: 1.5, dur: 30 },
+            { mult: 2, dur: 20 },
+            { mult: 3, dur: 15 }
+          ];
+          const chosen = multipliers[Math.floor(Math.random() * multipliers.length)];
+          this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
+            this.openDailyQuest();
+          });
+        }
+      } else {
+        // 0 hearts – no reward? fallback to daily quest
+        this.openDailyQuest();
+      }
+    }
+  }
+
+  openDailyQuest() {
+    this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&completed=true`, () => {
+      // After daily quest, check if user is logged in; for now redirect
+      window.location.href = this.redirectUrl;
+    });
+  }
+
+  // ---------- Existing methods (unchanged, except where noted) ----------
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
-  
   updateHeartIcon() {
     this.livesIcon.src = this.lives === 0
       ? '../public/assets/icons/phosphor/regular/heart.svg'
@@ -115,11 +276,11 @@ class QuizEngine {
 
   playSound(isCorrect) {
     const audio = isCorrect ? document.getElementById('correctSound') : document.getElementById('incorrectSound');
-    if (audio) { audio.currentTime = 0; audio.play().catch(()=>{}); }
+    if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
   }
 
   normalizeAnswer(a) { return a.toLowerCase().replace(/\s+/g,' ').replace(/[()]/g,'').replace(/\//g,' ').trim(); }
-  shuffleArray(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
+  shuffleArray(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
   showModal(modalUrl, onClose) {
     this.modalIframe.src = modalUrl;
@@ -137,13 +298,12 @@ class QuizEngine {
         window.removeEventListener('message', handler);
         this.fullscreenOverlay.classList.remove('visible');
         this.modalIframe.src = 'about:blank';
-        const coins = parseInt(localStorage.getItem('coins')||'500',10);
+        const coins = parseInt(localStorage.getItem('coins') || '500', 10);
         if (coins >= 450) {
-          localStorage.setItem('coins', String(coins-450));
+          localStorage.setItem('coins', String(coins - 450));
           this.lives = 5;
           this.livesCountSpan.textContent = '5';
           this.updateHeartIcon();
-          
           const currentActualIdx = this.inRetryMode ? this.retryQueue[this.currentQuestion] : this.currentQuestion;
           const idxInQueue = this.retryQueue.indexOf(currentActualIdx);
           if (idxInQueue !== -1) {
@@ -155,12 +315,22 @@ class QuizEngine {
         }
         if (onClose) onClose();
       } else if (event.data && event.data.type === 'streakClosed') {
+        // This is where the streak modal finishes and tells us the result
+        window.removeEventListener('message', handler);
+        this.fullscreenOverlay.classList.remove('visible');
+        this.modalIframe.src = 'about:blank';
+        // Save streak state (already saved in buildStreakData)
         this.currentStreakDays = event.data.streakDays;
         this.saveStreakToStorage();
-        if (onClose) onClose();
+        // Process the reward
+        this.processStreakReward({
+          isMilestone: event.data.isMilestone,
+          heartsAtCompletion: event.data.heartsAtCompletion
+        });
+        // Do NOT call onClose here – we are chaining internally
       } else if (event.data && event.data.type === 'questChestClaimed') {
-        const coins = parseInt(localStorage.getItem('coins')||'500',10);
-        localStorage.setItem('coins', String(coins + (event.data.amount||0)));
+        const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+        localStorage.setItem('coins', String(coins + (event.data.amount || 0)));
       }
     };
     window.addEventListener('message', handler);
@@ -168,18 +338,18 @@ class QuizEngine {
 
   resetCurrentQuestion() { this.showQuestion(this.currentQuestion); }
 
-  handleCorrectAnswer() { this.currentStreak++; this.updateStreakCounter(); if(this.currentStreak%5===0&&this.currentStreak>0){ this.pendingCelebration=true; this.pendingCelebrationStreak=this.currentStreak; } }
-  handleIncorrectAnswer() { this.currentStreak=0; this.updateStreakCounter(); }
+  handleCorrectAnswer() { this.currentStreak++; this.updateStreakCounter(); if (this.currentStreak % 5 === 0 && this.currentStreak > 0) { this.pendingCelebration = true; this.pendingCelebrationStreak = this.currentStreak; } }
+  handleIncorrectAnswer() { this.currentStreak = 0; this.updateStreakCounter(); }
 
   processAfterExplanation(onComplete) {
-    if(this.pendingCelebration){
-      const streak=this.pendingCelebrationStreak;
-      this.pendingCelebration=false; this.pendingCelebrationStreak=null; this.waitingForCelebration=true;
-      this.showModal(`../src/components/modals/answer-streak.html?streak=${streak}`, ()=>{
-        this.waitingForCelebration=false;
-        if(onComplete) onComplete();
+    if (this.pendingCelebration) {
+      const streak = this.pendingCelebrationStreak;
+      this.pendingCelebration = false; this.pendingCelebrationStreak = null; this.waitingForCelebration = true;
+      this.showModal(`../src/components/modals/answer-streak.html?streak=${streak}`, () => {
+        this.waitingForCelebration = false;
+        if (onComplete) onComplete();
       });
-    } else { if(onComplete) onComplete(); }
+    } else { if (onComplete) onComplete(); }
   }
 
   showResultOverlay(qNum, isCorrect, explanationHTML, onComplete) {
@@ -225,23 +395,16 @@ class QuizEngine {
     continueBtn.onclick = () => { overlay.classList.remove('visible'); this.processAfterExplanation(onComplete); };
   }
 
-  // ========== moveToNextQuestion with skipIncrement parameter ==========
   moveToNextQuestion(skipIncrement = false) {
-    if(this.waitingForCelebration) return false;
-    
-    if(this.inRetryMode){
-      if (!skipIncrement) {
-        this.currentQuestion++;
-      }
-      // If we've finished the current review queue
-      if(this.currentQuestion >= this.retryQueue.length){
-        // If there are still questions in the retryQueue (new mistakes were added), loop again
-        if(this.retryQueue.length > 0){
+    if (this.waitingForCelebration) return false;
+    if (this.inRetryMode) {
+      if (!skipIncrement) this.currentQuestion++;
+      if (this.currentQuestion >= this.retryQueue.length) {
+        if (this.retryQueue.length > 0) {
           this.currentQuestion = 0;
           this.showQuestion(this.currentQuestion);
           return true;
         } else {
-          // No more wrong questions – exit retry mode and finish
           this.inRetryMode = false;
           this.retryQueue = [];
           this.showedRetryMessage = false;
@@ -253,14 +416,12 @@ class QuizEngine {
       this.showQuestion(this.currentQuestion);
       return true;
     } else {
-      if (!skipIncrement) {
-        this.currentQuestion++;
-      }
-      if(this.currentQuestion >= this.totalQuestions){
-        if(this.retryQueue.length > 0){
+      if (!skipIncrement) this.currentQuestion++;
+      if (this.currentQuestion >= this.totalQuestions) {
+        if (this.retryQueue.length > 0) {
           this.inRetryMode = true;
           this.currentQuestion = 0;
-          if(!this.showedRetryMessage){
+          if (!this.showedRetryMessage) {
             this.showedRetryMessage = true;
             this.showModal('../src/components/modals/review-questions.html', () => {
               this.showQuestion(this.currentQuestion);
@@ -280,38 +441,39 @@ class QuizEngine {
   }
 
   finishQuiz() {
-    if(this.quizCompleted) return;
-    this.quizCompleted=true;
-    const timeSeconds=Math.floor((Date.now()-this.quizStartTime)/1000);
-    this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, ()=>{
-      this.showModal('../src/components/modals/streak.html', ()=>{
-        const isMilestone=(this.currentStreakDays%5===0);
-        if(isMilestone){
-          let coinsAmount=250;
-          if(this.currentStreakDays>=30&&this.currentStreakDays<=70) coinsAmount=500;
-          this.showModal(`../src/components/modals/coins-reward.html?amount=${coinsAmount}`,()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
-        } else {
-          const rand=Math.random();
-          if(rand<0.5){
-            const multipliers=[{mult:1.5,dur:30},{mult:2,dur:20},{mult:3,dur:15}];
-            const chosen=multipliers[Math.floor(Math.random()*multipliers.length)];
-            this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`,()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
-          } else {
-            if(this.heartsAtCompletion<=2){
-              this.showModal('../src/components/modals/heart-reward.html?hearts=full',()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
-            } else {
-              this.showModal('../src/components/modals/boost-reward.html?multiplier=1.5&duration=30',()=>{ this.showDailyQuest(this.totalCorrectAttempts, this.totalAttempts); });
-            }
-          }
-        }
-      });
+    if (this.quizCompleted) return;
+    this.quizCompleted = true;
+    const timeSeconds = Math.floor((Date.now() - this.quizStartTime) / 1000);
+
+    // Store hearts at completion for reward decisions
+    this.heartsAtCompletion = this.lives;
+
+    // Show lesson‑complete first
+    this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, () => {
+      // Check if this is the first lesson of the day (streak)
+      if (this.isFirstLessonOfDay()) {
+        // Build streak data and open streak modal
+        const streakData = this.buildStreakData();
+        const encodedData = encodeURIComponent(JSON.stringify(streakData));
+        this.showModal(`../src/components/modals/streak.html?data=${encodedData}`, () => {
+          // The streak modal will send 'streakClosed' which triggers processStreakReward
+          // and then daily quest. We need to handle that via the message handler.
+          // However, the current showModal signature expects onClose when modalClose is received.
+          // We'll set up a flag so that the onClose here is actually never called; instead the
+          // streakClosed handler will chain further. We'll pass a no-op.
+        });
+        // The onClose passed above will never execute because streak.html sends streakClosed,
+        // not modalClose. Our message handler already handles streakClosed and chains rewards.
+      } else {
+        // Not first lesson of day – skip streak, go straight to daily quest
+        this.openDailyQuest();
+      }
     });
   }
 
-  showDailyQuest(correct,total) {
-    this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${correct}&totalAttempts=${total}&completed=true`,()=>{
-      window.location.href = this.redirectUrl;
-    });
+  showDailyQuest(correct, total) {
+    // This method is kept for compatibility; actual call goes through openDailyQuest()
+    this.openDailyQuest();
   }
 
   showQuestion(questionIndex) {
@@ -341,8 +503,7 @@ class QuizEngine {
     }
   }
 
-  // ========== RENDER METHODS (all corrected to call moveToNextQuestion(true) on correct answer in retry mode) ==========
-
+  // ---- Rendering methods (identical to your last version) ----
   renderMultipleChoice(section, qData, actualIdx) {
     section.innerHTML = `
       <h2 class="quiz-title">Choose the correct option</h2>
@@ -372,7 +533,7 @@ class QuizEngine {
       this.playSound(isCorrect);
       const correctBtn = Array.from(container.querySelectorAll('.option-button')).find(b => b.dataset.value === qData.correctAnswer);
       if (correctBtn) correctBtn.classList.add('correct');
-      
+
       if (isCorrect) {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
@@ -380,7 +541,6 @@ class QuizEngine {
         const idx = this.retryQueue.indexOf(actualIdx);
         if (idx !== -1) {
           this.retryQueue.splice(idx, 1);
-          // If we are in retry mode and removed the current question, we must not increment the pointer
           const skip = this.inRetryMode && idx === this.currentQuestion;
           this.handleCorrectAnswer();
           this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion(skip));
@@ -666,7 +826,7 @@ class QuizEngine {
         </div>
       </div>
     `;
-    
+
     const leftCol = document.getElementById(`leftColumn-${actualIdx}`);
     const rightCol = document.getElementById(`rightColumn-${actualIdx}`);
     const feedbackOverlay = document.getElementById(`feedbackOverlay-${actualIdx}`);
@@ -677,41 +837,41 @@ class QuizEngine {
 
     feedbackOverlay.style.display = 'none';
     matchingContinueBtn.style.display = 'none';
-    
+
     let selectedLeft = null, selectedRight = null, matched = 0, gameActive = true, lifeLostInThisGame = false, completed = false;
     const pairs = qData.pairs || [], shuffledPairs = this.shuffleArray([...pairs]);
 
-    leftCol.innerHTML = ''; 
+    leftCol.innerHTML = '';
     shuffledPairs.forEach((pair, idx) => {
-      const card = document.createElement('div'); 
-      card.className = 'card'; 
-      card.dataset.pair = String(idx); 
-      card.dataset.type = 'term'; 
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.pair = String(idx);
+      card.dataset.type = 'term';
       card.textContent = pair.term;
       card.addEventListener('click', () => {
         if (!gameActive || card.classList.contains('matched')) return;
         if (card.classList.contains('wrong')) resetWrong();
         leftCol.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected'); 
+        card.classList.add('selected');
         selectedLeft = card;
         if (selectedLeft && selectedRight) checkMatch();
       });
       leftCol.appendChild(card);
     });
-    
-    rightCol.innerHTML = ''; 
+
+    rightCol.innerHTML = '';
     const shuffledMeanings = this.shuffleArray([...shuffledPairs]);
     shuffledMeanings.forEach(pair => {
-      const card = document.createElement('div'); 
-      card.className = 'card'; 
-      card.dataset.pair = String(shuffledPairs.findIndex(p => p.meaning === pair.meaning)); 
-      card.dataset.type = 'meaning'; 
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.pair = String(shuffledPairs.findIndex(p => p.meaning === pair.meaning));
+      card.dataset.type = 'meaning';
       card.textContent = pair.meaning;
       card.addEventListener('click', () => {
         if (!gameActive || card.classList.contains('matched')) return;
         if (card.classList.contains('wrong')) resetWrong();
         rightCol.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
-        card.classList.add('selected'); 
+        card.classList.add('selected');
         selectedRight = card;
         if (selectedLeft && selectedRight) checkMatch();
       });
@@ -721,8 +881,8 @@ class QuizEngine {
     const resetWrong = () => {
       document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c => c.classList.remove('wrong'));
       document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c => c.classList.remove('selected'));
-      selectedLeft = null; 
-      selectedRight = null; 
+      selectedLeft = null;
+      selectedRight = null;
       feedbackOverlay.style.display = 'none';
     };
 
@@ -733,12 +893,12 @@ class QuizEngine {
         const leftCard = selectedLeft;
         const rightCard = selectedRight;
         const wasAlreadyMatched = leftCard.classList.contains('matched') || rightCard.classList.contains('matched');
-        
+
         selectedLeft.classList.remove('selected');
         selectedRight.classList.remove('selected');
         selectedLeft.classList.add('correct');
         selectedRight.classList.add('correct');
-        
+
         if (!wasAlreadyMatched) {
           this.totalCorrectAttempts++;
           this.totalAttempts++;
@@ -746,14 +906,14 @@ class QuizEngine {
         } else {
           matched++;
         }
-        
+
         setTimeout(() => {
           document.querySelectorAll(`#leftColumn-${actualIdx} .card.correct, #rightColumn-${actualIdx} .card.correct`).forEach(c => {
             c.classList.remove('correct');
             c.classList.add('matched');
           });
         }, 800);
-        
+
         if (matched === pairs.length && !completed) {
           gameActive = false;
           completed = true;
@@ -761,9 +921,6 @@ class QuizEngine {
           const idx = this.retryQueue.indexOf(actualIdx);
           if (idx !== -1) {
             this.retryQueue.splice(idx, 1);
-            // For matching game, completion happens after all pairs are matched.
-            // The "continue" button will be clicked, so we handle skip increment there.
-            // We'll store a flag that the current question was removed.
             this._skipNextIncrement = this.inRetryMode && idx === this.currentQuestion;
           }
           this.currentStreak++;
@@ -783,7 +940,7 @@ class QuizEngine {
         selectedLeft.classList.add('wrong');
         selectedRight.classList.add('wrong');
         this.totalAttempts++;
-        
+
         if (!lifeLostInThisGame) {
           if (this.lives > 0) {
             this.lives--;
@@ -811,8 +968,6 @@ class QuizEngine {
       selectedRight = null;
     };
 
-    // For matching game continue button, we need to use the skip flag
-    const originalMatchingContinueClick = matchingContinueBtn.onclick;
     matchingContinueBtn.onclick = () => {
       const skip = this._skipNextIncrement || false;
       this._skipNextIncrement = false;
