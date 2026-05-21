@@ -2,89 +2,123 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Daily Quests</title>
   <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
   <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #fff; font-family: 'Atkinson Hyperlegible Next', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px 16px; }
+    body {
+      background: #ffffff;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
     .daily-quests-module { max-width: 500px; width: 100%; }
     .section-title { font-size: 22px; font-weight: 700; color: #3b3b3b; }
     .time-cta { color: #ff9f1a; font-weight: 700; display: flex; align-items: center; gap: 8px; font-size: 14px; }
-    .card { background: #fff; border-radius: 18px; border: 1px solid #eee; box-shadow: 0 6px 18px rgba(15,15,15,0.06); margin-bottom: 24px; }
-    .quests { margin-top: 8px; border-radius: 14px; overflow: hidden; border: 1px solid #eee; }
-    .quest-row { padding: 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f0f0f0; background: #fff; }
-    .quest-row:last-child { border-bottom: 0; }
+    .card { background: #fff; border-radius: 18px; border: 1px solid #eee; box-shadow: 0 6px 18px rgba(15,15,15,0.06); }
+    .quests { border-radius: 14px; overflow: hidden; border: 1px solid #eee; }
+    .quest-row { padding: 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f0f0f0; }
     .quest-info { flex: 1; }
-    .quest-title { font-weight: 700; margin: 0 0 10px; color: #444; font-size: 15px; }
-    .progress-wrapper { position: relative; width: 100%; }
-    .progress-bar { height: 28px; background: #e6e6e6; border-radius: 20px; position: relative; overflow: hidden; display: flex; align-items: center; }
+    .quest-title { font-weight: 700; margin-bottom: 10px; color: #444; font-size: 15px; }
+    .progress-wrapper { position: relative; }
+    .progress-bar { height: 28px; background: #e6e6e6; border-radius: 20px; overflow: hidden; display: flex; align-items: center; }
     .progress-inner { height: 12px; background: #ffa726; border-radius: 12px; }
-    .progress-count { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: 700; letter-spacing: 1px; font-size: 13px; z-index: 2; text-shadow: 0 1px 2px rgba(0,0,0,0.1); pointer-events: none; white-space: nowrap; }
+    .progress-count {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      color: #fff; font-weight: 700; font-size: 13px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      pointer-events: none;
+    }
     .progress-count.dark-text { color: #666; text-shadow: none; }
-    .chest { width: 44px; height: 44px; border-radius: 8px; flex: 0 0 44px; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; transition: transform 0.1s ease; }
-    .chest:active { transform: scale(0.95); }
-    .chest.claimed { opacity: 0.5; filter: grayscale(0.3); pointer-events: none; cursor: default; }
-    .chest.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
-    .bronze { color: #cd7f32; }
-    .silver { color: #c0c0c0; }
-    .gold { color: #ffd700; }
-    .continue-action { width: 100%; margin-top: 8px; }
-    .continue-btn { width: 100%; }
+    .chest { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .chest img { width: 32px; height: 32px; }
+    .bronze img { filter: brightness(0) saturate(100%) invert(59%) sepia(76%) saturate(377%) hue-rotate(4deg) brightness(87%) contrast(88%); }
+    .silver img { filter: brightness(0) saturate(100%) invert(87%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(83%) contrast(87%); }
+    .gold img { filter: brightness(0) saturate(100%) invert(80%) sepia(87%) saturate(1665%) hue-rotate(347deg) brightness(100%) contrast(97%); }
+    .chest.claimed { opacity: 0.5; pointer-events: none; }
+    .chest.disabled { opacity: 0.3; pointer-events: none; }
+    .continue-action { margin-top: 8px; }
+    .btn { width: 100%; }
+    .daily-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
   </style>
 </head>
 <body>
-  <div class="daily-quests-module">
-    <div class="daily-header-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-      <div class="section-title">Daily Quests</div>
-      <div class="time-cta" id="time-left-container">
-        <img src="../../../public/assets/icons/phosphor/bold/clock-countdown.svg" style="width:18px;height:18px;filter:brightness(0) saturate(100%) invert(72%) sepia(77%) saturate(1712%) hue-rotate(2deg) brightness(101%) contrast(99%);">
-        <span id="timeLeft">20 MINUTES</span>
-      </div>
-    </div>
-    <div class="card quests" id="questsContainer"></div>
-    <div class="continue-action">
-      <button class="btn btn-md btn-carpenter-blue continue-btn" id="continueButton">CONTINUE</button>
+<div class="daily-quests-module">
+  <div class="daily-header-row">
+    <div class="section-title">Daily Quests</div>
+    <div class="time-cta">
+      <img src="../../../public/assets/icons/phosphor/bold/clock-countdown.svg" style="width:20px;height:20px;" alt="">
+      <span id="timeLeft">20 MINUTES</span>
     </div>
   </div>
 
-  <script>
-    const questAudio = new Audio('../../../public/assets/audio/quest.mp3');
-    questAudio.play().catch(e => console.log("Audio play failed:", e));
+  <div class="card quests" id="questsContainer"></div>
 
-    const params = new URLSearchParams(window.location.search);
-    const correctAttempts = parseInt(params.get('correctAttempts')) || 0;
-    const totalAttempts = parseInt(params.get('totalAttempts')) || 1;
-    const completed = params.get('completed') === 'true';
-    const percentage = Math.round((correctAttempts / totalAttempts) * 100);
+  <div class="continue-action">
+    <button class="btn btn-md btn-carpenter-blue" id="continueButton">CONTINUE</button>
+  </div>
+</div>
 
-    const today = new Date().toISOString().slice(0,10);
-    const storageKey = `dailyQuests_${today}`;
-    let quests = JSON.parse(localStorage.getItem(storageKey));
+<script>
+  // ---------- HELPER: time remaining until midnight ----------
+  function updateTimeLeft() {
+    const now = new Date();
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const ms = endOfDay - now;
+    if (ms <= 0) { document.getElementById('timeLeft').textContent = '0 MINUTES'; return; }
+    const h = Math.floor(ms / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    document.getElementById('timeLeft').textContent = h > 0
+      ? `${h} HOUR${h > 1 ? 'S' : ''}`
+      : `${Math.max(1, m)} MINUTE${m !== 1 ? 'S' : ''}`;
+  }
+  updateTimeLeft();
+  setInterval(updateTimeLeft, 60000);
 
-    // First-time user quests (if not already set)
-    if (!quests) {
-      quests = [
-        { id: 'bronze', title: 'Start a streak', target: 1, current: 1, completed: true, claimed: false },
-        { id: 'silver', title: 'Score 80% or higher in 3 lessons', target: 3, current: (percentage >= 80 ? 1 : 0), completed: false, claimed: false },
-        { id: 'gold', title: 'Complete your next 4 lessons', target: 4, current: (completed ? 1 : 0), completed: false, claimed: false }
-      ];
-    } else {
-      // Update progress from this lesson (simplified demo logic)
-      if (percentage >= 80) quests[1].current = Math.min(quests[1].target, quests[1].current + 1);
-      if (completed) quests[2].current = Math.min(quests[2].target, quests[2].current + 1);
-      quests.forEach(q => { q.completed = q.current >= q.target; });
-    }
+  // ---------- LOAD TODAY'S QUESTS ----------
+  const today = new Date().toISOString().slice(0, 10);
+  const storageKey = `dailyQuests_${today}`;
+
+  let quests = JSON.parse(localStorage.getItem(storageKey));
+  if (!quests) {
+    // First-time user quests
+    quests = [
+      { id: 'bronze', title: 'Start a streak', current: 1, total: 1, coins: 50, claimed: false },
+      { id: 'silver', title: 'Score 80% or higher in 3 lessons', current: 0, total: 3, coins: 75, claimed: false },
+      { id: 'gold', title: 'Complete your next 4 lessons', current: 0, total: 4, coins: 100, claimed: false }
+    ];
     localStorage.setItem(storageKey, JSON.stringify(quests));
+  }
 
-    // Render quests
-    const container = document.getElementById('questsContainer');
+  // ---------- UPDATE PROGRESS (from URL) ----------
+  const urlParams = new URLSearchParams(window.location.search);
+  const correctAttempts = parseInt(urlParams.get('correctAttempts')) || 0;
+  const totalAttempts = parseInt(urlParams.get('totalAttempts')) || 1;
+  const accuracy = Math.round((correctAttempts / totalAttempts) * 100);
+  const lessonCompleted = urlParams.get('completed') === 'true';
+
+  // Update silver quest (score ≥ 80%)
+  if (accuracy >= 80 && quests[1].current < quests[1].total) {
+    quests[1].current++;
+  }
+  // Update gold quest (complete lessons)
+  if (lessonCompleted && quests[2].current < quests[2].total) {
+    quests[2].current++;
+  }
+  localStorage.setItem(storageKey, JSON.stringify(quests));
+
+  // ---------- RENDER QUESTS ----------
+  const container = document.getElementById('questsContainer');
+  function render() {
     container.innerHTML = '';
-    const chestTypes = ['bronze','silver','gold'];
-    quests.forEach((q, i) => {
-      const complete = q.current >= q.target;
-      const width = complete ? 100 : (q.target > 0 ? (q.current / q.target) * 100 : 0);
+    quests.forEach(q => {
+      const complete = q.current >= q.total;
+      const width = complete ? 100 : (q.total > 0 ? (q.current / q.total) * 100 : 0);
       const row = document.createElement('div');
       row.className = 'quest-row';
       row.innerHTML = `
@@ -92,84 +126,63 @@
           <div class="quest-title">${q.title}</div>
           <div class="progress-wrapper">
             <div class="progress-bar">
-              <div class="progress-inner" style="width:${complete ? 'calc(100% - 20px)' : (width+'%')}; margin-left:${complete ? '10px' : '0'}; background:${complete ? '#ffa726' : '#d9d9d9'}"></div>
-              <div class="progress-count ${!complete && width===0 ? 'dark-text' : ''}">${q.current} / ${q.target}</div>
+              <div class="progress-inner" style="width:${complete ? 'calc(100% - 20px)' : (width + '%')}; margin-left:${complete ? '10px' : '0'}; background:${width > 0 ? '#ffa726' : '#d9d9d9'}"></div>
+              <div class="progress-count ${width === 0 ? 'dark-text' : ''}">${q.current} / ${q.total}</div>
             </div>
           </div>
         </div>
-        <div class="chest ${chestTypes[i]} ${q.claimed ? 'claimed' : ''} ${!q.completed ? 'disabled' : ''}" data-id="${q.id}" data-coins="${i===0?50:i===1?75:100}">
-          <img src="../../../public/assets/icons/phosphor/duotone/treasure-chest.svg" style="width:32px;height:32px;filter:${i===0?'brightness(0) saturate(100%) invert(53%) sepia(59%) saturate(384%) hue-rotate(350deg) brightness(92%) contrast(84%)':i===1?'brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(80%) contrast(100%)':'brightness(0) saturate(100%) invert(84%) sepia(45%) saturate(662%) hue-rotate(1deg) brightness(96%) contrast(95%)'}">
+        <div class="chest ${q.id} ${q.claimed ? 'claimed' : ''} ${!complete ? 'disabled' : ''}" data-id="${q.id}" data-coins="${q.coins}">
+          <img src="../../../public/assets/icons/phosphor/duotone/treasure-chest.svg" alt="chest">
         </div>
       `;
       container.appendChild(row);
     });
 
-    // Claim logic
-    function claimChest(id, coins) {
-      const q = quests.find(q => q.id === id);
-      if (!q || q.claimed || !q.completed) return;
-      q.claimed = true;
-      localStorage.setItem(storageKey, JSON.stringify(quests));
-      // Send coins to parent
-      window.parent.postMessage({ type: 'chestClaimed', chestId: id, amount: coins }, '*');
-      // Update UI
-      const chestEl = document.querySelector(`.chest[data-id="${id}"]`);
-      if (chestEl) chestEl.classList.add('claimed');
-    }
-
-    // Chest click events
+    // Attach chest click handlers
     document.querySelectorAll('.chest:not(.disabled):not(.claimed)').forEach(chest => {
       chest.addEventListener('click', function() {
         const id = this.dataset.id;
         const coins = parseInt(this.dataset.coins);
-        claimChest(id, coins);
-        // Check if any unclaimed completed quests remain
-        const remaining = quests.filter(q => q.completed && !q.claimed);
-        if (remaining.length === 0) {
-          // All done, close modal
-          window.parent.postMessage('modalClose', '*');
-        } else {
-          // Refresh display (re-render)
-          location.reload();
-        }
+        const quest = quests.find(q => q.id === id);
+        if (!quest || quest.claimed) return;
+
+        // Mark claimed
+        quest.claimed = true;
+        localStorage.setItem(storageKey, JSON.stringify(quests));
+
+        // Add coins to localStorage
+        const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
+        localStorage.setItem('coins', String(currentCoins + coins));
+
+        // Re-render
+        render();
+
+        // Notify parent
+        window.parent.postMessage({ type: 'questChestClaimed', chestId: id, amount: coins }, '*');
       });
     });
+  }
+  render();
 
-    // CONTINUE button
-    document.getElementById('continueButton').addEventListener('click', () => {
-      const unclaimed = quests.filter(q => q.completed && !q.claimed);
-      if (unclaimed.length > 0) {
-        const totalCoins = unclaimed.reduce((sum, q) => sum + (q.id==='bronze'?50:q.id==='silver'?75:100), 0);
-        // Claim all at once
-        unclaimed.forEach(q => q.claimed = true);
-        localStorage.setItem(storageKey, JSON.stringify(quests));
-        window.parent.postMessage({ type: 'dailyQuestContinue', amount: totalCoins }, '*');
-        window.parent.postMessage('modalClose', '*');
-      } else {
-        window.parent.postMessage('modalClose', '*');
-      }
-    });
+  // ---------- CONTINUE BUTTON ----------
+  document.getElementById('continueButton').addEventListener('click', () => {
+    // Calculate total unclaimed coins from completed quests
+    const unclaimed = quests.filter(q => q.current >= q.total && !q.claimed);
+    const totalCoins = unclaimed.reduce((sum, q) => sum + q.coins, 0);
 
-    // Time left counter
-    function updateTimeLeft() {
-      const now = new Date();
-      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-      const msLeft = endOfDay - now;
-      if (msLeft <= 0) {
-        document.getElementById('timeLeft').textContent = '0 MINUTES';
-        return;
-      }
-      const hoursLeft = Math.floor(msLeft / (1000*60*60));
-      const minutesLeft = Math.floor((msLeft % (1000*60*60)) / (1000*60));
-      if (hoursLeft > 0) {
-        document.getElementById('timeLeft').textContent = `${hoursLeft} ${hoursLeft===1?'HOUR':'HOURS'}`;
-      } else {
-        const mins = Math.max(1, minutesLeft);
-        document.getElementById('timeLeft').textContent = `${mins} ${mins===1?'MINUTE':'MINUTES'}`;
-      }
+    if (totalCoins > 0) {
+      // Mark all as claimed
+      unclaimed.forEach(q => { q.claimed = true; });
+      localStorage.setItem(storageKey, JSON.stringify(quests));
+      // Add coins
+      const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
+      localStorage.setItem('coins', String(currentCoins + totalCoins));
     }
-    updateTimeLeft();
-    setInterval(updateTimeLeft, 60000);
-  </script>
+
+    // Notify parent and close
+    window.parent.postMessage({ type: 'dailyQuestContinue', totalCoins: totalCoins }, '*');
+    window.parent.postMessage('modalClose', '*');
+  });
+</script>
 </body>
 </html>
