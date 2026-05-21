@@ -1,153 +1,476 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Achievement</title>
-  <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
-  <script src="../../src/lib/html2canvas.min.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #ffffff; font-family: 'Atkinson Hyperlegible Next', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .app { max-width: 420px; width: 100%; padding: 80px 18px 28px; display: flex; flex-direction: column; align-items: center; }
-    .scene { width: 100%; height: 220px; display: flex; justify-content: center; align-items: center; }
-    .achievement-diamond { position: relative; width: 120px; height: 120px; transform: rotate(45deg); border-radius: 16px; display: flex; align-items: center; justify-content: center; background-color: #2563eb; }
-    .achievement-diamond-content { transform: rotate(-45deg); display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; color: white; }
-    .achievement-icon { font-size: 32px; margin-bottom: 6px; }
-    .achievement-number { font-weight: 700; font-size: 18px; }
-    .achievement-title { font-weight: 600; font-size: 18px; margin-top: 12px; color: #0f1c22; }
-    .achievement-date { font-size: 14px; color: #fff; background: #D4AF37; padding: 6px 16px; border-radius: 20px; font-weight: 600; margin-top: 8px; }
-    .title-text { margin-top: 20px; text-align: center; font-weight: 700; color: #0f1c22; font-size: 20px; max-width: 320px; }
-    .buttons-container { width: 100%; display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
-    .action-button {
-      width: 100%; height: 52px; border-radius: 0.75rem; font-weight: 700; letter-spacing: 0.5px;
-      border: none; font-size: 15px; text-transform: uppercase; cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.2s ease;
-      display: flex; align-items: center; justify-content: center; line-height: 1;
-      color: #ffffff; background-color: #4285F4; border-bottom: 0.25rem solid #3a75d9;
-    }
-    .action-button:hover { background-color: #3a75d9; transform: translateY(-0.125rem); }
-    .action-button:active { transform: translateY(0.0625rem); border-bottom-width: 0.125rem; }
-    .header { position: fixed; top: 0; left: 0; right: 0; height: 60px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: transparent; z-index: 100; }
-    .header-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #5F6368; font-size: 24px; }
-    .share-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-    .share-content { width: 100%; max-width: 357px; background: #f5f5f7; border-radius: 24px; overflow: hidden; }
-    .share-card { background: #ffffff; border-radius: 24px; padding: 32px 24px 28px; margin-bottom: 10px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-    .share-brand { margin-top: 16px; font-weight: 700; color: #4285F4; font-size: 24px; }
-    .share-sheet { background: #fff; border-top: 1px solid #dadada; border-radius: 24px 24px 0 0; padding: 16px 12px; }
-    .share-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
-    .share-item, .bottom-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-    .share-icon-circle, .bottom-icon-circle { width: 44px; height: 44px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
-    .share-icon img { width: 28px; height: 28px; object-fit: contain; }
-    .share-text, .bottom-text { font-size: 11px; color: #333; }
-    .bottom-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 20px; padding: 0 20px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Achievement</title>
+
+<!-- Local Fonts -->
+<link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
+
+<!-- Button Styles -->
+<link rel="stylesheet" href="../../../src/styles/components/buttons.css">
+
+<!-- html2canvas for share image -->
+<script src="../../../src/lib/html2canvas.min.js"></script>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Atkinson Hyperlegible Next', sans-serif;
+    background: #ffffff;
+    color: #0f1c22;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    background: transparent;
+    z-index: 100;
+  }
+
+  .header-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .header-icon img {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0) saturate(100%) invert(63%) sepia(0%) saturate(0%) hue-rotate(180deg) brightness(88%) contrast(85%);
+  }
+
+  .app {
+    width: 100%;
+    max-width: 420px;
+    min-height: 100vh;
+    padding: 80px 18px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .scene {
+    width: 100%;
+    height: 220px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .achievement-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+  }
+
+  .achievement-diamond {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    transform: rotate(45deg);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+
+  .achievement-diamond-content {
+    transform: rotate(-45deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .achievement-icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 6px;
+    filter: brightness(0) saturate(100%) invert(100%);
+  }
+
+  .achievement-number {
+    font-weight: 700;
+    font-size: 18px;
+    color: white;
+    line-height: 1.2;
+  }
+
+  .achievement-title {
+    font-weight: 600;
+    font-size: 18px;
+    margin-top: 8px;
+    color: #0f1c22;
+  }
+
+  .achievement-date {
+    font-size: 14px;
+    color: #fff;
+    background-color: #D4AF37;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .title {
+    margin-top: 32px;
+    text-align: center;
+    font-weight: 700;
+    color: #0f1c22;
+    font-size: 20px;
+    line-height: 1.4;
+    max-width: 320px;
+  }
+
+  .buttons-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  /* Share overlay (same as other modals) */
+  .share-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+
+  .share-content {
+    width: 100%;
+    max-width: 357px;
+    background: #f5f5f7;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+
+  .share-card {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 32px 24px 28px;
+    margin-bottom: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.06);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .share-brand {
+    margin-top: 16px;
+    font-weight: 700;
+    color: #4285F4;
+    font-size: 24px;
+  }
+
+  .share-sheet {
+    background: #fff;
+    border-top: 1px solid #dadada;
+    border-radius: 24px 24px 0 0;
+    padding: 16px 12px;
+  }
+
+  .share-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .share-item, .bottom-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .share-icon-circle, .bottom-icon-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+
+  .share-icon, .bottom-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .share-icon img { width: 100%; height: 100%; object-fit: contain; }
+
+  .share-text, .bottom-text { font-size: 11px; color: #333; }
+
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 0 20px;
+  }
+
+  @media (max-width: 768px) {
+    .title { font-size: 18px; max-width: 280px; }
+    .scene { height: 200px; }
+    .achievement-diamond { width: 110px; height: 110px; }
+    .achievement-icon { width: 28px; height: 28px; }
+    .achievement-number { font-size: 16px; }
+    .buttons-container { margin-top: 32px; }
+    .btn { height: 48px; font-size: 15px; }
+  }
+</style>
 </head>
 <body>
-  <audio id="achievementAudio" preload="auto"><source src="../../public/assets/audio/achievement.mp3" type="audio/mpeg"></audio>
-  <div class="header">
-    <div class="header-icon" id="exit-button"><span class="material-symbols-outlined">close</span></div>
-    <div class="header-icon" id="share-button"><span class="material-symbols-outlined">upload</span></div>
+<div class="header">
+  <div class="header-icon" id="exit-button">
+    <img src="../../../public/assets/icons/material-symbols/outline/close.svg" alt="Close">
   </div>
-  <div class="app">
-    <div class="scene">
+  <div class="header-icon" id="share-button">
+    <img src="../../../public/assets/icons/material-symbols/outline/upload.svg" alt="Share">
+  </div>
+</div>
+
+<div class="app">
+  <div class="scene">
+    <div class="achievement-card" id="achievement-card">
       <div class="achievement-diamond" id="diamond">
         <div class="achievement-diamond-content">
-          <span class="material-symbols-outlined achievement-icon" id="icon">exercise</span>
-          <div class="achievement-number" id="number">30000</div>
+          <img id="achievement-icon" class="achievement-icon" src="" alt="">
+          <div class="achievement-number" id="achievement-number">30000</div>
         </div>
       </div>
-    </div>
-    <div class="achievement-title" id="achievementTitle">XP Powerhouse</div>
-    <div class="achievement-date" id="currentDate"></div>
-    <div class="title-text" id="message">You earned XP Powerhouse by gaining 30000 XP!</div>
-    <div class="buttons-container">
-      <button class="action-button" id="claimRewardBtn">CLAIM REWARD</button>
+      <div class="achievement-title" id="achievement-title">XP Powerhouse</div>
+      <div class="achievement-date" id="currentDate"></div>
     </div>
   </div>
 
-  <div class="share-overlay" id="share-overlay">
-    <div class="share-content">
-      <div class="share-card" id="share-card">
-        <div class="achievement-diamond" id="shareDiamond"><div class="achievement-diamond-content"><span class="material-symbols-outlined" id="shareIcon">exercise</span><div class="achievement-number" id="shareNumber">30000</div></div></div>
-        <div class="achievement-title" id="shareTitle">XP Powerhouse</div>
-        <div class="achievement-date" id="shareDate"></div>
-        <div class="title-text" id="shareMessage">I earned XP Powerhouse by gaining 30000 XP!</div>
-        <div class="share-brand">vulanet</div>
-      </div>
-      <div class="share-sheet">
-        <div class="share-grid">
-          <div class="share-item" id="share-facebook"><div class="share-icon-circle"><div class="share-icon"><img src="../../public/assets/icons/social/facebook-full.svg"></div></div><div class="share-text">Facebook</div></div>
-          <div class="share-item" id="share-x"><div class="share-icon-circle"><div class="share-icon"><img src="../../public/assets/icons/social/x-twitter-brands-solid-full.svg"></div></div><div class="share-text">X</div></div>
-          <div class="share-item" id="share-whatsapp"><div class="share-icon-circle"><div class="share-icon"><img src="../../public/assets/icons/social/whatsapp.svg"></div></div><div class="share-text">WhatsApp</div></div>
-          <div class="share-item" id="share-sms"><div class="share-icon-circle"><div class="share-icon"><span class="material-symbols-outlined">sms</span></div></div><div class="share-text">Message</div></div>
+  <div class="title" id="achievement-message">You earned XP Powerhouse by gaining 30000 XP!</div>
+
+  <div class="buttons-container">
+    <button class="btn btn-md btn-carpenter-blue" id="claimRewardBtn">CLAIM REWARD</button>
+  </div>
+</div>
+
+<!-- Share overlay -->
+<div class="share-overlay" id="share-overlay">
+  <div class="share-content">
+    <div class="share-card" id="share-card">
+      <div class="achievement-diamond" id="shareDiamond">
+        <div class="achievement-diamond-content">
+          <img id="shareIcon" class="achievement-icon" src="" alt="">
+          <div class="achievement-number" id="shareNumber">30000</div>
         </div>
-        <div class="bottom-grid">
-          <div class="bottom-item" id="save-image"><div class="bottom-icon-circle"><div class="bottom-icon"><span class="material-symbols-outlined">download</span></div></div><div class="bottom-text">Save image</div></div>
-          <div class="bottom-item" id="more-options"><div class="bottom-icon-circle"><div class="bottom-icon"><span class="material-symbols-outlined">more_horiz</span></div></div><div class="bottom-text">More</div></div>
+      </div>
+      <div class="achievement-title" id="shareTitle">XP Powerhouse</div>
+      <div class="achievement-date" id="shareDate"></div>
+      <div class="title" style="margin-top: 20px; font-size: 18px;" id="shareMessageText">I earned XP Powerhouse by gaining 30000 XP!</div>
+      <div class="share-brand">vulanet</div>
+    </div>
+
+    <div class="share-sheet">
+      <div class="share-grid">
+        <div class="share-item" id="share-facebook">
+          <div class="share-icon-circle">
+            <div class="share-icon">
+              <img src="../../../public/assets/icons/social/facebook-full.svg" alt="Facebook">
+            </div>
+          </div>
+          <div class="share-text">Facebook</div>
+        </div>
+        <div class="share-item" id="share-x">
+          <div class="share-icon-circle">
+            <div class="share-icon">
+              <img src="../../../public/assets/icons/social/x-twitter.svg" alt="X">
+            </div>
+          </div>
+          <div class="share-text">X</div>
+        </div>
+        <div class="share-item" id="share-whatsapp">
+          <div class="share-icon-circle">
+            <div class="share-icon">
+              <img src="../../../public/assets/icons/social/whatsapp.svg" alt="WhatsApp">
+            </div>
+          </div>
+          <div class="share-text">WhatsApp</div>
+        </div>
+        <div class="share-item" id="share-sms">
+          <div class="share-icon-circle">
+            <div class="share-icon">
+              <img src="../../../public/assets/icons/material-symbols/outline/sms.svg" alt="SMS">
+            </div>
+          </div>
+          <div class="share-text">Message</div>
+        </div>
+      </div>
+      <div class="bottom-grid">
+        <div class="bottom-item" id="save-image">
+          <div class="bottom-icon-circle">
+            <div class="bottom-icon">
+              <img src="../../../public/assets/icons/material-symbols/outline/download.svg" alt="Download">
+            </div>
+          </div>
+          <div class="bottom-text">Save image</div>
+        </div>
+        <div class="bottom-item" id="more-options">
+          <div class="bottom-icon-circle">
+            <div class="bottom-icon">
+              <img src="../../../public/assets/icons/material-symbols/outline/more_horiz.svg" alt="More">
+            </div>
+          </div>
+          <div class="bottom-text">More</div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
+<script>
+  (function() {
+    // Play achievement sound
+    const audio = new Audio('../../../public/assets/audio/achievement.mp3');
+    audio.play().catch(() => {});
+
+    // ---------- PARSE QUERY PARAMETERS ----------
     const params = new URLSearchParams(window.location.search);
-    const achievementName = params.get('name') || 'XP Powerhouse';
-    const icon = params.get('icon') || 'exercise';
-    const level = params.get('level') || '10';
-    const number = params.get('number') || '30000';
-    const message = params.get('message') || `You earned ${achievementName} by gaining ${number} XP!`;
-    const coins = parseInt(params.get('coins')||'500');
 
-    document.getElementById('icon').textContent = icon;
-    document.getElementById('number').textContent = number;
-    document.getElementById('achievementTitle').textContent = achievementName;
-    document.getElementById('message').textContent = message;
-    document.getElementById('shareIcon').textContent = icon;
-    document.getElementById('shareNumber').textContent = number;
-    document.getElementById('shareTitle').textContent = achievementName;
-    document.getElementById('shareMessage').textContent = message;
+    const id = params.get('id') || 'xppowerhouse';         // achievement key
+    const level = parseInt(params.get('level')) || 10;      // level number (used for coin calc)
+    const coins = parseInt(params.get('coins')) || 0;       // coins to award (already computed by engine)
+    const color = params.get('color') || '#2563eb';         // diamond background colour
+    const icon = params.get('icon') || 'exercise';          // icon filename (without path)
+    const number = params.get('number') || '30000';         // displayed number on diamond
+    const title = params.get('title') || 'XP Powerhouse';   // achievement name
+    const message = params.get('message') || 'You earned XP Powerhouse by gaining 30000 XP!';
+    const shareMsg = params.get('shareMsg') || 'I earned XP Powerhouse by gaining 30000 XP!';
+
+    // ---------- BUILD UI ----------
+    const diamond = document.getElementById('diamond');
+    diamond.style.backgroundColor = color;
+
+    // Icon – use the Material Symbols icon file
+    const iconImg = document.getElementById('achievement-icon');
+    iconImg.src = `../../../public/assets/icons/material-symbols/outline/${icon}.svg`;
+
+    document.getElementById('achievement-number').textContent = number;
+    document.getElementById('achievement-title').textContent = title;
+    document.getElementById('achievement-message').textContent = message;
+
+    // Date
     const now = new Date();
-    const dateStr = `${now.getDate()} ${now.toLocaleString('en-US',{month:'long'})} ${now.getFullYear()}`;
+    const dateStr = now.getDate() + ' ' + now.toLocaleString('en-US', { month: 'long' }) + ' ' + now.getFullYear();
     document.getElementById('currentDate').textContent = dateStr;
+
+    // Share card
+    document.getElementById('shareDiamond').style.backgroundColor = color;
+    document.getElementById('shareIcon').src = `../../../public/assets/icons/material-symbols/outline/${icon}.svg`;
+    document.getElementById('shareNumber').textContent = number;
+    document.getElementById('shareTitle').textContent = title;
     document.getElementById('shareDate').textContent = dateStr;
+    document.getElementById('shareMessageText').textContent = shareMsg;
 
-    document.getElementById('achievementAudio').play().catch(()=>{});
-
-    const shareOverlay = document.getElementById('share-overlay');
-    document.getElementById('share-button').addEventListener('click', ()=> shareOverlay.style.display='flex');
-    shareOverlay.addEventListener('click', e=>{ if(e.target===shareOverlay) shareOverlay.style.display='none'; });
-    document.getElementById('exit-button').addEventListener('click', ()=> window.parent.postMessage('modalClose','*'));
-
-    document.getElementById('claimRewardBtn').addEventListener('click', ()=>{
-      const current = parseInt(localStorage.getItem('coins')||'500',10);
-      localStorage.setItem('coins', current + coins);
-      window.parent.postMessage('modalClose','*');
+    // ---------- BUTTONS ----------
+    document.getElementById('claimRewardBtn').addEventListener('click', () => {
+      // Tell parent to award coins and close
+      window.parent.postMessage({ type: 'achievementClaimed', coins: coins }, '*');
+      window.parent.postMessage('modalClose', '*');
     });
 
-    document.getElementById('save-image').addEventListener('click', async ()=>{
+    document.getElementById('exit-button').addEventListener('click', () => {
+      window.parent.postMessage('modalClose', '*');
+    });
+
+    // ---------- SHARE ----------
+    const shareOverlay = document.getElementById('share-overlay');
+    document.getElementById('share-button').addEventListener('click', () => {
+      shareOverlay.style.display = 'flex';
+    });
+
+    shareOverlay.addEventListener('click', (e) => {
+      if (e.target === shareOverlay) shareOverlay.style.display = 'none';
+    });
+
+    function getShareText() {
+      return shareMsg + ' #Vulanet';
+    }
+
+    document.getElementById('share-facebook').addEventListener('click', () => {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=https://vulanet.com&quote=${encodeURIComponent(getShareText())}`);
+    });
+    document.getElementById('share-x').addEventListener('click', () => {
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(getShareText())}`);
+    });
+    document.getElementById('share-whatsapp').addEventListener('click', () => {
+      window.open(`https://wa.me/?text=${encodeURIComponent(getShareText())}`);
+    });
+    document.getElementById('share-sms').addEventListener('click', () => {
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        window.location.href = `sms:?body=${encodeURIComponent(getShareText())}`;
+      } else {
+        navigator.clipboard.writeText(getShareText()).then(() => alert('Copied!'));
+      }
+    });
+    document.getElementById('save-image').addEventListener('click', async () => {
       const card = document.getElementById('share-card');
       await document.fonts.ready;
-      html2canvas(card,{scale:2,useCORS:true}).then(canvas=>{
-        const a=document.createElement('a'); a.download='achievement.png'; a.href=canvas.toDataURL('image/png'); a.click();
+      html2canvas(card, { scale: 2, useCORS: true }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'vulanet-achievement.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
       });
     });
-    document.getElementById('share-facebook').addEventListener('click', ()=>{
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://vulanet.com/achievement")}&quote=${encodeURIComponent(message)}`);
+    document.getElementById('more-options').addEventListener('click', async () => {
+      if (navigator.share) {
+        await navigator.share({ title: 'My Vulanet Achievement', text: getShareText(), url: 'https://vulanet.com' });
+      } else {
+        alert('Share not supported.');
+      }
     });
-    document.getElementById('share-x').addEventListener('click', ()=>{
-      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`);
-    });
-    document.getElementById('share-whatsapp').addEventListener('click', ()=>{
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`);
-    });
-    document.getElementById('share-sms').addEventListener('click', ()=>{
-      if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) window.location.href = `sms:?body=${encodeURIComponent(message)}`;
-      else navigator.clipboard.writeText(message);
-    });
-    document.getElementById('more-options').addEventListener('click', async ()=>{
-      if(navigator.share) await navigator.share({ title:'Vulanet Achievement', text: message });
-    });
-  </script>
+  })();
+</script>
 </body>
 </html>
