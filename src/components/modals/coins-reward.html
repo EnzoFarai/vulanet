@@ -2,40 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Coins Reward</title>
   <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
   <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Atkinson Hyperlegible Next', sans-serif; background: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    .treasure-panel { text-align: center; }
+    body {
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      background: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .treasure-panel {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 40px 24px 48px;
+    }
     .reward-scene { width: 160px; height: 160px; margin: 0 auto; }
-    .large-coin-icon { font-size: 140px; color: #FFD700; filter: drop-shadow(0 4px 8px rgba(255,215,0,0.3)); }
-    .reward-title { margin-top: 20px; font-weight: 700; color: #0f1c22; font-size: 20px; }
-    .reward-subtitle { color: #6b7280; font-size: 14px; margin-bottom: 24px; }
-    .claim-button { width: 100%; }
+    .coin-icon {
+      width: 140px;
+      height: 140px;
+      filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.3));
+    }
+    .reward-title {
+      margin-top: 20px;
+      font-weight: 700;
+      color: #0f1c22;
+      font-size: 20px;
+      max-width: 320px;
+    }
+    .reward-subtitle {
+      margin-top: 8px;
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .btn { width: 100%; }
   </style>
 </head>
 <body>
-  <audio id="coinAudio" preload="auto"><source src="../../../public/assets/audio/coins.mp3" type="audio/mpeg"></audio>
+  <audio id="coinAudio" preload="auto">
+    <source src="../../../public/assets/audio/coins.mp3" type="audio/mpeg">
+  </audio>
+
   <div class="treasure-panel">
     <div class="reward-scene">
-      <img src="../../../public/assets/icons/phosphor/duotone/coins.svg" style="width:140px;height:140px;filter:drop-shadow(0 4px 8px rgba(255,215,0,0.3));">
+      <img src="../../../public/assets/icons/phosphor/duotone/coins.svg" alt="Coins" class="coin-icon">
     </div>
     <div class="reward-title" id="rewardTitle">You have earned 250 coins!</div>
     <div class="reward-subtitle">Spend them wisely</div>
-    <button class="btn btn-md btn-carpenter-blue claim-button" id="claimButton">Claim 250</button>
+    <button class="btn btn-md btn-carpenter-blue" id="claimButton">Claim 250</button>
   </div>
+
   <script>
-    document.getElementById('coinAudio').play().catch(()=>{});
+    const audio = document.getElementById('coinAudio');
+    audio.play().catch(() => {});
+
     const params = new URLSearchParams(window.location.search);
     const amount = parseInt(params.get('amount')) || 250;
+
     document.getElementById('rewardTitle').textContent = `You have earned ${amount} coins!`;
     document.getElementById('claimButton').textContent = `Claim ${amount}`;
+
     document.getElementById('claimButton').addEventListener('click', () => {
-      const coins = parseInt(localStorage.getItem('coins')||'500',10);
-      localStorage.setItem('coins', String(coins + amount));
+      // Add coins to localStorage
+      const current = parseInt(localStorage.getItem('coins') || '500', 10);
+      localStorage.setItem('coins', String(current + amount));
       window.parent.postMessage('modalClose', '*');
     });
   </script>
