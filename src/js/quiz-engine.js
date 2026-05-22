@@ -171,8 +171,6 @@ class QuizEngine {
         } else {
           // streak resets
           streakData.currentStreak = 1;
-          // Add previous days as missed if not already
-          // (simplified: we just add today as completed and trust recentDays to reflect history)
         }
         // Add today as completed
         streakData.recentDays.push({ date: todayStr, status: 'completed' });
@@ -191,8 +189,7 @@ class QuizEngine {
           streakData.totalAppDays = streakData.recentDays.length;
         }
       } else {
-        // Today already exists (maybe they already completed a lesson earlier today? unlikely because this is first-of-day check)
-        // Keep as is
+        // Today already exists (keep as is)
       }
     }
 
@@ -447,6 +444,8 @@ class QuizEngine {
 
     // Store hearts at completion for reward decisions
     this.heartsAtCompletion = this.lives;
+    // Also store in localStorage so streak modal can read it
+    localStorage.setItem('heartsAtCompletion', String(this.heartsAtCompletion));
 
     // Show lesson‑complete first
     this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, () => {
@@ -454,16 +453,14 @@ class QuizEngine {
       if (this.isFirstLessonOfDay()) {
         // Build streak data and open streak modal
         const streakData = this.buildStreakData();
+        // Pass heartsAtCompletion explicitly in URL
         const encodedData = encodeURIComponent(JSON.stringify(streakData));
-        this.showModal(`../src/components/modals/streak.html?data=${encodedData}`, () => {
+        const heartsValue = this.heartsAtCompletion;
+        this.showModal(`../src/components/modals/streak.html?data=${encodedData}&hearts=${heartsValue}`, () => {
           // The streak modal will send 'streakClosed' which triggers processStreakReward
           // and then daily quest. We need to handle that via the message handler.
-          // However, the current showModal signature expects onClose when modalClose is received.
-          // We'll set up a flag so that the onClose here is actually never called; instead the
-          // streakClosed handler will chain further. We'll pass a no-op.
+          // This onClose is a no-op because streak.html sends streakClosed, not modalClose.
         });
-        // The onClose passed above will never execute because streak.html sends streakClosed,
-        // not modalClose. Our message handler already handles streakClosed and chains rewards.
       } else {
         // Not first lesson of day – skip streak, go straight to daily quest
         this.openDailyQuest();
