@@ -47,7 +47,6 @@
     .header-icon img {
       width: 24px;
       height: 24px;
-      /* colour icons as in original design */
       filter: brightness(0) saturate(100%) invert(55%) sepia(7%) saturate(256%) hue-rotate(174deg) brightness(91%) contrast(85%);
     }
     .container {
@@ -117,18 +116,16 @@
       transition: all 0.3s ease;
     }
     .tick.orange { background: #FF6D01; }
-    .tick.grey { background: #cccccc; }   /* kept original grey */
+    .tick.grey { background: #cccccc; }
     .tick.freeze { background: white; border: 2px solid #EA4335; }
     .tick img {
       width: 22px;
       height: 22px;
     }
-    /* Make the check icon white when on grey or orange background */
     .tick.grey img,
     .tick.orange img {
       filter: brightness(0) saturate(100%) invert(100%);
     }
-    /* Make the first-aid icon red */
     .tick.freeze img {
       filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
     }
@@ -136,7 +133,7 @@
     .message {
       font-size: 20px;
       color: #444;
-      font-weight: normal;   /* not bold */
+      font-weight: normal;
     }
     .continue-btn {
       width: 100%;
@@ -254,17 +251,14 @@
 
 <div class="header">
   <div class="header-icon" id="exit-button">
-    <!-- close icon (x) -->
     <img src="../../../public/assets/icons/material-symbols/outline/close.svg" alt="Close">
   </div>
   <div class="header-icon" id="share-button">
-    <!-- upload/share icon -->
     <img src="../../../public/assets/icons/material-symbols/outline/upload.svg" alt="Share">
   </div>
 </div>
 
 <div class="container">
-  <!-- Flame: static image, fades in after 1s -->
   <div class="flame" id="flame">
     <img src="../../../public/assets/lottie/1f525-static.png" alt="flame">
   </div>
@@ -279,7 +273,7 @@
   <button class="continue-btn" id="continueButton">CONTINUE</button>
 </div>
 
-<!-- Share overlay -->
+<!-- Share overlay (unchanged) -->
 <div class="share-overlay" id="share-overlay">
   <div class="share-content">
     <div class="share-card" id="share-card">
@@ -320,7 +314,6 @@
         <div class="share-item" id="share-sms">
           <div class="share-icon-circle">
             <div class="share-icon">
-              <!-- SMS icon from Material Symbols outline -->
               <img src="../../../public/assets/icons/material-symbols/outline/sms.svg" alt="SMS">
             </div>
           </div>
@@ -408,6 +401,15 @@
     const timezone = streakData.timezone || 'UTC';
     const isEarlyUser = totalAppDays < 7;
 
+    // Read hearts from URL (if provided)
+    let heartsAtCompletion = 5;
+    if (params.get('hearts')) {
+      heartsAtCompletion = parseInt(params.get('hearts')) || 5;
+    } else {
+      // fallback to localStorage (set by quiz-engine)
+      heartsAtCompletion = parseInt(localStorage.getItem('heartsAtCompletion') || '5');
+    }
+
     // ---------- DYNAMIC MESSAGE ----------
     const now = new Date();
     const currentHour = now.getHours();
@@ -455,7 +457,6 @@
 
     let dates = [];
     if (isEarlyUser) {
-      // start from the user's first lesson date
       const firstDate = streakData.recentDays.length > 0
         ? new Date(streakData.recentDays[0].date + 'T12:00:00')
         : new Date();
@@ -472,7 +473,6 @@
       }
     }
 
-    // day labels
     dates.forEach((dateStr, idx) => {
       const d = new Date(dateStr + 'T12:00:00');
       const span = document.createElement('span');
@@ -485,11 +485,9 @@
       daysContainer.appendChild(span);
     });
 
-    // status map
     const statusMap = {};
     (streakData.recentDays || []).forEach(day => { statusMap[day.date] = day.status; });
 
-    // tick circles
     dates.forEach((dateStr, idx) => {
       const status = statusMap[dateStr] || 'missed';
       const tick = document.createElement('div');
@@ -499,27 +497,22 @@
         tick.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/first-aid.svg" alt="Revive">';
         tick.classList.add('freeze');
       } else {
-        // both completed and missed use the check icon
         tick.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/check-fat.svg" alt="✓">';
-
         if (status === 'completed') {
-          // determine if this is the circle that should animate
           const isTodayPos = isEarlyUser ? (idx === totalAppDays - 1) : (idx === 6);
           if (isTodayPos) {
-            tick.classList.add('grey');   // will animate to orange
+            tick.classList.add('grey');
           } else {
             tick.classList.add('orange');
           }
         } else {
-          // missed
           tick.classList.add('grey');
         }
       }
-
       ticksContainer.appendChild(tick);
     });
 
-    // ---------- ANIMATION (only today's circle) ----------
+    // ---------- ANIMATION ----------
     const flame = document.getElementById('flame');
     const streakNumber = document.getElementById('streakNumber');
     const streakText = document.getElementById('streakText');
@@ -529,7 +522,6 @@
     streakText.textContent = currentStreak === 1 ? 'day streak!' : 'day streak!';
     streakMessage.textContent = message;
 
-    // update share card
     document.getElementById('shareStreakNumber').textContent = currentStreak;
     document.querySelector('.share-streak-text').textContent = currentStreak === 1 ? 'day streak!' : 'day streak!';
     document.getElementById('shareMessage').textContent = message;
@@ -559,7 +551,7 @@
         type: 'streakClosed',
         streakDays: currentStreak,
         isMilestone: (currentStreak % 5 === 0),
-        heartsAtCompletion: parseInt(localStorage.getItem('heartsAtCompletion') || '5')
+        heartsAtCompletion: heartsAtCompletion
       }, '*');
       window.parent.postMessage('modalClose', '*');
     }
@@ -567,7 +559,7 @@
     document.getElementById('exit-button').addEventListener('click', notifyParent);
     document.getElementById('continueButton').addEventListener('click', notifyParent);
 
-    // ---------- SHARE ----------
+    // ---------- SHARE (unchanged) ----------
     const shareOverlay = document.getElementById('share-overlay');
     document.getElementById('share-button').addEventListener('click', () => {
       shareOverlay.style.display = 'flex';
