@@ -4,251 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Streak</title>
-
-  <!-- Local Fonts -->
   <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
-
-  <!-- html2canvas (local) -->
   <script src="../../../src/lib/html2canvas.min.js"></script>
-
   <style>
+    /* (same as before, unchanged) */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: #f2f2f2;  /* kept from original design */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 16px;
-      font-family: 'Atkinson Hyperlegible Next', sans-serif;
-    }
-    .header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 20px;
-      background: transparent;
-      z-index: 100;
-    }
-    .header-icon {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    .header-icon img {
-      width: 24px;
-      height: 24px;
-      filter: brightness(0) saturate(100%) invert(55%) sepia(7%) saturate(256%) hue-rotate(174deg) brightness(91%) contrast(85%);
-    }
-    .container {
-      max-width: 400px;
-      width: 100%;
-      margin-top: 40px;
-      text-align: center;
-    }
+    body { background: #f2f2f2; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 16px; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
+    .header { position: fixed; top: 0; left: 0; right: 0; height: 60px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: transparent; z-index: 100; }
+    .header-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .header-icon img { width: 24px; height: 24px; filter: brightness(0) saturate(100%) invert(55%) sepia(7%) saturate(256%) hue-rotate(174deg) brightness(91%) contrast(85%); }
+    .container { max-width: 400px; width: 100%; margin-top: 40px; text-align: center; }
     .flame { visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s ease; }
     .flame.visible { visibility: visible; opacity: 1; }
     .flame img { width: 110px; height: auto; margin: 0 auto 4px; }
-    .streak-number {
-      font-size: 72px;
-      font-weight: 700;
-      color: #FF6D01; /* Tiger */
-      text-shadow:
-        -4px -4px 0 #fff,
-         4px -4px 0 #fff,
-        -4px  4px 0 #fff,
-         4px  4px 0 #fff;
-      margin: 0;
-      line-height: 1.1;
-      visibility: hidden;
-      opacity: 0;
-      transition: visibility 0s, opacity 0.3s ease;
-    }
+    .streak-number { font-size: 72px; font-weight: 700; color: #FF6D01; text-shadow: -4px -4px 0 #fff, 4px -4px 0 #fff, -4px 4px 0 #fff, 4px 4px 0 #fff; margin: 0; line-height: 1.1; visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s ease; }
     .streak-number.visible { visibility: visible; opacity: 1; }
-    .streak-text {
-      font-size: 28px;
-      color: #FF6D01;
-      font-weight: 700;
-      margin-top: -6px;
-      visibility: hidden;
-      opacity: 0;
-      transition: visibility 0s, opacity 0.3s ease;
-    }
+    .streak-text { font-size: 28px; color: #FF6D01; font-weight: 700; margin-top: -6px; visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s ease; }
     .streak-text.visible { visibility: visible; opacity: 1; }
-    .card {
-      margin-top: 30px;
-      background: white;
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: 0 0 0 3px #e5e5e5;
-    }
-    .days {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      color: #999;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
+    .card { margin-top: 30px; background: white; border-radius: 22px; padding: 18px; box-shadow: 0 0 0 3px #e5e5e5; }
+    .days { display: flex; justify-content: space-between; margin-bottom: 10px; color: #999; font-weight: 600; font-size: 0.9rem; }
     .days span { width: 38px; text-align: center; }
     .days span.active { color: #FF6D01; }
-    .ticks {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-    .tick {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: all 0.3s ease;
-    }
+    .ticks { display: flex; justify-content: space-between; margin-bottom: 16px; }
+    .tick { width: 38px; height: 38px; border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; }
     .tick.orange { background: #FF6D01; }
     .tick.grey { background: #cccccc; }
     .tick.freeze { background: white; border: 2px solid #EA4335; }
-    .tick img {
-      width: 22px;
-      height: 22px;
-    }
-    .tick.grey img,
-    .tick.orange img {
-      filter: brightness(0) saturate(100%) invert(100%);
-    }
-    .tick.freeze img {
-      filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%);
-    }
+    .tick img { width: 22px; height: 22px; }
+    .tick.grey img, .tick.orange img { filter: brightness(0) saturate(100%) invert(100%); }
+    .tick.freeze img { filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%); }
     .divider { height: 1px; background: #e5e5e5; margin: 18px 0; }
-    .message {
-      font-size: 20px;
-      color: #444;
-      font-weight: normal;
-    }
-    .continue-btn {
-      width: 100%;
-      height: 52px;
-      border-radius: 0.75rem;
-      font-weight: 700;
-      border: none;
-      font-size: 15px;
-      text-transform: uppercase;
-      cursor: pointer;
-      background: #4285F4;
-      color: white;
-      border-bottom: 4px solid #3a75d9;
-      margin-top: 24px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      font-family: 'Atkinson Hyperlegible Next', sans-serif;
-      letter-spacing: 0.5px;
-      transition: all 0.2s ease;
-    }
-    .continue-btn:hover {
-      background: #2a75f0;
-      transform: translateY(-1px);
-    }
-    .continue-btn:active {
-      transform: translateY(2px);
-      border-bottom-width: 2px;
-    }
-    .share-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 20px;
-    }
-    .share-content {
-      width: 100%;
-      max-width: 357px;
-      background: #f5f5f7;
-      border-radius: 24px;
-      overflow: hidden;
-    }
-    .share-card {
-      background: white;
-      border-radius: 24px;
-      padding: 32px 24px;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-    .share-sheet {
-      background: white;
-      border-top: 1px solid #dadada;
-      border-radius: 24px 24px 0 0;
-      padding: 16px 12px;
-    }
-    .share-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .share-item, .bottom-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-    }
-    .share-icon-circle, .bottom-icon-circle {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-    }
-    .share-icon, .bottom-icon {
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .message { font-size: 20px; color: #444; font-weight: normal; }
+    .continue-btn { width: 100%; height: 52px; border-radius: 0.75rem; font-weight: 700; border: none; font-size: 15px; text-transform: uppercase; cursor: pointer; background: #4285F4; color: white; border-bottom: 4px solid #3a75d9; margin-top: 24px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); font-family: 'Atkinson Hyperlegible Next', sans-serif; letter-spacing: 0.5px; transition: all 0.2s ease; }
+    .continue-btn:hover { background: #2a75f0; transform: translateY(-1px); }
+    .continue-btn:active { transform: translateY(2px); border-bottom-width: 2px; }
+    .share-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+    .share-content { width: 100%; max-width: 357px; background: #f5f5f7; border-radius: 24px; overflow: hidden; }
+    .share-card { background: white; border-radius: 24px; padding: 32px 24px; margin-bottom: 10px; text-align: center; }
+    .share-sheet { background: white; border-top: 1px solid #dadada; border-radius: 24px 24px 0 0; padding: 16px 12px; }
+    .share-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .share-item, .bottom-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+    .share-icon-circle, .bottom-icon-circle { width: 44px; height: 44px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+    .share-icon, .bottom-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
     .share-icon img { width: 100%; height: 100%; object-fit: contain; }
     .share-text, .bottom-text { font-size: 11px; color: #333; }
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      padding: 0 20px;
-    }
+    .bottom-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 0 20px; }
     .mini-streak { display: flex; flex-direction: column; align-items: center; }
-    .share-streak-number {
-      font-size: 48px;
-      font-weight: 700;
-      color: #FF6D01;
-      text-shadow:
-        -2px -2px 0 #fff,
-         2px -2px 0 #fff,
-        -2px  2px 0 #fff,
-         2px  2px 0 #fff;
-    }
+    .share-streak-number { font-size: 48px; font-weight: 700; color: #FF6D01; text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff; }
     .share-streak-text { font-size: 22px; color: #FF6D01; font-weight: 700; }
     .share-message { font-size: 18px; color: #444; margin: 8px 0; }
     .share-brand { margin-top: 16px; font-weight: 700; color: #4285F4; font-size: 24px; }
   </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-icon" id="exit-button">
     <img src="../../../public/assets/icons/material-symbols/outline/close.svg" alt="Close">
@@ -273,7 +81,6 @@
   <button class="continue-btn" id="continueButton">CONTINUE</button>
 </div>
 
-<!-- Share overlay (unchanged) -->
 <div class="share-overlay" id="share-overlay">
   <div class="share-content">
     <div class="share-card" id="share-card">
@@ -287,56 +94,14 @@
     </div>
     <div class="share-sheet">
       <div class="share-grid">
-        <div class="share-item" id="share-facebook">
-          <div class="share-icon-circle">
-            <div class="share-icon">
-              <img src="../../../public/assets/icons/social/facebook-full.svg" alt="Facebook">
-            </div>
-          </div>
-          <div class="share-text">Facebook</div>
-        </div>
-        <div class="share-item" id="share-x">
-          <div class="share-icon-circle">
-            <div class="share-icon">
-              <img src="../../../public/assets/icons/social/x-twitter.svg" alt="X">
-            </div>
-          </div>
-          <div class="share-text">X</div>
-        </div>
-        <div class="share-item" id="share-whatsapp">
-          <div class="share-icon-circle">
-            <div class="share-icon">
-              <img src="../../../public/assets/icons/social/whatsapp.svg" alt="WhatsApp">
-            </div>
-          </div>
-          <div class="share-text">WhatsApp</div>
-        </div>
-        <div class="share-item" id="share-sms">
-          <div class="share-icon-circle">
-            <div class="share-icon">
-              <img src="../../../public/assets/icons/material-symbols/outline/sms.svg" alt="SMS">
-            </div>
-          </div>
-          <div class="share-text">Message</div>
-        </div>
+        <div class="share-item" id="share-facebook"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/facebook-full.svg" alt="Facebook"></div></div><div class="share-text">Facebook</div></div>
+        <div class="share-item" id="share-x"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/x-twitter.svg" alt="X"></div></div><div class="share-text">X</div></div>
+        <div class="share-item" id="share-whatsapp"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/whatsapp.svg" alt="WhatsApp"></div></div><div class="share-text">WhatsApp</div></div>
+        <div class="share-item" id="share-sms"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/material-symbols/outline/sms.svg" alt="SMS"></div></div><div class="share-text">Message</div></div>
       </div>
       <div class="bottom-grid">
-        <div class="bottom-item" id="save-image">
-          <div class="bottom-icon-circle">
-            <div class="bottom-icon">
-              <img src="../../../public/assets/icons/material-symbols/outline/download.svg" alt="Download">
-            </div>
-          </div>
-          <div class="bottom-text">Save image</div>
-        </div>
-        <div class="bottom-item" id="more-options">
-          <div class="bottom-icon-circle">
-            <div class="bottom-icon">
-              <img src="../../../public/assets/icons/material-symbols/outline/more_horiz.svg" alt="More">
-            </div>
-          </div>
-          <div class="bottom-text">More</div>
-        </div>
+        <div class="bottom-item" id="save-image"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../../public/assets/icons/material-symbols/outline/download.svg" alt="Download"></div></div><div class="bottom-text">Save image</div></div>
+        <div class="bottom-item" id="more-options"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../../public/assets/icons/material-symbols/outline/more_horiz.svg" alt="More"></div></div><div class="bottom-text">More</div></div>
       </div>
     </div>
   </div>
@@ -344,11 +109,9 @@
 
 <script>
   (function() {
-    // Play streak sound
     const streakAudio = new Audio('../../../public/assets/audio/streak.mp3');
     streakAudio.play().catch(e => console.log("Audio play failed:", e));
 
-    // ---------- HELPER: today in user's timezone ----------
     function getTodayInTimezone(tz) {
       try {
         const parts = new Intl.DateTimeFormat('en-CA', {
@@ -364,10 +127,8 @@
       }
     }
 
-    // ---------- LOAD STREAK DATA ----------
     const params = new URLSearchParams(window.location.search);
     let streakData = {};
-
     if (params.get('data')) {
       try { streakData = JSON.parse(decodeURIComponent(params.get('data'))); } catch(e){}
     }
@@ -401,20 +162,18 @@
     const timezone = streakData.timezone || 'UTC';
     const isEarlyUser = totalAppDays < 7;
 
-    // Read hearts from URL (if provided)
     let heartsAtCompletion = 5;
     if (params.get('hearts')) {
       heartsAtCompletion = parseInt(params.get('hearts')) || 5;
     } else {
-      // fallback to localStorage (set by quiz-engine)
       heartsAtCompletion = parseInt(localStorage.getItem('heartsAtCompletion') || '5');
     }
+    console.log("Streak modal: heartsAtCompletion =", heartsAtCompletion);
 
-    // ---------- DYNAMIC MESSAGE ----------
+    // Dynamic message (unchanged)
     const now = new Date();
     const currentHour = now.getHours();
     let message = '';
-
     if (currentStreak === 1) {
       const everHad = localStorage.getItem('everHadStreak') === 'true';
       if (!everHad) {
@@ -426,7 +185,6 @@
     } else {
       const avgTime = parseFloat(localStorage.getItem('avgFirstLessonHour')) || 8;
       const curDec = currentHour + now.getMinutes()/60;
-
       if (currentHour >= 0 && currentHour < 3) {
         message = 'Night Owl! You extended your streak.';
       } else if (currentHour >= 6 && currentHour < 9) {
@@ -442,13 +200,11 @@
       } else {
         message = 'You extended your streak!';
       }
-
-      // update moving average
       const alpha = 0.2;
       localStorage.setItem('avgFirstLessonHour', (alpha * curDec + (1-alpha) * avgTime).toString());
     }
 
-    // ---------- BUILD 7‑DAY TIMELINE ----------
+    // 7-day timeline (unchanged)
     const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const daysContainer = document.getElementById('daysContainer');
     const ticksContainer = document.getElementById('ticksContainer');
@@ -492,7 +248,6 @@
       const status = statusMap[dateStr] || 'missed';
       const tick = document.createElement('div');
       tick.className = 'tick';
-
       if (status === 'revived') {
         tick.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/first-aid.svg" alt="Revive">';
         tick.classList.add('freeze');
@@ -512,7 +267,6 @@
       ticksContainer.appendChild(tick);
     });
 
-    // ---------- ANIMATION ----------
     const flame = document.getElementById('flame');
     const streakNumber = document.getElementById('streakNumber');
     const streakText = document.getElementById('streakText');
@@ -545,7 +299,6 @@
       }, 1000);
     }
 
-    // ---------- BUTTONS ----------
     function notifyParent() {
       window.parent.postMessage({
         type: 'streakClosed',
@@ -559,7 +312,7 @@
     document.getElementById('exit-button').addEventListener('click', notifyParent);
     document.getElementById('continueButton').addEventListener('click', notifyParent);
 
-    // ---------- SHARE (unchanged) ----------
+    // Share overlay (unchanged)
     const shareOverlay = document.getElementById('share-overlay');
     document.getElementById('share-button').addEventListener('click', () => {
       shareOverlay.style.display = 'flex';
