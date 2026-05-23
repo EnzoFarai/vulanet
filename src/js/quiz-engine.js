@@ -35,7 +35,7 @@ class QuizEngine {
     this.questionFinalCorrect = new Array(this.totalQuestions).fill(false);
     this.heartsAtCompletion = 5;
     this.currentStreakDays = 1;
-    this._streakRewardProcessed = false; // prevent double processing
+    this._streakRewardProcessed = false;
 
     this.hasCompletedFirstLesson = localStorage.getItem('hasCompletedFirstLesson') === 'true';
     if (!localStorage.getItem('coins')) localStorage.setItem('coins', '500');
@@ -102,7 +102,6 @@ class QuizEngine {
     }
   }
 
-  // ---------- Streak state management ----------
   loadStreakFromStorage() {
     const saved = localStorage.getItem(this.streakKey);
     if (saved) this.currentStreakDays = parseInt(saved, 10);
@@ -111,7 +110,6 @@ class QuizEngine {
   saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
   incrementStreak() { this.currentStreakDays++; this.saveStreakToStorage(); }
 
-  /** Returns true if this lesson is the first completed one today (in user's timezone). */
   isFirstLessonOfDay() {
     const tz = localStorage.getItem('userTimezone') || 'UTC';
     const today = this.getDateInTimezone(tz);
@@ -119,7 +117,6 @@ class QuizEngine {
     return last !== today;
   }
 
-  /** Get today's date string YYYY-MM-DD in a given timezone. */
   getDateInTimezone(tz) {
     try {
       const parts = new Intl.DateTimeFormat('en-CA', {
@@ -131,7 +128,6 @@ class QuizEngine {
     }
   }
 
-  /** Build the full streak data object expected by streak.html */
   buildStreakData() {
     const tz = localStorage.getItem('userTimezone') || 'UTC';
     const todayStr = this.getDateInTimezone(tz);
@@ -140,7 +136,6 @@ class QuizEngine {
     const stored = localStorage.getItem('streakState');
     if (stored) streakData = JSON.parse(stored);
 
-    // Defaults
     const defaults = {
       currentStreak: 1,
       totalAppDays: 1,
@@ -150,35 +145,27 @@ class QuizEngine {
     };
     streakData = Object.assign({}, defaults, streakData);
 
-    // If this is the first ever lesson
     if (!streakData.recentDays || streakData.recentDays.length === 0) {
       streakData.recentDays = [{ date: todayStr, status: 'completed' }];
       streakData.totalAppDays = 1;
       streakData.currentStreak = 1;
       localStorage.setItem('firstLessonDate', todayStr);
     } else {
-      // Ensure today is in recentDays
       const todayEntry = streakData.recentDays.find(d => d.date === todayStr);
       if (!todayEntry) {
-        // Check if previous day was completed or revived to keep streak
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = yesterday.toISOString().slice(0, 10);
         const prevDay = streakData.recentDays.find(d => d.date === yesterdayStr);
         if (prevDay && (prevDay.status === 'completed' || prevDay.status === 'revived')) {
-          // streak continues
           streakData.currentStreak = (streakData.currentStreak || 0) + 1;
         } else {
-          // streak resets
           streakData.currentStreak = 1;
         }
-        // Add today as completed
         streakData.recentDays.push({ date: todayStr, status: 'completed' });
-        // Keep only last 7
         if (streakData.recentDays.length > 7) {
           streakData.recentDays = streakData.recentDays.slice(-7);
         }
-        // Update totalAppDays: count unique days since firstLessonDate
         const first = localStorage.getItem('firstLessonDate');
         if (first) {
           const firstDate = new Date(first + 'T12:00:00Z');
@@ -188,21 +175,17 @@ class QuizEngine {
         } else {
           streakData.totalAppDays = streakData.recentDays.length;
         }
-      } else {
-        // Today already exists (keep as is)
       }
     }
 
     streakData.lastLessonDate = todayStr;
     localStorage.setItem('streakState', JSON.stringify(streakData));
     localStorage.setItem('lastLessonDate', todayStr);
-    // Update streak key
     this.currentStreakDays = streakData.currentStreak;
     this.saveStreakToStorage();
     return streakData;
   }
 
-  /** Process the streak reward after the streak modal closes. */
   processStreakReward(rewardInfo) {
     if (this._streakRewardProcessed) return;
     this._streakRewardProcessed = true;
@@ -210,18 +193,21 @@ class QuizEngine {
     const { isMilestone, heartsAtCompletion } = rewardInfo;
     const streakDays = this.currentStreakDays;
 
+    console.log("Processing streak reward:", { isMilestone, heartsAtCompletion, streakDays });
+
+    // Fallback: if heartsAtCompletion is undefined, default to 3
+    const hearts = (typeof heartsAtCompletion === 'number') ? heartsAtCompletion : 3;
+
     if (isMilestone) {
       let coins = 250;
       if (streakDays >= 30 && streakDays <= 70) coins = 500;
       if (streakDays > 70 && streakDays <= 360) coins = 750;
       if (streakDays > 360) coins = 1000;
-      // Milestone replaces all other rewards
       this.showModal(`../src/components/modals/coins-reward.html?amount=${coins}`, () => {
         this.openDailyQuest();
       });
     } else {
-      // Non‑milestone
-      const hearts = heartsAtCompletion;
+      // Non‑milestone: decide reward based on hearts
       if (hearts >= 3 && hearts <= 5) {
         const random = Math.random();
         const multipliers = [
@@ -250,20 +236,21 @@ class QuizEngine {
           });
         }
       } else {
-        // 0 hearts – no reward? fallback to daily quest
-        this.openDailyQuest();
+        // 0 hearts – fallback: give a small coin reward (50 coins)
+        console.log("No hearts left, giving fallback coin reward");
+        this.showModal(`../src/components/modals/coins-reward.html?amount=50`, () => {
+          this.openDailyQuest();
+        });
       }
     }
   }
 
   openDailyQuest() {
     this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&completed=true`, () => {
-      // After daily quest, check if user is logged in; for now redirect
       window.location.href = this.redirectUrl;
     });
   }
 
-  // ---------- Existing methods (unchanged, except where noted) ----------
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
   updateHeartIcon() {
     this.livesIcon.src = this.lives === 0
@@ -312,19 +299,16 @@ class QuizEngine {
         }
         if (onClose) onClose();
       } else if (event.data && event.data.type === 'streakClosed') {
-        // This is where the streak modal finishes and tells us the result
+        console.log("Streak closed received:", event.data);
         window.removeEventListener('message', handler);
         this.fullscreenOverlay.classList.remove('visible');
         this.modalIframe.src = 'about:blank';
-        // Save streak state (already saved in buildStreakData)
         this.currentStreakDays = event.data.streakDays;
         this.saveStreakToStorage();
-        // Process the reward
         this.processStreakReward({
           isMilestone: event.data.isMilestone,
           heartsAtCompletion: event.data.heartsAtCompletion
         });
-        // Do NOT call onClose here – we are chaining internally
       } else if (event.data && event.data.type === 'questChestClaimed') {
         const coins = parseInt(localStorage.getItem('coins') || '500', 10);
         localStorage.setItem('coins', String(coins + (event.data.amount || 0)));
@@ -442,36 +426,22 @@ class QuizEngine {
     this.quizCompleted = true;
     const timeSeconds = Math.floor((Date.now() - this.quizStartTime) / 1000);
 
-    // Store hearts at completion for reward decisions
     this.heartsAtCompletion = this.lives;
-    // Also store in localStorage so streak modal can read it
     localStorage.setItem('heartsAtCompletion', String(this.heartsAtCompletion));
 
-    // Show lesson‑complete first
     this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, () => {
-      // Check if this is the first lesson of the day (streak)
       if (this.isFirstLessonOfDay()) {
-        // Build streak data and open streak modal
         const streakData = this.buildStreakData();
-        // Pass heartsAtCompletion explicitly in URL
         const encodedData = encodeURIComponent(JSON.stringify(streakData));
         const heartsValue = this.heartsAtCompletion;
-        this.showModal(`../src/components/modals/streak.html?data=${encodedData}&hearts=${heartsValue}`, () => {
-          // The streak modal will send 'streakClosed' which triggers processStreakReward
-          // and then daily quest. We need to handle that via the message handler.
-          // This onClose is a no-op because streak.html sends streakClosed, not modalClose.
-        });
+        this.showModal(`../src/components/modals/streak.html?data=${encodedData}&hearts=${heartsValue}`, () => {});
       } else {
-        // Not first lesson of day – skip streak, go straight to daily quest
         this.openDailyQuest();
       }
     });
   }
 
-  showDailyQuest(correct, total) {
-    // This method is kept for compatibility; actual call goes through openDailyQuest()
-    this.openDailyQuest();
-  }
+  showDailyQuest(correct, total) { this.openDailyQuest(); }
 
   showQuestion(questionIndex) {
     this.questionSections.forEach(s => { if (s) s.style.display = 'none'; });
@@ -500,7 +470,6 @@ class QuizEngine {
     }
   }
 
-  // ---- Rendering methods (identical to your last version) ----
   renderMultipleChoice(section, qData, actualIdx) {
     section.innerHTML = `
       <h2 class="quiz-title">Choose the correct option</h2>
