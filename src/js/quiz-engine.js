@@ -163,9 +163,7 @@ class QuizEngine {
           streakData.currentStreak = 1;
         }
         streakData.recentDays.push({ date: todayStr, status: 'completed' });
-        if (streakData.recentDays.length > 7) {
-          streakData.recentDays = streakData.recentDays.slice(-7);
-        }
+        if (streakData.recentDays.length > 7) streakData.recentDays = streakData.recentDays.slice(-7);
         const first = localStorage.getItem('firstLessonDate');
         if (first) {
           const firstDate = new Date(first + 'T12:00:00Z');
@@ -187,27 +185,25 @@ class QuizEngine {
   }
 
   processStreakReward(rewardInfo) {
+    console.log('processStreakReward called with:', rewardInfo);
     if (this._streakRewardProcessed) return;
     this._streakRewardProcessed = true;
 
     const { isMilestone, heartsAtCompletion } = rewardInfo;
     const streakDays = this.currentStreakDays;
 
-    console.log("Processing streak reward:", { isMilestone, heartsAtCompletion, streakDays });
-
-    // Fallback: if heartsAtCompletion is undefined, default to 3
-    const hearts = (typeof heartsAtCompletion === 'number') ? heartsAtCompletion : 3;
-
     if (isMilestone) {
       let coins = 250;
       if (streakDays >= 30 && streakDays <= 70) coins = 500;
       if (streakDays > 70 && streakDays <= 360) coins = 750;
       if (streakDays > 360) coins = 1000;
+      console.log(`Milestone: ${streakDays} days, awarding ${coins} coins`);
       this.showModal(`../src/components/modals/coins-reward.html?amount=${coins}`, () => {
         this.openDailyQuest();
       });
     } else {
-      // Non‑milestone: decide reward based on hearts
+      const hearts = heartsAtCompletion;
+      console.log(`Non-milestone, hearts left: ${hearts}`);
       if (hearts >= 3 && hearts <= 5) {
         const random = Math.random();
         const multipliers = [
@@ -216,11 +212,13 @@ class QuizEngine {
           { mult: 3, dur: 15 }
         ];
         const chosen = multipliers[Math.floor(random * multipliers.length)];
+        console.log(`Boost reward: ${chosen.mult}x for ${chosen.dur} min`);
         this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
           this.openDailyQuest();
         });
       } else if (hearts >= 1 && hearts <= 2) {
         if (Math.random() < 0.5) {
+          console.log(`Heart reward (full)`);
           this.showModal(`../src/components/modals/heart-reward.html?hearts=full`, () => {
             this.openDailyQuest();
           });
@@ -231,22 +229,22 @@ class QuizEngine {
             { mult: 3, dur: 15 }
           ];
           const chosen = multipliers[Math.floor(Math.random() * multipliers.length)];
+          console.log(`Boost reward (alternate): ${chosen.mult}x for ${chosen.dur} min`);
           this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
             this.openDailyQuest();
           });
         }
       } else {
-        // 0 hearts – fallback: give a small coin reward (50 coins)
-        console.log("No hearts left, giving fallback coin reward");
-        this.showModal(`../src/components/modals/coins-reward.html?amount=50`, () => {
-          this.openDailyQuest();
-        });
+        console.log('No hearts left – skipping reward, going to daily quest');
+        this.openDailyQuest();
       }
     }
   }
 
   openDailyQuest() {
+    console.log('Opening daily quest modal');
     this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&completed=true`, () => {
+      console.log('Daily quest closed, redirecting to', this.redirectUrl);
       window.location.href = this.redirectUrl;
     });
   }
@@ -267,9 +265,11 @@ class QuizEngine {
   shuffleArray(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
   showModal(modalUrl, onClose) {
+    console.log('showModal:', modalUrl);
     this.modalIframe.src = modalUrl;
     this.fullscreenOverlay.classList.add('visible');
     const handler = (event) => {
+      console.log('Received postMessage:', event.data);
       if (event.data === 'modalClose') {
         window.removeEventListener('message', handler);
         this.fullscreenOverlay.classList.remove('visible');
@@ -290,28 +290,38 @@ class QuizEngine {
           this.updateHeartIcon();
           const currentActualIdx = this.inRetryMode ? this.retryQueue[this.currentQuestion] : this.currentQuestion;
           const idxInQueue = this.retryQueue.indexOf(currentActualIdx);
-          if (idxInQueue !== -1) {
-            this.retryQueue.splice(idxInQueue, 1);
-          }
+          if (idxInQueue !== -1) this.retryQueue.splice(idxInQueue, 1);
           this.moveToNextQuestion();
         } else {
           window.location.href = this.redirectUrl;
         }
         if (onClose) onClose();
       } else if (event.data && event.data.type === 'streakClosed') {
-        console.log("Streak closed received:", event.data);
         window.removeEventListener('message', handler);
         this.fullscreenOverlay.classList.remove('visible');
         this.modalIframe.src = 'about:blank';
         this.currentStreakDays = event.data.streakDays;
         this.saveStreakToStorage();
+        console.log('Streak closed, processing reward with hearts:', event.data.heartsAtCompletion);
         this.processStreakReward({
           isMilestone: event.data.isMilestone,
           heartsAtCompletion: event.data.heartsAtCompletion
         });
       } else if (event.data && event.data.type === 'questChestClaimed') {
         const coins = parseInt(localStorage.getItem('coins') || '500', 10);
-        localStorage.setItem('coins', String(coins + (event.data.amount || 0)));
+        const newCoins = coins + (event.data.amount || 0);
+        localStorage.setItem('coins', String(newCoins));
+        console.log(`Quest chest claimed: +${event.data.amount} coins, total ${newCoins}`);
+      } else if (event.data && event.data.type === 'achievementClaimed') {
+        const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+        const newCoins = coins + (event.data.coins || 0);
+        localStorage.setItem('coins', String(newCoins));
+        console.log(`Achievement claimed: +${event.data.coins} coins, total ${newCoins}`);
+      } else if (event.data && event.data.type === 'recordClaimed') {
+        const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+        const newCoins = coins + (event.data.coins || 0);
+        localStorage.setItem('coins', String(newCoins));
+        console.log(`Record claimed: +${event.data.coins} coins, total ${newCoins}`);
       }
     };
     window.addEventListener('message', handler);
@@ -428,14 +438,17 @@ class QuizEngine {
 
     this.heartsAtCompletion = this.lives;
     localStorage.setItem('heartsAtCompletion', String(this.heartsAtCompletion));
+    console.log('Lesson finished. Hearts left:', this.heartsAtCompletion);
 
     this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, () => {
       if (this.isFirstLessonOfDay()) {
         const streakData = this.buildStreakData();
         const encodedData = encodeURIComponent(JSON.stringify(streakData));
         const heartsValue = this.heartsAtCompletion;
+        console.log('First lesson of day, showing streak modal with hearts:', heartsValue);
         this.showModal(`../src/components/modals/streak.html?data=${encodedData}&hearts=${heartsValue}`, () => {});
       } else {
+        console.log('Not first lesson of day, skip streak');
         this.openDailyQuest();
       }
     });
