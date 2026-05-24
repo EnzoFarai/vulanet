@@ -310,13 +310,14 @@
     const timezone = streakData.timezone || 'UTC';
     const isEarlyUser = totalAppDays < 7;
 
+    // Read hearts from URL (passed by quiz-engine)
     let heartsAtCompletion = 5;
     if (params.get('hearts')) {
       heartsAtCompletion = parseInt(params.get('hearts')) || 5;
     } else {
       heartsAtCompletion = parseInt(localStorage.getItem('heartsAtCompletion') || '5');
     }
-    console.log('Hearts at completion:', heartsAtCompletion);
+    console.log('Streak modal: hearts at completion =', heartsAtCompletion);
 
     const now = new Date();
     const currentHour = now.getHours();
