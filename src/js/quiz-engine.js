@@ -192,6 +192,7 @@ class QuizEngine {
     const { isMilestone, heartsAtCompletion } = rewardInfo;
     const streakDays = this.currentStreakDays;
 
+    // Milestone (every 5 days) overrides everything – always coins
     if (isMilestone) {
       let coins = 250;
       if (streakDays >= 30 && streakDays <= 70) coins = 500;
@@ -201,43 +202,51 @@ class QuizEngine {
       this.showModal(`../src/components/modals/coins-reward.html?amount=${coins}`, () => {
         this.openDailyQuest();
       });
-    } else {
-      const hearts = heartsAtCompletion;
-      console.log(`Non-milestone, hearts left: ${hearts}`);
-      if (hearts >= 3 && hearts <= 5) {
-        const random = Math.random();
+      return;
+    }
+
+    // Non‑milestone
+    const hearts = heartsAtCompletion;
+    console.log(`Non-milestone, hearts left: ${hearts}`);
+
+    if (hearts >= 3 && hearts <= 5) {
+      // Only XP boost (any of the three multipliers)
+      const multipliers = [
+        { mult: 1.5, dur: 30 },
+        { mult: 2, dur: 20 },
+        { mult: 3, dur: 15 }
+      ];
+      const chosen = multipliers[Math.floor(Math.random() * multipliers.length)];
+      console.log(`Boost reward (3-5 hearts): ${chosen.mult}x for ${chosen.dur} min`);
+      this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
+        this.openDailyQuest();
+      });
+    } 
+    else if (hearts >= 1 && hearts <= 2) {
+      // 50/50 chance between XP boost and heart refill
+      const random = Math.random();
+      if (random < 0.5) {
         const multipliers = [
           { mult: 1.5, dur: 30 },
           { mult: 2, dur: 20 },
           { mult: 3, dur: 15 }
         ];
-        const chosen = multipliers[Math.floor(random * multipliers.length)];
-        console.log(`Boost reward: ${chosen.mult}x for ${chosen.dur} min`);
+        const chosen = multipliers[Math.floor(Math.random() * multipliers.length)];
+        console.log(`Boost reward (1-2 hearts, 50%): ${chosen.mult}x for ${chosen.dur} min`);
         this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
           this.openDailyQuest();
         });
-      } else if (hearts >= 1 && hearts <= 2) {
-        if (Math.random() < 0.5) {
-          console.log(`Heart reward (full)`);
-          this.showModal(`../src/components/modals/heart-reward.html?hearts=full`, () => {
-            this.openDailyQuest();
-          });
-        } else {
-          const multipliers = [
-            { mult: 1.5, dur: 30 },
-            { mult: 2, dur: 20 },
-            { mult: 3, dur: 15 }
-          ];
-          const chosen = multipliers[Math.floor(Math.random() * multipliers.length)];
-          console.log(`Boost reward (alternate): ${chosen.mult}x for ${chosen.dur} min`);
-          this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
-            this.openDailyQuest();
-          });
-        }
       } else {
-        console.log('No hearts left – skipping reward, going to daily quest');
-        this.openDailyQuest();
+        console.log(`Heart reward (1-2 hearts, 50%)`);
+        this.showModal(`../src/components/modals/heart-reward.html?hearts=full`, () => {
+          this.openDailyQuest();
+        });
       }
+    } 
+    else {
+      // hearts == 0 – no reward, just go to daily quest
+      console.log('No hearts left – skipping reward, going to daily quest');
+      this.openDailyQuest();
     }
   }
 
