@@ -26,12 +26,24 @@
       text-align: center;
       padding: 40px 24px 48px;
     }
-    .reward-scene { width: 160px; height: 160px; margin: 0 auto; }
+    .reward-scene { width: 160px; height: 160px; margin: 0 auto; position: relative; }
     .rocket-icon { width: 140px; height: 140px; filter: drop-shadow(0 4px 8px rgba(255, 150, 0, 0.3)); }
-    .xp-multiplier { font-size: 24px; font-weight: 900; color: #FF9600; margin-top: -10px; }
+    .xp-multiplier {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 24px;
+      font-weight: 900;
+      color: #FF9600;
+      background: white;
+      padding: 0 8px;
+      border-radius: 20px;
+    }
     .reward-title { margin-top: 20px; font-weight: 700; color: #0f1c22; font-size: 20px; max-width: 320px; }
     .reward-subtitle { margin-top: 8px; color: #6b7280; font-size: 14px; margin-bottom: 24px; }
     .btn { width: 100%; }
+    .error-message { color: #EA4335; margin-bottom: 16px; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -43,19 +55,49 @@
     </div>
     <div class="reward-title" id="rewardTitle">You found an XP Boost!</div>
     <div class="reward-subtitle" id="rewardSubtitle">Congrats! You now have 1.5x XP in lessons for the next 30 minutes.</div>
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
     <button class="btn btn-md btn-carpenter-blue" id="claimButton">Claim XP Boost</button>
   </div>
   <script>
     const audio = document.getElementById('boostAudio');
     audio.play().catch(() => {});
+
     const params = new URLSearchParams(window.location.search);
-    const multiplier = parseFloat(params.get('multiplier')) || 1.5;
-    const duration = parseInt(params.get('duration')) || 30;
-    document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
-    document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
-    document.getElementById('claimButton').addEventListener('click', () => {
-      window.parent.postMessage('modalClose', '*');
-    });
+    let multiplier = parseFloat(params.get('multiplier')) || 1.5;
+    let duration = parseInt(params.get('duration')) || 30;
+
+    // Allowed values
+    const allowedMultipliers = [1.5, 2, 3];
+    const allowedDurations = [30, 20, 15];
+
+    let isValid = true;
+    let errorMsg = '';
+
+    if (!allowedMultipliers.includes(multiplier)) {
+      isValid = false;
+      errorMsg = 'Invalid multiplier value.';
+    }
+    if (!allowedDurations.includes(duration)) {
+      isValid = false;
+      errorMsg = 'Invalid duration value.';
+    }
+
+    if (!isValid) {
+      document.getElementById('multiplierDisplay').style.display = 'none';
+      document.getElementById('rewardTitle').style.display = 'none';
+      document.getElementById('rewardSubtitle').style.display = 'none';
+      document.getElementById('claimButton').style.display = 'none';
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.textContent = 'Invalid reward link. This boost cannot be claimed.';
+      errorDiv.style.display = 'block';
+      console.error('Boost reward validation failed:', errorMsg);
+    } else {
+      document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
+      document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
+      document.getElementById('claimButton').addEventListener('click', () => {
+        window.parent.postMessage('modalClose', '*');
+      });
+    }
   </script>
 </body>
 </html>
