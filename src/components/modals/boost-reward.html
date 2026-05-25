@@ -47,7 +47,7 @@
   </style>
 </head>
 <body>
-  <audio id="boostAudio" preload="auto"><source src="../../../public/assets/audio/boost.mp3" type="audio/mpeg"></audio>
+  <audio id="boostAudio" preload="auto" src="../../../public/assets/audio/boost.mp3"></audio>
   <div class="treasure-panel">
     <div class="reward-scene">
       <div class="rocket-icon"><img src="../../../public/assets/icons/phosphor/duotone/rocket-launch.svg" alt="Rocket" style="width:100%;height:100%;"></div>
@@ -59,36 +59,44 @@
     <button class="btn btn-md btn-carpenter-blue" id="claimButton">Claim XP Boost</button>
   </div>
   <script>
-    const audio = document.getElementById('boostAudio');
-    audio.play().catch(() => {});
+    (function() {
+      console.log('Boost reward modal loaded');
+      const audio = document.getElementById('boostAudio');
+      if (audio) {
+        audio.play().catch(e => console.log('Audio play failed:', e));
+      } else {
+        console.log('Audio element not found');
+      }
 
-    const params = new URLSearchParams(window.location.search);
-    let multiplier = parseFloat(params.get('multiplier')) || 1.5;
-    let duration = parseInt(params.get('duration')) || 30;
+      const params = new URLSearchParams(window.location.search);
+      let multiplier = parseFloat(params.get('multiplier')) || 1.5;
+      let duration = parseInt(params.get('duration')) || 30;
 
-    const allowedMultipliers = [1.5, 2, 3];
-    const allowedDurations = [30, 20, 15];
+      const allowedMultipliers = [1.5, 2, 3];
+      const allowedDurations = [30, 20, 15];
 
-    let isValid = true;
-    if (!allowedMultipliers.includes(multiplier)) isValid = false;
-    if (!allowedDurations.includes(duration)) isValid = false;
+      let isValid = true;
+      if (!allowedMultipliers.includes(multiplier)) isValid = false;
+      if (!allowedDurations.includes(duration)) isValid = false;
 
-    if (!isValid) {
-      document.getElementById('multiplierDisplay').style.display = 'none';
-      document.getElementById('rewardTitle').style.display = 'none';
-      document.getElementById('rewardSubtitle').style.display = 'none';
-      document.getElementById('claimButton').style.display = 'none';
-      const errorDiv = document.getElementById('errorMessage');
-      errorDiv.textContent = 'Invalid reward link. This boost cannot be claimed.';
-      errorDiv.style.display = 'block';
-      console.error('Boost reward validation failed');
-    } else {
-      document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
-      document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
-      document.getElementById('claimButton').addEventListener('click', () => {
-        window.parent.postMessage('modalClose', '*');
-      });
-    }
+      if (!isValid) {
+        document.getElementById('multiplierDisplay').style.display = 'none';
+        document.getElementById('rewardTitle').style.display = 'none';
+        document.getElementById('rewardSubtitle').style.display = 'none';
+        document.getElementById('claimButton').style.display = 'none';
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = 'Invalid reward link. This boost cannot be claimed.';
+        errorDiv.style.display = 'block';
+        console.error('Boost reward validation failed');
+      } else {
+        document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
+        document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
+        document.getElementById('claimButton').addEventListener('click', () => {
+          console.log('Claim button clicked, closing boost modal');
+          window.parent.postMessage('modalClose', '*');
+        });
+      }
+    })();
   </script>
 </body>
 </html>
