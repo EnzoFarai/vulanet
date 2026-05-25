@@ -125,168 +125,152 @@
   <div class="continue-action"><button class="btn btn-md btn-carpenter-blue" id="continueButton">CONTINUE</button></div>
 </div>
 <script>
-  const monthConfig = {
-    0: { name: "January", theme: "New Horizons Quest", icon: "routine", color: "#FBBC05", colorLight: "#ffd54f", colorDark: "#f9a825", clockFilter: "brightness(0) saturate(100%) invert(78%) sepia(89%) saturate(831%) hue-rotate(321deg) brightness(103%) contrast(97%)" },
-    1: { name: "February", theme: "Heartstrings Quest", icon: "favorite", color: "#EA4335", colorLight: "#ff6b5c", colorDark: "#d3382a", clockFilter: "brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)" },
-    2: { name: "March", theme: "March of Momentum Quest", icon: "speed", color: "#34A853", colorLight: "#5ecf7a", colorDark: "#2a8e45", clockFilter: "brightness(0) saturate(100%) invert(38%) sepia(67%) saturate(1217%) hue-rotate(80deg) brightness(97%) contrast(93%)" },
-    3: { name: "April", theme: "Double or Nothing Quest", icon: "casino", color: "#FF6D01", colorLight: "#ff9333", colorDark: "#e05c00", clockFilter: "brightness(0) saturate(100%) invert(35%) sepia(96%) saturate(2208%) hue-rotate(344deg) brightness(102%) contrast(104%)" },
-    4: { name: "May", theme: "The Gauntlet Quest", icon: "shield", color: "#AA00FF", colorLight: "#c54dff", colorDark: "#8a00cc", clockFilter: "brightness(0) saturate(100%) invert(24%) sepia(89%) saturate(4621%) hue-rotate(267deg) brightness(97%) contrast(100%)" },
-    5: { name: "June", theme: "Up, Up and Away Quest", icon: "flight_takeoff", color: "#1CB0F6", colorLight: "#5cc9ff", colorDark: "#0e96d6", clockFilter: "brightness(0) saturate(100%) invert(53%) sepia(78%) saturate(2739%) hue-rotate(176deg) brightness(100%) contrast(97%)" },
-    6: { name: "July", theme: "The Halfway Line Quest", icon: "balance", color: "#AA00FF", colorLight: "#c54dff", colorDark: "#8a00cc", clockFilter: "brightness(0) saturate(100%) invert(24%) sepia(89%) saturate(4621%) hue-rotate(267deg) brightness(97%) contrast(100%)" },
-    7: { name: "August", theme: "Conquest Quest", icon: "military_tech", color: "#EA4335", colorLight: "#ff6b5c", colorDark: "#d3382a", clockFilter: "brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)" },
-    8: { name: "September", theme: "Starbound Quest", icon: "star", color: "#FBBC05", colorLight: "#ffd54f", colorDark: "#f9a825", clockFilter: "brightness(0) saturate(100%) invert(78%) sepia(89%) saturate(831%) hue-rotate(321deg) brightness(103%) contrast(97%)" },
-    9: { name: "October", theme: "Spellbound Quest", icon: "auto_awesome", color: "#FF6D01", colorLight: "#ff9333", colorDark: "#e05c00", clockFilter: "brightness(0) saturate(100%) invert(35%) sepia(96%) saturate(2208%) hue-rotate(344deg) brightness(102%) contrast(104%)" },
-    10:{ name: "November", theme: "Edge of Glory Quest", icon: "terrain", color: "#1CB0F6", colorLight: "#5cc9ff", colorDark: "#0e96d6", clockFilter: "brightness(0) saturate(100%) invert(53%) sepia(78%) saturate(2739%) hue-rotate(176deg) brightness(100%) contrast(97%)" },
-    11:{ name: "December", theme: "Happy Holidays!", icon: "celebration", color: "#34A853", colorLight: "#5ecf7a", colorDark: "#2a8e45", clockFilter: "brightness(0) saturate(100%) invert(38%) sepia(67%) saturate(1217%) hue-rotate(80deg) brightness(97%) contrast(93%)" }
-  };
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const config = monthConfig[currentMonth];
-  document.documentElement.style.setProperty('--month-color', config.color);
-  document.getElementById('timeCta').style.color = config.color;
-  document.getElementById('clockIcon').style.filter = config.clockFilter;
+  (function() {
+    console.log('Daily quest modal loaded');
 
-  function updateTimeLeft() {
-    const now = new Date();
-    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-    const ms = endOfDay - now;
-    if (ms <= 0) { document.getElementById('timeLeft').textContent = '0 MINUTES'; return; }
-    const h = Math.floor(ms / 3600000);
-    const m = Math.floor((ms % 3600000) / 60000);
-    document.getElementById('timeLeft').textContent = h > 0 ? `${h} HOUR${h > 1 ? 'S' : ''}` : `${Math.max(1, m)} MINUTE${m !== 1 ? 'S' : ''}`;
-  }
-  updateTimeLeft();
-  setInterval(updateTimeLeft, 60000);
-
-  const today = new Date().toISOString().slice(0,10);
-  const storageKey = `dailyQuests_${today}`;
-  let quests = JSON.parse(localStorage.getItem(storageKey));
-  if (!quests) {
-    quests = [
-      { id: 'bronze', title: 'Start a streak', current: 1, total: 1, coins: 50, claimed: false },
-      { id: 'silver', title: 'Score 80% or higher in 3 lessons', current: 0, total: 3, coins: 75, claimed: false },
-      { id: 'gold', title: 'Complete your next 4 lessons', current: 0, total: 4, coins: 100, claimed: false }
-    ];
-    localStorage.setItem(storageKey, JSON.stringify(quests));
-  }
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const correctAttempts = parseInt(urlParams.get('correctAttempts')) || 0;
-  const totalAttempts = parseInt(urlParams.get('totalAttempts')) || 1;
-  const accuracy = Math.round((correctAttempts / totalAttempts) * 100);
-  const lessonCompleted = urlParams.get('completed') === 'true';
-  if (accuracy >= 80 && quests[1].current < quests[1].total) quests[1].current++;
-  if (lessonCompleted && quests[2].current < quests[2].total) quests[2].current++;
-  localStorage.setItem(storageKey, JSON.stringify(quests));
-
-  const container = document.getElementById('questsContainer');
-
-  // Helper: show a modal (coins-reward) as an overlay iframe
-  function showCoinRewardModal(amount, onClose) {
-    const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
-    overlay.style.zIndex = '10001';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    const iframe = document.createElement('iframe');
-    // Use correct relative path: same directory as this file
-    iframe.src = `./coins-reward.html?amount=${amount}`;
-    iframe.style.width = '90%';
-    iframe.style.maxWidth = '420px';
-    iframe.style.height = 'auto';
-    iframe.style.border = 'none';
-    iframe.style.borderRadius = '24px';
-    overlay.appendChild(iframe);
-    document.body.appendChild(overlay);
-
-    const messageHandler = (event) => {
-      if (event.data === 'modalClose') {
-        window.removeEventListener('message', messageHandler);
-        overlay.remove();
-        if (onClose) onClose();
-      }
+    const monthConfig = {
+      0: { name: "January", theme: "New Horizons Quest", icon: "routine", color: "#FBBC05", colorLight: "#ffd54f", colorDark: "#f9a825", clockFilter: "brightness(0) saturate(100%) invert(78%) sepia(89%) saturate(831%) hue-rotate(321deg) brightness(103%) contrast(97%)" },
+      1: { name: "February", theme: "Heartstrings Quest", icon: "favorite", color: "#EA4335", colorLight: "#ff6b5c", colorDark: "#d3382a", clockFilter: "brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)" },
+      2: { name: "March", theme: "March of Momentum Quest", icon: "speed", color: "#34A853", colorLight: "#5ecf7a", colorDark: "#2a8e45", clockFilter: "brightness(0) saturate(100%) invert(38%) sepia(67%) saturate(1217%) hue-rotate(80deg) brightness(97%) contrast(93%)" },
+      3: { name: "April", theme: "Double or Nothing Quest", icon: "casino", color: "#FF6D01", colorLight: "#ff9333", colorDark: "#e05c00", clockFilter: "brightness(0) saturate(100%) invert(35%) sepia(96%) saturate(2208%) hue-rotate(344deg) brightness(102%) contrast(104%)" },
+      4: { name: "May", theme: "The Gauntlet Quest", icon: "shield", color: "#AA00FF", colorLight: "#c54dff", colorDark: "#8a00cc", clockFilter: "brightness(0) saturate(100%) invert(24%) sepia(89%) saturate(4621%) hue-rotate(267deg) brightness(97%) contrast(100%)" },
+      5: { name: "June", theme: "Up, Up and Away Quest", icon: "flight_takeoff", color: "#1CB0F6", colorLight: "#5cc9ff", colorDark: "#0e96d6", clockFilter: "brightness(0) saturate(100%) invert(53%) sepia(78%) saturate(2739%) hue-rotate(176deg) brightness(100%) contrast(97%)" },
+      6: { name: "July", theme: "The Halfway Line Quest", icon: "balance", color: "#AA00FF", colorLight: "#c54dff", colorDark: "#8a00cc", clockFilter: "brightness(0) saturate(100%) invert(24%) sepia(89%) saturate(4621%) hue-rotate(267deg) brightness(97%) contrast(100%)" },
+      7: { name: "August", theme: "Conquest Quest", icon: "military_tech", color: "#EA4335", colorLight: "#ff6b5c", colorDark: "#d3382a", clockFilter: "brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)" },
+      8: { name: "September", theme: "Starbound Quest", icon: "star", color: "#FBBC05", colorLight: "#ffd54f", colorDark: "#f9a825", clockFilter: "brightness(0) saturate(100%) invert(78%) sepia(89%) saturate(831%) hue-rotate(321deg) brightness(103%) contrast(97%)" },
+      9: { name: "October", theme: "Spellbound Quest", icon: "auto_awesome", color: "#FF6D01", colorLight: "#ff9333", colorDark: "#e05c00", clockFilter: "brightness(0) saturate(100%) invert(35%) sepia(96%) saturate(2208%) hue-rotate(344deg) brightness(102%) contrast(104%)" },
+      10:{ name: "November", theme: "Edge of Glory Quest", icon: "terrain", color: "#1CB0F6", colorLight: "#5cc9ff", colorDark: "#0e96d6", clockFilter: "brightness(0) saturate(100%) invert(53%) sepia(78%) saturate(2739%) hue-rotate(176deg) brightness(100%) contrast(97%)" },
+      11:{ name: "December", theme: "Happy Holidays!", icon: "celebration", color: "#34A853", colorLight: "#5ecf7a", colorDark: "#2a8e45", clockFilter: "brightness(0) saturate(100%) invert(38%) sepia(67%) saturate(1217%) hue-rotate(80deg) brightness(97%) contrast(93%)" }
     };
-    window.addEventListener('message', messageHandler);
-  }
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const config = monthConfig[currentMonth];
+    document.documentElement.style.setProperty('--month-color', config.color);
+    document.getElementById('timeCta').style.color = config.color;
+    document.getElementById('clockIcon').style.filter = config.clockFilter;
 
-  function render() {
-    container.innerHTML = '';
-    quests.forEach(q => {
-      const complete = q.current >= q.total;
-      const pct = q.total > 0 ? (q.current / q.total) * 100 : 0;
-      let widthStyle = '';
-      if (complete) { widthStyle = 'width: calc(100% - 20px); margin-left: 10px;'; }
-      else if (q.current === 0) { widthStyle = 'width: 0; margin-left: 0;'; }
-      else { widthStyle = `width: calc(${pct}% - 20px); margin-left: 10px;`; }
-      const row = document.createElement('div');
-      row.className = 'quest-row';
-      row.innerHTML = `
-        <div class="quest-info">
-          <div class="quest-title">${q.title}</div>
-          <div class="progress-wrapper">
-            <div class="progress-bar">
-              <div class="progress-inner" style="${widthStyle}; background:${pct > 0 ? 'var(--month-color)' : '#d9d9d9'};"></div>
-              <div class="progress-count ${pct === 0 ? 'dark-text' : ''}">${q.current} / ${q.total}</div>
+    function updateTimeLeft() {
+      const now = new Date();
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      const ms = endOfDay - now;
+      if (ms <= 0) { document.getElementById('timeLeft').textContent = '0 MINUTES'; return; }
+      const h = Math.floor(ms / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      document.getElementById('timeLeft').textContent = h > 0 ? `${h} HOUR${h > 1 ? 'S' : ''}` : `${Math.max(1, m)} MINUTE${m !== 1 ? 'S' : ''}`;
+    }
+    updateTimeLeft();
+    setInterval(updateTimeLeft, 60000);
+
+    const today = new Date().toISOString().slice(0,10);
+    const storageKey = `dailyQuests_${today}`;
+    let quests = JSON.parse(localStorage.getItem(storageKey));
+    if (!quests) {
+      quests = [
+        { id: 'bronze', title: 'Start a streak', current: 1, total: 1, coins: 50, claimed: false },
+        { id: 'silver', title: 'Score 80% or higher in 3 lessons', current: 0, total: 3, coins: 75, claimed: false },
+        { id: 'gold', title: 'Complete your next 4 lessons', current: 0, total: 4, coins: 100, claimed: false }
+      ];
+      localStorage.setItem(storageKey, JSON.stringify(quests));
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const correctAttempts = parseInt(urlParams.get('correctAttempts')) || 0;
+    const totalAttempts = parseInt(urlParams.get('totalAttempts')) || 1;
+    const accuracy = Math.round((correctAttempts / totalAttempts) * 100);
+    const lessonCompleted = urlParams.get('completed') === 'true';
+    if (accuracy >= 80 && quests[1].current < quests[1].total) quests[1].current++;
+    if (lessonCompleted && quests[2].current < quests[2].total) quests[2].current++;
+    localStorage.setItem(storageKey, JSON.stringify(quests));
+
+    const container = document.getElementById('questsContainer');
+
+    // Helper: ask parent (quiz-engine) to open a modal
+    function askParentToOpenModal(url) {
+      console.log('Asking parent to open modal:', url);
+      window.parent.postMessage({ type: 'openModal', url: url }, '*');
+    }
+
+    function render() {
+      container.innerHTML = '';
+      quests.forEach(q => {
+        const complete = q.current >= q.total;
+        const pct = q.total > 0 ? (q.current / q.total) * 100 : 0;
+        let widthStyle = '';
+        if (complete) { widthStyle = 'width: calc(100% - 20px); margin-left: 10px;'; }
+        else if (q.current === 0) { widthStyle = 'width: 0; margin-left: 0;'; }
+        else { widthStyle = `width: calc(${pct}% - 20px); margin-left: 10px;`; }
+        const row = document.createElement('div');
+        row.className = 'quest-row';
+        row.innerHTML = `
+          <div class="quest-info">
+            <div class="quest-title">${q.title}</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-inner" style="${widthStyle}; background:${pct > 0 ? 'var(--month-color)' : '#d9d9d9'};"></div>
+                <div class="progress-count ${pct === 0 ? 'dark-text' : ''}">${q.current} / ${q.total}</div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="chest ${q.id} ${q.claimed ? 'claimed' : ''} ${!complete ? 'disabled' : ''}" data-id="${q.id}" data-coins="${q.coins}" data-title="${q.title}">
-          <img src="../../../public/assets/icons/phosphor/duotone/treasure-chest.svg" alt="chest">
-        </div>
-      `;
-      container.appendChild(row);
-    });
+          <div class="chest ${q.id} ${q.claimed ? 'claimed' : ''} ${!complete ? 'disabled' : ''}" data-id="${q.id}" data-coins="${q.coins}" data-title="${q.title}">
+            <img src="../../../public/assets/icons/phosphor/duotone/treasure-chest.svg" alt="chest">
+          </div>
+        `;
+        container.appendChild(row);
+      });
 
-    // Attach chest click handlers
-    document.querySelectorAll('.chest:not(.disabled):not(.claimed)').forEach(chest => {
-      chest.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = chest.dataset.id;
-        const coins = parseInt(chest.dataset.coins);
-        const quest = quests.find(q => q.id === id);
-        if (!quest || quest.claimed) return;
+      // Attach chest click handlers
+      document.querySelectorAll('.chest:not(.disabled):not(.claimed)').forEach(chest => {
+        chest.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = chest.dataset.id;
+          const coins = parseInt(chest.dataset.coins);
+          const quest = quests.find(q => q.id === id);
+          if (!quest || quest.claimed) return;
 
-        // Mark as claimed
-        quest.claimed = true;
-        localStorage.setItem(storageKey, JSON.stringify(quests));
+          // Mark as claimed
+          quest.claimed = true;
+          localStorage.setItem(storageKey, JSON.stringify(quests));
 
-        // Show coin reward modal for this quest's coins
-        showCoinRewardModal(coins, () => {
-          // After modal closes, re-render to show chest disabled
-          render();
-          // Notify parent (quiz engine) that coins were added (already handled inside coins-reward.html)
-          window.parent.postMessage({ type: 'questChestClaimed', chestId: id, amount: coins }, '*');
+          // Tell parent to open the coin reward modal
+          askParentToOpenModal(`./coins-reward.html?amount=${coins}`);
+          // Re-render to show chest disabled after modal closes (modalClose will trigger re-render? We'll rely on parent to close this modal? Actually we don't re-render here because the parent will close this daily quest modal. But we need to keep daily quest open until user closes it? The spec says after individual chest claim, if other quests remain unclaimed, return to daily-quest. So we should NOT close daily-quest. So we re-render after modal closes. We'll listen for a message from parent when the coin modal closes.)
         });
       });
-    });
-  }
-  render();
-
-  // CONTINUE button: sum unclaimed coins and show single coin reward modal
-  document.getElementById('continueButton').addEventListener('click', () => {
-    const unclaimed = quests.filter(q => q.current >= q.total && !q.claimed);
-    const totalCoins = unclaimed.reduce((sum, q) => sum + q.coins, 0);
-    if (totalCoins > 0) {
-      // Mark all unclaimed quests as claimed
-      unclaimed.forEach(q => { q.claimed = true; });
-      localStorage.setItem(storageKey, JSON.stringify(quests));
-
-      // Show coin reward modal with totalCoins
-      showCoinRewardModal(totalCoins, () => {
-        // After modal closes, close this daily-quest modal entirely
-        window.parent.postMessage('modalClose', '*');
-      });
-    } else {
-      // No unclaimed coins, just close
-      window.parent.postMessage('modalClose', '*');
     }
-  });
+    render();
+
+    // Listen for modalClose from parent to re-render (if needed)
+    window.addEventListener('message', (event) => {
+      if (event.data === 'modalClose') {
+        console.log('Daily quest received modalClose, re-rendering');
+        render();
+      }
+    });
+
+    // CONTINUE button: sum unclaimed coins and show single coin reward modal
+    document.getElementById('continueButton').addEventListener('click', () => {
+      const unclaimed = quests.filter(q => q.current >= q.total && !q.claimed);
+      const totalCoins = unclaimed.reduce((sum, q) => sum + q.coins, 0);
+      if (totalCoins > 0) {
+        // Mark all unclaimed quests as claimed
+        unclaimed.forEach(q => { q.claimed = true; });
+        localStorage.setItem(storageKey, JSON.stringify(quests));
+        // Tell parent to open coin reward modal with totalCoins
+        askParentToOpenModal(`./coins-reward.html?amount=${totalCoins}`);
+        // After that modal closes, the parent will send modalClose to this modal? Actually the parent will close the coin modal, but not this daily quest. We need to close this daily quest after the coin modal closes. So we'll listen for the coin modal's modalClose and then close this one.
+        const closeHandler = (event) => {
+          if (event.data === 'modalClose') {
+            window.removeEventListener('message', closeHandler);
+            window.parent.postMessage('modalClose', '*');
+          }
+        };
+        window.addEventListener('message', closeHandler);
+      } else {
+        // No unclaimed coins, just close daily quest
+        window.parent.postMessage('modalClose', '*');
+      }
+    });
+  })();
 </script>
 </body>
 </html>
