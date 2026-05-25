@@ -318,6 +318,13 @@ class QuizEngine {
           isMilestone: event.data.isMilestone,
           heartsAtCompletion: event.data.heartsAtCompletion
         });
+      } else if (event.data && event.data.type === 'openModal') {
+        // This is a request from a child modal (like daily-quest) to open another modal
+        console.log('Opening modal requested:', event.data.url);
+        this.showModal(event.data.url, () => {
+          // After the requested modal closes, we can optionally do nothing
+          // The child modal (daily-quest) will continue listening for modalClose
+        });
       } else if (event.data && event.data.type === 'questChestClaimed') {
         const coins = parseInt(localStorage.getItem('coins') || '500', 10);
         const newCoins = coins + (event.data.amount || 0);
