@@ -63,9 +63,7 @@
       console.log('Boost reward modal loaded');
       const audio = document.getElementById('boostAudio');
       if (audio) {
-        audio.play().catch(e => console.log('Audio play failed:', e));
-      } else {
-        console.log('Audio element not found');
+        audio.play().catch(e => console.log('Audio play failed (non-critical):', e));
       }
 
       const params = new URLSearchParams(window.location.search);
@@ -88,6 +86,8 @@
         errorDiv.textContent = 'Invalid reward link. This boost cannot be claimed.';
         errorDiv.style.display = 'block';
         console.error('Boost reward validation failed');
+        // Do NOT auto-close; let user see error and manually close? They can't; but we can keep the button hidden.
+        // The parent will eventually close via its own mechanism? Better to add a close button? For simplicity, we'll not auto-close.
       } else {
         document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
         document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
