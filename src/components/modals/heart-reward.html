@@ -39,7 +39,7 @@
   </style>
 </head>
 <body>
-  <audio id="heartbeatAudio" preload="auto"><source src="../../../public/assets/audio/heartbeat.mp3" type="audio/mpeg"></audio>
+  <audio id="heartbeatAudio" preload="auto" src="../../../public/assets/audio/heartbeat.mp3"></audio>
   <div class="treasure-panel">
     <div class="reward-scene"><div class="hearts-container" id="heartsContainer"></div></div>
     <div class="reward-title" id="rewardTitle">You gained more hearts!</div>
@@ -48,29 +48,33 @@
     <button class="btn btn-md btn-carpenter-blue" id="claimButton">Claim hearts</button>
   </div>
   <script>
-    const audio = document.getElementById('heartbeatAudio');
-    audio.play().catch(() => {});
+    (function() {
+      console.log('Heart reward modal loaded');
+      const audio = document.getElementById('heartbeatAudio');
+      if (audio) audio.play().catch(e => console.log('Audio play failed:', e));
 
-    const params = new URLSearchParams(window.location.search);
-    const heartsParam = params.get('hearts') || 'full';
-    let heartCount = heartsParam === 'full' ? 5 : (parseInt(heartsParam) || 1);
-    if (heartCount < 1 || heartCount > 5) heartCount = 5;
+      const params = new URLSearchParams(window.location.search);
+      const heartsParam = params.get('hearts') || 'full';
+      let heartCount = heartsParam === 'full' ? 5 : (parseInt(heartsParam) || 1);
+      if (heartCount < 1 || heartCount > 5) heartCount = 5;
 
-    const container = document.getElementById('heartsContainer');
-    container.innerHTML = '';
-    for (let i = 0; i < heartCount; i++) {
-      const img = document.createElement('img');
-      img.src = '../../../public/assets/icons/phosphor/fill/heart.svg';
-      img.alt = 'Heart';
-      const wrapper = document.createElement('div');
-      wrapper.className = 'heart-icon';
-      wrapper.appendChild(img);
-      container.appendChild(wrapper);
-    }
-    document.getElementById('rewardSubtitle').textContent = heartCount === 5 ? 'You now have 5 hearts again.' : `You now have ${heartCount} heart${heartCount > 1 ? 's' : ''}.`;
-    document.getElementById('claimButton').addEventListener('click', () => {
-      window.parent.postMessage('modalClose', '*');
-    });
+      const container = document.getElementById('heartsContainer');
+      container.innerHTML = '';
+      for (let i = 0; i < heartCount; i++) {
+        const img = document.createElement('img');
+        img.src = '../../../public/assets/icons/phosphor/fill/heart.svg';
+        img.alt = 'Heart';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'heart-icon';
+        wrapper.appendChild(img);
+        container.appendChild(wrapper);
+      }
+      document.getElementById('rewardSubtitle').textContent = heartCount === 5 ? 'You now have 5 hearts again.' : `You now have ${heartCount} heart${heartCount > 1 ? 's' : ''}.`;
+      document.getElementById('claimButton').addEventListener('click', () => {
+        console.log('Claim button clicked, closing heart modal');
+        window.parent.postMessage('modalClose', '*');
+      });
+    })();
   </script>
 </body>
 </html>
