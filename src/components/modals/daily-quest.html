@@ -184,10 +184,13 @@
 
     const container = document.getElementById('questsContainer');
 
-    // Helper: ask parent (quiz-engine) to open a modal
-    function askParentToOpenModal(url) {
-      console.log('Asking parent to open modal:', url);
-      window.parent.postMessage({ type: 'openModal', url: url }, '*');
+    // Helper: ask parent (quiz-engine) to open a modal using the correct relative path from pages/lesson.html
+    function askParentToOpenModal(modalName, params = '') {
+      // modalName should be something like 'coins-reward.html'
+      // The correct absolute-from-project-root path is '../src/components/modals/' + modalName
+      const fullUrl = `../src/components/modals/${modalName}${params ? `?${params}` : ''}`;
+      console.log('Asking parent to open modal:', fullUrl);
+      window.parent.postMessage({ type: 'openModal', url: fullUrl }, '*');
     }
 
     function render() {
@@ -232,8 +235,8 @@
           localStorage.setItem(storageKey, JSON.stringify(quests));
 
           // Tell parent to open the coin reward modal
-          askParentToOpenModal(`./coins-reward.html?amount=${coins}`);
-          // Re-render to show chest disabled after modal closes (modalClose will trigger re-render? We'll rely on parent to close this modal? Actually we don't re-render here because the parent will close this daily quest modal. But we need to keep daily quest open until user closes it? The spec says after individual chest claim, if other quests remain unclaimed, return to daily-quest. So we should NOT close daily-quest. So we re-render after modal closes. We'll listen for a message from parent when the coin modal closes.)
+          askParentToOpenModal('coins-reward.html', `amount=${coins}`);
+          // Re-render after modal closes (parent will send modalClose)
         });
       });
     }
@@ -256,8 +259,8 @@
         unclaimed.forEach(q => { q.claimed = true; });
         localStorage.setItem(storageKey, JSON.stringify(quests));
         // Tell parent to open coin reward modal with totalCoins
-        askParentToOpenModal(`./coins-reward.html?amount=${totalCoins}`);
-        // After that modal closes, the parent will send modalClose to this modal? Actually the parent will close the coin modal, but not this daily quest. We need to close this daily quest after the coin modal closes. So we'll listen for the coin modal's modalClose and then close this one.
+        askParentToOpenModal('coins-reward.html', `amount=${totalCoins}`);
+        // After that modal closes, close this daily quest modal
         const closeHandler = (event) => {
           if (event.data === 'modalClose') {
             window.removeEventListener('message', closeHandler);
