@@ -3,63 +3,239 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Heart Reward</title>
+  <title>Daily Quests</title>
   <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
   <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Atkinson Hyperlegible Next', sans-serif;
-      background: #FFFFFF;
-      min-height: 100vh;
+      background: #ffffff;
+      font-family: 'Atkinson Hyperlegible Next', system-ui, -apple-system, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px;
     }
-    .treasure-panel {
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
+    .daily-quests-module { max-width: 500px; width: 100%; margin: 0 auto; }
+    .section-title { font-size: 22px; font-weight: 700; color: #3b3b3b; }
+    .time-cta {
+      font-weight: 700;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      text-align: center;
-      padding: 40px 24px 48px;
+      gap: 8px;
+      font-size: 14px;
     }
-    .reward-scene { width: 100%; height: 160px; display: flex; justify-content: center; align-items: center; }
-    .hearts-container { display: flex; gap: 12px; }
-    .heart-icon { width: 80px; height: 80px; }
-    .reward-title { margin-top: 20px; font-weight: 700; color: #0f1c22; font-size: 20px; max-width: 320px; }
-    .reward-subtitle { margin-top: 8px; color: #6b7280; font-size: 14px; margin-bottom: 24px; }
+    .time-cta img { width: 20px; height: 20px; }
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 0;
+      border: 1px solid #eee;
+      box-shadow: 0 6px 18px rgba(15,15,15,0.06);
+    }
+    .quests {
+      margin-top: 8px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #eee;
+    }
+    .quest-row {
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fff;
+    }
+    .quest-row:last-child { border-bottom: 0; }
+    .quest-info { flex: 1; }
+    .quest-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #444;
+      font-size: 15px;
+    }
+    .progress-wrapper { position: relative; width: 100%; }
+    .progress-bar {
+      height: 28px;
+      background: #e6e6e6;
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+    .progress-inner {
+      height: 12px;
+      background: var(--month-color);
+      border-radius: 12px;
+      box-shadow: inset 0 -4px 8px rgba(255,255,255,0.25);
+    }
+    .progress-count {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-size: 13px;
+      z-index: 2;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .progress-count.dark-text { color: #666; text-shadow: none; }
+    .chest {
+      width: 44px; height: 44px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .chest img { width: 32px; height: 32px; }
+    .bronze img { filter: brightness(0) saturate(100%) invert(59%) sepia(76%) saturate(377%) hue-rotate(4deg) brightness(87%) contrast(88%); }
+    .silver img { filter: brightness(0) saturate(100%) invert(87%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(83%) contrast(87%); }
+    .gold img   { filter: brightness(0) saturate(100%) invert(80%) sepia(87%) saturate(1665%) hue-rotate(347deg) brightness(100%) contrast(97%); }
+    .chest.claimed { opacity: 0.5; pointer-events: none; }
+    .chest.disabled { opacity: 0.3; pointer-events: none; }
+    .continue-action { width: 100%; margin-top: 8px; text-align: center; }
     .btn { width: 100%; }
+    .daily-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
   </style>
 </head>
 <body>
-  <audio id="heartbeatAudio" preload="auto"><source src="../../../public/assets/audio/heartbeat.mp3" type="audio/mpeg"></audio>
-  <div class="treasure-panel">
-    <div class="reward-scene"><div class="hearts-container" id="heartsContainer"></div></div>
-    <div class="reward-title" id="rewardTitle">You gained more hearts!</div>
-    <div class="reward-subtitle" id="rewardSubtitle">You now have 5 hearts again.</div>
-    <button class="btn btn-md btn-carpenter-blue" id="claimButton">Claim hearts</button>
+<div class="daily-quests-module">
+  <div class="daily-header-row">
+    <div class="section-title">Daily Quests</div>
+    <div class="time-cta" id="timeCta"><img src="../../../public/assets/icons/phosphor/bold/clock-countdown.svg" alt="" id="clockIcon"><span id="timeLeft">20 MINUTES</span></div>
   </div>
-  <script>
-    const audio = document.getElementById('heartbeatAudio');
-    audio.play().catch(() => {});
-    const params = new URLSearchParams(window.location.search);
-    const heartsParam = params.get('hearts') || 'full';
-    const heartCount = heartsParam === 'full' ? 5 : (parseInt(heartsParam) || 1);
-    const container = document.getElementById('heartsContainer');
+  <div class="card quests" id="questsContainer"></div>
+  <div class="continue-action"><button class="btn btn-md btn-carpenter-blue" id="continueButton">CONTINUE</button></div>
+</div>
+<script>
+  const monthConfig = {
+    0: { name: "January", theme: "New Horizons Quest", icon: "routine", color: "#FBBC05", colorLight: "#ffd54f", colorDark: "#f9a825", clockFilter: "brightness(0) saturate(100%) invert(78%) sepia(89%) saturate(831%) hue-rotate(321deg) brightness(103%) contrast(97%)" },
+    1: { name: "February", theme: "Heartstrings Quest", icon: "favorite", color: "#EA4335", colorLight: "#ff6b5c", colorDark: "#d3382a", clockFilter: "brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)" },
+    2: { name: "March", theme: "March of Momentum Quest", icon: "speed", color: "#34A853", colorLight: "#5ecf7a", colorDark: "#2a8e45", clockFilter: "brightness(0) saturate(100%) invert(38%) sepia(67%) saturate(1217%) hue-rotate(80deg) brightness(97%) contrast(93%)" },
+    3: { name: "April", theme: "Double or Nothing Quest", icon: "casino", color: "#FF6D01", colorLight: "#ff9333", colorDark: "#e05c00", clockFilter: "brightness(0) saturate(100%) invert(35%) sepia(96%) saturate(2208%) hue-rotate(344deg) brightness(102%) contrast(104%)" },
+    4: { name: "May", theme: "The Gauntlet Quest", icon: "shield", color: "#AA00FF", colorLight: "#c54dff", colorDark: "#8a00cc", clockFilter: "brightness(0) saturate(100%) invert(24%) sepia(89%) saturate(4621%) hue-rotate(267deg) brightness(97%) contrast(100%)" },
+    5: { name: "June", theme: "Up, Up and Away Quest", icon: "flight_takeoff", color: "#1CB0F6", colorLight: "#5cc9ff", colorDark: "#0e96d6", clockFilter: "brightness(0) saturate(100%) invert(53%) sepia(78%) saturate(2739%) hue-rotate(176deg) brightness(100%) contrast(97%)" },
+    6: { name: "July", theme: "The Halfway Line Quest", icon: "balance", color: "#AA00FF", colorLight: "#c54dff", colorDark: "#8a00cc", clockFilter: "brightness(0) saturate(100%) invert(24%) sepia(89%) saturate(4621%) hue-rotate(267deg) brightness(97%) contrast(100%)" },
+    7: { name: "August", theme: "Conquest Quest", icon: "military_tech", color: "#EA4335", colorLight: "#ff6b5c", colorDark: "#d3382a", clockFilter: "brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)" },
+    8: { name: "September", theme: "Starbound Quest", icon: "star", color: "#FBBC05", colorLight: "#ffd54f", colorDark: "#f9a825", clockFilter: "brightness(0) saturate(100%) invert(78%) sepia(89%) saturate(831%) hue-rotate(321deg) brightness(103%) contrast(97%)" },
+    9: { name: "October", theme: "Spellbound Quest", icon: "auto_awesome", color: "#FF6D01", colorLight: "#ff9333", colorDark: "#e05c00", clockFilter: "brightness(0) saturate(100%) invert(35%) sepia(96%) saturate(2208%) hue-rotate(344deg) brightness(102%) contrast(104%)" },
+    10:{ name: "November", theme: "Edge of Glory Quest", icon: "terrain", color: "#1CB0F6", colorLight: "#5cc9ff", colorDark: "#0e96d6", clockFilter: "brightness(0) saturate(100%) invert(53%) sepia(78%) saturate(2739%) hue-rotate(176deg) brightness(100%) contrast(97%)" },
+    11:{ name: "December", theme: "Happy Holidays!", icon: "celebration", color: "#34A853", colorLight: "#5ecf7a", colorDark: "#2a8e45", clockFilter: "brightness(0) saturate(100%) invert(38%) sepia(67%) saturate(1217%) hue-rotate(80deg) brightness(97%) contrast(93%)" }
+  };
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const config = monthConfig[currentMonth];
+  document.documentElement.style.setProperty('--month-color', config.color);
+  document.getElementById('timeCta').style.color = config.color;
+  document.getElementById('clockIcon').style.filter = config.clockFilter;
+
+  function updateTimeLeft() {
+    const now = new Date();
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    const ms = endOfDay - now;
+    if (ms <= 0) { document.getElementById('timeLeft').textContent = '0 MINUTES'; return; }
+    const h = Math.floor(ms / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    document.getElementById('timeLeft').textContent = h > 0 ? `${h} HOUR${h > 1 ? 'S' : ''}` : `${Math.max(1, m)} MINUTE${m !== 1 ? 'S' : ''}`;
+  }
+  updateTimeLeft();
+  setInterval(updateTimeLeft, 60000);
+
+  const today = new Date().toISOString().slice(0,10);
+  const storageKey = `dailyQuests_${today}`;
+  let quests = JSON.parse(localStorage.getItem(storageKey));
+  if (!quests) {
+    quests = [
+      { id: 'bronze', title: 'Start a streak', current: 1, total: 1, coins: 50, claimed: false },
+      { id: 'silver', title: 'Score 80% or higher in 3 lessons', current: 0, total: 3, coins: 75, claimed: false },
+      { id: 'gold', title: 'Complete your next 4 lessons', current: 0, total: 4, coins: 100, claimed: false }
+    ];
+    localStorage.setItem(storageKey, JSON.stringify(quests));
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const correctAttempts = parseInt(urlParams.get('correctAttempts')) || 0;
+  const totalAttempts = parseInt(urlParams.get('totalAttempts')) || 1;
+  const accuracy = Math.round((correctAttempts / totalAttempts) * 100);
+  const lessonCompleted = urlParams.get('completed') === 'true';
+  if (accuracy >= 80 && quests[1].current < quests[1].total) quests[1].current++;
+  if (lessonCompleted && quests[2].current < quests[2].total) quests[2].current++;
+  localStorage.setItem(storageKey, JSON.stringify(quests));
+
+  const container = document.getElementById('questsContainer');
+  function render() {
     container.innerHTML = '';
-    for (let i = 0; i < heartCount; i++) {
-      const img = document.createElement('img');
-      img.src = '../../../public/assets/icons/phosphor/fill/heart.svg';
-      img.className = 'heart-icon';
-      container.appendChild(img);
-    }
-    document.getElementById('rewardSubtitle').textContent = heartCount === 5 ? 'You now have 5 hearts again.' : `You now have ${heartCount} heart${heartCount > 1 ? 's' : ''}.`;
-    document.getElementById('claimButton').addEventListener('click', () => {
-      window.parent.postMessage('modalClose', '*');
+    quests.forEach(q => {
+      const complete = q.current >= q.total;
+      const pct = q.total > 0 ? (q.current / q.total) * 100 : 0;
+      let widthStyle = '';
+      if (complete) { widthStyle = 'width: calc(100% - 20px); margin-left: 10px;'; }
+      else if (q.current === 0) { widthStyle = 'width: 0; margin-left: 0;'; }
+      else { widthStyle = `width: calc(${pct}% - 20px); margin-left: 10px;`; }
+      const row = document.createElement('div');
+      row.className = 'quest-row';
+      row.innerHTML = `
+        <div class="quest-info">
+          <div class="quest-title">${q.title}</div>
+          <div class="progress-wrapper">
+            <div class="progress-bar">
+              <div class="progress-inner" style="${widthStyle}; background:${pct > 0 ? 'var(--month-color)' : '#d9d9d9'};"></div>
+              <div class="progress-count ${pct === 0 ? 'dark-text' : ''}">${q.current} / ${q.total}</div>
+            </div>
+          </div>
+        </div>
+        <div class="chest ${q.id} ${q.claimed ? 'claimed' : ''} ${!complete ? 'disabled' : ''}" data-id="${q.id}" data-coins="${q.coins}">
+          <img src="../../../public/assets/icons/phosphor/duotone/treasure-chest.svg" alt="chest">
+        </div>
+      `;
+      container.appendChild(row);
     });
-  </script>
+    document.querySelectorAll('.chest:not(.disabled):not(.claimed)').forEach(chest => {
+      chest.addEventListener('click', function() {
+        const id = this.dataset.id;
+        const coins = parseInt(this.dataset.coins);
+        const quest = quests.find(q => q.id === id);
+        if (!quest || quest.claimed) return;
+        quest.claimed = true;
+        localStorage.setItem(storageKey, JSON.stringify(quests));
+        const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
+        localStorage.setItem('coins', String(currentCoins + coins));
+        render();
+        window.parent.postMessage({ type: 'questChestClaimed', chestId: id, amount: coins }, '*');
+        // Optionally show a small coin notification? Not required.
+      });
+    });
+  }
+  render();
+
+  document.getElementById('continueButton').addEventListener('click', () => {
+    const unclaimed = quests.filter(q => q.current >= q.total && !q.claimed);
+    const totalCoins = unclaimed.reduce((sum, q) => sum + q.coins, 0);
+    if (totalCoins > 0) {
+      unclaimed.forEach(q => { q.claimed = true; });
+      localStorage.setItem(storageKey, JSON.stringify(quests));
+      const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
+      localStorage.setItem('coins', String(currentCoins + totalCoins));
+      // We can optionally show coins-reward.html, but the spec says: CONTINUE sums and claims directly, no extra modal.
+      // The parent postMessage is enough.
+      window.parent.postMessage({ type: 'questChestClaimed', amount: totalCoins }, '*');
+    }
+    window.parent.postMessage('modalClose', '*');
+  });
+</script>
 </body>
 </html>
