@@ -198,43 +198,108 @@
             </div>
           </div>
         </div>
-        <div class="chest ${q.id} ${q.claimed ? 'claimed' : ''} ${!complete ? 'disabled' : ''}" data-id="${q.id}" data-coins="${q.coins}">
+        <div class="chest ${q.id} ${q.claimed ? 'claimed' : ''} ${!complete ? 'disabled' : ''}" data-id="${q.id}" data-coins="${q.coins}" data-title="${q.title}">
           <img src="../../../public/assets/icons/phosphor/duotone/treasure-chest.svg" alt="chest">
         </div>
       `;
       container.appendChild(row);
     });
+
+    // Attach chest click handlers
     document.querySelectorAll('.chest:not(.disabled):not(.claimed)').forEach(chest => {
-      chest.addEventListener('click', function() {
-        const id = this.dataset.id;
-        const coins = parseInt(this.dataset.coins);
+      chest.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = chest.dataset.id;
+        const coins = parseInt(chest.dataset.coins);
+        const title = chest.dataset.title;
         const quest = quests.find(q => q.id === id);
         if (!quest || quest.claimed) return;
+
+        // Mark quest as claimed
         quest.claimed = true;
         localStorage.setItem(storageKey, JSON.stringify(quests));
-        const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
-        localStorage.setItem('coins', String(currentCoins + coins));
-        render();
-        window.parent.postMessage({ type: 'questChestClaimed', chestId: id, amount: coins }, '*');
-        // Optionally show a small coin notification? Not required.
+
+        // Show coins-reward modal for this quest's coin amount
+        const modalUrl = `../src/components/modals/coins-reward.html?amount=${coins}`;
+        // Create an iframe overlay similar to quiz-engine's showModal but simpler
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        overlay.style.zIndex = '10000';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        const iframe = document.createElement('iframe');
+        iframe.src = modalUrl;
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        overlay.appendChild(iframe);
+        document.body.appendChild(overlay);
+
+        const messageHandler = (event) => {
+          if (event.data === 'modalClose') {
+            window.removeEventListener('message', messageHandler);
+            overlay.remove();
+            // After closing coin reward, re-render the daily quest page (which is still visible underneath)
+            render();
+            // Notify parent that coins were added (already handled inside coins-reward.html)
+            window.parent.postMessage({ type: 'questChestClaimed', chestId: id, amount: coins }, '*');
+          }
+        };
+        window.addEventListener('message', messageHandler);
       });
     });
   }
   render();
 
+  // CONTINUE button: sum unclaimed coins and show single coin reward modal
   document.getElementById('continueButton').addEventListener('click', () => {
     const unclaimed = quests.filter(q => q.current >= q.total && !q.claimed);
     const totalCoins = unclaimed.reduce((sum, q) => sum + q.coins, 0);
     if (totalCoins > 0) {
+      // Mark all unclaimed quests as claimed
       unclaimed.forEach(q => { q.claimed = true; });
       localStorage.setItem(storageKey, JSON.stringify(quests));
-      const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
-      localStorage.setItem('coins', String(currentCoins + totalCoins));
-      // We can optionally show coins-reward.html, but the spec says: CONTINUE sums and claims directly, no extra modal.
-      // The parent postMessage is enough.
-      window.parent.postMessage({ type: 'questChestClaimed', amount: totalCoins }, '*');
+
+      // Show coins-reward modal with totalCoins
+      const modalUrl = `../src/components/modals/coins-reward.html?amount=${totalCoins}`;
+      const overlay = document.createElement('div');
+      overlay.style.position = 'fixed';
+      overlay.style.top = '0';
+      overlay.style.left = '0';
+      overlay.style.width = '100%';
+      overlay.style.height = '100%';
+      overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+      overlay.style.zIndex = '10000';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      const iframe = document.createElement('iframe');
+      iframe.src = modalUrl;
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = 'none';
+      overlay.appendChild(iframe);
+      document.body.appendChild(overlay);
+
+      const messageHandler = (event) => {
+        if (event.data === 'modalClose') {
+          window.removeEventListener('message', messageHandler);
+          overlay.remove();
+          // After claiming, close the daily quest modal entirely
+          window.parent.postMessage('modalClose', '*');
+        }
+      };
+      window.addEventListener('message', messageHandler);
+    } else {
+      // No unclaimed coins, just close
+      window.parent.postMessage('modalClose', '*');
     }
-    window.parent.postMessage('modalClose', '*');
   });
 </script>
 </body>
