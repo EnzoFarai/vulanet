@@ -54,11 +54,7 @@
     const params = new URLSearchParams(window.location.search);
     const heartsParam = params.get('hearts') || 'full';
     let heartCount = heartsParam === 'full' ? 5 : (parseInt(heartsParam) || 1);
-
-    // Validate heart count: must be between 1 and 5 inclusive
-    if (heartCount < 1 || heartCount > 5) {
-      heartCount = 5;
-    }
+    if (heartCount < 1 || heartCount > 5) heartCount = 5;
 
     const container = document.getElementById('heartsContainer');
     container.innerHTML = '';
