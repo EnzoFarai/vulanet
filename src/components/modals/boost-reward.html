@@ -66,21 +66,12 @@
     let multiplier = parseFloat(params.get('multiplier')) || 1.5;
     let duration = parseInt(params.get('duration')) || 30;
 
-    // Allowed values
     const allowedMultipliers = [1.5, 2, 3];
     const allowedDurations = [30, 20, 15];
 
     let isValid = true;
-    let errorMsg = '';
-
-    if (!allowedMultipliers.includes(multiplier)) {
-      isValid = false;
-      errorMsg = 'Invalid multiplier value.';
-    }
-    if (!allowedDurations.includes(duration)) {
-      isValid = false;
-      errorMsg = 'Invalid duration value.';
-    }
+    if (!allowedMultipliers.includes(multiplier)) isValid = false;
+    if (!allowedDurations.includes(duration)) isValid = false;
 
     if (!isValid) {
       document.getElementById('multiplierDisplay').style.display = 'none';
@@ -90,7 +81,7 @@
       const errorDiv = document.getElementById('errorMessage');
       errorDiv.textContent = 'Invalid reward link. This boost cannot be claimed.';
       errorDiv.style.display = 'block';
-      console.error('Boost reward validation failed:', errorMsg);
+      console.error('Boost reward validation failed');
     } else {
       document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
       document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
