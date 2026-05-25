@@ -177,6 +177,39 @@
   localStorage.setItem(storageKey, JSON.stringify(quests));
 
   const container = document.getElementById('questsContainer');
+  
+  // Helper to show a coin reward modal (same directory)
+  function showCoinRewardModal(amount, onClose) {
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
+    overlay.style.zIndex = '10001';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    const iframe = document.createElement('iframe');
+    // Correct path: coins-reward.html is in the same directory
+    iframe.src = `./coins-reward.html?amount=${amount}`;
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+    overlay.appendChild(iframe);
+    document.body.appendChild(overlay);
+    
+    const handler = (event) => {
+      if (event.data === 'modalClose') {
+        window.removeEventListener('message', handler);
+        overlay.remove();
+        if (onClose) onClose();
+      }
+    };
+    window.addEventListener('message', handler);
+  }
+
   function render() {
     container.innerHTML = '';
     quests.forEach(q => {
@@ -205,99 +238,36 @@
       container.appendChild(row);
     });
 
-    // Attach chest click handlers
     document.querySelectorAll('.chest:not(.disabled):not(.claimed)').forEach(chest => {
       chest.addEventListener('click', (e) => {
         e.stopPropagation();
         const id = chest.dataset.id;
         const coins = parseInt(chest.dataset.coins);
-        const title = chest.dataset.title;
         const quest = quests.find(q => q.id === id);
         if (!quest || quest.claimed) return;
-
-        // Mark quest as claimed
         quest.claimed = true;
         localStorage.setItem(storageKey, JSON.stringify(quests));
-
-        // Show coins-reward modal for this quest's coin amount
-        const modalUrl = `../src/components/modals/coins-reward.html?amount=${coins}`;
-        // Create an iframe overlay similar to quiz-engine's showModal but simpler
-        const overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        overlay.style.zIndex = '10000';
-        overlay.style.display = 'flex';
-        overlay.style.alignItems = 'center';
-        overlay.style.justifyContent = 'center';
-        const iframe = document.createElement('iframe');
-        iframe.src = modalUrl;
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-        overlay.appendChild(iframe);
-        document.body.appendChild(overlay);
-
-        const messageHandler = (event) => {
-          if (event.data === 'modalClose') {
-            window.removeEventListener('message', messageHandler);
-            overlay.remove();
-            // After closing coin reward, re-render the daily quest page (which is still visible underneath)
-            render();
-            // Notify parent that coins were added (already handled inside coins-reward.html)
-            window.parent.postMessage({ type: 'questChestClaimed', chestId: id, amount: coins }, '*');
-          }
-        };
-        window.addEventListener('message', messageHandler);
+        // Show coin reward modal
+        showCoinRewardModal(coins, () => {
+          // After modal closes, re-render to update chest state
+          render();
+          window.parent.postMessage({ type: 'questChestClaimed', chestId: id, amount: coins }, '*');
+        });
       });
     });
   }
   render();
 
-  // CONTINUE button: sum unclaimed coins and show single coin reward modal
   document.getElementById('continueButton').addEventListener('click', () => {
     const unclaimed = quests.filter(q => q.current >= q.total && !q.claimed);
     const totalCoins = unclaimed.reduce((sum, q) => sum + q.coins, 0);
     if (totalCoins > 0) {
-      // Mark all unclaimed quests as claimed
       unclaimed.forEach(q => { q.claimed = true; });
       localStorage.setItem(storageKey, JSON.stringify(quests));
-
-      // Show coins-reward modal with totalCoins
-      const modalUrl = `../src/components/modals/coins-reward.html?amount=${totalCoins}`;
-      const overlay = document.createElement('div');
-      overlay.style.position = 'fixed';
-      overlay.style.top = '0';
-      overlay.style.left = '0';
-      overlay.style.width = '100%';
-      overlay.style.height = '100%';
-      overlay.style.backgroundColor = 'rgba(0,0,0,0.5)';
-      overlay.style.zIndex = '10000';
-      overlay.style.display = 'flex';
-      overlay.style.alignItems = 'center';
-      overlay.style.justifyContent = 'center';
-      const iframe = document.createElement('iframe');
-      iframe.src = modalUrl;
-      iframe.style.width = '100%';
-      iframe.style.height = '100%';
-      iframe.style.border = 'none';
-      overlay.appendChild(iframe);
-      document.body.appendChild(overlay);
-
-      const messageHandler = (event) => {
-        if (event.data === 'modalClose') {
-          window.removeEventListener('message', messageHandler);
-          overlay.remove();
-          // After claiming, close the daily quest modal entirely
-          window.parent.postMessage('modalClose', '*');
-        }
-      };
-      window.addEventListener('message', messageHandler);
+      showCoinRewardModal(totalCoins, () => {
+        window.parent.postMessage('modalClose', '*');
+      });
     } else {
-      // No unclaimed coins, just close
       window.parent.postMessage('modalClose', '*');
     }
   });
