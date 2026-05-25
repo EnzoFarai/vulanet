@@ -50,7 +50,7 @@
     const params = new URLSearchParams(window.location.search);
     let amount = parseInt(params.get('amount')) || 250;
 
-    // Only allow positive coin amounts up to a reasonable maximum (e.g., 2000)
+    // Only allow positive coin amounts up to a reasonable maximum (e.g., 5000)
     const isValid = !isNaN(amount) && amount > 0 && amount <= 5000;
 
     if (!isValid) {
