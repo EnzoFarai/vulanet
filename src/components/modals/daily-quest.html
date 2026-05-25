@@ -116,7 +116,10 @@
 <div class="daily-quests-module">
   <div class="daily-header-row">
     <div class="section-title">Daily Quests</div>
-    <div class="time-cta" id="timeCta"><img src="../../../public/assets/icons/phosphor/bold/clock-countdown.svg" alt="" id="clockIcon"><span id="timeLeft">20 MINUTES</span></div>
+    <div class="time-cta" id="timeCta">
+      <img src="../../../public/assets/icons/phosphor/bold/clock-countdown.svg" alt="" id="clockIcon">
+      <span id="timeLeft">20 MINUTES</span>
+    </div>
   </div>
   <div class="card quests" id="questsContainer"></div>
   <div class="continue-action"><button class="btn btn-md btn-carpenter-blue" id="continueButton">CONTINUE</button></div>
@@ -177,8 +180,8 @@
   localStorage.setItem(storageKey, JSON.stringify(quests));
 
   const container = document.getElementById('questsContainer');
-  
-  // Helper to show a coin reward modal (same directory)
+
+  // Helper: show a modal (coins-reward) as an overlay iframe
   function showCoinRewardModal(amount, onClose) {
     const overlay = document.createElement('div');
     overlay.style.position = 'fixed';
@@ -192,22 +195,24 @@
     overlay.style.alignItems = 'center';
     overlay.style.justifyContent = 'center';
     const iframe = document.createElement('iframe');
-    // Correct path: coins-reward.html is in the same directory
+    // Use correct relative path: same directory as this file
     iframe.src = `./coins-reward.html?amount=${amount}`;
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
+    iframe.style.width = '90%';
+    iframe.style.maxWidth = '420px';
+    iframe.style.height = 'auto';
     iframe.style.border = 'none';
+    iframe.style.borderRadius = '24px';
     overlay.appendChild(iframe);
     document.body.appendChild(overlay);
-    
-    const handler = (event) => {
+
+    const messageHandler = (event) => {
       if (event.data === 'modalClose') {
-        window.removeEventListener('message', handler);
+        window.removeEventListener('message', messageHandler);
         overlay.remove();
         if (onClose) onClose();
       }
     };
-    window.addEventListener('message', handler);
+    window.addEventListener('message', messageHandler);
   }
 
   function render() {
@@ -238,6 +243,7 @@
       container.appendChild(row);
     });
 
+    // Attach chest click handlers
     document.querySelectorAll('.chest:not(.disabled):not(.claimed)').forEach(chest => {
       chest.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -245,12 +251,16 @@
         const coins = parseInt(chest.dataset.coins);
         const quest = quests.find(q => q.id === id);
         if (!quest || quest.claimed) return;
+
+        // Mark as claimed
         quest.claimed = true;
         localStorage.setItem(storageKey, JSON.stringify(quests));
-        // Show coin reward modal
+
+        // Show coin reward modal for this quest's coins
         showCoinRewardModal(coins, () => {
-          // After modal closes, re-render to update chest state
+          // After modal closes, re-render to show chest disabled
           render();
+          // Notify parent (quiz engine) that coins were added (already handled inside coins-reward.html)
           window.parent.postMessage({ type: 'questChestClaimed', chestId: id, amount: coins }, '*');
         });
       });
@@ -258,16 +268,22 @@
   }
   render();
 
+  // CONTINUE button: sum unclaimed coins and show single coin reward modal
   document.getElementById('continueButton').addEventListener('click', () => {
     const unclaimed = quests.filter(q => q.current >= q.total && !q.claimed);
     const totalCoins = unclaimed.reduce((sum, q) => sum + q.coins, 0);
     if (totalCoins > 0) {
+      // Mark all unclaimed quests as claimed
       unclaimed.forEach(q => { q.claimed = true; });
       localStorage.setItem(storageKey, JSON.stringify(quests));
+
+      // Show coin reward modal with totalCoins
       showCoinRewardModal(totalCoins, () => {
+        // After modal closes, close this daily-quest modal entirely
         window.parent.postMessage('modalClose', '*');
       });
     } else {
+      // No unclaimed coins, just close
       window.parent.postMessage('modalClose', '*');
     }
   });
