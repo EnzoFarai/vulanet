@@ -43,6 +43,7 @@
     .reward-title { margin-top: 20px; font-weight: 700; color: #0f1c22; font-size: 20px; max-width: 320px; }
     .reward-subtitle { margin-top: 8px; color: #6b7280; font-size: 14px; margin-bottom: 24px; }
     .btn { width: 100%; }
+    .log { font-size: 12px; color: gray; margin-top: 20px; word-break: break-word; background: #f5f5f5; padding: 8px; border-radius: 8px; text-align: left; }
   </style>
 </head>
 <body>
@@ -56,14 +57,22 @@
     <div class="reward-title">You found an XP Boost!</div>
     <div class="reward-subtitle" id="rewardSubtitle">Congrats! You now have 1.5x XP in lessons for the next 30 minutes.</div>
     <button class="btn btn-md btn-carpenter-blue" id="claimButton">Claim XP Boost</button>
+    <div class="log" id="log"></div>
   </div>
   <script>
-    // Minimal script – no automatic modalClose, only button click
-    console.log('Boost modal loaded – stable version');
+    function log(msg) {
+      console.log('[BoostModal]', msg);
+      const logDiv = document.getElementById('log');
+      if (logDiv) logDiv.innerHTML += msg + '<br>';
+    }
+
+    log('Modal loaded – diagnostic version');
+    log('URL: ' + window.location.href);
 
     const urlParams = new URLSearchParams(window.location.search);
     let multiplier = parseFloat(urlParams.get('multiplier'));
     let duration = parseInt(urlParams.get('duration'));
+    log(`Raw params: multiplier=${multiplier}, duration=${duration}`);
 
     const validMultipliers = [1.5, 2, 3];
     const validDurations = [30, 20, 15];
@@ -71,18 +80,24 @@
     if (validMultipliers.includes(multiplier) && validDurations.includes(duration)) {
       document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
       document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
+      log('Valid boost parameters applied.');
     } else {
-      // Fallback to defaults if parameters are invalid (still no auto-close)
       multiplier = 1.5;
       duration = 30;
       document.getElementById('multiplierDisplay').textContent = 'x1.5';
       document.getElementById('rewardSubtitle').textContent = 'Congrats! You now have 1.5x XP in lessons for the next 30 minutes.';
+      log('Invalid parameters, using defaults.');
     }
 
-    document.getElementById('claimButton').addEventListener('click', function() {
-      console.log('Claim button clicked – closing boost modal');
+    // Ensure no automatic postMessage
+    log('Setting up button click handler.');
+    const claimBtn = document.getElementById('claimButton');
+    claimBtn.addEventListener('click', function() {
+      log('Claim button clicked – sending modalClose');
       window.parent.postMessage('modalClose', '*');
     });
+
+    log('Ready – waiting for user action. No auto-close will happen.');
   </script>
 </body>
 </html>
