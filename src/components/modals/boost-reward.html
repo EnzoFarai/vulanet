@@ -58,35 +58,31 @@
     <button class="btn btn-md btn-carpenter-blue" id="claimButton">Claim XP Boost</button>
   </div>
   <script>
-    (function() {
-      console.log('Boost reward modal loaded – reliable version');
-      
-      // Get URL parameters
-      const urlParams = new URLSearchParams(window.location.search);
-      let multiplier = parseFloat(urlParams.get('multiplier')) || 1.5;
-      let duration = parseInt(urlParams.get('duration')) || 30;
-      
-      // Validate (only allow specific values)
-      const validMultipliers = [1.5, 2, 3];
-      const validDurations = [30, 20, 15];
-      
-      if (validMultipliers.includes(multiplier) && validDurations.includes(duration)) {
-        document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
-        document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
-      } else {
-        // Fallback to default values without error (don't break the modal)
-        multiplier = 1.5;
-        duration = 30;
-        document.getElementById('multiplierDisplay').textContent = 'x1.5';
-        document.getElementById('rewardSubtitle').textContent = `Congrats! You now have 1.5x XP in lessons for the next 30 minutes.`;
-      }
-      
-      // Set click handler – only this sends modalClose
-      document.getElementById('claimButton').addEventListener('click', function() {
-        console.log('Claim button clicked – closing boost modal');
-        window.parent.postMessage('modalClose', '*');
-      });
-    })();
+    // Minimal script – no automatic modalClose, only button click
+    console.log('Boost modal loaded – stable version');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let multiplier = parseFloat(urlParams.get('multiplier'));
+    let duration = parseInt(urlParams.get('duration'));
+
+    const validMultipliers = [1.5, 2, 3];
+    const validDurations = [30, 20, 15];
+
+    if (validMultipliers.includes(multiplier) && validDurations.includes(duration)) {
+      document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
+      document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
+    } else {
+      // Fallback to defaults if parameters are invalid (still no auto-close)
+      multiplier = 1.5;
+      duration = 30;
+      document.getElementById('multiplierDisplay').textContent = 'x1.5';
+      document.getElementById('rewardSubtitle').textContent = 'Congrats! You now have 1.5x XP in lessons for the next 30 minutes.';
+    }
+
+    document.getElementById('claimButton').addEventListener('click', function() {
+      console.log('Claim button clicked – closing boost modal');
+      window.parent.postMessage('modalClose', '*');
+    });
   </script>
 </body>
 </html>
