@@ -50,7 +50,9 @@
   <audio id="boostAudio" preload="auto" src="../../../public/assets/audio/boost.mp3"></audio>
   <div class="treasure-panel">
     <div class="reward-scene">
-      <div class="rocket-icon"><img src="../../../public/assets/icons/phosphor/duotone/rocket-launch.svg" alt="Rocket" style="width:100%;height:100%;"></div>
+      <div class="rocket-icon">
+        <img src="../../../public/assets/icons/phosphor/duotone/rocket-launch.svg" alt="Rocket" style="width:100%;height:100%;" onerror="this.src='../../../public/assets/icons/phosphor/fill/rocket-launch.svg'; this.onerror=null;">
+      </div>
       <div class="xp-multiplier" id="multiplierDisplay">x1.5</div>
     </div>
     <div class="reward-title" id="rewardTitle">You found an XP Boost!</div>
@@ -60,24 +62,32 @@
   </div>
   <script>
     (function() {
-      console.log('Boost reward modal loaded');
+      console.log('Boost reward modal loaded – stable version');
+      
+      // Play audio safely (non‑critical)
       const audio = document.getElementById('boostAudio');
       if (audio) {
-        audio.play().catch(e => console.log('Audio play failed (non-critical):', e));
+        audio.play().catch(e => console.log('Audio play failed (ignored):', e));
       }
 
+      // Parse parameters
       const params = new URLSearchParams(window.location.search);
-      let multiplier = parseFloat(params.get('multiplier')) || 1.5;
-      let duration = parseInt(params.get('duration')) || 30;
-
+      let multiplier = parseFloat(params.get('multiplier'));
+      let duration = parseInt(params.get('duration'));
+      
+      // Defaults if missing/invalid
+      if (isNaN(multiplier)) multiplier = 1.5;
+      if (isNaN(duration)) duration = 30;
+      
       const allowedMultipliers = [1.5, 2, 3];
       const allowedDurations = [30, 20, 15];
-
+      
       let isValid = true;
       if (!allowedMultipliers.includes(multiplier)) isValid = false;
       if (!allowedDurations.includes(duration)) isValid = false;
-
+      
       if (!isValid) {
+        console.warn('Invalid boost parameters – showing error');
         document.getElementById('multiplierDisplay').style.display = 'none';
         document.getElementById('rewardTitle').style.display = 'none';
         document.getElementById('rewardSubtitle').style.display = 'none';
@@ -85,14 +95,20 @@
         const errorDiv = document.getElementById('errorMessage');
         errorDiv.textContent = 'Invalid reward link. This boost cannot be claimed.';
         errorDiv.style.display = 'block';
-        console.error('Boost reward validation failed');
-        // Do NOT auto-close; let user see error and manually close? They can't; but we can keep the button hidden.
-        // The parent will eventually close via its own mechanism? Better to add a close button? For simplicity, we'll not auto-close.
+        // NO auto-close – user must manually close via parent? But there is no close button.
+        // To be safe, add a manual close button in error case
+        const manualClose = document.createElement('button');
+        manualClose.textContent = 'Close';
+        manualClose.className = 'btn btn-md btn-cloud-outline';
+        manualClose.style.marginTop = '16px';
+        manualClose.onclick = () => window.parent.postMessage('modalClose', '*');
+        document.querySelector('.treasure-panel').appendChild(manualClose);
       } else {
+        // Valid boost
         document.getElementById('multiplierDisplay').textContent = `x${multiplier}`;
         document.getElementById('rewardSubtitle').textContent = `Congrats! You now have ${multiplier}x XP in lessons for the next ${duration} minutes.`;
         document.getElementById('claimButton').addEventListener('click', () => {
-          console.log('Claim button clicked, closing boost modal');
+          console.log('Claim button clicked – closing boost modal');
           window.parent.postMessage('modalClose', '*');
         });
       }
