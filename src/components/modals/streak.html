@@ -258,7 +258,6 @@
 </div>
 <script>
   (function() {
-    console.log('Streak modal loaded');
     const streakAudio = new Audio('../../../public/assets/audio/streak.mp3');
     streakAudio.play().catch(e => console.log("Audio play failed:", e));
 
@@ -316,7 +315,6 @@
     } else {
       heartsAtCompletion = parseInt(localStorage.getItem('heartsAtCompletion') || '5');
     }
-    console.log('Streak modal: hearts at completion =', heartsAtCompletion);
 
     const now = new Date();
     const currentHour = now.getHours();
@@ -438,14 +436,12 @@
     }
 
     function notifyParent() {
-      console.log('Sending streakClosed with hearts:', heartsAtCompletion);
       window.parent.postMessage({
         type: 'streakClosed',
         streakDays: currentStreak,
         isMilestone: (currentStreak % 5 === 0),
         heartsAtCompletion: heartsAtCompletion
       }, '*');
-      // 🔥 FIX: Do NOT send 'modalClose' here – the parent handles closing after processing streakClosed.
     }
 
     document.getElementById('exit-button').addEventListener('click', notifyParent);
