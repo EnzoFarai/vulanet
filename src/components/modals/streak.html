@@ -310,7 +310,6 @@
     const timezone = streakData.timezone || 'UTC';
     const isEarlyUser = totalAppDays < 7;
 
-    // Read hearts from URL (passed by quiz-engine)
     let heartsAtCompletion = 5;
     if (params.get('hearts')) {
       heartsAtCompletion = parseInt(params.get('hearts')) || 5;
@@ -446,7 +445,7 @@
         isMilestone: (currentStreak % 5 === 0),
         heartsAtCompletion: heartsAtCompletion
       }, '*');
-      window.parent.postMessage('modalClose', '*');
+      // 🔥 FIX: Do NOT send 'modalClose' here – the parent handles closing after processing streakClosed.
     }
 
     document.getElementById('exit-button').addEventListener('click', notifyParent);
