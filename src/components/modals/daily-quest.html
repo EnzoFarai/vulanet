@@ -116,18 +116,14 @@
 <div class="daily-quests-module">
   <div class="daily-header-row">
     <div class="section-title">Daily Quests</div>
-    <div class="time-cta" id="timeCta">
-      <img src="../../../public/assets/icons/phosphor/bold/clock-countdown.svg" alt="" id="clockIcon">
-      <span id="timeLeft">20 MINUTES</span>
-    </div>
+    <div class="time-cta" id="timeCta"><img src="../../../public/assets/icons/phosphor/bold/clock-countdown.svg" alt="" id="clockIcon"><span id="timeLeft">20 MINUTES</span></div>
   </div>
   <div class="card quests" id="questsContainer"></div>
   <div class="continue-action"><button class="btn btn-md btn-carpenter-blue" id="continueButton">CONTINUE</button></div>
 </div>
 <script>
   (function() {
-    console.log('Daily quest modal loaded');
-
+    // Month config (unchanged)
     const monthConfig = {
       0: { name: "January", theme: "New Horizons Quest", icon: "routine", color: "#FBBC05", colorLight: "#ffd54f", colorDark: "#f9a825", clockFilter: "brightness(0) saturate(100%) invert(78%) sepia(89%) saturate(831%) hue-rotate(321deg) brightness(103%) contrast(97%)" },
       1: { name: "February", theme: "Heartstrings Quest", icon: "favorite", color: "#EA4335", colorLight: "#ff6b5c", colorDark: "#d3382a", clockFilter: "brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)" },
@@ -184,13 +180,8 @@
 
     const container = document.getElementById('questsContainer');
 
-    // Helper: ask parent (quiz-engine) to open a modal using the correct relative path from pages/lesson.html
-    function askParentToOpenModal(modalName, params = '') {
-      // modalName should be something like 'coins-reward.html'
-      // The correct absolute-from-project-root path is '../src/components/modals/' + modalName
-      const fullUrl = `../src/components/modals/${modalName}${params ? `?${params}` : ''}`;
-      console.log('Asking parent to open modal:', fullUrl);
-      window.parent.postMessage({ type: 'openModal', url: fullUrl }, '*');
+    function openCoinReward(amount) {
+      window.parent.postMessage({ type: 'openCoinReward', amount: amount }, '*');
     }
 
     function render() {
@@ -214,64 +205,42 @@
               </div>
             </div>
           </div>
-          <div class="chest ${q.id} ${q.claimed ? 'claimed' : ''} ${!complete ? 'disabled' : ''}" data-id="${q.id}" data-coins="${q.coins}" data-title="${q.title}">
+          <div class="chest ${q.id} ${q.claimed ? 'claimed' : ''} ${!complete ? 'disabled' : ''}" data-id="${q.id}" data-coins="${q.coins}">
             <img src="../../../public/assets/icons/phosphor/duotone/treasure-chest.svg" alt="chest">
           </div>
         `;
         container.appendChild(row);
       });
-
-      // Attach chest click handlers
       document.querySelectorAll('.chest:not(.disabled):not(.claimed)').forEach(chest => {
-        chest.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const id = chest.dataset.id;
-          const coins = parseInt(chest.dataset.coins);
+        chest.addEventListener('click', function() {
+          const id = this.dataset.id;
+          const coins = parseInt(this.dataset.coins);
           const quest = quests.find(q => q.id === id);
           if (!quest || quest.claimed) return;
-
-          // Mark as claimed
           quest.claimed = true;
           localStorage.setItem(storageKey, JSON.stringify(quests));
-
-          // Tell parent to open the coin reward modal
-          askParentToOpenModal('coins-reward.html', `amount=${coins}`);
-          // Re-render after modal closes (parent will send modalClose)
+          // Add coins to localStorage directly and open reward modal
+          const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
+          localStorage.setItem('coins', String(currentCoins + coins));
+          openCoinReward(coins);
+          render();
+          window.parent.postMessage({ type: 'questChestClaimed', chestId: id, amount: coins }, '*');
         });
       });
     }
     render();
 
-    // Listen for modalClose from parent to re-render (if needed)
-    window.addEventListener('message', (event) => {
-      if (event.data === 'modalClose') {
-        console.log('Daily quest received modalClose, re-rendering');
-        render();
-      }
-    });
-
-    // CONTINUE button: sum unclaimed coins and show single coin reward modal
     document.getElementById('continueButton').addEventListener('click', () => {
       const unclaimed = quests.filter(q => q.current >= q.total && !q.claimed);
       const totalCoins = unclaimed.reduce((sum, q) => sum + q.coins, 0);
       if (totalCoins > 0) {
-        // Mark all unclaimed quests as claimed
         unclaimed.forEach(q => { q.claimed = true; });
         localStorage.setItem(storageKey, JSON.stringify(quests));
-        // Tell parent to open coin reward modal with totalCoins
-        askParentToOpenModal('coins-reward.html', `amount=${totalCoins}`);
-        // After that modal closes, close this daily quest modal
-        const closeHandler = (event) => {
-          if (event.data === 'modalClose') {
-            window.removeEventListener('message', closeHandler);
-            window.parent.postMessage('modalClose', '*');
-          }
-        };
-        window.addEventListener('message', closeHandler);
-      } else {
-        // No unclaimed coins, just close daily quest
-        window.parent.postMessage('modalClose', '*');
+        const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
+        localStorage.setItem('coins', String(currentCoins + totalCoins));
+        openCoinReward(totalCoins);
       }
+      window.parent.postMessage('modalClose', '*');
     });
   })();
 </script>
