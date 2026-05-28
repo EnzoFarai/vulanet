@@ -123,7 +123,8 @@
 </div>
 <script>
   (function() {
-    // Month config (unchanged)
+    console.log('Daily quest modal loaded');
+
     const monthConfig = {
       0: { name: "January", theme: "New Horizons Quest", icon: "routine", color: "#FBBC05", colorLight: "#ffd54f", colorDark: "#f9a825", clockFilter: "brightness(0) saturate(100%) invert(78%) sepia(89%) saturate(831%) hue-rotate(321deg) brightness(103%) contrast(97%)" },
       1: { name: "February", theme: "Heartstrings Quest", icon: "favorite", color: "#EA4335", colorLight: "#ff6b5c", colorDark: "#d3382a", clockFilter: "brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)" },
@@ -180,8 +181,9 @@
 
     const container = document.getElementById('questsContainer');
 
-    function openCoinReward(amount) {
-      window.parent.postMessage({ type: 'openCoinReward', amount: amount }, '*');
+    // Helper: ask parent to open a coin reward modal and optionally wait for close
+    function openCoinReward(amount, callbackId = null) {
+      window.parent.postMessage({ type: 'openCoinReward', amount: amount, callbackId: callbackId }, '*');
     }
 
     function render() {
@@ -211,6 +213,7 @@
         `;
         container.appendChild(row);
       });
+
       document.querySelectorAll('.chest:not(.disabled):not(.claimed)').forEach(chest => {
         chest.addEventListener('click', function() {
           const id = this.dataset.id;
@@ -219,7 +222,6 @@
           if (!quest || quest.claimed) return;
           quest.claimed = true;
           localStorage.setItem(storageKey, JSON.stringify(quests));
-          // Add coins to localStorage directly and open reward modal
           const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
           localStorage.setItem('coins', String(currentCoins + coins));
           openCoinReward(coins);
@@ -230,17 +232,31 @@
     }
     render();
 
-    document.getElementById('continueButton').addEventListener('click', () => {
+    // CONTINUE button logic with proper waiting for coin reward to close
+    const continueBtn = document.getElementById('continueButton');
+    continueBtn.addEventListener('click', () => {
       const unclaimed = quests.filter(q => q.current >= q.total && !q.claimed);
       const totalCoins = unclaimed.reduce((sum, q) => sum + q.coins, 0);
       if (totalCoins > 0) {
+        // Mark all unclaimed quests as claimed now (they will be claimed after reward)
         unclaimed.forEach(q => { q.claimed = true; });
         localStorage.setItem(storageKey, JSON.stringify(quests));
         const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
         localStorage.setItem('coins', String(currentCoins + totalCoins));
-        openCoinReward(totalCoins);
+        // Open coin reward modal with a callback ID 'continue'
+        openCoinReward(totalCoins, 'continue');
+        // Wait for parent to send 'coinRewardClosed' with the same callbackId
+        const closeHandler = (event) => {
+          if (event.data && event.data.type === 'coinRewardClosed' && event.data.callbackId === 'continue') {
+            window.removeEventListener('message', closeHandler);
+            window.parent.postMessage('modalClose', '*');
+          }
+        };
+        window.addEventListener('message', closeHandler);
+      } else {
+        // No unclaimed coins, just close daily quest
+        window.parent.postMessage('modalClose', '*');
       }
-      window.parent.postMessage('modalClose', '*');
     });
   })();
 </script>
