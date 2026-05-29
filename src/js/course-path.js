@@ -1,406 +1,354 @@
-// Shared module for rendering dynamic learning paths
-// Usage: new CoursePath(containerElement, courseData, userProgress, onLessonStart)
+// src/js/course-path.js
+import { getCurrentUser, loadUserProgress, updateUserProgress, addXpBoost } from './supabase.js';
+
+// Reward variants (same as in quiz-engine)
+const rewardVariants = [
+  { type: "coin", amount: 250, title: "You have earned 250 coins!", subtitle: "Spend them wisely", iconClass: "ph-duotone ph-coins", containerClass: "coin-container", buttonText: "Claim 250" },
+  { type: "coin", amount: 350, title: "You have earned 350 coins!", subtitle: "Spend them wisely", iconClass: "ph-duotone ph-coins", containerClass: "coin-container", buttonText: "Claim 350" },
+  { type: "coin", amount: 500, title: "You have earned 500 coins!", subtitle: "Spend them wisely", iconClass: "ph-duotone ph-coins", containerClass: "coin-container", buttonText: "Claim 500" },
+  { type: "xp-boost", multiplier: "1.5", duration: 30, title: "You found an XP Boost!", subtitle: "1.5x XP for 30 minutes", iconClass: "ph-duotone ph-rocket-launch", containerClass: "rocket-container", buttonText: "Claim XP Boost" },
+  { type: "xp-boost", multiplier: "2", duration: 20, title: "You found an XP Boost!", subtitle: "2x XP for 20 minutes", iconClass: "ph-duotone ph-rocket-launch", containerClass: "rocket-container", buttonText: "Claim XP Boost" },
+  { type: "xp-boost", multiplier: "3", duration: 15, title: "You found an XP Boost!", subtitle: "3x XP for 15 minutes", iconClass: "ph-duotone ph-rocket-launch", containerClass: "rocket-container", buttonText: "Claim XP Boost" },
+  { type: "heart", amount: 5, title: "You gained more hearts!", subtitle: "You now have 5 hearts again.", iconClass: "ph-fill ph-heart", containerClass: "hearts-container", buttonText: "Claim hearts" }
+];
+
+// Chapter colour cycle (7 colours)
+const chapterColors = [
+  { bg: "#4285F4", shadow: "#3367D6", light: "#E8F0FE", class: "chapter-1" },
+  { bg: "#1CB0F6", shadow: "#0A9DE3", light: "#E8F7FF", class: "chapter-2" },
+  { bg: "#AA00FF", shadow: "#8A00D4", light: "#F5E6FF", class: "chapter-3" },
+  { bg: "#EA4335", shadow: "#D32F2F", light: "#FCE8E6", class: "chapter-4" },
+  { bg: "#FF6D01", shadow: "#E65C00", light: "#FFF3E0", class: "chapter-5" },
+  { bg: "#FBBC05", shadow: "#D4A000", light: "#FFF9C4", class: "chapter-6" },
+  { bg: "#34A853", shadow: "#288542", light: "#E8F5E9", class: "chapter-7" }
+];
 
 export class CoursePath {
-  constructor(container, courseConfig, userProgress, callbacks) {
-    this.container = container;
-    this.courseConfig = courseConfig; // { id, name, chapters: [{ title, lessons: [...] }] }
-    this.userProgress = userProgress; // nested object: { chapterIndex: { lessonId: { status, mastered, sublessonCompleted, sublessonMastered } } }
-    this.callbacks = callbacks || {};
+  constructor(courseId, containerId) {
+    this.courseId = courseId;
+    this.container = document.getElementById(containerId);
+    if (!this.container) throw new Error(`Container ${containerId} not found`);
+    
+    this.user = null;
+    this.userProgress = null;
+    this.courseData = null;
     this.currentActiveNode = null;
-    this.currentLessonCard = null;
+    this.currentActiveChapter = null;
+    this.startSpeechBubble = null;
     this.isTransitioning = false;
-    this.selectedSublesson = 1;
-    this.chaptersData = [];
+    this.rewardPanel = null;
+    this.overlay = null;
+    
     this.init();
   }
-
-  init() {
-    this.buildChapters();
+  
+  async init() {
+    this.user = await getCurrentUser();
+    if (this.user) {
+      this.userProgress = await loadUserProgress(this.user.id);
+    }
+    await this.loadCourseData();
+    this.createRewardPanel();
     this.render();
-    this.setupEventListeners();
+    this.setupStartSpeechBubble();
+    this.attachEventListeners();
   }
-
-  buildChapters() {
-    this.courseConfig.chapters.forEach((chapter, chIdx) => {
-      const chapterObj = {
-        id: `chapter-${chIdx}`,
-        number: chIdx + 1,
-        colorClass: `chapter-${(chIdx % 7) + 1}`, // cycle through 7 colors
-        nodeColor: this.getChapterColor(chIdx),
-        lessons: chapter.lessons,
-        userProgress: this.userProgress[chIdx] || {},
-        activeNode: null,
-        currentLessonCard: null,
-        selectedSublesson: 1
-      };
-      // initialize progress if missing
-      chapter.lessons.forEach(lesson => {
-        if (!chapterObj.userProgress[lesson.id]) {
-          chapterObj.userProgress[lesson.id] = {
-            status: lesson.type === 'treasure' ? 'locked' : 'unstarted',
-            mastered: false,
-            completedSublessons: 0,
-            totalSublessons: lesson.totalSublessons || 1,
-            sublessonCompleted: Array(lesson.totalSublessons || 1).fill(false),
-            sublessonMastered: Array(lesson.totalSublessons || 1).fill(false)
-          };
-        }
-      });
-      this.chaptersData.push(chapterObj);
-    });
+  
+  async loadCourseData() {
+    // Fetch course data from a JSON file (you'll create these)
+    // Format: { title, chapters: [{ title, lessons: [...] }] }
+    try {
+      const response = await fetch(`/data/courses/${this.courseId}.json`);
+      if (!response.ok) throw new Error('Course data not found');
+      this.courseData = await response.json();
+    } catch (e) {
+      console.error('Failed to load course data', e);
+      this.container.innerHTML = '<div class="error">Course data not available.</div>';
+    }
   }
-
-  getChapterColor(index) {
-    const colors = ['#4285F4', '#1CB0F6', '#AA00FF', '#EA4335', '#FF6D01', '#FBBC05', '#34A853'];
-    return colors[index % colors.length];
+  
+  createRewardPanel() {
+    this.rewardPanel = document.createElement('div');
+    this.rewardPanel.id = 'treasure-panel';
+    this.rewardPanel.className = 'treasure-panel';
+    this.rewardPanel.innerHTML = `
+      <div class="reward-scene"><div class="reward-icon-container" id="reward-icon-container"></div></div>
+      <div class="reward-title" id="reward-title"></div>
+      <div class="reward-subtitle" id="reward-subtitle"></div>
+      <div class="reward-buttons-container"><button class="claim-button" id="claim-button">Claim</button></div>
+    `;
+    this.overlay = document.createElement('div');
+    this.overlay.id = 'overlay';
+    this.overlay.className = 'overlay';
+    document.body.appendChild(this.overlay);
+    document.body.appendChild(this.rewardPanel);
+    
+    document.getElementById('claim-button').addEventListener('click', () => this.closeRewardPanel());
+    this.overlay.addEventListener('click', () => this.closeRewardPanel());
   }
-
+  
+  showRewardPanel(reward, onClaim) {
+    const iconContainer = document.getElementById('reward-icon-container');
+    iconContainer.innerHTML = '';
+    if (reward.type === 'coin') {
+      iconContainer.innerHTML = `<div class="${reward.containerClass}"><i class="${reward.iconClass}" style="font-size:140px;color:#FFD700;"></i></div>`;
+    } else if (reward.type === 'xp-boost') {
+      iconContainer.innerHTML = `<div class="${reward.containerClass}"><i class="${reward.iconClass}" style="font-size:140px;color:#FF9600;"></i><div class="xp-multiplier">x${reward.multiplier}</div></div>`;
+    } else if (reward.type === 'heart') {
+      let hearts = '';
+      for (let i = 0; i < reward.amount; i++) hearts += `<i class="${reward.iconClass}" style="font-size:80px;color:#FF0000;"></i>`;
+      iconContainer.innerHTML = `<div class="${reward.containerClass}">${hearts}</div>`;
+    }
+    document.getElementById('reward-title').textContent = reward.title;
+    document.getElementById('reward-subtitle').textContent = reward.subtitle;
+    this.rewardPanel.classList.add('active');
+    this.overlay.classList.add('active');
+    this._pendingRewardClaim = onClaim;
+  }
+  
+  closeRewardPanel() {
+    this.rewardPanel.classList.remove('active');
+    this.overlay.classList.remove('active');
+    if (this._pendingRewardClaim) {
+      this._pendingRewardClaim();
+      this._pendingRewardClaim = null;
+    }
+  }
+  
+  setupStartSpeechBubble() {
+    this.startSpeechBubble = document.createElement('div');
+    this.startSpeechBubble.id = 'start-speech-bubble';
+    this.startSpeechBubble.className = 'start-speech-bubble';
+    this.startSpeechBubble.innerHTML = '<div class="speech-title">START</div>';
+    document.body.appendChild(this.startSpeechBubble);
+    // Styles for bubble (simplified – you can move to CSS)
+    this.startSpeechBubble.style.position = 'absolute';
+    this.startSpeechBubble.style.backgroundColor = 'white';
+    this.startSpeechBubble.style.border = '2px solid #E5E5E5';
+    this.startSpeechBubble.style.borderRadius = '0.5rem';
+    this.startSpeechBubble.style.padding = '0.65rem 1.1rem';
+    this.startSpeechBubble.style.width = '95px';
+    this.startSpeechBubble.style.height = '58px';
+    this.startSpeechBubble.style.display = 'flex';
+    this.startSpeechBubble.style.alignItems = 'center';
+    this.startSpeechBubble.style.justifyContent = 'center';
+    this.startSpeechBubble.style.zIndex = '100';
+    this.startSpeechBubble.style.filter = 'drop-shadow(2px 2px 4px rgba(0,0,0,0.1))';
+    this.startSpeechBubble.style.visibility = 'hidden';
+    this.startSpeechBubble.style.opacity = '0';
+    this.startSpeechBubble.style.transition = 'opacity 0.3s ease, visibility 0.3s ease';
+    this.startSpeechBubble.querySelector('.speech-title').style.fontWeight = '700';
+    this.startSpeechBubble.querySelector('.speech-title').style.color = '#4285F4';
+  }
+  
+  positionStartSpeechBubble(node) {
+    const rect = node.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const top = rect.top + scrollTop - 65;
+    const left = rect.left + (rect.width / 2);
+    this.startSpeechBubble.style.top = `${top}px`;
+    this.startSpeechBubble.style.left = `${left}px`;
+    this.startSpeechBubble.style.transform = 'translateX(-50%)';
+    this.startSpeechBubble.style.visibility = 'visible';
+    this.startSpeechBubble.style.opacity = '1';
+  }
+  
+  hideStartSpeechBubble() {
+    this.startSpeechBubble.style.visibility = 'hidden';
+    this.startSpeechBubble.style.opacity = '0';
+  }
+  
   render() {
+    if (!this.courseData) return;
     this.container.innerHTML = '';
-    this.chaptersData.forEach((chapter, idx) => {
-      const chapterDiv = document.createElement('div');
-      chapterDiv.className = 'chapter-container';
-      chapterDiv.id = `chapter-${idx}`;
-      if (idx === 0) chapterDiv.style.paddingTop = '110px';
-      // Subtitle
-      const subtitleContainer = document.createElement('div');
-      subtitleContainer.className = 'subtitle-container';
-      subtitleContainer.innerHTML = `<div class="line"></div><div class="subtitle">${this.courseConfig.chapters[idx].title}</div><div class="line"></div>`;
-      chapterDiv.appendChild(subtitleContainer);
-      // Learning path container
-      const pathContainer = document.createElement('div');
-      pathContainer.className = 'learning-path-container';
-      const pathDiv = document.createElement('div');
-      pathDiv.className = 'learning-path';
-      pathDiv.id = `learning-path-${idx}`;
-      pathContainer.appendChild(pathDiv);
-      chapterDiv.appendChild(pathContainer);
+    let chapterIndex = 0;
+    for (const chapter of this.courseData.chapters) {
+      const color = chapterColors[chapterIndex % chapterColors.length];
+      const chapterDiv = this.createChapterElement(chapter, color, chapterIndex);
       this.container.appendChild(chapterDiv);
-      this.renderChapterNodes(chapter, pathDiv, idx);
-    });
+      chapterIndex++;
+    }
+    // Add Up Next section
+    const upNextDiv = document.createElement('div');
+    upNextDiv.className = 'up-next-section';
+    upNextDiv.innerHTML = `
+      <div class="up-next-container">
+        <div class="up-next-card">
+          <div class="up-next-badge">UP NEXT</div>
+          <h1 class="up-next-title">Unit ${chapterIndex + 1}</h1>
+          <p class="up-next-description">Move ahead to the next unit.</p>
+          <button class="up-next-button">CONTINUE</button>
+        </div>
+      </div>
+    `;
+    this.container.appendChild(upNextDiv);
+    
+    // Set initial active node
+    const firstIncomplete = this.findFirstIncompleteNode();
+    if (firstIncomplete) {
+      this.setActiveNode(firstIncomplete.node, firstIncomplete.chapterDiv);
+    }
   }
-
-  renderChapterNodes(chapter, container, chIdx) {
-    const positionMap = new Map([[0,0],[-1,-44],[-2,-70],[1,44],[2,70]]);
+  
+  createChapterElement(chapter, color, chapterIndex) {
+    const chapterDiv = document.createElement('div');
+    chapterDiv.className = `chapter-container ${color.class}`;
+    chapterDiv.id = `chapter-${chapterIndex}`;
+    if (chapterIndex === 0) chapterDiv.style.paddingTop = '110px'; // space for fixed card
+    
+    // Subtitle
+    const subtitleDiv = document.createElement('div');
+    subtitleDiv.className = 'subtitle-container';
+    subtitleDiv.innerHTML = `<div class="line"></div><div class="subtitle">${chapter.title}</div><div class="line"></div>`;
+    chapterDiv.appendChild(subtitleDiv);
+    
+    // Learning path container
+    const pathContainer = document.createElement('div');
+    pathContainer.className = 'learning-path-container';
+    const pathDiv = document.createElement('div');
+    pathDiv.className = 'learning-path';
+    pathDiv.id = `learning-path-${chapterIndex}`;
+    
+    // Build nodes with wave pattern
     let waveState = { direction: "L", position: 0 };
-    const updateWaveState = (state) => {
-      let { direction, position } = state;
-      if (direction === "L" && position === -2) return { direction: "R", position: -1 };
-      if (direction === "R" && position === 2) return { direction: "L", position: 1 };
-      return { direction, position: direction === "L" ? position - 1 : direction === "R" ? position + 1 : position };
-    };
-    let html = '<div class="path-group">';
-    chapter.lessons.forEach((lesson, idx) => {
-      const prog = chapter.userProgress[lesson.id];
-      const position = positionMap.get(waveState.position) || 0;
-      if (lesson.type === 'treasure') {
-        html += `<div class="path-node treasure ${prog.status}" id="${lesson.id}" style="position: relative; left: ${position}px;"><i class="ph-duotone ph-treasure-chest"></i></div>`;
-      } else if (lesson.type === 'flag') {
-        const nodeClass = prog.mastered ? 'flag mastered' : 'flag';
-        const statusClass = (prog.status === 'completed' || prog.mastered) ? 'completed' : prog.status;
-        html += `<div class="path-node ${nodeClass} ${statusClass}" id="${lesson.id}" style="position: relative; left: ${position}px;"><div class="node-icon"><i class="ph-duotone ph-flag-checkered" style="color: white;"></i></div></div>`;
-      } else {
-        const nodeClass = prog.mastered ? 'path-node mastered' : 'path-node';
-        const statusClass = (prog.status === 'completed' || prog.mastered) ? 'completed' : prog.status;
-        const initialIcon = prog.status === 'completed' ? '<span class="material-symbols-outlined">assignment_turned_in</span>' : '<span class="material-symbols-outlined">joystick</span>';
-        const completedClass = (prog.status === 'completed' && !prog.mastered) ? ` ${chapter.completedColorClass || ''}` : '';
-        html += `<div class="${nodeClass} ${statusClass}${completedClass}" id="${lesson.id}" style="position: relative; left: ${position}px;"><div class="node-icon">${initialIcon}</div></div>`;
-      }
-      waveState = updateWaveState(waveState);
-    });
-    html += '</div>';
-    container.innerHTML = html;
-    // attach click handlers
-    container.querySelectorAll('.path-node').forEach(node => {
-      node.addEventListener('click', (e) => this.handleNodeClick(chapter, node, chIdx));
-    });
+    const positionMap = new Map([[0,0],[-1,-44],[-2,-70],[1,44],[2,70]]);
+    
+    for (let i = 0; i < chapter.lessons.length; i++) {
+      const lesson = chapter.lessons[i];
+      const node = this.createNode(lesson, color, positionMap.get(waveState.position));
+      pathDiv.appendChild(node);
+      waveState = this.updateWaveState(waveState);
+    }
+    pathContainer.appendChild(pathDiv);
+    chapterDiv.appendChild(pathContainer);
+    
+    // Store reference to nodes for later updates
+    chapterDiv.userProgress = {}; // will be loaded from DB
+    // For now, load from localStorage mock
+    const savedProgress = localStorage.getItem(`course_${this.courseId}_chapter_${chapterIndex}`);
+    if (savedProgress) chapterDiv.userProgress = JSON.parse(savedProgress);
+    
+    return chapterDiv;
   }
-
-  handleNodeClick(chapter, node, chIdx) {
+  
+  updateWaveState(state) {
+    let { direction, position } = state;
+    if (direction === "L" && position === -2) return { direction: "R", position: -1 };
+    if (direction === "R" && position === 2) return { direction: "L", position: 1 };
+    return { direction, position: direction === "L" ? position - 1 : position + 1 };
+  }
+  
+  createNode(lesson, color, leftOffset) {
+    const node = document.createElement('div');
+    node.className = 'path-node';
+    if (lesson.type === 'treasure') node.classList.add('treasure');
+    else if (lesson.type === 'flag') node.classList.add('flag');
+    node.id = lesson.id;
+    node.dataset.lessonId = lesson.id;
+    node.style.position = 'relative';
+    node.style.left = `${leftOffset}px`;
+    
+    // Icon
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'node-icon';
+    if (lesson.type === 'treasure') {
+      iconDiv.innerHTML = '<i class="ph-duotone ph-treasure-chest" style="font-size:53px;"></i>';
+    } else if (lesson.type === 'flag') {
+      iconDiv.innerHTML = '<i class="ph-duotone ph-flag-checkered" style="font-size:42px;color:white;"></i>';
+    } else {
+      iconDiv.innerHTML = '<span class="material-symbols-outlined" style="font-size:32px;">joystick</span>';
+    }
+    node.appendChild(iconDiv);
+    
+    // Status from saved progress (default unstarted)
+    const status = lesson.userProgress?.status || 'unstarted';
+    if (status === 'completed') node.classList.add('completed', `${color.class}-completed`);
+    else if (status === 'mastered') node.classList.add('mastered');
+    else if (status === 'locked') node.classList.add('locked');
+    
+    node.addEventListener('click', (e) => this.handleNodeClick(lesson, node, color));
+    return node;
+  }
+  
+  handleNodeClick(lesson, node, color) {
     if (this.isTransitioning) return;
-    const lessonId = node.id;
-    const lesson = chapter.lessons.find(l => l.id === lessonId);
-    if (!lesson) return;
-    if (node.classList.contains('treasure') && node.classList.contains('locked')) {
-      // check preceding lessons
-      const treasureIndex = chapter.lessons.findIndex(l => l.id === lessonId);
-      const preceding = chapter.lessons.slice(0, treasureIndex);
-      const allCompleted = preceding.every(l => {
-        if (l.type === 'treasure') return true;
-        const prog = chapter.userProgress[l.id];
-        if (l.totalSublessons > 1) return prog.sublessonCompleted.every(c => c);
-        return prog.status === 'completed';
-      });
-      if (!allCompleted) return;
-      node.classList.remove('locked'); node.classList.add('unlocked');
-      chapter.userProgress[lessonId].status = 'unlocked';
-      setTimeout(() => this.showTreasure(chapter, node, chIdx), 50);
+    if (lesson.type === 'treasure') {
+      if (node.classList.contains('locked')) {
+        // Check if all previous lessons completed
+        const allPrevCompleted = this.arePreviousLessonsCompleted(lesson);
+        if (allPrevCompleted) {
+          node.classList.remove('locked');
+          node.classList.add('unlocked');
+          this.showTreasureReward(lesson, node, color);
+        }
+      } else if (node.classList.contains('unlocked') && !node.classList.contains('collected')) {
+        this.showTreasureReward(lesson, node, color);
+      }
       return;
     }
-    if (node.classList.contains('treasure') && !node.classList.contains('locked')) {
-      this.showTreasure(chapter, node, chIdx);
-      return;
-    }
-    this.setActiveNode(node, chapter, chIdx);
-    this.showLessonCard(chapter, lesson, chIdx);
+    this.setActiveNode(node, color);
+    this.showLessonCard(lesson, node, color);
   }
-
-  setActiveNode(node, chapter, chIdx) {
-    // remove active class from all nodes
+  
+  arePreviousLessonsCompleted(currentLesson) {
+    // Find all lessons before this one in the same chapter
+    // Implementation depends on structure; simplified for demo
+    return true; // In real implementation, check DB
+  }
+  
+  showTreasureReward(lesson, node, color) {
+    const randomReward = rewardVariants[Math.floor(Math.random() * rewardVariants.length)];
+    this.showRewardPanel(randomReward, async () => {
+      node.classList.add('collected');
+      if (randomReward.type === 'coin') {
+        if (this.userProgress) {
+          this.userProgress.coins += randomReward.amount;
+          await updateUserProgress(this.user.id, { coins: this.userProgress.coins });
+        }
+      } else if (randomReward.type === 'xp-boost') {
+        if (this.user) await addXpBoost(this.user.id, parseFloat(randomReward.multiplier), randomReward.duration);
+      } else if (randomReward.type === 'heart') {
+        if (this.userProgress) {
+          this.userProgress.hearts = Math.min(5, this.userProgress.hearts + randomReward.amount);
+          await updateUserProgress(this.user.id, { hearts: this.userProgress.hearts });
+        }
+      }
+      // After claiming, find next node
+      const nextNode = this.findNextNode(lesson);
+      if (nextNode) this.setActiveNode(nextNode.node, nextNode.color);
+    });
+  }
+  
+  findFirstIncompleteNode() {
+    // Iterate over chapters and nodes to find first that is not completed/mastered
+    return null; // placeholder
+  }
+  
+  setActiveNode(node, color) {
+    // Remove active class from all nodes
     document.querySelectorAll('.path-node').forEach(n => n.classList.remove('active'));
     node.classList.add('active');
     this.currentActiveNode = node;
-    // position START bubble
-    const bubble = document.getElementById('start-speech-bubble');
-    if (bubble) {
-      const rect = node.getBoundingClientRect();
-      bubble.style.top = `${rect.top + window.pageYOffset - 65}px`;
-      bubble.style.left = `${rect.left + rect.width/2}px`;
-      bubble.classList.add('visible');
-    }
+    this.positionStartSpeechBubble(node);
   }
-
-  showLessonCard(chapter, lesson, chIdx) {
-    this.isTransitioning = true;
-    if (chapter.currentLessonCard) {
-      chapter.currentLessonCard.classList.remove('active');
-      setTimeout(() => {
-        if (chapter.currentLessonCard && chapter.currentLessonCard.parentNode) chapter.currentLessonCard.remove();
-        chapter.currentLessonCard = null;
-        this.createLessonCard(chapter, lesson, chIdx);
-      }, 300);
-    } else {
-      this.createLessonCard(chapter, lesson, chIdx);
-    }
+  
+  showLessonCard(lesson, node, color) {
+    // Create floating card with lesson actions (Start, Review, Master)
+    // This is a simplified version – full implementation would replicate the existing lesson card from your learning path HTML
+    alert(`Start lesson: ${lesson.title}`);
   }
-
-  createLessonCard(chapter, lesson, chIdx) {
-    const card = document.createElement('div');
-    card.className = 'lesson-card';
-    const prog = chapter.userProgress[lesson.id];
-    const isCompleted = prog.status === 'completed' || (lesson.totalSublessons > 1 && prog.sublessonCompleted[chapter.selectedSublesson-1]);
-    const isMastered = prog.mastered;
-    if (isMastered) card.classList.add('mastered');
-    else if (isCompleted && !isMastered) card.classList.add('chapter-review');
-    else card.style.setProperty('--bbColor', '#4285F4');
-    card.innerHTML = `<div class="lesson-header"><h2 class="lesson-title">${lesson.title}</h2></div><div class="lesson-actions" id="actions-${lesson.id}"></div>`;
-    const actionsDiv = card.querySelector(`.lesson-actions`);
-    // sublesson progress
-    if (lesson.totalSublessons > 1) {
-      const subDiv = document.createElement('div'); subDiv.className = 'sublesson-progress';
-      for (let i=1; i<=lesson.totalSublessons; i++) {
-        const item = document.createElement('div'); item.className = 'sublesson-item';
-        const circle = document.createElement('div'); circle.className = 'sublesson-circle'; circle.textContent = i;
-        if (i === chapter.selectedSublesson) circle.classList.add('active');
-        if (prog.sublessonCompleted[i-1]) circle.classList.add('completed');
-        if (prog.sublessonMastered[i-1]) circle.classList.add('mastered');
-        item.appendChild(circle);
-        item.appendChild(document.createElement('div')).className = 'sublesson-label'; item.lastChild.textContent = `Lesson ${i}`;
-        item.onclick = (e) => { e.stopPropagation(); this.selectSublesson(chapter, lesson.id, i, chIdx); };
-        subDiv.appendChild(item);
-      }
-      actionsDiv.appendChild(subDiv);
-    }
-    const info = document.createElement('div'); info.className = 'lesson-info';
-    info.textContent = lesson.totalSublessons > 1 ? `Lesson ${chapter.selectedSublesson} of ${lesson.totalSublessons}` : 'Lesson 1 of 1';
-    actionsDiv.appendChild(info);
-    // buttons
-    if (lesson.type === 'flag') {
-      if (isMastered) {
-        const btn = this.createButton('Review', 'btn-chapter-review-mastered', () => this.reviewLesson(chapter, lesson.id, chIdx));
-        actionsDiv.appendChild(btn);
-      } else if (prog.status === 'completed') {
-        actionsDiv.appendChild(this.createButton('Review', 'btn-chapter-review', () => this.reviewLesson(chapter, lesson.id, chIdx)));
-        actionsDiv.appendChild(this.createButton('Master', 'btn-master', () => this.masterLesson(chapter, lesson.id, chIdx)));
-      } else {
-        actionsDiv.appendChild(this.createButton('Begin', 'btn-chapter-review', () => this.startLesson(chapter, lesson.id, chIdx)));
-      }
-    } else {
-      if (isMastered) {
-        actionsDiv.appendChild(this.createButton('Review', 'btn-review-mastered', () => this.reviewLesson(chapter, lesson.id, chIdx)));
-      } else if (lesson.totalSublessons > 1 && prog.sublessonMastered[chapter.selectedSublesson-1]) {
-        actionsDiv.appendChild(this.createButton('Review', 'btn-review-mastered', () => this.reviewSubLesson(chapter, lesson.id, chapter.selectedSublesson, chIdx)));
-        if (!prog.sublessonMastered.every(m => m)) {
-          actionsDiv.appendChild(this.createButton('Master', 'btn-master', () => this.masterSubLesson(chapter, lesson.id, chapter.selectedSublesson, chIdx)));
-        }
-      } else if (isCompleted || (lesson.totalSublessons > 1 && prog.sublessonCompleted[chapter.selectedSublesson-1])) {
-        actionsDiv.appendChild(this.createButton('Review', 'btn-review', () => {
-          if (lesson.totalSublessons > 1) this.reviewSubLesson(chapter, lesson.id, chapter.selectedSublesson, chIdx);
-          else this.reviewLesson(chapter, lesson.id, chIdx);
-        }));
-        actionsDiv.appendChild(this.createButton('Master', 'btn-master', () => {
-          if (lesson.totalSublessons > 1) this.masterSubLesson(chapter, lesson.id, chapter.selectedSublesson, chIdx);
-          else this.masterLesson(chapter, lesson.id, chIdx);
-        }));
-      } else {
-        actionsDiv.appendChild(this.createButton('START', 'btn-primary', () => {
-          if (lesson.totalSublessons > 1) this.startSubLesson(chapter, lesson.id, chapter.selectedSublesson, chIdx);
-          else this.startLesson(chapter, lesson.id, chIdx);
-        }));
-      }
-    }
-    const pathContainer = document.querySelector(`#learning-path-${chIdx}`);
-    pathContainer.appendChild(card);
-    chapter.currentLessonCard = card;
-    this.positionLessonCard(card, this.currentActiveNode, pathContainer);
-    setTimeout(() => { card.classList.add('active'); this.isTransitioning = false; }, 50);
-  }
-
-  createButton(text, className, onClick) {
-    const btn = document.createElement('button'); btn.className = `btn ${className}`; btn.innerHTML = `${text} <span class="xp-badge">+10 XP</span>`;
-    btn.onclick = onClick; return btn;
-  }
-
-  positionLessonCard(card, node, container) {
-    if (!node) return;
-    const nodeRect = node.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const top = nodeRect.top - containerRect.top + nodeRect.height + 22;
-    const left = nodeRect.left - containerRect.left + nodeRect.width/2;
-    card.style.top = `${top}px`; card.style.left = `${left}px`; card.style.transform = 'translateX(-50%)';
-  }
-
-  selectSublesson(chapter, lessonId, subNum, chIdx) {
-    chapter.selectedSublesson = subNum;
-    this.showLessonCard(chapter, chapter.lessons.find(l => l.id === lessonId), chIdx);
-  }
-
-  startLesson(chapter, lessonId, chIdx) {
-    const prog = chapter.userProgress[lessonId];
-    prog.status = 'completed';
-    this.updateNodeIcon(chapter, lessonId, chIdx);
-    this.checkTreasureUnlock(chapter, chIdx);
-    this.updateProgress(chIdx);
-    const next = this.findNextNode(chapter, lessonId, chIdx);
-    if (next) this.setActiveNode(next.node, next.chapter, next.chIdx);
-    if (chapter.currentLessonCard) chapter.currentLessonCard.remove();
-    chapter.currentLessonCard = null;
-    if (this.callbacks.onLessonComplete) this.callbacks.onLessonComplete(lessonId, chIdx);
-  }
-
-  startSubLesson(chapter, lessonId, subNum, chIdx) {
-    const prog = chapter.userProgress[lessonId];
-    prog.sublessonCompleted[subNum-1] = true;
-    prog.completedSublessons = prog.sublessonCompleted.filter(c=>c).length;
-    if (prog.completedSublessons >= prog.totalSublessons) prog.status = 'completed';
-    this.updateNodeIcon(chapter, lessonId, chIdx);
-    this.checkTreasureUnlock(chapter, chIdx);
-    this.updateProgress(chIdx);
-    if (subNum < prog.totalSublessons) {
-      let nextSub = subNum+1;
-      while (nextSub <= prog.totalSublessons && prog.sublessonCompleted[nextSub-1]) nextSub++;
-      if (nextSub <= prog.totalSublessons) {
-        chapter.selectedSublesson = nextSub;
-        this.showLessonCard(chapter, chapter.lessons.find(l=>l.id===lessonId), chIdx);
-        return;
-      }
-    }
-    const next = this.findNextNode(chapter, lessonId, chIdx);
-    if (next) this.setActiveNode(next.node, next.chapter, next.chIdx);
-    if (chapter.currentLessonCard) chapter.currentLessonCard.remove();
-    chapter.currentLessonCard = null;
-    if (this.callbacks.onLessonComplete) this.callbacks.onLessonComplete(lessonId, chIdx);
-  }
-
-  reviewLesson(chapter, lessonId, chIdx) { this.closeLessonCard(chapter); }
-  reviewSubLesson(chapter, lessonId, subNum, chIdx) { this.closeLessonCard(chapter); }
-
-  masterLesson(chapter, lessonId, chIdx) {
-    const prog = chapter.userProgress[lessonId];
-    prog.mastered = true;
-    this.updateNodeIcon(chapter, lessonId, chIdx);
-    this.showLessonCard(chapter, chapter.lessons.find(l=>l.id===lessonId), chIdx);
-  }
-
-  masterSubLesson(chapter, lessonId, subNum, chIdx) {
-    const prog = chapter.userProgress[lessonId];
-    prog.sublessonMastered[subNum-1] = true;
-    if (prog.sublessonMastered.every(m=>m)) prog.mastered = true;
-    this.updateNodeIcon(chapter, lessonId, chIdx);
-    this.showLessonCard(chapter, chapter.lessons.find(l=>l.id===lessonId), chIdx);
-  }
-
-  updateNodeIcon(chapter, lessonId, chIdx) {
-    const node = document.getElementById(lessonId);
-    if (!node) return;
-    const prog = chapter.userProgress[lessonId];
-    const iconDiv = node.querySelector('.node-icon');
-    if (prog.mastered) {
-      iconDiv.innerHTML = '<span class="material-symbols-outlined">joystick</span>';
-      node.classList.add('mastered');
-    } else if (prog.status === 'completed') {
-      iconDiv.innerHTML = '<span class="material-symbols-outlined">assignment_turned_in</span>';
-      node.classList.add('completed');
-      node.classList.add(this.chaptersData[chIdx].completedColorClass || '');
-    } else {
-      iconDiv.innerHTML = '<span class="material-symbols-outlined">joystick</span>';
-      node.classList.remove('completed', 'mastered');
-    }
-  }
-
-  checkTreasureUnlock(chapter, chIdx) {
-    chapter.lessons.forEach((lesson, idx) => {
-      if (lesson.type === 'treasure') {
-        const treasure = document.getElementById(lesson.id);
-        if (treasure && treasure.classList.contains('locked')) {
-          const preceding = chapter.lessons.slice(0, idx);
-          const allCompleted = preceding.every(l => {
-            if (l.type === 'treasure') return true;
-            const p = chapter.userProgress[l.id];
-            if (l.totalSublessons > 1) return p.sublessonCompleted.every(c=>c);
-            return p.status === 'completed';
-          });
-          if (allCompleted) {
-            treasure.classList.remove('locked'); treasure.classList.add('unlocked');
-            chapter.userProgress[lesson.id].status = 'unlocked';
-            setTimeout(() => this.showTreasure(chapter, treasure, chIdx), 500);
-          }
-        }
-      }
-    });
-  }
-
-  findNextNode(chapter, completedNodeId, chIdx) {
-    const index = chapter.lessons.findIndex(l => l.id === completedNodeId);
-    for (let i=index+1; i<chapter.lessons.length; i++) {
-      const nextLesson = chapter.lessons[i];
-      if (nextLesson.type === 'treasure') continue;
-      const nextNode = document.getElementById(nextLesson.id);
-      if (nextNode && !nextNode.classList.contains('locked')) return { node: nextNode, chapter, chIdx };
-    }
-    if (chIdx + 1 < this.chaptersData.length) {
-      const nextChapter = this.chaptersData[chIdx+1];
-      const firstNode = document.querySelector(`#chapter-${chIdx+1} .path-node:not(.treasure)`);
-      if (firstNode) return { node: firstNode, chapter: nextChapter, chIdx: chIdx+1 };
-    }
+  
+  findNextNode(currentLesson) {
+    // Logic to find next incomplete node
     return null;
   }
-
-  updateProgress(chIdx) {
-    // update persistent progress bar (to be implemented by parent)
-    if (this.callbacks.onProgressUpdate) this.callbacks.onProgressUpdate(chIdx);
-  }
-
-  closeLessonCard(chapter) {
-    if (chapter.currentLessonCard) {
-      chapter.currentLessonCard.classList.remove('active');
-      setTimeout(() => { if (chapter.currentLessonCard) chapter.currentLessonCard.remove(); chapter.currentLessonCard = null; this.isTransitioning = false; }, 300);
-    }
-  }
-
-  showTreasure(chapter, node, chIdx) {
-    // For now, just alert; integrate with reward modals later
-    alert(`Treasure chest opened! You found a reward.`);
-    node.classList.add('collected');
-    chapter.userProgress[node.id].status = 'collected';
-    const next = this.findNextNode(chapter, node.id, chIdx);
-    if (next) this.setActiveNode(next.node, next.chapter, next.chIdx);
-  }
-
-  setupEventListeners() {
+  
+  attachEventListeners() {
+    window.addEventListener('scroll', () => {
+      if (this.currentActiveNode) this.positionStartSpeechBubble(this.currentActiveNode);
+    });
     window.addEventListener('resize', () => {
-      if (this.currentActiveNode && this.currentLessonCard) this.positionLessonCard(this.currentLessonCard, this.currentActiveNode, this.currentLessonCard.parentNode);
+      if (this.currentActiveNode) this.positionStartSpeechBubble(this.currentActiveNode);
     });
   }
 }
