@@ -4,75 +4,74 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="lesson-title">Lesson</title>
-
   <!-- Local Fonts -->
   <link rel="stylesheet" href="../public/assets/fonts/fonts.css">
-
   <!-- Quiz Styles -->
   <link rel="stylesheet" href="../src/styles/quiz.css">
-
   <!-- Button Styles -->
   <link rel="stylesheet" href="../src/styles/components/buttons.css">
-
-  <!-- CSS Filters for Icon Colours -->
+  <!-- Custom filters for icons -->
   <style>
     #close-btn { filter: brightness(0) saturate(100%) invert(77%) sepia(10%) saturate(214%) hue-rotate(174deg) brightness(88%) contrast(92%); }
     #lives-icon { filter: brightness(0) saturate(100%) invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%); }
     img[src*="check_circle.svg"], img[src*="recommend.svg"] { filter: brightness(0) saturate(100%) invert(29%) sepia(51%) saturate(2878%) hue-rotate(108deg) brightness(95%) contrast(94%); }
     img[src*="cancel.svg"], img[src*="stylus_note.svg"] { filter: brightness(0) saturate(100%) invert(21%) sepia(98%) saturate(4140%) hue-rotate(348deg) brightness(91%) contrast(94%); }
     img[src*="rabbit-blue.svg"] { filter: none; }
+    /* Hide header/footer while quiz is active */
+    body.quiz-active #header-placeholder, body.quiz-active #footer-placeholder { display: none; }
   </style>
 </head>
 <body>
-
-  <audio id="correctSound" preload="auto"><source src="../public/assets/audio/correct.mp3" type="audio/mpeg"></audio>
-  <audio id="incorrectSound" preload="auto"><source src="../public/assets/audio/incorrect.mp3" type="audio/mpeg"></audio>
-
-  <div id="fullscreenModalOverlay" class="fullscreen-modal-overlay">
-    <iframe id="modalIframe" src="about:blank"></iframe>
+<div id="header-placeholder"></div>
+<div id="fullscreenModalOverlay" class="fullscreen-modal-overlay"><iframe id="modalIframe" src="about:blank"></iframe></div>
+<div class="quiz-container">
+  <div class="streak-counter" id="streakCounter"></div>
+  <div class="header">
+    <img id="close-btn" src="../public/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:1.5rem; cursor:pointer;">
+    <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="lives-container"><img id="lives-icon" src="../public/assets/icons/phosphor/fill/heart.svg" alt="Heart" style="width:1.5rem;"><span id="lives-count">5</span></div>
   </div>
-
-  <div class="quiz-container">
-    <div class="streak-counter" id="streakCounter"></div>
-    <div class="header">
-      <img id="close-btn" src="../public/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:1.5rem; cursor:pointer;">
-      <div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
-      <div class="lives-container">
-        <img id="lives-icon" src="../public/assets/icons/phosphor/fill/heart.svg" alt="Heart" style="width:1.5rem;">
-        <span id="lives-count">5</span>
-      </div>
-    </div>
+</div>
+<div class="image-zoom-modal" id="imageZoomModal">
+  <div class="zoom-content">
+    <button class="zoom-close" id="zoomCloseBtn"><img src="../public/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:1.5rem;"></button>
+    <img id="zoomedImage" src="" alt="Zoomed Image">
+    <div class="zoom-label" id="zoomImageLabel"></div>
+    <div class="zoom-instructions">Click outside or press ESC to close</div>
   </div>
-
-  <div class="image-zoom-modal" id="imageZoomModal">
-    <div class="zoom-content">
-      <button class="zoom-close" id="zoomCloseBtn"><img src="../public/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:1.5rem;"></button>
-      <img id="zoomedImage" src="" alt="Zoomed Image">
-      <div class="zoom-label" id="zoomImageLabel"></div>
-      <div class="zoom-instructions">Click outside or press ESC to close</div>
-    </div>
-  </div>
-
-  <script src="../src/js/quiz-engine.js"></script>
-  <script>
-    (async function() {
-      const params = new URLSearchParams(window.location.search);
-      const course = params.get('course') || 'g12-life-sciences';
-      const lesson = params.get('lesson') || 'introduction-to-nucleic-acids';
-
-      document.getElementById('lesson-title').textContent =
-        lesson.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-
-      try {
-        const response = await fetch(`../data/lessons/${course}/${lesson}.json`);
-        if (!response.ok) throw new Error('Lesson data not found');
-        const lessonData = await response.json();
-        new QuizEngine(lessonData);
-      } catch (error) {
-        // Redirect to custom 404 page
-        window.location.href = '/404.html';
-      }
-    })();
-  </script>
+</div>
+<div id="footer-placeholder"></div>
+<script type="module">
+  import { getCurrentUser } from '../src/js/supabase.js';
+  import { loadHeaderFooter } from '../src/js/load-components.js';
+  
+  await loadHeaderFooter();
+  document.body.classList.add('quiz-active');
+  
+  const params = new URLSearchParams(window.location.search);
+  const course = params.get('course') || 'g12-life-sciences';
+  const lesson = params.get('lesson') || 'introduction-to-nucleic-acids';
+  document.getElementById('lesson-title').textContent = lesson.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  
+  const user = await getCurrentUser();
+  if (!user) {
+    const returnUrl = window.location.href;
+    localStorage.setItem('tempReturnTo', returnUrl);
+    window.location.href = '/pages/registration.html?returnTo=' + encodeURIComponent(returnUrl);
+    return;
+  }
+  
+  try {
+    const response = await fetch(`../data/lessons/${course}/${lesson}.json`);
+    if (!response.ok) throw new Error('Lesson data not found');
+    const lessonData = await response.json();
+    lessonData.courseId = course;
+    import('../src/js/quiz-engine.js').then(module => {
+      new module.QuizEngine(lessonData);
+    });
+  } catch (error) {
+    window.location.href = '/404.html';
+  }
+</script>
 </body>
 </html>
