@@ -1,6 +1,5 @@
-// ============================================================
-// VULANET QUIZ ENGINE – Complete lesson / streak / reward pipeline
-// ============================================================
+// src/js/quiz-engine.js
+import { supabase, getCurrentUser, loadUserProgress, updateUserProgress, recordLessonCompletion, getActiveXpBoost, addXpBoost } from './supabase.js';
 
 function sanitiseHTML(str) {
   const div = document.createElement('div');
@@ -15,6 +14,7 @@ class QuizEngine {
     this.redirectUrl = lessonData.redirectUrl || '/';
     this.streakKey = lessonData.streakKey || 'userStreakDays';
     this.questionsData = lessonData.questions || [];
+    this.courseId = lessonData.courseId || 'g12-life-sciences';
 
     this.lives = 5;
     this.currentQuestion = 0;
@@ -37,8 +37,9 @@ class QuizEngine {
     this.currentStreakDays = 1;
     this._streakRewardProcessed = false;
 
-    this.hasCompletedFirstLesson = localStorage.getItem('hasCompletedFirstLesson') === 'true';
-    if (!localStorage.getItem('coins')) localStorage.setItem('coins', '500');
+    this.user = null;
+    this.userProgress = null;
+    this.activeXpBoost = null;
 
     this.showQuestion = this.showQuestion.bind(this);
     this.moveToNextQuestion = this.moveToNextQuestion.bind(this);
@@ -68,19 +69,52 @@ class QuizEngine {
       this.showModal('../src/components/modals/quit-confirmation.html', () => {});
     });
 
-    this.loadStreakFromStorage();
-    this.updateStreakCounter();
-    this.updateHeartIcon();
-    this.progressBar.style.width = `${(1 / this.totalQuestions) * 100}%`;
+    this.initUser().then(() => {
+      if (this.user && this.userProgress) {
+        this.lives = this.userProgress.hearts;
+        this.livesCountSpan.textContent = this.lives;
+        this.updateHeartIcon();
+        this.currentStreakDays = this.userProgress.current_streak;
+        this.updateStreakCounter();
+      }
+      this.loadStreakFromStorage();
+      this.updateStreakCounter();
+      this.updateHeartIcon();
+      this.progressBar.style.width = `${(1 / this.totalQuestions) * 100}%`;
 
-    if (!this.hasCompletedFirstLesson) {
-      this.showModal('../src/components/modals/hearts-modal.html', () => {
-        localStorage.setItem('hasCompletedFirstLesson', 'true');
-        this.hasCompletedFirstLesson = true;
+      if (!localStorage.getItem('hasCompletedFirstLesson')) {
+        this.showModal('../src/components/modals/hearts-modal.html', () => {
+          localStorage.setItem('hasCompletedFirstLesson', 'true');
+          this.showQuestion(0);
+        });
+      } else {
         this.showQuestion(0);
-      });
-    } else {
-      this.showQuestion(0);
+      }
+    }).catch(() => {
+      // Not logged in, start with defaults
+      this.lives = 5;
+      this.livesCountSpan.textContent = '5';
+      this.updateHeartIcon();
+      this.loadStreakFromStorage();
+      this.updateStreakCounter();
+      this.progressBar.style.width = `${(1 / this.totalQuestions) * 100}%`;
+      if (!localStorage.getItem('hasCompletedFirstLesson')) {
+        this.showModal('../src/components/modals/hearts-modal.html', () => {
+          localStorage.setItem('hasCompletedFirstLesson', 'true');
+          this.showQuestion(0);
+        });
+      } else {
+        this.showQuestion(0);
+      }
+    });
+  }
+
+  async initUser() {
+    this.user = await getCurrentUser();
+    if (this.user) {
+      this.userProgress = await loadUserProgress(this.user.id);
+      const boost = await getActiveXpBoost(this.user.id);
+      this.activeXpBoost = boost ? boost.multiplier : null;
     }
   }
 
@@ -132,7 +166,6 @@ class QuizEngine {
     const tz = localStorage.getItem('userTimezone') || 'UTC';
     const todayStr = this.getDateInTimezone(tz);
     let streakData = {};
-
     const stored = localStorage.getItem('streakState');
     if (stored) streakData = JSON.parse(stored);
 
@@ -185,10 +218,8 @@ class QuizEngine {
   }
 
   processStreakReward(rewardInfo) {
-    console.log('processStreakReward called with:', rewardInfo);
     if (this._streakRewardProcessed) return;
     this._streakRewardProcessed = true;
-
     const { isMilestone, heartsAtCompletion } = rewardInfo;
     const streakDays = this.currentStreakDays;
 
@@ -200,6 +231,10 @@ class QuizEngine {
       this.showModal(`../src/components/modals/coins-reward.html?amount=${coins}`, () => {
         this.openDailyQuest();
       });
+      if (this.user && this.userProgress) {
+        this.userProgress.coins += coins;
+        updateUserProgress(this.user.id, { coins: this.userProgress.coins });
+      }
     } else {
       if (heartsAtCompletion >= 3 && heartsAtCompletion <= 5) {
         const multipliers = [
@@ -211,11 +246,16 @@ class QuizEngine {
         this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
           this.openDailyQuest();
         });
+        if (this.user) addXpBoost(this.user.id, chosen.mult, chosen.dur);
       } else if (heartsAtCompletion >= 1 && heartsAtCompletion <= 2) {
         if (Math.random() < 0.5) {
           this.showModal(`../src/components/modals/heart-reward.html?hearts=full`, () => {
             this.openDailyQuest();
           });
+          if (this.user) {
+            this.lives = 5;
+            updateUserProgress(this.user.id, { hearts: 5 });
+          }
         } else {
           const multipliers = [
             { mult: 1.5, dur: 30 },
@@ -226,6 +266,7 @@ class QuizEngine {
           this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
             this.openDailyQuest();
           });
+          if (this.user) addXpBoost(this.user.id, chosen.mult, chosen.dur);
         }
       } else {
         this.openDailyQuest();
@@ -235,7 +276,64 @@ class QuizEngine {
 
   openDailyQuest() {
     this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&completed=true`, () => {
-      window.location.href = this.redirectUrl;
+      if (this.user) {
+        window.location.href = this.redirectUrl;
+      } else {
+        const tempProgress = {
+          heartsAtCompletion: this.heartsAtCompletion,
+          totalCorrectAttempts: this.totalCorrectAttempts,
+          totalAttempts: this.totalAttempts,
+          xpEarned: this.calculateXp(),
+          lessonId: this.title,
+          courseId: this.courseId
+        };
+        localStorage.setItem('tempLessonProgress', JSON.stringify(tempProgress));
+        window.location.href = '/pages/registration.html?returnTo=' + encodeURIComponent(this.redirectUrl);
+      }
+    });
+  }
+
+  calculateXp() {
+    const accuracy = Math.round((this.totalCorrectAttempts / this.totalAttempts) * 10);
+    const timeSeconds = Math.floor((Date.now() - this.quizStartTime) / 1000);
+    const expectedTime = this.totalQuestions * 15;
+    let speedXP = 0;
+    if (timeSeconds <= expectedTime) speedXP = 10;
+    else if (timeSeconds <= expectedTime * 2) speedXP = Math.round(10 * (2 - (timeSeconds / expectedTime)));
+    let total = 10 + accuracy + speedXP;
+    if (this.activeXpBoost) total = Math.round(total * this.activeXpBoost);
+    return total;
+  }
+
+  async finishQuiz() {
+    if (this.quizCompleted) return;
+    this.quizCompleted = true;
+    const timeSeconds = Math.floor((Date.now() - this.quizStartTime) / 1000);
+    this.heartsAtCompletion = this.lives;
+    localStorage.setItem('heartsAtCompletion', String(this.heartsAtCompletion));
+
+    if (this.user && this.userProgress) {
+      const xpEarned = this.calculateXp();
+      const accuracy = Math.round((this.totalCorrectAttempts / this.totalAttempts) * 100);
+      await recordLessonCompletion(this.user.id, this.courseId, this.title, xpEarned, accuracy, timeSeconds);
+      const updates = {
+        hearts: this.lives,
+        total_xp: this.userProgress.total_xp + xpEarned,
+        coins: this.userProgress.coins
+      };
+      await updateUserProgress(this.user.id, updates);
+      this.userProgress = await loadUserProgress(this.user.id);
+    }
+
+    this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, () => {
+      if (this.isFirstLessonOfDay()) {
+        const streakData = this.buildStreakData();
+        const encodedData = encodeURIComponent(JSON.stringify(streakData));
+        const heartsValue = this.heartsAtCompletion;
+        this.showModal(`../src/components/modals/streak.html?data=${encodedData}&hearts=${heartsValue}`, () => {});
+      } else {
+        this.openDailyQuest();
+      }
     });
   }
 
@@ -245,12 +343,10 @@ class QuizEngine {
       ? '../public/assets/icons/phosphor/regular/heart.svg'
       : '../public/assets/icons/phosphor/fill/heart.svg';
   }
-
   playSound(isCorrect) {
     const audio = isCorrect ? document.getElementById('correctSound') : document.getElementById('incorrectSound');
     if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
   }
-
   normalizeAnswer(a) { return a.toLowerCase().replace(/\s+/g,' ').replace(/[()]/g,'').replace(/\//g,' ').trim(); }
   shuffleArray(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
@@ -295,7 +391,6 @@ class QuizEngine {
           heartsAtCompletion: event.data.heartsAtCompletion
         });
       } else if (event.data && event.data.type === 'openCoinReward') {
-        // Directly open coin reward modal without recursive showModal
         const coinModalUrl = `../src/components/modals/coins-reward.html?amount=${event.data.amount}`;
         this.modalIframe.src = coinModalUrl;
         this.fullscreenOverlay.classList.add('visible');
@@ -304,8 +399,6 @@ class QuizEngine {
             window.removeEventListener('message', subHandler);
             this.fullscreenOverlay.classList.remove('visible');
             this.modalIframe.src = 'about:blank';
-            // After coin reward closes, we might need to re-render daily-quest? 
-            // For simplicity, we just close it.
           }
         };
         window.addEventListener('message', subHandler);
@@ -324,7 +417,6 @@ class QuizEngine {
   }
 
   resetCurrentQuestion() { this.showQuestion(this.currentQuestion); }
-
   handleCorrectAnswer() { this.currentStreak++; this.updateStreakCounter(); if (this.currentStreak % 5 === 0 && this.currentStreak > 0) { this.pendingCelebration = true; this.pendingCelebrationStreak = this.currentStreak; } }
   handleIncorrectAnswer() { this.currentStreak = 0; this.updateStreakCounter(); }
 
@@ -427,28 +519,6 @@ class QuizEngine {
     }
   }
 
-  finishQuiz() {
-    if (this.quizCompleted) return;
-    this.quizCompleted = true;
-    const timeSeconds = Math.floor((Date.now() - this.quizStartTime) / 1000);
-
-    this.heartsAtCompletion = this.lives;
-    localStorage.setItem('heartsAtCompletion', String(this.heartsAtCompletion));
-
-    this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, () => {
-      if (this.isFirstLessonOfDay()) {
-        const streakData = this.buildStreakData();
-        const encodedData = encodeURIComponent(JSON.stringify(streakData));
-        const heartsValue = this.heartsAtCompletion;
-        this.showModal(`../src/components/modals/streak.html?data=${encodedData}&hearts=${heartsValue}`, () => {});
-      } else {
-        this.openDailyQuest();
-      }
-    });
-  }
-
-  showDailyQuest(correct, total) { this.openDailyQuest(); }
-
   showQuestion(questionIndex) {
     this.questionSections.forEach(s => { if (s) s.style.display = 'none'; });
     const actualIdx = this.inRetryMode ? this.retryQueue[this.currentQuestion] : this.currentQuestion;
@@ -476,7 +546,6 @@ class QuizEngine {
     }
   }
 
-  // ==================== RENDER METHODS (fully preserved) ====================
   renderMultipleChoice(section, qData, actualIdx) {
     section.innerHTML = `
       <h2 class="quiz-title">Choose the correct option</h2>
