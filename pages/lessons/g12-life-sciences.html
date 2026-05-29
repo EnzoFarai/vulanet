@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G12 Life Sciences | Vulanet</title>
+  <link rel="stylesheet" href="/public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/learning-path.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+  <style>
+    /* Additional page-specific styles if needed */
+  </style>
+</head>
+<body>
+<div id="header-placeholder"></div>
+<main class="container">
+  <div id="learning-path-container"></div>
+</main>
+<div id="footer-placeholder"></div>
+<script type="module">
+  import { loadHeaderFooter } from '/src/js/load-components.js';
+  import { CoursePath } from '/src/js/course-path.js';
+  await loadHeaderFooter();
+  new CoursePath('g12-life-sciences', 'learning-path-container');
+</script>
+</body>
+</html>
