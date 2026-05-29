@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Create your profile</title>
   <link rel="stylesheet" href="../public/assets/fonts/fonts.css">
   <link rel="stylesheet" href="../src/styles/components/buttons.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif; }
-    body { background: #ffffff; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', system-ui, -apple-system, sans-serif; }
+    body { background: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     .container { width: 360px; background: #ffffff; padding: 30px 25px 40px; }
     h1 { text-align: center; font-size: 26px; font-weight: 700; color: #3c3c3c; margin-bottom: 25px; }
     .input-field { width: 100%; padding: 14px 16px; border-radius: 12px; border: 2px solid #e5e5e5; background: #f2f2f2; font-size: 16px; margin-bottom: 14px; outline: none; }
@@ -26,6 +26,9 @@
     .error-message.hidden { display: none; }
     .create-btn { width: 100%; margin-top: 8px; }
     .google-btn { width: 100%; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .google-btn .btn-content { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+    .google-icon { width: 20px; height: 20px; display: inline-block; }
+    .google-icon img { width: 100%; height: 100%; display: block; }
     .divider { display: flex; align-items: center; margin: 25px 0; color: #9e9e9e; font-weight: 700; }
     .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e5e5e5; }
     .divider span { margin: 0 10px; font-size: 14px; }
@@ -33,78 +36,43 @@
     .terms a, .login a { color: inherit; text-decoration: none; cursor: pointer; }
     .terms a:hover, .login a:hover { text-decoration: underline; }
     .login { text-align: center; margin-top: 18px; font-size: 15px; font-weight: 700; color: #3c3c3c; }
-    .login a { color: #1cb0f6; }
+    .login a { color: #1cb0f6; text-decoration: none; }
   </style>
 </head>
 <body>
 <div class="container">
   <h1>Create your profile</h1>
-  <div>
-    <input class="input-field" type="text" placeholder="Display name" id="display-name-input">
-    <div class="error-message hidden" id="display-name-error">
-      <span class="error-icon"><img src="../public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
-      <span>Display name is required.</span>
-    </div>
+  <div><input class="input-field" type="text" placeholder="Display name" id="display-name-input">
+    <div class="error-message hidden" id="display-name-error"><span class="error-icon"><img src="../public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span><span>Display name is required.</span></div>
   </div>
-  <div>
-    <input class="input-field" type="email" placeholder="Email" id="email-input">
-    <div class="error-message hidden" id="email-error">
-      <span class="error-icon"><img src="../public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
-      <span>Email already in use.</span>
-    </div>
+  <div><input class="input-field" type="email" placeholder="Email" id="email-input">
+    <div class="error-message hidden" id="email-error"><span class="error-icon"><img src="../public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span><span id="email-error-text">Email already in use.</span></div>
   </div>
   <div class="password-wrapper">
     <input type="password" placeholder="Password" id="password-input">
-    <div class="password-actions">
-      <button class="password-toggle" id="toggle-password">
-        <span class="eye-icon" id="eye-icon">
-          <img src="../public/assets/icons/phosphor/regular/eye-closed.svg" alt="Show password">
-        </span>
-      </button>
-    </div>
+    <div class="password-actions"><button class="password-toggle" id="toggle-password"><span class="eye-icon" id="eye-icon"><img src="../public/assets/icons/phosphor/regular/eye-closed.svg" alt="Show password"></span></button></div>
   </div>
-  <div class="error-message hidden" id="password-error">
-    <span class="error-icon"><img src="../public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
-    <span id="new-password-error-text">Password must be 8–12 characters and contain uppercase, lowercase, number, and special character.</span>
-  </div>
+  <div class="error-message hidden" id="password-error"><span class="error-icon"><img src="../public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span><span id="new-password-error-text">Password must be 8–12 characters and contain uppercase, lowercase, number, and special character.</span></div>
   <button class="btn btn-md btn-gecko-solid create-btn" id="create-account-btn">CREATE ACCOUNT</button>
   <div class="divider"><span>OR</span></div>
-  <button class="btn btn-md btn-cloud-outline google-btn" id="google-btn">
-    <span class="btn-content">
-      <span class="google-icon"><img src="../public/assets/icons/social/google-icon.svg" alt="Google"></span>
-      Continue with Google
-    </span>
-  </button>
-  <div class="terms">
-    By signing in to Vulanet, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.<br><br>
-    This site is protected by reCAPTCHA Enterprise and the Google <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> apply.
-  </div>
-  <div class="login">Have an account? <a href="#">LOG IN</a></div>
+  <button class="btn btn-md btn-cloud-outline google-btn" id="google-btn"><span class="btn-content"><span class="google-icon"><img src="../public/assets/icons/social/google-icon.svg" alt="Google"></span> Continue with Google</span></button>
+  <div class="terms">By signing in to Vulanet, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.<br><br>This site is protected by reCAPTCHA Enterprise and the Google <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> apply.</div>
+  <div class="login">Have an account? <a href="#" id="login-link">LOG IN</a></div>
 </div>
 <script>
-  // Get course from URL (passed from lesson completion)
-  const urlParams = new URLSearchParams(window.location.search);
-  const courseId = urlParams.get('course') || 'g12-life-sciences';
-  const courseName = urlParams.get('name') || 'G12 Life Sciences';
-
-  // Password toggle
-  const toggleBtn = document.getElementById('toggle-password');
-  const passwordInput = document.getElementById('password-input');
-  const eyeIcon = document.getElementById('eye-icon');
-  const EYE_OPEN_SRC = '../public/assets/icons/phosphor/regular/eye.svg';
-  const EYE_CLOSED_SRC = '../public/assets/icons/phosphor/regular/eye-closed.svg';
-  if (toggleBtn && passwordInput && eyeIcon) {
-    toggleBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        eyeIcon.innerHTML = `<img src="${EYE_OPEN_SRC}" alt="Hide password">`;
-      } else {
-        passwordInput.type = "password";
-        eyeIcon.innerHTML = `<img src="${EYE_CLOSED_SRC}" alt="Show password">`;
-      }
-      passwordInput.focus();
-    });
+  // Helper: generate a simple unique username from display name + numbers
+  function generateUsername(displayName, email) {
+    let base = displayName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (!base) base = email.split('@')[0].replace(/[^a-z0-9]/g, '');
+    if (!base) base = 'user';
+    let username = base;
+    let counter = 1;
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    while (users.some(u => u.username === username)) {
+      username = base + counter;
+      counter++;
+    }
+    return username;
   }
 
   function validatePasswordComplexity(password) {
@@ -112,87 +80,124 @@
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
-    const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
     return hasUpperCase && hasLowerCase && hasNumber && hasSpecial;
   }
 
-  // Mock email taken check – in real app, call backend
-  const takenEmails = new Set(["user@example.com", "test@test.com", "fatsomason@gmail.com"]);
-  function isEmailTaken(email) { return takenEmails.has(email); }
-
-  const displayNameInput = document.getElementById("display-name-input");
-  const emailInput = document.getElementById("email-input");
-  const displayNameError = document.getElementById("display-name-error");
-  const emailError = document.getElementById("email-error");
-  const passwordError = document.getElementById("password-error");
-  const createBtn = document.getElementById("create-account-btn");
-
-  displayNameInput.addEventListener("blur", () => {
-    if (!displayNameInput.value.trim()) displayNameError.classList.remove("hidden");
-    else displayNameError.classList.add("hidden");
-  });
-  displayNameInput.addEventListener("input", () => { if (displayNameInput.value.trim()) displayNameError.classList.add("hidden"); });
-
-  emailInput.addEventListener("blur", () => {
-    const email = emailInput.value.trim();
-    if (email && isEmailTaken(email)) emailError.classList.remove("hidden");
-    else emailError.classList.add("hidden");
-  });
-  emailInput.addEventListener("input", () => emailError.classList.add("hidden"));
-
-  passwordInput.addEventListener("blur", () => {
-    if (passwordInput.value && !validatePasswordComplexity(passwordInput.value)) passwordError.classList.remove("hidden");
-    else passwordError.classList.add("hidden");
-  });
-  passwordInput.addEventListener("input", () => {
-    if (passwordInput.value && !validatePasswordComplexity(passwordInput.value)) passwordError.classList.remove("hidden");
-    else passwordError.classList.add("hidden");
-  });
-
-  function generateUsername(displayName, email) {
-    let base = displayName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-    if (!base) base = email.split('@')[0].replace(/[^a-z0-9]/g, '');
-    const uniqueSuffix = Math.floor(Math.random() * 10000);
-    return `${base}${uniqueSuffix}`;
+  function isEmailTaken(email, excludeUserId = null) {
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    return users.some(u => u.email === email && u.id !== excludeUserId);
   }
 
-  createBtn.addEventListener("click", () => {
+  const displayNameInput = document.getElementById('display-name-input');
+  const emailInput = document.getElementById('email-input');
+  const passwordInput = document.getElementById('password-input');
+  const displayNameError = document.getElementById('display-name-error');
+  const emailError = document.getElementById('email-error');
+  const passwordError = document.getElementById('password-error');
+  const createBtn = document.getElementById('create-account-btn');
+  const googleBtn = document.getElementById('google-btn');
+  const toggleBtn = document.getElementById('toggle-password');
+  const eyeIcon = document.getElementById('eye-icon');
+  const EYE_OPEN_SRC = '../public/assets/icons/phosphor/regular/eye.svg';
+  const EYE_CLOSED_SRC = '../public/assets/icons/phosphor/regular/eye-closed.svg';
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      eyeIcon.innerHTML = `<img src="${EYE_OPEN_SRC}" alt="Hide password">`;
+    } else {
+      passwordInput.type = 'password';
+      eyeIcon.innerHTML = `<img src="${EYE_CLOSED_SRC}" alt="Show password">`;
+    }
+    passwordInput.focus();
+  });
+
+  function validateForm() {
+    let valid = true;
     const displayName = displayNameInput.value.trim();
     const email = emailInput.value.trim();
     const password = passwordInput.value;
-    let hasError = false;
-    if (!displayName) { displayNameError.classList.remove("hidden"); hasError = true; }
-    else displayNameError.classList.add("hidden");
-    if (email && isEmailTaken(email)) { emailError.classList.remove("hidden"); hasError = true; }
-    else emailError.classList.add("hidden");
-    if (password && !validatePasswordComplexity(password)) { passwordError.classList.remove("hidden"); hasError = true; }
-    else passwordError.classList.add("hidden");
-    if (!hasError) {
-      // Store user data in localStorage (temporary – replace with real backend later)
-      const username = generateUsername(displayName, email);
-      const userData = {
-        displayName, email, username,
-        createdAt: new Date().toISOString(),
-        // Do NOT store plain password in real app – this is a mock
-      };
-      localStorage.setItem('vulanet_user', JSON.stringify(userData));
-      localStorage.setItem('loggedIn', 'true');
-      // Redirect to registration completion with course info
-      window.location.href = `registration-completion.html?course=${encodeURIComponent(courseId)}&name=${encodeURIComponent(courseName)}`;
-    }
+    if (!displayName) { displayNameError.classList.remove('hidden'); valid = false; } else displayNameError.classList.add('hidden');
+    if (email && isEmailTaken(email)) { emailError.classList.remove('hidden'); valid = false; } else emailError.classList.add('hidden');
+    if (password && !validatePasswordComplexity(password)) { passwordError.classList.remove('hidden'); valid = false; } else passwordError.classList.add('hidden');
+    return valid;
+  }
+
+  displayNameInput.addEventListener('input', () => validateForm());
+  emailInput.addEventListener('input', () => validateForm());
+  passwordInput.addEventListener('input', () => validateForm());
+
+  createBtn.addEventListener('click', () => {
+    if (!validateForm()) return;
+    const displayName = displayNameInput.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const userId = Date.now().toString();
+    const username = generateUsername(displayName, email);
+    const newUser = {
+      id: userId,
+      displayName: displayName,
+      email: email,
+      username: username,
+      password: password, // In production, hash this!
+      createdAt: new Date().toISOString(),
+      country: null,
+      timezone: null,
+      age: null,
+      coins: 500,
+      hearts: 5,
+      streak: 1,
+      xp: 0,
+      level: 1,
+      lessonsCompleted: [],
+      achievements: {},
+      records: {}
+    };
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    users.push(newUser);
+    localStorage.setItem('users', JSON.stringify(users));
+    localStorage.setItem('currentUser', JSON.stringify({ id: userId, displayName, username, email, coins: 500 }));
+    // Redirect to registration completion
+    window.location.href = 'registration-completion.html';
   });
 
-  document.getElementById('google-btn').addEventListener('click', () => {
-    // Mock Google sign‑in – generate fake user
-    const fakeDisplay = `GoogleUser_${Math.floor(Math.random()*1000)}`;
-    const fakeEmail = `${fakeDisplay.toLowerCase()}@gmail.com`;
-    const userData = {
-      displayName: fakeDisplay, email: fakeEmail, username: fakeDisplay.toLowerCase() + Math.floor(Math.random()*10000),
-      createdAt: new Date().toISOString()
+  googleBtn.addEventListener('click', () => {
+    // Mock Google sign‑in: create a random user
+    const mockEmail = `user${Date.now()}@gmail.com`;
+    const mockDisplayName = 'Google User';
+    const userId = Date.now().toString();
+    const username = generateUsername(mockDisplayName, mockEmail);
+    const newUser = {
+      id: userId,
+      displayName: mockDisplayName,
+      email: mockEmail,
+      username: username,
+      password: '',
+      createdAt: new Date().toISOString(),
+      country: null,
+      timezone: null,
+      age: null,
+      coins: 500,
+      hearts: 5,
+      streak: 1,
+      xp: 0,
+      level: 1,
+      lessonsCompleted: [],
+      achievements: {},
+      records: {}
     };
-    localStorage.setItem('vulanet_user', JSON.stringify(userData));
-    localStorage.setItem('loggedIn', 'true');
-    window.location.href = `registration-completion.html?course=${encodeURIComponent(courseId)}&name=${encodeURIComponent(courseName)}`;
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    users.push(newUser);
+    localStorage.setItem('users', JSON.stringify(users));
+    localStorage.setItem('currentUser', JSON.stringify({ id: userId, displayName: mockDisplayName, username, email: mockEmail, coins: 500 }));
+    window.location.href = 'registration-completion.html';
+  });
+
+  document.getElementById('login-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    alert('Login not yet implemented – use registration flow.');
   });
 </script>
 </body>
