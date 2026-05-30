@@ -84,7 +84,8 @@ export async function signInWithGoogle() {
 export async function getCurrentUser() {
   if (!supabaseInitialized) return mockGetUser();
   const { data: { user }, error } = await supabase.auth.getUser();
-  return error ? null : user;
+  if (error) return null;
+  return user;
 }
 
 export async function signOut() {
@@ -236,7 +237,6 @@ export async function updateDailyQuest(userId, date, questId, current, claimed) 
     localStorage.setItem(key, JSON.stringify(quests));
     return;
   }
-  // Similar to previous implementation (see earlier schema)
   const existing = await loadDailyQuests(userId, date);
   if (!existing) {
     const defaultQuests = {
