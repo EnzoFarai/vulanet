@@ -1,4 +1,4 @@
-// src/js/quiz-engine.js (PART 1)
+// src/js/quiz-engine.js
 import { getCurrentUser, loadUserProgress, updateUserProgress, recordLessonCompletion, getActiveXpBoost, addXpBoost } from './supabase.js';
 
 function sanitiseHTML(str) {
