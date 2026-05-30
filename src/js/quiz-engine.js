@@ -1,5 +1,5 @@
-// src/js/quiz-engine.js
-import { supabase, getCurrentUser, loadUserProgress, updateUserProgress, recordLessonCompletion, getActiveXpBoost, addXpBoost } from './supabase.js';
+// src/js/quiz-engine.js (PART 1)
+import { getCurrentUser, loadUserProgress, updateUserProgress, recordLessonCompletion, getActiveXpBoost, addXpBoost } from './supabase.js';
 
 function sanitiseHTML(str) {
   const div = document.createElement('div');
@@ -91,7 +91,6 @@ class QuizEngine {
         this.showQuestion(0);
       }
     }).catch(() => {
-      // Not logged in, start with defaults
       this.lives = 5;
       this.livesCountSpan.textContent = '5';
       this.updateHeartIcon();
@@ -141,7 +140,9 @@ class QuizEngine {
     if (saved) this.currentStreakDays = parseInt(saved, 10);
     else localStorage.setItem(this.streakKey, '1');
   }
+
   saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
+
   incrementStreak() { this.currentStreakDays++; this.saveStreakToStorage(); }
 
   isFirstLessonOfDay() {
@@ -338,16 +339,20 @@ class QuizEngine {
   }
 
   updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
+
   updateHeartIcon() {
     this.livesIcon.src = this.lives === 0
       ? '../public/assets/icons/phosphor/regular/heart.svg'
       : '../public/assets/icons/phosphor/fill/heart.svg';
   }
+
   playSound(isCorrect) {
     const audio = isCorrect ? document.getElementById('correctSound') : document.getElementById('incorrectSound');
     if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
   }
+
   normalizeAnswer(a) { return a.toLowerCase().replace(/\s+/g,' ').replace(/[()]/g,'').replace(/\//g,' ').trim(); }
+
   shuffleArray(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
   showModal(modalUrl, onClose) {
@@ -417,7 +422,9 @@ class QuizEngine {
   }
 
   resetCurrentQuestion() { this.showQuestion(this.currentQuestion); }
+
   handleCorrectAnswer() { this.currentStreak++; this.updateStreakCounter(); if (this.currentStreak % 5 === 0 && this.currentStreak > 0) { this.pendingCelebration = true; this.pendingCelebrationStreak = this.currentStreak; } }
+
   handleIncorrectAnswer() { this.currentStreak = 0; this.updateStreakCounter(); }
 
   processAfterExplanation(onComplete) {
