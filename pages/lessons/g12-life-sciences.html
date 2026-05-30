@@ -7,15 +7,10 @@
   <link rel="stylesheet" href="../../public/assets/fonts/fonts.css">
   <link rel="stylesheet" href="../../src/styles/components/buttons.css">
   <link rel="stylesheet" href="../../src/styles/learning-path.css">
-  <!-- Local Phosphor and Material Icons (replace with your local paths) -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
-  <style>
-    /* Additional page-specific overrides (if any) */
-  </style>
 </head>
 <body>
-  <!-- Persistent Learning Card -->
-  <div class="learning-card chapter-1" id="persistent-learning-card">
+  <div class="learning-card chapter-color-0" id="persistent-learning-card">
     <div class="text-container">
       <a href="#" class="section-link"><div class="section">UNIT 1</div></a>
       <a href="#" class="title-link"><div class="title">Chapter 1</div></a>
@@ -23,19 +18,10 @@
     </div>
     <a href="#" class="icon-link"><div class="icon-container"><i class="ph-bold ph-notebook icon"></i></div></a>
   </div>
-
-  <!-- START Speech Bubble -->
   <div id="start-speech-bubble"><div class="speech-title">START</div></div>
-
-  <main class="container">
-    <!-- Chapter containers: each will be populated by JavaScript but must exist -->
-    <div id="chapters-container"></div>
-  </main>
-
+  <main class="container" id="chapters-container"></main>
   <script type="module">
     import { CoursePath } from '../../src/js/course-path.js';
-
-    // Define course data (or fetch from JSON)
     const courseData = {
       id: 'g12-life-sciences',
       chapters: [
@@ -83,8 +69,7 @@
         ] }
       ]
     };
-
-    // Generate chapter containers dynamically (or they can be hardcoded)
+    // Generate chapter containers dynamically
     const container = document.getElementById('chapters-container');
     for (let i = 0; i < courseData.chapters.length; i++) {
       const chapterDiv = document.createElement('div');
@@ -103,9 +88,8 @@
       `;
       container.appendChild(chapterDiv);
     }
-
-    // Initialize the learning path
-    window.path = new CoursePath('chapters-container', courseData);
+    // Initialize with startColorIndex = 0 (Carpenter Blue)
+    new CoursePath('chapters-container', courseData, { startColorIndex: 0 });
   </script>
 </body>
 </html>
