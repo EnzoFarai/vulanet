@@ -66,10 +66,10 @@
     if (!response.ok) throw new Error('Lesson data not found');
     const lessonData = await response.json();
     lessonData.courseId = course;
-    import('../src/js/quiz-engine.js').then(module => {
-      new module.QuizEngine(lessonData);
-    });
+    const { QuizEngine } = await import('../src/js/quiz-engine.js');
+    new QuizEngine(lessonData);
   } catch (error) {
+    console.error('Failed to load lesson:', error);
     window.location.href = '/404.html';
   }
 </script>
