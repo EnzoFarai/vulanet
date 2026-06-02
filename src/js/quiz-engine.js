@@ -235,7 +235,7 @@ class QuizEngine {
 
   openDailyQuest() {
     this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&completed=true`, () => {
-      window.location.href = this.redirectUrl;
+      // No redirect here – will be handled after final coin reward
     });
   }
 
@@ -304,11 +304,26 @@ class QuizEngine {
             window.removeEventListener('message', subHandler);
             this.fullscreenOverlay.classList.remove('visible');
             this.modalIframe.src = 'about:blank';
-            // After coin reward closes, we might need to re-render daily-quest? 
-            // For simplicity, we just close it.
+            // No further action – this is for individual chest claims
           }
         };
         window.addEventListener('message', subHandler);
+      } else if (event.data && event.data.type === 'continueWithCoins') {
+        // Called from daily-quest after it closed itself
+        const amount = event.data.amount;
+        // Open coin reward modal and after it closes, redirect
+        const coinModalUrl = `../src/components/modals/coins-reward.html?amount=${amount}`;
+        this.modalIframe.src = coinModalUrl;
+        this.fullscreenOverlay.classList.add('visible');
+        const redirectHandler = (closeEvent) => {
+          if (closeEvent.data === 'modalClose') {
+            window.removeEventListener('message', redirectHandler);
+            this.fullscreenOverlay.classList.remove('visible');
+            this.modalIframe.src = 'about:blank';
+            window.location.href = this.redirectUrl;
+          }
+        };
+        window.addEventListener('message', redirectHandler);
       } else if (event.data && event.data.type === 'questChestClaimed') {
         const coins = parseInt(localStorage.getItem('coins') || '500', 10);
         localStorage.setItem('coins', String(coins + (event.data.amount || 0)));
