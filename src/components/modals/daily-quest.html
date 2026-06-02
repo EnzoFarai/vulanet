@@ -181,8 +181,9 @@
 
     const container = document.getElementById('questsContainer');
 
-    function openCoinReward(amount) {
-      window.parent.postMessage({ type: 'openCoinReward', amount: amount }, '*');
+    // Helper: ask parent to open a coin reward modal and optionally wait for close
+    function openCoinReward(amount, callbackId = null) {
+      window.parent.postMessage({ type: 'openCoinReward', amount: amount, callbackId: callbackId }, '*');
     }
 
     function render() {
@@ -231,21 +232,29 @@
     }
     render();
 
+    // CONTINUE button logic with proper waiting for coin reward to close
     const continueBtn = document.getElementById('continueButton');
     continueBtn.addEventListener('click', () => {
       const unclaimed = quests.filter(q => q.current >= q.total && !q.claimed);
       const totalCoins = unclaimed.reduce((sum, q) => sum + q.coins, 0);
       if (totalCoins > 0) {
+        // Mark all unclaimed quests as claimed now (they will be claimed after reward)
         unclaimed.forEach(q => { q.claimed = true; });
         localStorage.setItem(storageKey, JSON.stringify(quests));
         const currentCoins = parseInt(localStorage.getItem('coins') || '500', 10);
         localStorage.setItem('coins', String(currentCoins + totalCoins));
-        // Close daily-quest first, then tell parent to open coin reward
-        window.parent.postMessage('modalClose', '*');
-        setTimeout(() => {
-          window.parent.postMessage({ type: 'continueWithCoins', amount: totalCoins }, '*');
-        }, 100);
+        // Open coin reward modal with a callback ID 'continue'
+        openCoinReward(totalCoins, 'continue');
+        // Wait for parent to send 'coinRewardClosed' with the same callbackId
+        const closeHandler = (event) => {
+          if (event.data && event.data.type === 'coinRewardClosed' && event.data.callbackId === 'continue') {
+            window.removeEventListener('message', closeHandler);
+            window.parent.postMessage('modalClose', '*');
+          }
+        };
+        window.addEventListener('message', closeHandler);
       } else {
+        // No unclaimed coins, just close daily quest
         window.parent.postMessage('modalClose', '*');
       }
     });
