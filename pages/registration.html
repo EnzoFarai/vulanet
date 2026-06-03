@@ -3,145 +3,214 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create your profile | Vulanet</title>
-  <link rel="stylesheet" href="../public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="../src/styles/components/buttons.css">
+  <title>Create your profile – Vulanet</title>
+  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="src/styles/components/buttons.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif; }
-    body { background: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
+    body { background: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     .container { width: 360px; background: #ffffff; padding: 30px 25px 40px; }
     h1 { text-align: center; font-size: 26px; font-weight: 700; color: #3c3c3c; margin-bottom: 25px; }
-    .input-field {
-      width: 100%; padding: 14px 16px; border-radius: 12px; border: 2px solid #e5e5e5;
-      background: #f2f2f2; font-size: 16px; margin-bottom: 14px; outline: none;
-    }
+    .input-field { width: 100%; padding: 14px 16px; border-radius: 12px; border: 2px solid #e5e5e5; background: #f2f2f2; font-size: 16px; margin-bottom: 14px; outline: none; }
     .input-field:focus { border-color: #1cb0f6; }
     .password-wrapper { position: relative; margin-bottom: 14px; }
-    .password-wrapper input { width: 100%; padding: 14px 16px; padding-right: 50px; }
-    .password-actions { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }
-    .password-toggle { cursor: pointer; background: none; border: none; padding: 0; width: 24px; height: 24px; }
+    .password-wrapper input { width: 100%; padding: 14px 16px; padding-right: 50px; border-radius: 12px; border: 2px solid #e5e5e5; background: #f2f2f2; font-size: 16px; outline: none; }
+    .password-wrapper input:focus { border-color: #1cb0f6; }
+    .password-actions { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 8px; background: transparent; pointer-events: none; }
+    .password-toggle { cursor: pointer; display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; width: 24px; height: 24px; pointer-events: auto; }
     .eye-icon { width: 22px; height: 22px; display: inline-block; }
-    .eye-icon img { width: 100%; height: 100%; }
-    .error-message {
-      display: flex; align-items: center; gap: 6px; margin-top: -8px; margin-bottom: 14px;
-      color: #EA4335; font-size: 13px; font-weight: 500;
-    }
+    .eye-icon img { width: 100%; height: 100%; display: block; }
+    .error-message { display: flex; align-items: center; gap: 6px; margin-top: -8px; margin-bottom: 14px; color: #EA4335; font-size: 13px; font-weight: 500; line-height: 1.4; }
     .error-message.hidden { display: none; }
-    .error-icon { width: 18px; height: 18px; }
-    .error-icon img { width: 100%; height: 100%; }
+    .error-icon { width: 18px; height: 18px; display: inline-block; flex-shrink: 0; }
+    .error-icon img { width: 100%; height: 100%; display: block; }
     .create-btn { width: 100%; margin-top: 8px; }
     .google-btn { width: 100%; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .google-btn .btn-content { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+    .google-icon { width: 20px; height: 20px; display: inline-block; }
+    .google-icon img { width: 100%; height: 100%; display: block; }
     .divider { display: flex; align-items: center; margin: 25px 0; color: #9e9e9e; font-weight: 700; }
     .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e5e5e5; }
     .divider span { margin: 0 10px; font-size: 14px; }
-    .terms { text-align: center; font-size: 12px; color: #9e9e9e; margin-top: 20px; }
-    .login { text-align: center; margin-top: 18px; font-size: 15px; font-weight: 700; }
+    .terms { text-align: center; font-size: 12px; color: #9e9e9e; margin-top: 20px; line-height: 1.5; }
+    .terms a, .login a { color: inherit; text-decoration: none; cursor: pointer; }
+    .terms a:hover, .login a:hover { text-decoration: underline; }
+    .login { text-align: center; margin-top: 18px; font-size: 15px; font-weight: 700; color: #3c3c3c; }
     .login a { color: #1cb0f6; text-decoration: none; }
   </style>
 </head>
 <body>
 <div class="container">
   <h1>Create your profile</h1>
-  <div><input class="input-field" type="text" placeholder="Display name" id="display-name"></div>
-  <div><input class="input-field" type="email" placeholder="Email" id="email"></div>
+  <div>
+    <input class="input-field" type="text" placeholder="Display name" id="display-name-input">
+    <div class="error-message hidden" id="display-name-error">
+      <span class="error-icon"><img src="public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
+      <span>Display name is required.</span>
+    </div>
+  </div>
+  <div>
+    <input class="input-field" type="email" placeholder="Email" id="email-input">
+    <div class="error-message hidden" id="email-error">
+      <span class="error-icon"><img src="public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
+      <span id="email-error-text">Email already in use.</span>
+    </div>
+  </div>
   <div class="password-wrapper">
-    <input type="password" placeholder="Password" id="password">
+    <input type="password" placeholder="Password" id="password-input">
     <div class="password-actions">
       <button class="password-toggle" id="toggle-password">
-        <span class="eye-icon" id="eye-icon"><img src="../public/assets/icons/phosphor/regular/eye-closed.svg" alt="Show"></span>
+        <span class="eye-icon" id="eye-icon">
+          <img src="public/assets/icons/phosphor/regular/eye-closed.svg" alt="Show password">
+        </span>
       </button>
     </div>
   </div>
-  <div class="error-message hidden" id="error-message">Invalid email or password.</div>
-  <button class="btn btn-md btn-gecko-solid create-btn" id="create-btn">CREATE ACCOUNT</button>
+  <div class="error-message hidden" id="password-error">
+    <span class="error-icon"><img src="public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
+    <span id="password-error-text">Password must be 8–12 characters and contain uppercase, lowercase, number, and special character.</span>
+  </div>
+  <button class="btn btn-md btn-gecko-solid create-btn" id="create-account-btn">CREATE ACCOUNT</button>
   <div class="divider"><span>OR</span></div>
   <button class="btn btn-md btn-cloud-outline google-btn" id="google-btn">
     <span class="btn-content">
-      <img src="../public/assets/icons/social/google-icon.svg" alt="Google" style="width:20px;height:20px;">
+      <span class="google-icon"><img src="public/assets/icons/social/google-icon.svg" alt="Google"></span>
       Continue with Google
     </span>
   </button>
-  <div class="terms">By signing in, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</div>
+  <div class="terms">
+    By signing in to Vulanet, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.<br><br>
+    This site is protected by reCAPTCHA Enterprise and the Google <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> apply.
+  </div>
   <div class="login">Have an account? <a href="#" id="login-link">LOG IN</a></div>
 </div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    }
+  }
+</script>
 <script type="module">
-  import { signUp, signInWithGoogle, signIn } from '../src/js/supabase.js';
-
-  const displayNameInput = document.getElementById('display-name');
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const createBtn = document.getElementById('create-btn');
+  import { supabase } from './src/js/supabase.js';
+  
+  // DOM elements
+  const displayNameInput = document.getElementById('display-name-input');
+  const emailInput = document.getElementById('email-input');
+  const passwordInput = document.getElementById('password-input');
+  const displayNameError = document.getElementById('display-name-error');
+  const emailError = document.getElementById('email-error');
+  const emailErrorText = document.getElementById('email-error-text');
+  const passwordError = document.getElementById('password-error');
+  const createBtn = document.getElementById('create-account-btn');
   const googleBtn = document.getElementById('google-btn');
-  const errorDiv = document.getElementById('error-message');
-  const loginLink = document.getElementById('login-link');
-
-  const toggleBtn = document.getElementById('toggle-password');
+  const togglePassword = document.getElementById('toggle-password');
   const eyeIcon = document.getElementById('eye-icon');
-  const EYE_OPEN = '../public/assets/icons/phosphor/regular/eye.svg';
-  const EYE_CLOSED = '../public/assets/icons/phosphor/regular/eye-closed.svg';
-
-  toggleBtn.addEventListener('click', () => {
+  
+  const EYE_OPEN_SRC = 'public/assets/icons/phosphor/regular/eye.svg';
+  const EYE_CLOSED_SRC = 'public/assets/icons/phosphor/regular/eye-closed.svg';
+  
+  // Password toggle
+  togglePassword.addEventListener('click', () => {
     if (passwordInput.type === 'password') {
       passwordInput.type = 'text';
-      eyeIcon.innerHTML = `<img src="${EYE_OPEN}" alt="Hide">`;
+      eyeIcon.innerHTML = `<img src="${EYE_OPEN_SRC}" alt="Hide password">`;
     } else {
       passwordInput.type = 'password';
-      eyeIcon.innerHTML = `<img src="${EYE_CLOSED}" alt="Show">`;
+      eyeIcon.innerHTML = `<img src="${EYE_CLOSED_SRC}" alt="Show password">`;
     }
   });
-
-  createBtn.addEventListener('click', async () => {
+  
+  function validatePassword(password) {
+    if (password.length < 8 || password.length > 12) return false;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    return hasUpper && hasLower && hasNumber && hasSpecial;
+  }
+  
+  function validateDisplayName(name) {
+    return name && name.trim().length > 0;
+  }
+  
+  // Real-time validation
+  displayNameInput.addEventListener('input', () => {
+    if (validateDisplayName(displayNameInput.value)) displayNameError.classList.add('hidden');
+  });
+  emailInput.addEventListener('input', () => emailError.classList.add('hidden'));
+  passwordInput.addEventListener('input', () => {
+    if (validatePassword(passwordInput.value)) passwordError.classList.add('hidden');
+  });
+  
+  async function signUpWithEmail() {
     const displayName = displayNameInput.value.trim();
     const email = emailInput.value.trim();
     const password = passwordInput.value;
-    if (!displayName || !email || !password) {
-      errorDiv.textContent = 'All fields are required.';
-      errorDiv.classList.remove('hidden');
-      return;
+    
+    let hasError = false;
+    if (!validateDisplayName(displayName)) {
+      displayNameError.classList.remove('hidden');
+      hasError = true;
     }
-    if (password.length < 6) {
-      errorDiv.textContent = 'Password must be at least 6 characters.';
-      errorDiv.classList.remove('hidden');
-      return;
+    if (!validatePassword(password)) {
+      passwordError.classList.remove('hidden');
+      hasError = true;
     }
-    const { user, error } = await signUp(email, password, displayName);
-    if (error) {
-      errorDiv.textContent = error.message;
-      errorDiv.classList.remove('hidden');
-    } else {
-      // After signup, redirect to registration-completion
-      const returnTo = new URLSearchParams(window.location.search).get('returnTo') || '/';
-      localStorage.setItem('tempReturnTo', returnTo);
-      window.location.href = '/pages/registration-completion.html';
+    if (!email) {
+      emailErrorText.textContent = 'Email is required.';
+      emailError.classList.remove('hidden');
+      hasError = true;
     }
-  });
-
-  googleBtn.addEventListener('click', async () => {
-    const { error } = await signInWithGoogle();
-    if (error) {
-      errorDiv.textContent = error.message;
-      errorDiv.classList.remove('hidden');
-    } else {
-      // OAuth redirect will happen; after callback, go to registration-completion
-      const returnTo = new URLSearchParams(window.location.search).get('returnTo') || '/';
-      localStorage.setItem('tempReturnTo', returnTo);
-      // The OAuth redirect will go to the same page; we need to handle callback in supabase.js? Not needed.
-      // Supabase automatically redirects back to the site. We'll check for session in registration-completion.
-    }
-  });
-
-  loginLink.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const email = prompt('Enter your email:');
-    const password = prompt('Enter your password:');
-    if (email && password) {
-      const { user, error } = await signIn(email, password);
-      if (error) alert(error.message);
-      else {
-        const returnTo = new URLSearchParams(window.location.search).get('returnTo') || '/';
-        window.location.href = returnTo;
+    if (hasError) return;
+    
+    // Disable button to prevent double submission
+    createBtn.disabled = true;
+    createBtn.textContent = 'Creating...';
+    
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { display_name: displayName }
       }
+    });
+    
+    if (error) {
+      emailErrorText.textContent = error.message;
+      emailError.classList.remove('hidden');
+      createBtn.disabled = false;
+      createBtn.textContent = 'CREATE ACCOUNT';
+      return;
     }
+    
+    // After successful sign-up, redirect to completion page
+    // Pass the user ID via URL or rely on session (session will be active)
+    window.location.href = 'registration-completion.html';
+  }
+  
+  async function signInWithGoogle() {
+    googleBtn.disabled = true;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/registration-completion.html'
+      }
+    });
+    if (error) {
+      alert('Google sign-in failed: ' + error.message);
+      googleBtn.disabled = false;
+    }
+  }
+  
+  createBtn.addEventListener('click', signUpWithEmail);
+  googleBtn.addEventListener('click', signInWithGoogle);
+  
+  // Login link – redirect to login page (we don't have it yet; placeholder)
+  document.getElementById('login-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    alert('Login page coming soon. For now, use the registration flow.');
   });
 </script>
 </body>
