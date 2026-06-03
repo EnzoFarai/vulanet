@@ -1,7 +1,9 @@
-quiz-engine.js
 // ============================================================
 // VULANET QUIZ ENGINE – Complete lesson / streak / reward pipeline
+// WITH SUPABASE AUTHENTICATION INTEGRATION
 // ============================================================
+
+import { supabase, isLoggedIn, saveTempProgress, clearTempProgress, getTempProgress } from './supabase.js';
 
 function sanitiseHTML(str) {
   const div = document.createElement('div');
@@ -186,7 +188,6 @@ class QuizEngine {
   }
 
   processStreakReward(rewardInfo) {
-    console.log('processStreakReward called with:', rewardInfo);
     if (this._streakRewardProcessed) return;
     this._streakRewardProcessed = true;
 
@@ -234,9 +235,26 @@ class QuizEngine {
     }
   }
 
-  openDailyQuest() {
-    this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&completed=true`, () => {
-      window.location.href = this.redirectUrl;
+  async openDailyQuest() {
+    this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&completed=true`, async () => {
+      // After daily quest modal closes, check if user is logged in
+      const loggedIn = await isLoggedIn();
+      if (loggedIn) {
+        // Save lesson progress to Supabase here if needed
+        window.location.href = this.redirectUrl;
+      } else {
+        // Store temporary progress and redirect to registration
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get('course') || 'g12-life-sciences';
+        const lessonId = urlParams.get('lesson') || 'introduction-to-nucleic-acids';
+        saveTempProgress(courseId, lessonId, {
+          correct: this.totalCorrectAttempts,
+          total: this.totalAttempts,
+          hearts: this.heartsAtCompletion,
+          streak: this.currentStreakDays
+        });
+        window.location.href = '/registration.html';
+      }
     });
   }
 
@@ -296,7 +314,6 @@ class QuizEngine {
           heartsAtCompletion: event.data.heartsAtCompletion
         });
       } else if (event.data && event.data.type === 'openCoinReward') {
-        // Directly open coin reward modal without recursive showModal
         const coinModalUrl = `../src/components/modals/coins-reward.html?amount=${event.data.amount}`;
         this.modalIframe.src = coinModalUrl;
         this.fullscreenOverlay.classList.add('visible');
@@ -305,20 +322,12 @@ class QuizEngine {
             window.removeEventListener('message', subHandler);
             this.fullscreenOverlay.classList.remove('visible');
             this.modalIframe.src = 'about:blank';
-            // After coin reward closes, we might need to re-render daily-quest? 
-            // For simplicity, we just close it.
           }
         };
         window.addEventListener('message', subHandler);
       } else if (event.data && event.data.type === 'questChestClaimed') {
         const coins = parseInt(localStorage.getItem('coins') || '500', 10);
         localStorage.setItem('coins', String(coins + (event.data.amount || 0)));
-      } else if (event.data && event.data.type === 'achievementClaimed') {
-        const coins = parseInt(localStorage.getItem('coins') || '500', 10);
-        localStorage.setItem('coins', String(coins + (event.data.coins || 0)));
-      } else if (event.data && event.data.type === 'recordClaimed') {
-        const coins = parseInt(localStorage.getItem('coins') || '500', 10);
-        localStorage.setItem('coins', String(coins + (event.data.coins || 0)));
       }
     };
     window.addEventListener('message', handler);
