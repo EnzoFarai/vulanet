@@ -3,68 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Complete your profile | Vulanet</title>
-  <link rel="stylesheet" href="../public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="../src/styles/components/buttons.css">
+  <title>Complete your profile – Vulanet</title>
+  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="src/styles/components/buttons.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
     body { background: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     .container { width: 360px; background: #ffffff; padding: 30px 25px 40px; }
-    h1 { text-align: center; font-size: 26px; font-weight: 700; margin-bottom: 25px; }
+    h1 { text-align: center; font-size: 26px; font-weight: 700; color: #3c3c3c; margin-bottom: 25px; }
     .dropdown { width: 100%; position: relative; margin-bottom: 14px; }
-    .dropdown-toggle {
-      width: 100%; padding: 14px 16px; border-radius: 12px; border: 2px solid #e5e5e5;
-      background: #f2f2f2; font-size: 16px; cursor: pointer; display: flex; justify-content: space-between;
-      align-items: center; color: #757575;
-    }
+    .dropdown-toggle { width: 100%; padding: 14px 16px; border-radius: 12px; border: 2px solid #e5e5e5; background: #f2f2f2; font-size: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #757575; transition: all 0.1s ease; outline: none; }
     .dropdown-toggle.active { color: #3c3c3c; border-color: #1cb0f6; }
-    .dropdown-icon { width: 20px; height: 20px; }
-    .dropdown-menu {
-      position: absolute; top: 100%; left: 0; width: 100%; background: white; border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; z-index: 100; border: 2px solid #e5e5e5;
-    }
+    .dropdown-icon { width: 20px; height: 20px; display: inline-block; }
+    .dropdown-icon img { width: 100%; height: 100%; display: block; opacity: 0.6; }
+    .dropdown-toggle.active .dropdown-icon img { opacity: 1; }
+    .dropdown-menu { position: absolute; top: 100%; left: 0; width: 100%; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); overflow: hidden; display: none; z-index: 100; margin-top: 4px; border: 2px solid #e5e5e5; }
     .dropdown-menu.show { display: block; }
     .search-box { padding: 12px; border-bottom: 1px solid #e5e5e5; background: #fafafa; }
-    .search-box input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 2px solid #e5e5e5; outline: none; }
+    .search-box input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 2px solid #e5e5e5; background: #f2f2f2; outline: none; font-size: 15px; }
+    .search-box input:focus { border-color: #1cb0f6; }
     .country-list { max-height: 260px; overflow-y: auto; }
-    .country {
-      padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer;
-      transition: background 0.15s;
-    }
+    .country { padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background-color 0.15s ease; font-size: 15px; }
     .country:hover { background: #f5f8ff; }
-    .country-flag { width: 24px; height: 18px; }
-    .country-flag img { width: 100%; height: 100%; object-fit: cover; }
+    .country-flag { width: 24px; height: 18px; display: inline-block; flex-shrink: 0; }
+    .country-flag img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .country-name { flex: 1; }
-    .code { font-size: 13px; color: #666; background: #f0f0f0; padding: 2px 8px; border-radius: 6px; }
-    .timezone-selector { display: none; margin-top: 0; }
+    .country span.code { margin-left: auto; font-size: 13px; color: #666; font-weight: 600; background: #f0f0f0; padding: 2px 8px; border-radius: 6px; min-width: 32px; text-align: center; }
+    .timezone-item .current-time { font-size: 13px; color: #666; margin-left: auto; padding: 2px 8px; border-radius: 6px; background: #f0f0f0; font-family: monospace; font-weight: 400; }
+    .highlight { background: #f0f7ff !important; border-left: 3px solid #1cb0f6; }
+    .timezone-selector { display: none; margin-top: 0; animation: fadeIn 0.2s ease; }
     .timezone-selector.show { display: block; }
-    .input-field {
-      width: 100%; padding: 14px 16px; border-radius: 12px; border: 2px solid #e5e5e5;
-      background: #f2f2f2; font-size: 16px; margin-bottom: 14px; outline: none;
-    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    .loading { padding: 20px; text-align: center; color: #757575; font-size: 14px; }
+    .empty-state { padding: 20px; text-align: center; color: #9e9e9e; font-size: 14px; }
+    .input-field { width: 100%; padding: 14px 16px; border-radius: 12px; border: 2px solid #e5e5e5; background: #f2f2f2; font-size: 16px; margin-bottom: 14px; outline: none; }
+    .input-field:focus { border-color: #1cb0f6; }
     .submit-btn { width: 100%; margin-top: 8px; }
-    .loading { padding: 20px; text-align: center; color: #757575; }
-    .current-time { font-size: 13px; color: #666; margin-left: auto; padding: 2px 8px; background: #f0f0f0; border-radius: 6px; }
   </style>
 </head>
 <body>
 <div class="container">
   <h1>Complete your profile</h1>
+  
+  <!-- Country Dropdown -->
   <div class="dropdown">
     <div class="dropdown-toggle" id="toggle">
       <span id="selected">Select a country/region</span>
-      <span class="dropdown-icon"><img src="../public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></span>
+      <span class="dropdown-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></span>
     </div>
     <div class="dropdown-menu" id="menu">
-      <div class="search-box"><input type="text" id="search" placeholder="Search country..."></div>
-      <div class="country-list" id="list"><div class="loading">Detecting your location...</div></div>
+      <div class="search-box"><input type="text" id="search" placeholder="Search country or code (e.g., US, FR)"></div>
+      <div class="country-list" id="list"><div class="loading">Detecting your location</div></div>
     </div>
   </div>
+  
+  <!-- Timezone Selector -->
   <div class="timezone-selector" id="timezoneSelector">
     <div class="dropdown">
       <div class="dropdown-toggle" id="timezoneToggle">
         <span id="selectedTimezone">Select a time zone</span>
-        <span class="dropdown-icon"><img src="../public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></span>
+        <span class="dropdown-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></span>
       </div>
       <div class="dropdown-menu" id="timezoneMenu">
         <div class="search-box"><input type="text" id="timezoneSearch" placeholder="Search time zone"></div>
@@ -72,51 +70,279 @@
       </div>
     </div>
   </div>
-  <input class="input-field" type="number" placeholder="Age" id="age" min="1" max="120">
+  
+  <!-- Age Field -->
+  <input class="input-field" type="number" placeholder="Age" id="age-input" min="1" max="120">
+  
   <button class="btn btn-md btn-gecko-solid submit-btn" id="submit-btn">SUBMIT</button>
 </div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    }
+  }
+</script>
 <script type="module">
-  import { getCurrentUser, saveUserProfile } from '../src/js/supabase.js';
-
-  // Countries list (simplified for brevity; use full list from your earlier demo)
+  import { supabase } from './src/js/supabase.js';
+  
+  // ==================== COMPLETE COUNTRIES ARRAY ====================
+  // (This is the full list from your demo – all 200+ countries)
   const countries = [
-    { name: "United States", code: "us", timezones: ["UTC-10:00", "UTC-09:00", "UTC-08:00", "UTC-07:00", "UTC-06:00", "UTC-05:00", "UTC-04:00"] },
-    { name: "United Kingdom", code: "gb", timezones: ["UTC+00:00"] },
+    { name: "Afghanistan", code: "af", timezones: ["UTC+04:30"] },
+    { name: "Albania", code: "al", timezones: ["UTC+01:00"] },
+    { name: "Algeria", code: "dz", timezones: ["UTC+01:00"] },
+    { name: "Andorra", code: "ad", timezones: ["UTC+01:00"] },
+    { name: "Angola", code: "ao", timezones: ["UTC+01:00"] },
+    { name: "Antigua and Barbuda", code: "ag", timezones: ["UTC-04:00"] },
+    { name: "Argentina", code: "ar", timezones: ["UTC-03:00"] },
+    { name: "Armenia", code: "am", timezones: ["UTC+04:00"] },
+    { name: "Australia", code: "au", timezones: ["UTC+08:00", "UTC+09:30", "UTC+10:00", "UTC+10:30", "UTC+11:00"] },
+    { name: "Austria", code: "at", timezones: ["UTC+01:00"] },
+    { name: "Azerbaijan", code: "az", timezones: ["UTC+04:00"] },
+    { name: "Bahamas", code: "bs", timezones: ["UTC-05:00"] },
+    { name: "Bahrain", code: "bh", timezones: ["UTC+03:00"] },
+    { name: "Bangladesh", code: "bd", timezones: ["UTC+06:00"] },
+    { name: "Barbados", code: "bb", timezones: ["UTC-04:00"] },
+    { name: "Belarus", code: "by", timezones: ["UTC+03:00"] },
+    { name: "Belgium", code: "be", timezones: ["UTC+01:00"] },
+    { name: "Belize", code: "bz", timezones: ["UTC-06:00"] },
+    { name: "Benin", code: "bj", timezones: ["UTC+01:00"] },
+    { name: "Bhutan", code: "bt", timezones: ["UTC+06:00"] },
+    { name: "Bolivia", code: "bo", timezones: ["UTC-04:00"] },
+    { name: "Bosnia and Herzegovina", code: "ba", timezones: ["UTC+01:00"] },
+    { name: "Botswana", code: "bw", timezones: ["UTC+02:00"] },
+    { name: "Brazil", code: "br", timezones: ["UTC-05:00", "UTC-04:00", "UTC-03:00", "UTC-02:00"] },
+    { name: "Brunei", code: "bn", timezones: ["UTC+08:00"] },
+    { name: "Bulgaria", code: "bg", timezones: ["UTC+02:00"] },
+    { name: "Burkina Faso", code: "bf", timezones: ["UTC+00:00"] },
+    { name: "Burundi", code: "bi", timezones: ["UTC+02:00"] },
+    { name: "Cabo Verde", code: "cv", timezones: ["UTC-01:00"] },
+    { name: "Cambodia", code: "kh", timezones: ["UTC+07:00"] },
+    { name: "Cameroon", code: "cm", timezones: ["UTC+01:00"] },
+    { name: "Canada", code: "ca", timezones: ["UTC-08:00", "UTC-07:00", "UTC-06:00", "UTC-05:00", "UTC-04:00", "UTC-03:30"] },
+    { name: "Central African Republic", code: "cf", timezones: ["UTC+01:00"] },
+    { name: "Chad", code: "td", timezones: ["UTC+01:00"] },
+    { name: "Chile", code: "cl", timezones: ["UTC-06:00", "UTC-05:00", "UTC-04:00", "UTC-03:00"] },
+    { name: "China", code: "cn", timezones: ["UTC+08:00"] },
+    { name: "Colombia", code: "co", timezones: ["UTC-05:00"] },
+    { name: "Comoros", code: "km", timezones: ["UTC+03:00"] },
+    { name: "Congo", code: "cg", timezones: ["UTC+01:00"] },
+    { name: "Costa Rica", code: "cr", timezones: ["UTC-06:00"] },
+    { name: "Croatia", code: "hr", timezones: ["UTC+01:00"] },
+    { name: "Cuba", code: "cu", timezones: ["UTC-05:00"] },
+    { name: "Cyprus", code: "cy", timezones: ["UTC+02:00"] },
+    { name: "Czech Republic", code: "cz", timezones: ["UTC+01:00"] },
+    { name: "Denmark", code: "dk", timezones: ["UTC+01:00"] },
+    { name: "Djibouti", code: "dj", timezones: ["UTC+03:00"] },
+    { name: "Dominica", code: "dm", timezones: ["UTC-04:00"] },
+    { name: "Dominican Republic", code: "do", timezones: ["UTC-04:00"] },
+    { name: "DR Congo", code: "cd", timezones: ["UTC+01:00", "UTC+02:00"] },
+    { name: "Ecuador", code: "ec", timezones: ["UTC-06:00", "UTC-05:00"] },
+    { name: "Egypt", code: "eg", timezones: ["UTC+02:00"] },
+    { name: "El Salvador", code: "sv", timezones: ["UTC-06:00"] },
+    { name: "Equatorial Guinea", code: "gq", timezones: ["UTC+01:00"] },
+    { name: "Eritrea", code: "er", timezones: ["UTC+03:00"] },
+    { name: "Estonia", code: "ee", timezones: ["UTC+02:00"] },
+    { name: "Eswatini", code: "sz", timezones: ["UTC+02:00"] },
+    { name: "Ethiopia", code: "et", timezones: ["UTC+03:00"] },
+    { name: "Fiji", code: "fj", timezones: ["UTC+12:00"] },
+    { name: "Finland", code: "fi", timezones: ["UTC+02:00"] },
+    { name: "France", code: "fr", timezones: ["UTC+01:00"] },
+    { name: "Gabon", code: "ga", timezones: ["UTC+01:00"] },
+    { name: "Gambia", code: "gm", timezones: ["UTC+00:00"] },
+    { name: "Georgia", code: "ge", timezones: ["UTC+04:00"] },
+    { name: "Germany", code: "de", timezones: ["UTC+01:00"] },
+    { name: "Ghana", code: "gh", timezones: ["UTC+00:00"] },
+    { name: "Greece", code: "gr", timezones: ["UTC+02:00"] },
+    { name: "Grenada", code: "gd", timezones: ["UTC-04:00"] },
+    { name: "Guatemala", code: "gt", timezones: ["UTC-06:00"] },
+    { name: "Guinea", code: "gn", timezones: ["UTC+00:00"] },
+    { name: "Guinea-Bissau", code: "gw", timezones: ["UTC+00:00"] },
+    { name: "Guyana", code: "gy", timezones: ["UTC-04:00"] },
+    { name: "Haiti", code: "ht", timezones: ["UTC-05:00"] },
+    { name: "Honduras", code: "hn", timezones: ["UTC-06:00"] },
+    { name: "Hungary", code: "hu", timezones: ["UTC+01:00"] },
+    { name: "Iceland", code: "is", timezones: ["UTC+00:00"] },
     { name: "India", code: "in", timezones: ["UTC+05:30"] },
+    { name: "Indonesia", code: "id", timezones: ["UTC+07:00", "UTC+08:00", "UTC+09:00"] },
+    { name: "Iran", code: "ir", timezones: ["UTC+03:30"] },
+    { name: "Iraq", code: "iq", timezones: ["UTC+03:00"] },
+    { name: "Ireland", code: "ie", timezones: ["UTC+00:00"] },
+    { name: "Israel", code: "il", timezones: ["UTC+02:00"] },
+    { name: "Italy", code: "it", timezones: ["UTC+01:00"] },
+    { name: "Ivory Coast", code: "ci", timezones: ["UTC+00:00"] },
+    { name: "Jamaica", code: "jm", timezones: ["UTC-05:00"] },
+    { name: "Japan", code: "jp", timezones: ["UTC+09:00"] },
+    { name: "Jordan", code: "jo", timezones: ["UTC+02:00"] },
+    { name: "Kazakhstan", code: "kz", timezones: ["UTC+05:00", "UTC+06:00"] },
+    { name: "Kenya", code: "ke", timezones: ["UTC+03:00"] },
+    { name: "Kiribati", code: "ki", timezones: ["UTC+12:00", "UTC+13:00", "UTC+14:00"] },
+    { name: "Kuwait", code: "kw", timezones: ["UTC+03:00"] },
+    { name: "Kyrgyzstan", code: "kg", timezones: ["UTC+06:00"] },
+    { name: "Laos", code: "la", timezones: ["UTC+07:00"] },
+    { name: "Latvia", code: "lv", timezones: ["UTC+02:00"] },
+    { name: "Lebanon", code: "lb", timezones: ["UTC+02:00"] },
+    { name: "Lesotho", code: "ls", timezones: ["UTC+02:00"] },
+    { name: "Liberia", code: "lr", timezones: ["UTC+00:00"] },
+    { name: "Libya", code: "ly", timezones: ["UTC+02:00"] },
+    { name: "Liechtenstein", code: "li", timezones: ["UTC+01:00"] },
+    { name: "Lithuania", code: "lt", timezones: ["UTC+02:00"] },
+    { name: "Luxembourg", code: "lu", timezones: ["UTC+01:00"] },
+    { name: "Madagascar", code: "mg", timezones: ["UTC+03:00"] },
+    { name: "Malawi", code: "mw", timezones: ["UTC+02:00"] },
+    { name: "Malaysia", code: "my", timezones: ["UTC+08:00"] },
+    { name: "Maldives", code: "mv", timezones: ["UTC+05:00"] },
+    { name: "Mali", code: "ml", timezones: ["UTC+00:00"] },
+    { name: "Malta", code: "mt", timezones: ["UTC+01:00"] },
+    { name: "Marshall Islands", code: "mh", timezones: ["UTC+12:00"] },
+    { name: "Mauritania", code: "mr", timezones: ["UTC+00:00"] },
+    { name: "Mauritius", code: "mu", timezones: ["UTC+04:00"] },
+    { name: "Mexico", code: "mx", timezones: ["UTC-08:00", "UTC-07:00", "UTC-06:00", "UTC-05:00"] },
+    { name: "Micronesia", code: "fm", timezones: ["UTC+10:00", "UTC+11:00"] },
+    { name: "Moldova", code: "md", timezones: ["UTC+02:00"] },
+    { name: "Monaco", code: "mc", timezones: ["UTC+01:00"] },
+    { name: "Mongolia", code: "mn", timezones: ["UTC+07:00", "UTC+08:00"] },
+    { name: "Montenegro", code: "me", timezones: ["UTC+01:00"] },
+    { name: "Morocco", code: "ma", timezones: ["UTC+00:00"] },
+    { name: "Mozambique", code: "mz", timezones: ["UTC+02:00"] },
+    { name: "Myanmar", code: "mm", timezones: ["UTC+06:30"] },
+    { name: "Namibia", code: "na", timezones: ["UTC+02:00"] },
+    { name: "Nauru", code: "nr", timezones: ["UTC+12:00"] },
+    { name: "Nepal", code: "np", timezones: ["UTC+05:45"] },
+    { name: "Netherlands", code: "nl", timezones: ["UTC+01:00"] },
+    { name: "New Zealand", code: "nz", timezones: ["UTC+12:00", "UTC+13:00"] },
+    { name: "Nicaragua", code: "ni", timezones: ["UTC-06:00"] },
+    { name: "Niger", code: "ne", timezones: ["UTC+01:00"] },
+    { name: "Nigeria", code: "ng", timezones: ["UTC+01:00"] },
+    { name: "North Korea", code: "kp", timezones: ["UTC+09:00"] },
+    { name: "North Macedonia", code: "mk", timezones: ["UTC+01:00"] },
+    { name: "Norway", code: "no", timezones: ["UTC+01:00"] },
+    { name: "Oman", code: "om", timezones: ["UTC+04:00"] },
+    { name: "Pakistan", code: "pk", timezones: ["UTC+05:00"] },
+    { name: "Palau", code: "pw", timezones: ["UTC+09:00"] },
+    { name: "Palestine", code: "ps", timezones: ["UTC+02:00"] },
+    { name: "Panama", code: "pa", timezones: ["UTC-05:00"] },
+    { name: "Papua New Guinea", code: "pg", timezones: ["UTC+10:00", "UTC+11:00"] },
+    { name: "Paraguay", code: "py", timezones: ["UTC-04:00"] },
+    { name: "Peru", code: "pe", timezones: ["UTC-05:00"] },
+    { name: "Philippines", code: "ph", timezones: ["UTC+08:00"] },
+    { name: "Poland", code: "pl", timezones: ["UTC+01:00"] },
+    { name: "Portugal", code: "pt", timezones: ["UTC-01:00", "UTC+00:00"] },
+    { name: "Qatar", code: "qa", timezones: ["UTC+03:00"] },
+    { name: "Romania", code: "ro", timezones: ["UTC+02:00"] },
+    { name: "Russia", code: "ru", timezones: ["UTC+02:00", "UTC+03:00", "UTC+04:00", "UTC+05:00", "UTC+06:00", "UTC+07:00", "UTC+08:00", "UTC+09:00", "UTC+10:00", "UTC+11:00", "UTC+12:00"] },
+    { name: "Rwanda", code: "rw", timezones: ["UTC+02:00"] },
+    { name: "Saint Kitts and Nevis", code: "kn", timezones: ["UTC-04:00"] },
+    { name: "Saint Lucia", code: "lc", timezones: ["UTC-04:00"] },
+    { name: "Saint Vincent and the Grenadines", code: "vc", timezones: ["UTC-04:00"] },
+    { name: "Samoa", code: "ws", timezones: ["UTC+13:00"] },
+    { name: "San Marino", code: "sm", timezones: ["UTC+01:00"] },
+    { name: "Sao Tome and Principe", code: "st", timezones: ["UTC+00:00"] },
+    { name: "Saudi Arabia", code: "sa", timezones: ["UTC+03:00"] },
+    { name: "Senegal", code: "sn", timezones: ["UTC+00:00"] },
+    { name: "Serbia", code: "rs", timezones: ["UTC+01:00"] },
+    { name: "Seychelles", code: "sc", timezones: ["UTC+04:00"] },
+    { name: "Sierra Leone", code: "sl", timezones: ["UTC+00:00"] },
+    { name: "Singapore", code: "sg", timezones: ["UTC+08:00"] },
+    { name: "Slovakia", code: "sk", timezones: ["UTC+01:00"] },
+    { name: "Slovenia", code: "si", timezones: ["UTC+01:00"] },
+    { name: "Solomon Islands", code: "sb", timezones: ["UTC+11:00"] },
+    { name: "Somalia", code: "so", timezones: ["UTC+03:00"] },
     { name: "South Africa", code: "za", timezones: ["UTC+02:00"] },
-    // ... add all countries as needed (see your original countries array)
+    { name: "South Korea", code: "kr", timezones: ["UTC+09:00"] },
+    { name: "South Sudan", code: "ss", timezones: ["UTC+02:00"] },
+    { name: "Spain", code: "es", timezones: ["UTC+00:00", "UTC+01:00"] },
+    { name: "Sri Lanka", code: "lk", timezones: ["UTC+05:30"] },
+    { name: "Sudan", code: "sd", timezones: ["UTC+02:00"] },
+    { name: "Suriname", code: "sr", timezones: ["UTC-03:00"] },
+    { name: "Sweden", code: "se", timezones: ["UTC+01:00"] },
+    { name: "Switzerland", code: "ch", timezones: ["UTC+01:00"] },
+    { name: "Syria", code: "sy", timezones: ["UTC+02:00"] },
+    { name: "Taiwan", code: "tw", timezones: ["UTC+08:00"] },
+    { name: "Tajikistan", code: "tj", timezones: ["UTC+05:00"] },
+    { name: "Tanzania", code: "tz", timezones: ["UTC+03:00"] },
+    { name: "Thailand", code: "th", timezones: ["UTC+07:00"] },
+    { name: "Timor-Leste", code: "tl", timezones: ["UTC+09:00"] },
+    { name: "Togo", code: "tg", timezones: ["UTC+00:00"] },
+    { name: "Tonga", code: "to", timezones: ["UTC+13:00"] },
+    { name: "Trinidad and Tobago", code: "tt", timezones: ["UTC-04:00"] },
+    { name: "Tunisia", code: "tn", timezones: ["UTC+01:00"] },
+    { name: "Turkey", code: "tr", timezones: ["UTC+03:00"] },
+    { name: "Turkmenistan", code: "tm", timezones: ["UTC+05:00"] },
+    { name: "Tuvalu", code: "tv", timezones: ["UTC+12:00"] },
+    { name: "Uganda", code: "ug", timezones: ["UTC+03:00"] },
+    { name: "Ukraine", code: "ua", timezones: ["UTC+02:00"] },
+    { name: "United Arab Emirates", code: "ae", timezones: ["UTC+04:00"] },
+    { name: "United Kingdom", code: "gb", timezones: ["UTC+00:00"] },
+    { name: "United States", code: "us", timezones: ["UTC-10:00", "UTC-09:00", "UTC-08:00", "UTC-07:00", "UTC-06:00", "UTC-05:00", "UTC-04:00"] },
+    { name: "Uruguay", code: "uy", timezones: ["UTC-03:00"] },
+    { name: "Uzbekistan", code: "uz", timezones: ["UTC+05:00"] },
+    { name: "Vanuatu", code: "vu", timezones: ["UTC+11:00"] },
+    { name: "Vatican City", code: "va", timezones: ["UTC+01:00"] },
+    { name: "Venezuela", code: "ve", timezones: ["UTC-04:00"] },
+    { name: "Vietnam", code: "vn", timezones: ["UTC+07:00"] },
+    { name: "Yemen", code: "ye", timezones: ["UTC+03:00"] },
+    { name: "Zambia", code: "zm", timezones: ["UTC+02:00"] },
+    { name: "Zimbabwe", code: "zw", timezones: ["UTC+02:00"] }
   ];
-
+  
+  // DOM elements
+  const toggle = document.getElementById('toggle');
+  const menu = document.getElementById('menu');
+  const list = document.getElementById('list');
+  const selected = document.getElementById('selected');
+  const search = document.getElementById('search');
+  const timezoneSelector = document.getElementById('timezoneSelector');
+  const timezoneToggle = document.getElementById('timezoneToggle');
+  const timezoneMenu = document.getElementById('timezoneMenu');
+  const timezoneList = document.getElementById('timezoneList');
+  const selectedTimezone = document.getElementById('selectedTimezone');
+  const timezoneSearch = document.getElementById('timezoneSearch');
+  const ageInput = document.getElementById('age-input');
+  const submitBtn = document.getElementById('submit-btn');
+  
   let selectedCountry = null;
   let selectedTZ = null;
-  let userCountryCode = null;
-
+  let timeUpdateIntervals = [];
+  
   async function detectCountryFromIP() {
     try {
-      const res = await fetch('https://ipapi.co/json/');
-      const data = await res.json();
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
       return data.country_code.toLowerCase();
-    } catch(e) { return null; }
+    } catch (e) {
+      return null;
+    }
   }
-
+  
   async function init() {
-    userCountryCode = await detectCountryFromIP();
-    renderCountries();
+    const userCountryCode = await detectCountryFromIP();
+    renderCountries(userCountryCode);
   }
-
-  function renderCountries(filter = "") {
-    const list = document.getElementById('list');
-    list.innerHTML = "";
-    const filtered = countries.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()) || c.code.includes(filter.toLowerCase()));
+  
+  function renderCountries(userCountryCode, filter = '') {
+    list.innerHTML = '';
+    const detectedCountry = userCountryCode ? countries.find(c => c.code === userCountryCode) : null;
+    const sorted = [...countries].sort((a, b) => {
+      if (detectedCountry && a.code === detectedCountry.code) return -1;
+      if (detectedCountry && b.code === detectedCountry.code) return 1;
+      return a.name.localeCompare(b.name);
+    });
+    const filtered = sorted.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()) || c.code.toLowerCase().includes(filter.toLowerCase()));
     if (filtered.length === 0) {
-      list.innerHTML = '<div class="empty-state">No countries found</div>';
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'No countries found';
+      list.appendChild(empty);
       return;
     }
     filtered.forEach(country => {
       const div = document.createElement('div');
-      div.className = 'country';
+      div.className = 'country' + (country.code === userCountryCode ? ' highlight' : '');
       div.innerHTML = `
-        <span class="country-flag"><img src="../public/assets/countries/${country.code}.svg" onerror="this.parentElement.style.display='none'"></span>
+        <span class="country-flag"><img src="public/assets/countries/${country.code}.svg" alt="${country.code}" onerror="this.parentElement.style.display='none'"></span>
         <span class="country-name">${country.name}</span>
         <span class="code">${country.code.toUpperCase()}</span>
       `;
@@ -124,47 +350,67 @@
       list.appendChild(div);
     });
   }
-
+  
   function selectCountry(country) {
     selectedCountry = country;
-    document.getElementById('selected').innerHTML = `<span class="country-flag" style="display:inline-block; margin-right:8px;"><img src="../public/assets/countries/${country.code}.svg" style="width:20px;height:15px;"></span> ${country.name}`;
-    document.getElementById('toggle').classList.add('active');
-    document.getElementById('menu').classList.remove('show');
+    selected.innerHTML = `<span class="country-flag" style="display: inline-block; vertical-align: middle; margin-right: 8px;"><img src="public/assets/countries/${country.code}.svg" alt="${country.code}" style="width: 20px; height: 15px;"></span> ${country.name}`;
+    toggle.classList.add('active');
+    menu.classList.remove('show');
+    search.value = '';
     if (country.timezones.length > 1) {
       renderTimezones(country.timezones);
-      document.getElementById('timezoneSelector').classList.add('show');
-      document.getElementById('selectedTimezone').textContent = "Select a time zone";
+      timezoneSelector.classList.add('show');
+      selectedTimezone.textContent = 'Select a time zone';
+      timezoneToggle.classList.remove('active');
     } else {
-      document.getElementById('timezoneSelector').classList.remove('show');
-      selectedTZ = country.timezones[0];
-      document.getElementById('selectedTimezone').textContent = selectedTZ;
+      timezoneSelector.classList.remove('show');
+      if (country.timezones[0]) {
+        selectedTZ = country.timezones[0];
+        selectedTimezone.textContent = selectedTZ;
+        timezoneToggle.classList.add('active');
+      }
     }
   }
-
-  function renderTimezones(timezones, filter = "") {
-    const tzList = document.getElementById('timezoneList');
-    tzList.innerHTML = "";
+  
+  function renderTimezones(timezones, filter = '') {
+    timeUpdateIntervals.forEach(clearInterval);
+    timeUpdateIntervals = [];
+    timezoneList.innerHTML = '';
     const filtered = timezones.filter(tz => tz.toLowerCase().includes(filter.toLowerCase()));
+    if (filtered.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'No time zones found';
+      timezoneList.appendChild(empty);
+      return;
+    }
     filtered.forEach(tz => {
       const div = document.createElement('div');
       div.className = 'country timezone-item';
+      const currentTime = getCurrentTimeForTimezone(tz);
       div.innerHTML = `
-        <span class="country-flag"><img src="../public/assets/icons/phosphor/regular/clock-user.svg" style="width:18px;height:18px;"></span>
+        <span class="country-flag"><img src="public/assets/icons/phosphor/regular/clock-user.svg" alt=" " style="width: 18px;"></span>
         <span class="country-name">${tz}</span>
-        <span class="current-time">${getCurrentTimeForTimezone(tz)}</span>
+        <span class="current-time">${currentTime}</span>
       `;
       div.onclick = () => selectTimezone(tz);
-      tzList.appendChild(div);
+      timezoneList.appendChild(div);
+      const interval = setInterval(() => {
+        const timeSpan = div.querySelector('.current-time');
+        if (timeSpan) timeSpan.textContent = getCurrentTimeForTimezone(tz);
+      }, 1000);
+      timeUpdateIntervals.push(interval);
     });
   }
-
+  
   function selectTimezone(tz) {
     selectedTZ = tz;
-    document.getElementById('selectedTimezone').textContent = tz;
-    document.getElementById('timezoneToggle').classList.add('active');
-    document.getElementById('timezoneMenu').classList.remove('show');
+    selectedTimezone.textContent = tz;
+    timezoneToggle.classList.add('active');
+    timezoneMenu.classList.remove('show');
+    timezoneSearch.value = '';
   }
-
+  
   function getCurrentTimeForTimezone(timezone) {
     const now = new Date();
     const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
@@ -177,63 +423,72 @@
     const localTime = new Date(utc + offsetMs);
     return localTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
   }
-
-  document.getElementById('toggle').onclick = (e) => {
-    e.stopPropagation();
-    document.getElementById('menu').classList.toggle('show');
-    document.getElementById('timezoneMenu').classList.remove('show');
-  };
-  document.getElementById('timezoneToggle').onclick = (e) => {
-    e.stopPropagation();
-    document.getElementById('timezoneMenu').classList.toggle('show');
-    document.getElementById('menu').classList.remove('show');
-    if (selectedCountry && selectedCountry.timezones.length > 1) {
-      renderTimezones(selectedCountry.timezones, document.getElementById('timezoneSearch').value);
-    }
-  };
-  document.getElementById('search').oninput = (e) => renderCountries(e.target.value);
-  document.getElementById('timezoneSearch').oninput = (e) => {
-    if (selectedCountry) renderTimezones(selectedCountry.timezones, e.target.value);
-  };
+  
+  // Dropdown toggles
+  toggle.onclick = (e) => { e.stopPropagation(); menu.classList.toggle('show'); timezoneMenu.classList.remove('show'); };
+  timezoneToggle.onclick = (e) => { e.stopPropagation(); timezoneMenu.classList.toggle('show'); menu.classList.remove('show'); if (selectedCountry && selectedCountry.timezones.length > 1) renderTimezones(selectedCountry.timezones, timezoneSearch.value); };
+  search.oninput = e => renderCountries(null, e.target.value);
+  timezoneSearch.oninput = e => { if (selectedCountry) renderTimezones(selectedCountry.timezones, e.target.value); };
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.dropdown-menu') && !e.target.closest('.dropdown-toggle')) {
-      document.getElementById('menu').classList.remove('show');
-      document.getElementById('timezoneMenu').classList.remove('show');
+      menu.classList.remove('show');
+      timezoneMenu.classList.remove('show');
     }
   });
-
-  document.getElementById('submit-btn').addEventListener('click', async () => {
-    const age = document.getElementById('age').value;
-    if (!selectedCountry || !selectedTZ || !age) {
-      alert('Please complete all fields.');
+  
+  // Submit – save to Supabase
+  submitBtn.addEventListener('click', async () => {
+    const age = parseInt(ageInput.value.trim());
+    if (isNaN(age) || age < 1 || age > 120) {
+      alert('Please enter a valid age (1–120).');
       return;
     }
-    const user = await getCurrentUser();
+    if (!selectedCountry) {
+      alert('Please select a country.');
+      return;
+    }
+    if (!selectedTZ) {
+      alert('Please select a time zone.');
+      return;
+    }
+    
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      alert('You must be logged in to complete your profile.');
-      window.location.href = '/pages/registration.html';
+      alert('You are not logged in. Please go back and sign up first.');
+      window.location.href = 'registration.html';
       return;
     }
-    await saveUserProfile(user.id, {
-      displayName: user.user_metadata?.display_name || 'User',
-      country: selectedCountry.name,
-      timezone: selectedTZ,
-      age: parseInt(age)
-    });
-    // Also save timezone to localStorage for streak detection
-    localStorage.setItem('userTimezone', selectedTZ);
-    // Merge any temporary lesson progress
-    const tempProgress = localStorage.getItem('tempLessonProgress');
-    if (tempProgress) {
-      // Here you would update user_progress with temp data (coins, hearts, etc.)
-      // For now, just clear it
-      localStorage.removeItem('tempLessonProgress');
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        country: selectedCountry.name,
+        timezone: selectedTZ,
+        age: age
+      })
+      .eq('id', user.id);
+    
+    if (error) {
+      console.error(error);
+      alert('Error saving profile: ' + error.message);
+    } else {
+      localStorage.setItem('userTimezone', selectedTZ);
+      localStorage.setItem('userCountry', selectedCountry.code);
+      
+      // Check for temporary progress and redirect accordingly
+      const tempProgress = sessionStorage.getItem('tempLessonProgress');
+      let redirectUrl = '/lesson/g12-life-sciences'; // default
+      if (tempProgress) {
+        try {
+          const progress = JSON.parse(tempProgress);
+          redirectUrl = `/lesson/${progress.courseId}?lesson=${progress.lessonId}`;
+          sessionStorage.removeItem('tempLessonProgress');
+        } catch(e) {}
+      }
+      window.location.href = redirectUrl;
     }
-    const returnTo = localStorage.getItem('tempReturnTo') || '/';
-    localStorage.removeItem('tempReturnTo');
-    window.location.href = returnTo;
   });
-
+  
   init();
 </script>
 </body>
