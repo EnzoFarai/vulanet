@@ -1,3 +1,4 @@
+// src/js/quiz-engine.js
 // ============================================================
 // VULANET QUIZ ENGINE – Complete lesson / streak / reward pipeline
 // WITH SUPABASE AUTHENTICATION INTEGRATION

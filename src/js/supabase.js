@@ -1,17 +1,27 @@
 // src/js/supabase.js
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-// REPLACE WITH YOUR ACTUAL SUPABASE CREDENTIALS
-const SUPABASE_URL = 'https://your-project.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key';
+// Read from environment variables (set in .env or Vercel)
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('Missing Supabase environment variables. Make sure .env exists and VITE_* are set.');
+}
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+/**
+ * Check if a user is currently logged in
+ */
 export async function isLoggedIn() {
   const { data: { session } } = await supabase.auth.getSession();
   return !!session;
 }
 
+/**
+ * Get the current user and their profile
+ */
 export async function getCurrentUserProfile() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
@@ -23,6 +33,9 @@ export async function getCurrentUserProfile() {
   return { user, profile };
 }
 
+/**
+ * Store temporary lesson progress for unregistered users (sessionStorage)
+ */
 export function saveTempProgress(courseId, lessonId, stats) {
   const temp = {
     courseId,

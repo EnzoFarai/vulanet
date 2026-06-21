@@ -186,7 +186,6 @@
     }
     
     // After successful sign-up, redirect to completion page
-    // Pass the user ID via URL or rely on session (session will be active)
     window.location.href = 'registration-completion.html';
   }
   
@@ -207,10 +206,10 @@
   createBtn.addEventListener('click', signUpWithEmail);
   googleBtn.addEventListener('click', signInWithGoogle);
   
-  // Login link – redirect to login page (we don't have it yet; placeholder)
+  // Login link – placeholder
   document.getElementById('login-link').addEventListener('click', (e) => {
     e.preventDefault();
-    alert('Login page coming soon. For now, use the registration flow.');
+    alert('Login page coming soon.');
   });
 </script>
 </body>
