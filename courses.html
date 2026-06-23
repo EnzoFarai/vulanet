@@ -6,13 +6,13 @@
 <title>Choose a Course — vulanet</title>
 
 <!-- Local Fonts -->
-<link rel="stylesheet" href="public/assets/fonts/fonts.css">
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
 
 <!-- Button Component Styles -->
-<link rel="stylesheet" href="src/styles/components/buttons.css">
+<link rel="stylesheet" href="/src/styles/components/buttons.css">
 
 <!-- Typography Usage -->
-<link rel="stylesheet" href="src/styles/typography-usage.css">
+<link rel="stylesheet" href="/src/styles/typography-usage.css">
 
 <style>
 /* ===== COLOR VARIABLES ===== */
@@ -267,7 +267,7 @@ body {
   <div class="header-container">
     <div class="header">
       <div class="rabbit-icon">
-        <img src="public/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vusi">
+        <img src="/assets/icons/phosphor/fill/rabbit-fill.svg" alt="Vusi">
       </div>
       <div speech-bubble pleft acenter>What would you like to learn?</div>
     </div>
@@ -276,11 +276,11 @@ body {
   <div class="section" data-category="commerce">
     <div class="section-title">
       <span>Commerce</span>
-      <div class="chevron-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
+      <div class="chevron-icon"><img src="/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
     </div>
     <div class="course-list">
       <div class="course" data-course-id="financial-accounting" data-course-name="Financial Accounting">
-        <div class="subject-icon"><img src="public/assets/courses/financial-accounting.png" alt="Financial Accounting"></div>
+        <div class="subject-icon"><img src="/assets/courses/financial-accounting.png" alt="Financial Accounting"></div>
         Financial Accounting
       </div>
     </div>
@@ -289,11 +289,11 @@ body {
   <div class="section" data-category="humanities">
     <div class="section-title">
       <span>Humanities</span>
-      <div class="chevron-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
+      <div class="chevron-icon"><img src="/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
     </div>
     <div class="course-list">
       <div class="course" data-course-id="international-law" data-course-name="International Law">
-        <div class="subject-icon"><img src="public/assets/courses/international-law.png" alt="International Law"></div>
+        <div class="subject-icon"><img src="/assets/courses/international-law.png" alt="International Law"></div>
         International Law
       </div>
     </div>
@@ -302,15 +302,15 @@ body {
   <div class="section" data-category="medical">
     <div class="section-title">
       <span>Medical Sciences</span>
-      <div class="chevron-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
+      <div class="chevron-icon"><img src="/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
     </div>
     <div class="course-list">
       <div class="course" data-course-id="clinical-pharmacy" data-course-name="Clinical Pharmacy">
-        <div class="subject-icon"><img src="public/assets/courses/clinical-pharmacy.png" alt="Clinical Pharmacy"></div>
+        <div class="subject-icon"><img src="/assets/courses/clinical-pharmacy.png" alt="Clinical Pharmacy"></div>
         Clinical Pharmacy
       </div>
       <div class="course" data-course-id="pharmacology-ii" data-course-name="Pharmacology-II">
-        <div class="subject-icon"><img src="public/assets/courses/pharmacology-ii.png" alt="Pharmacology-II"></div>
+        <div class="subject-icon"><img src="/assets/courses/pharmacology-ii.png" alt="Pharmacology-II"></div>
         Pharmacology-II
       </div>
     </div>
@@ -319,15 +319,15 @@ body {
   <div class="section" data-category="technology">
     <div class="section-title">
       <span>Science & Technology</span>
-      <div class="chevron-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
+      <div class="chevron-icon"><img src="/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
     </div>
     <div class="course-list">
       <div class="course" data-course-id="java-programming" data-course-name="Java Programming">
-        <div class="subject-icon"><img src="public/assets/courses/java-programming.png" alt="Java Programming"></div>
+        <div class="subject-icon"><img src="/assets/courses/java-programming.png" alt="Java Programming"></div>
         Java Programming
       </div>
       <div class="course" data-course-id="web-design" data-course-name="Web Design">
-        <div class="subject-icon"><img src="public/assets/courses/web-design.png" alt="Web Design"></div>
+        <div class="subject-icon"><img src="/assets/courses/web-design.png" alt="Web Design"></div>
         Web Design
       </div>
     </div>
@@ -336,11 +336,11 @@ body {
   <div class="section matric-section" data-category="matric">
     <div class="section-title">
       <span>Matric (NSC)</span>
-      <div class="chevron-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
+      <div class="chevron-icon"><img src="/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></div>
     </div>
     <div class="course-list">
       <div class="course" data-course-id="g12-life-sciences" data-course-name="G12 Life Sciences">
-        <div class="subject-icon"><img src="public/assets/courses/g12-life-sciences.png" alt="G12 Life Sciences"></div>
+        <div class="subject-icon"><img src="/assets/courses/g12-life-sciences.png" alt="G12 Life Sciences"></div>
         G12 Life Sciences
       </div>
     </div>
@@ -397,16 +397,13 @@ body {
   
   continueBtn.addEventListener('click', () => {
     if (selectedCourseId) {
-      // Store the selected course data
       localStorage.setItem('selectedCourseId', selectedCourseId);
       localStorage.setItem('selectedCourseName', selectedCourseName);
-      localStorage.setItem('onboardingAction', 'first-time'); // or 'add-course' if coming from profile
+      localStorage.setItem('onboardingAction', 'first-time');
       
-      // Get the full course data
       const courseData = getCourseById(selectedCourseId);
       if (courseData) {
-        // Pass via URL parameter for reliability
-        window.location.href = `onboarding.html?course=${encodeURIComponent(selectedCourseId)}&name=${encodeURIComponent(selectedCourseName)}`;
+        window.location.href = `/onboarding.html?course=${encodeURIComponent(selectedCourseId)}&name=${encodeURIComponent(selectedCourseName)}`;
       } else {
         window.location.href = 'onboarding.html';
       }

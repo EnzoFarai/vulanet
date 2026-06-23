@@ -1,7 +1,13 @@
 {
   "rewrites": [
-    { "source": "/lesson/:course/:lesson", "destination": "/pages/loading.html" },
-    { "source": "/read/:path*", "destination": "/pages/reading.html" },
-    { "source": "/(.*)", "destination": "/$1" }
+    {
+      "source": "/lesson/:course/:lesson",
+      "destination": "/pages/lesson.html?course=:course&lesson=:lesson"
+    },
+    {
+      "source": "/lesson/:course",
+      "destination": "/:course.html"
+    }
   ]
 }
+

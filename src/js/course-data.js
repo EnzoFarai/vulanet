@@ -15,7 +15,7 @@ export const courses = {
     displayName: "Financial Accounting",
     shortName: "Financial Accounting",
     slug: "financial-accounting",
-    icon: "public/assets/courses/financial-accounting.png",
+    icon: "/assets/courses/financial-accounting.png",
     order: 1,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-financial-accounting",
@@ -30,7 +30,7 @@ export const courses = {
     displayName: "International Law",
     shortName: "International Law",
     slug: "international-law",
-    icon: "public/assets/courses/international-law.png",
+    icon: "/assets/courses/international-law.png",
     order: 1,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-international-law",
@@ -45,7 +45,7 @@ export const courses = {
     displayName: "Clinical Pharmacy",
     shortName: "Clinical Pharmacy",
     slug: "clinical-pharmacy",
-    icon: "public/assets/courses/clinical-pharmacy.png",
+    icon: "/assets/courses/clinical-pharmacy.png",
     order: 1,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-clinical-pharmacy",
@@ -58,7 +58,7 @@ export const courses = {
     displayName: "Pharmacology-II",
     shortName: "Pharmacology-II",
     slug: "pharmacology-ii",
-    icon: "public/assets/courses/pharmacology-ii.png",
+    icon: "/assets/courses/pharmacology-ii.png",
     order: 2,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-anticoagulants",
@@ -73,7 +73,7 @@ export const courses = {
     displayName: "Java Programming",
     shortName: "Java Programming",
     slug: "java-programming",
-    icon: "public/assets/courses/java-programming.png",
+    icon: "/assets/courses/java-programming.png",
     order: 1,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-java",
@@ -86,7 +86,7 @@ export const courses = {
     displayName: "Web Design",
     shortName: "Web Design",
     slug: "web-design",
-    icon: "public/assets/courses/web-design.png",
+    icon: "/assets/courses/web-design.png",
     order: 2,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-web-design",
@@ -101,7 +101,7 @@ export const courses = {
     displayName: "G12 Life Sciences",
     shortName: "Life Sciences",
     slug: "g12-life-sciences",
-    icon: "public/assets/courses/g12-life-sciences.png",
+    icon: "/assets/courses/g12-life-sciences.png",
     order: 1,
     createdAt: "2025-03-15",
     firstLessonId: "introduction-to-nucleic-acids",
@@ -112,94 +112,48 @@ export const courses = {
 
 // ------------------------------------------
 // CATEGORIES (UI only – not tied to courses)
-// Courses can appear in multiple categories,
-// and categories can be re‑ordered or renamed.
 // ------------------------------------------
 export const courseCategories = [
-  {
-    id: "commerce",
-    name: "Commerce",
-    order: 1,
-    courseIds: ["financial-accounting"]
-  },
-  {
-    id: "humanities",
-    name: "Humanities",
-    order: 2,
-    courseIds: ["international-law"]
-  },
-  {
-    id: "medical",
-    name: "Medical Sciences",
-    order: 3,
-    courseIds: ["clinical-pharmacy", "pharmacology-ii"]
-  },
-  {
-    id: "technology",
-    name: "Science & Technology",
-    order: 4,
-    courseIds: ["java-programming", "web-design"]
-  },
-  {
-    id: "matric",
-    name: "Matric (NSC)",
-    order: 5,
-    courseIds: ["g12-life-sciences"],
-    isSpecial: true
-  }
+  { id: "commerce", name: "Commerce", order: 1, courseIds: ["financial-accounting"] },
+  { id: "humanities", name: "Humanities", order: 2, courseIds: ["international-law"] },
+  { id: "medical", name: "Medical Sciences", order: 3, courseIds: ["clinical-pharmacy", "pharmacology-ii"] },
+  { id: "technology", name: "Science & Technology", order: 4, courseIds: ["java-programming", "web-design"] },
+  { id: "matric", name: "Matric (NSC)", order: 5, courseIds: ["g12-life-sciences"], isSpecial: true }
 ];
 
 // ------------------------------------------
 // HELPER FUNCTIONS
 // ------------------------------------------
 
-/**
- * Get a single course by its ID.
- */
 export function getCourseById(id) {
   return courses[id] || null;
 }
 
-/**
- * Get all courses belonging to a given category.
- * Returns an array of course objects (in category order).
- */
 export function getCoursesByCategory(categoryId) {
   const category = courseCategories.find(c => c.id === categoryId);
   if (!category) return [];
-  return category.courseIds
-    .map(id => courses[id])
-    .filter(course => course !== undefined);
+  return category.courseIds.map(id => courses[id]).filter(course => course !== undefined);
 }
 
-/**
- * Get every defined course as an array.
- */
 export function getAllCourses() {
   return Object.values(courses);
 }
 
 /**
  * Build the URL for the first lesson (or reading) of a course.
- * @param {string} courseId
- * @param {"game"|"reading"} startWith – "game" for lesson, "reading" for reading
- * @returns {string|null} The relative URL, or null if the course doesn't exist.
+ * Uses clean URLs: /lesson/:courseId/:lessonId  or  /lesson/:courseId
  */
 export function getFirstLessonUrl(courseId, startWith = "game") {
   const course = courses[courseId];
   if (!course) return null;
 
   if (startWith === "game") {
-    return `/pages/lesson.html?course=${encodeURIComponent(courseId)}&lesson=${encodeURIComponent(course.firstLessonId)}`;
+    return `/lesson/${encodeURIComponent(courseId)}/${encodeURIComponent(course.firstLessonId)}`;
   } else {
-    return `/pages/reading.html?course=${encodeURIComponent(courseId)}&lesson=${encodeURIComponent(course.firstReadingId)}`;
+    return `/lesson/${encodeURIComponent(courseId)}/${encodeURIComponent(course.firstReadingId)}`;
   }
 }
 
-/**
- * Return the DYK file names associated with a course.
- * Falls back to "general.html" if no match is found.
- */
 export function getCourseDykSources(courseId) {
   const course = courses[courseId];
   if (!course) return ["general.html"];

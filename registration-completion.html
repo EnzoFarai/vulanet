@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Complete your profile – Vulanet</title>
-  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
     body { background: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
@@ -49,7 +49,7 @@
   <div class="dropdown">
     <div class="dropdown-toggle" id="toggle">
       <span id="selected">Select a country/region</span>
-      <span class="dropdown-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></span>
+      <span class="dropdown-icon"><img src="/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></span>
     </div>
     <div class="dropdown-menu" id="menu">
       <div class="search-box"><input type="text" id="search" placeholder="Search country or code (e.g., US, FR)"></div>
@@ -62,7 +62,7 @@
     <div class="dropdown">
       <div class="dropdown-toggle" id="timezoneToggle">
         <span id="selectedTimezone">Select a time zone</span>
-        <span class="dropdown-icon"><img src="public/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></span>
+        <span class="dropdown-icon"><img src="/assets/icons/phosphor/regular/caret-down.svg" alt="▼"></span>
       </div>
       <div class="dropdown-menu" id="timezoneMenu">
         <div class="search-box"><input type="text" id="timezoneSearch" placeholder="Search time zone"></div>
@@ -88,7 +88,6 @@
   import { supabase } from './src/js/supabase.js';
   
   // ==================== COMPLETE COUNTRIES ARRAY ====================
-  // (This is the full list from your demo – all 200+ countries)
   const countries = [
     { name: "Afghanistan", code: "af", timezones: ["UTC+04:30"] },
     { name: "Albania", code: "al", timezones: ["UTC+01:00"] },
@@ -342,7 +341,7 @@
       const div = document.createElement('div');
       div.className = 'country' + (country.code === userCountryCode ? ' highlight' : '');
       div.innerHTML = `
-        <span class="country-flag"><img src="public/assets/countries/${country.code}.svg" alt="${country.code}" onerror="this.parentElement.style.display='none'"></span>
+        <span class="country-flag"><img src="/assets/countries/${country.code}.svg" alt="${country.code}" onerror="this.parentElement.style.display='none'"></span>
         <span class="country-name">${country.name}</span>
         <span class="code">${country.code.toUpperCase()}</span>
       `;
@@ -353,7 +352,7 @@
   
   function selectCountry(country) {
     selectedCountry = country;
-    selected.innerHTML = `<span class="country-flag" style="display: inline-block; vertical-align: middle; margin-right: 8px;"><img src="public/assets/countries/${country.code}.svg" alt="${country.code}" style="width: 20px; height: 15px;"></span> ${country.name}`;
+    selected.innerHTML = `<span class="country-flag" style="display: inline-block; vertical-align: middle; margin-right: 8px;"><img src="/assets/countries/${country.code}.svg" alt="${country.code}" style="width: 20px; height: 15px;"></span> ${country.name}`;
     toggle.classList.add('active');
     menu.classList.remove('show');
     search.value = '';
@@ -389,7 +388,7 @@
       div.className = 'country timezone-item';
       const currentTime = getCurrentTimeForTimezone(tz);
       div.innerHTML = `
-        <span class="country-flag"><img src="public/assets/icons/phosphor/regular/clock-user.svg" alt=" " style="width: 18px;"></span>
+        <span class="country-flag"><img src="/assets/icons/phosphor/regular/clock-user.svg" alt=" " style="width: 18px;"></span>
         <span class="country-name">${tz}</span>
         <span class="current-time">${currentTime}</span>
       `;
@@ -424,7 +423,6 @@
     return localTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
   }
   
-  // Dropdown toggles
   toggle.onclick = (e) => { e.stopPropagation(); menu.classList.toggle('show'); timezoneMenu.classList.remove('show'); };
   timezoneToggle.onclick = (e) => { e.stopPropagation(); timezoneMenu.classList.toggle('show'); menu.classList.remove('show'); if (selectedCountry && selectedCountry.timezones.length > 1) renderTimezones(selectedCountry.timezones, timezoneSearch.value); };
   search.oninput = e => renderCountries(null, e.target.value);
@@ -436,7 +434,6 @@
     }
   });
   
-  // Submit – save to Supabase
   submitBtn.addEventListener('click', async () => {
     const age = parseInt(ageInput.value.trim());
     if (isNaN(age) || age < 1 || age > 120) {
@@ -455,7 +452,7 @@
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       alert('You are not logged in. Please go back and sign up first.');
-      window.location.href = 'registration.html';
+      window.location.href = '/registration.html';
       return;
     }
     
@@ -477,11 +474,11 @@
       
       // Check for temporary progress and redirect accordingly
       const tempProgress = sessionStorage.getItem('tempLessonProgress');
-      let redirectUrl = '/lesson/g12-life-sciences'; // default
+      let redirectUrl = '/g12-life-sciences.html'; // default
       if (tempProgress) {
         try {
           const progress = JSON.parse(tempProgress);
-          redirectUrl = `/lesson/${progress.courseId}?lesson=${progress.lessonId}`;
+          redirectUrl = `/${progress.courseId}.html?lesson=${progress.lessonId}`;
           sessionStorage.removeItem('tempLessonProgress');
         } catch(e) {}
       }

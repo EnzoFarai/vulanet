@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G12 Life Sciences – Vulanet</title>
+  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  <link rel="stylesheet" href="src/styles/learning-path.css">
+  <style>
+    /* Ensure header and footer are visible */
+    body { padding-top: 100px; }
+  </style>
+</head>
+<body>
+
+  <!-- Learning path content rendered by course-path.js -->
+  <main id="learning-path-container"></main>
+
+  <!-- Treasure panel and overlay (required by course-path.js) -->
+  <div id="treasure-panel">
+    <div class="reward-scene">
+      <div class="reward-icon-container" id="reward-icon-container"></div>
+    </div>
+    <div class="reward-title" id="reward-title"></div>
+    <div class="reward-subtitle" id="reward-subtitle"></div>
+    <button id="claim-button">Claim</button>
+  </div>
+  <div id="overlay"></div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+  <script type="module">
+    import { renderLearningPath } from './src/js/course-path.js';
+    import { loadLayout } from './src/js/layout.js';
+
+    // Load header and footer
+    await loadLayout();
+
+    // Define course data
+    const courseId = 'g12-life-sciences';
+    const chapters = [
+      {
+        title: 'DNA: The Code of Life',
+        lessons: [
+          { id: 'introduction-to-nucleic-acids', title: 'Introduction to Nucleic Acids', type: 'joystick', totalSublessons: 1 },
+          { id: 'dna-location-structure-functions', title: 'DNA: Location, Structure and Functions', type: 'joystick', totalSublessons: 1 },
+          { id: 'dna-replication', title: 'DNA Replication', type: 'joystick', totalSublessons: 1 },
+          { id: 'midway-checkpoint-1', title: 'Midway Checkpoint', type: 'treasure' },
+          { id: 'dna-profiling', title: 'DNA Profiling', type: 'joystick', totalSublessons: 1 },
+          { id: 'rna-structure-function', title: 'RNA: Location, Structure and Function', type: 'joystick', totalSublessons: 1 },
+          { id: 'protein-synthesis', title: 'Protein Synthesis', type: 'joystick', totalSublessons: 1 },
+          { id: 'chapter-review-dna', title: 'Chapter Review', type: 'flag' }
+        ]
+      },
+      {
+        title: 'Meiosis',
+        lessons: [
+          { id: 'introduction-to-meiosis', title: 'Introduction to Meiosis', type: 'joystick', totalSublessons: 1 },
+          { id: 'meiosis-process', title: 'Meiosis – The Process', type: 'joystick', totalSublessons: 1 },
+          { id: 'importance-of-meiosis', title: 'Importance of Meiosis', type: 'joystick', totalSublessons: 1 },
+          { id: 'treasure-meiosis-1', title: 'Treasure Chest', type: 'treasure' },
+          { id: 'abnormal-meiosis', title: 'Abnormal Meiosis', type: 'joystick', totalSublessons: 1 },
+          { id: 'comparison-mitosis-meiosis', title: 'Comparison of Mitosis and Meiosis', type: 'joystick', totalSublessons: 1 },
+          { id: 'chapter-review-meiosis', title: 'Chapter Review', type: 'flag' }
+        ]
+      },
+      {
+        title: 'Reproduction in Vertebrates',
+        lessons: [
+          { id: 'intro-vertebrate-reproduction', title: 'Introduction to Reproduction in Vertebrates', type: 'joystick', totalSublessons: 1 },
+          { id: 'fertilisation-strategies', title: 'External and Internal Fertilisation', type: 'joystick', totalSublessons: 1 },
+          { id: 'oviparous-ovoviviparous-viviparous', title: 'Oviparous, Ovoviviparous, and Viviparous Strategies', type: 'joystick', totalSublessons: 1 },
+          { id: 'treasure-vertebrate-1', title: 'Treasure Chest', type: 'treasure' },
+          { id: 'amniotic-egg', title: 'The Amniotic Egg', type: 'joystick', totalSublessons: 1 },
+          { id: 'precocial-altricial', title: 'Precocial and Altricial Development', type: 'joystick', totalSublessons: 1 },
+          { id: 'parental-care', title: 'Parental Care', type: 'joystick', totalSublessons: 1 },
+          { id: 'chapter-review-vertebrates', title: 'Chapter Review', type: 'flag' }
+        ]
+      },
+      {
+        title: 'Human Reproduction',
+        lessons: [
+          { id: 'intro-human-reproduction', title: 'Introduction to Human Reproduction', type: 'joystick', totalSublessons: 1 },
+          { id: 'male-reproductive-system', title: 'Structure of the male reproductive system', type: 'joystick', totalSublessons: 1 },
+          { id: 'female-reproductive-system', title: 'Structure of the Female Reproductive System', type: 'joystick', totalSublessons: 1 },
+          { id: 'treasure-human-1', title: 'Treasure Chest', type: 'treasure' },
+          { id: 'puberty', title: 'Puberty', type: 'joystick', totalSublessons: 1 },
+          { id: 'gametogenesis', title: 'Gametogenesis', type: 'joystick', totalSublessons: 1 },
+          { id: 'menstrual-cycle', title: 'Menstrual cycle', type: 'joystick', totalSublessons: 1 },
+          { id: 'treasure-human-2', title: 'Treasure Chest', type: 'treasure' },
+          { id: 'fertilisation-development', title: 'Fertilisation and Development of Zygote to Blastocyst', type: 'joystick', totalSublessons: 1 },
+          { id: 'implantation-gestation-placenta', title: 'Implantation, Gestation and the Role of the Placenta', type: 'joystick', totalSublessons: 1 },
+          { id: 'chapter-review-human', title: 'Chapter Review', type: 'flag' }
+        ]
+      }
+    ];
+
+    // Load user progress from localStorage (or Supabase)
+    let savedProgress = {};
+    try {
+      const raw = localStorage.getItem(`vulanet_progress_${courseId}`);
+      if (raw) savedProgress = JSON.parse(raw);
+    } catch(e) {}
+
+    // Render the learning path
+    renderLearningPath({
+      containerId: 'learning-path-container',
+      chapters,
+      userProgress: savedProgress,
+      courseId,
+      onLessonStart: (lessonId) => {
+        // Redirect to the lesson page
+        window.location.href = `/pages/lesson.html?course=${courseId}&lesson=${lessonId}`;
+      }
+    });
+  </script>
+</body>
+</html>

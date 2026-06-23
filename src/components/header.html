@@ -1,13 +1,165 @@
+<!-- src/components/header.html -->
 <header>
   <div class="container">
     <div class="header-content">
       <div class="logo">
-        <img src="../public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet" class="logo-icon" style="width:26px;height:26px;">
+        <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet" class="logo-icon" style="width:26px;height:26px;">
         <span class="logo-text">vulanet</span>
       </div>
-      <div class="user-stats" id="user-stats">
-        <!-- Filled dynamically by JavaScript -->
+      <div class="user-stats">
+        <!-- Subject icon -->
+        <div class="stat-item" id="activeCourseItem">
+          <div class="icon-box course-icon" id="activeCourseIcon">
+            <img src="public/assets/courses/g12-life-sciences.png"
+                 alt="Course"
+                 class="course-icon-img">
+          </div>
+          <span id="activeCourseLevel">1</span>
+        </div>
+        <!-- Streak -->
+        <div class="stat-item" id="streakItem">
+          <div class="icon-box">
+            <img src="public/assets/icons/phosphor/fill/fire.svg" alt="Streak" class="stat-icon streak" style="width:26px;height:26px;">
+          </div>
+          <span id="streakCount">1</span>
+        </div>
+        <!-- Coins -->
+        <div class="stat-item" id="coinsItem">
+          <div class="icon-box">
+            <img src="public/assets/icons/phosphor/duotone/coin-vertical.svg" alt="Coins" class="stat-icon coins" style="width:26px;height:26px;">
+          </div>
+          <span>500</span>
+        </div>
+        <!-- Hearts -->
+        <div class="stat-item" id="heartsItem">
+          <div class="icon-box">
+            <img src="public/assets/icons/phosphor/fill/heart.svg" alt="Hearts" class="stat-icon hearts" style="width:26px;height:26px;">
+          </div>
+          <span>5</span>
+        </div>
       </div>
     </div>
   </div>
 </header>
+
+<!-- Panels (same as before) -->
+<div class="course-panel-container" id="coursePanelContainer">
+  <div class="course-panel">
+    <div class="courses-slider" id="coursesSlider"></div>
+    <div class="course-progress">
+      <div class="progress-info">
+        <span class="progress-current" id="currentLevel">Level 1</span>
+        <span class="progress-next" id="nextLevel">Level 2</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="course-status" id="courseStatus">You are on Level 1</div>
+      <a href="#" class="levels-link">MORE ABOUT LEVELS</a>
+    </div>
+  </div>
+</div>
+
+<div class="hearts-panel-container" id="heartsPanelContainer">
+  <div class="hearts-panel">
+    <div class="hearts-display">
+      <img src="public/assets/icons/phosphor/fill/heart.svg" class="heart-icon full" style="width:30px;height:30px;">
+      <img src="public/assets/icons/phosphor/fill/heart.svg" class="heart-icon full" style="width:30px;height:30px;">
+      <img src="public/assets/icons/phosphor/fill/heart.svg" class="heart-icon full" style="width:30px;height:30px;">
+      <img src="public/assets/icons/phosphor/duotone/heart.svg" class="heart-icon next" style="width:30px;height:30px;">
+      <img src="public/assets/icons/phosphor/regular/heart.svg" class="heart-icon empty" style="width:30px;height:30px;">
+    </div>
+    <div class="timer">Next heart in <span id="heartTimer">30m</span></div>
+    <div class="hearts-button" id="refillHeartsButton">
+      <div class="left"><img src="public/assets/icons/phosphor/fill/heart.svg" style="width:22px;height:22px;"><span>REFILL HEARTS</span></div>
+      <div class="coins-display"><img src="public/assets/icons/phosphor/duotone/coin-vertical.svg" style="width:20px;height:20px;"><span id="refillPrice">500</span></div>
+    </div>
+    <a href="#" class="hearts-button practice-button">
+      <div class="left"><img src="public/assets/icons/phosphor/fill/heart.svg" style="width:22px;height:22px;"><span>PRACTICE TO EARN HEARTS</span></div>
+    </a>
+  </div>
+</div>
+
+<div class="shop-panel-container" id="shopPanelContainer">
+  <div class="shop-header">
+    <div class="shop-close" id="shopCloseButton">✕</div>
+    <div class="shop-title">Shop</div>
+    <div class="shop-coins"><img src="public/assets/icons/phosphor/duotone/coin-vertical.svg" class="coin-icon" style="width:20px;height:20px;"><span id="shopCoinCount">500</span></div>
+  </div>
+  <div class="shop-content">
+    <h2>Special Offers</h2>
+    <div class="shop-card"><div class="shop-icon midnight"><img src="public/assets/icons/phosphor/duotone/treasure-chest.svg" class="chest-icon" style="width:48px;height:48px;"></div><div class="shop-card-body"><div class="shop-card-title">Midnight Marauder</div><div class="shop-card-desc">Do a lesson between <strong>midnight</strong> and <strong>3:00am</strong> to unlock this chest.</div><div class="shop-locked">LOCKED</div></div></div>
+    <div class="shop-card"><div class="shop-icon dawn"><img src="public/assets/icons/phosphor/duotone/treasure-chest.svg" class="chest-icon" style="width:48px;height:48px;"></div><div class="shop-card-body"><div class="shop-card-title">Dawn Duster Chest</div><div class="shop-card-desc">Do a lesson between <strong>6:00am</strong> and <strong>9:00am</strong> to unlock this chest.</div><div class="shop-locked">LOCKED</div></div></div>
+    <h2>Streak</h2>
+    <div class="shop-card"><div class="shop-icon revival"><img src="public/assets/icons/phosphor/fill/first-aid.svg" class="aid-icon" style="width:48px;height:48px;"></div><div class="shop-card-body"><div class="shop-card-title">Streak Revival</div><div class="shop-card-desc">Protect your streak if you miss a day of practice. Equip up to 2 at once.</div><div class="shop-price"><img src="public/assets/icons/phosphor/duotone/coin-vertical.svg" style="width:20px;height:20px;">200</div></div></div>
+  </div>
+</div>
+
+<div class="streak-calendar-container" id="streakCalendarContainer">
+  <div class="streak-app">
+    <div class="streak-header">
+      <div class="streak-icon" id="streakCloseButton"><img src="public/assets/icons/phosphor/regular/x.svg" style="width:22px;height:22px;"></div>
+      <div class="title">Streak</div>
+      <div class="streak-icon" id="streakShareButton"><img src="public/assets/icons/phosphor/regular/export.svg" style="width:22px;height:22px;"></div>
+    </div>
+    <div class="streak-hero">
+      <div class="streak-badge">YOU'RE ON A</div>
+      <div class="streak-container-inner">
+        <div>
+          <div class="streak-number-large" id="streakNumberLarge">1</div>
+          <div class="streak-text-large">day streak!</div>
+        </div>
+        <div class="fire-emoji"><img src="public/assets/lottie/1f525-static.png" alt="🔥"></div>
+      </div>
+    </div>
+    <div class="streak-card">
+      <div class="clock"><img src="public/assets/icons/phosphor/duotone/clock-countdown.svg" style="width:36px;height:36px;"></div>
+      <div>
+        <p>Do a lesson today to extend your streak!</p>
+        <a href="#" id="startLessonLink">START LESSON</a>
+      </div>
+    </div>
+    <div class="calendar-section">
+      <h3 class="calendar-title">Streak Calendar</h3>
+      <div class="calendar-card">
+        <div class="calendar-header">
+          <div class="nav-btn" id="prevBtn"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></div>
+          <h2 id="monthDisplay">January 2026</h2>
+          <div class="nav-btn" id="nextBtn"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+        </div>
+        <div class="calendar-body">
+          <div class="weekdays"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+          <div id="calendarWeeks"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Share Overlay -->
+<div class="share-overlay" id="shareOverlay">
+  <div class="share-content">
+    <div class="share-card" id="streakCard">
+      <div class="share-card-top-row">
+        <div class="share-streak-text">
+          I'm on a <span class="large-number" id="shareStreakNumber">1</span>
+          <span class="small-text">day learning streak!</span>
+        </div>
+        <div class="share-flame-icon"><img src="public/assets/icons/phosphor/duotone/fire.svg" style="width:90px;height:90px;"></div>
+      </div>
+      <div class="share-brand">vulanet</div>
+    </div>
+    <div class="share-sheet">
+      <div class="share-grid">
+        <div class="share-item" id="shareFacebook"><div class="share-icon-circle"><img src="public/assets/icons/social/facebook-full.svg" style="width:28px;height:28px;"></div><div class="share-text">Facebook</div></div>
+        <div class="share-item" id="shareX"><div class="share-icon-circle"><img src="public/assets/icons/social/x-twitter.svg" style="width:28px;height:28px;"></div><div class="share-text">X</div></div>
+        <div class="share-item" id="shareWhatsApp"><div class="share-icon-circle"><img src="public/assets/icons/social/whatsapp.svg" style="width:28px;height:28px;"></div><div class="share-text">WhatsApp</div></div>
+        <div class="share-item" id="shareSms"><div class="share-icon-circle"><img src="public/assets/icons/material-symbols/outline/sms.svg" style="width:28px;height:28px;"></div><div class="share-text">Message</div></div>
+      </div>
+      <div class="bottom-grid">
+        <div class="bottom-item" id="saveImage"><div class="bottom-icon-circle"><img src="public/assets/icons/material-symbols/outline/download.svg" style="width:28px;height:28px;"></div><div class="bottom-text">Save image</div></div>
+        <div class="bottom-item" id="moreOptions"><div class="bottom-icon-circle"><img src="public/assets/icons/material-symbols/outline/more_horiz.svg" style="width:28px;height:28px;"></div><div class="bottom-text">More</div></div>
+      </div>
+    </div>
+  </div>
+</div>

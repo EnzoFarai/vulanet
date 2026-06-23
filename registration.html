@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create your profile – Vulanet</title>
-  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
-  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
     body { background: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
@@ -45,14 +45,14 @@
   <div>
     <input class="input-field" type="text" placeholder="Display name" id="display-name-input">
     <div class="error-message hidden" id="display-name-error">
-      <span class="error-icon"><img src="public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
+      <span class="error-icon"><img src="/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
       <span>Display name is required.</span>
     </div>
   </div>
   <div>
     <input class="input-field" type="email" placeholder="Email" id="email-input">
     <div class="error-message hidden" id="email-error">
-      <span class="error-icon"><img src="public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
+      <span class="error-icon"><img src="/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
       <span id="email-error-text">Email already in use.</span>
     </div>
   </div>
@@ -61,20 +61,20 @@
     <div class="password-actions">
       <button class="password-toggle" id="toggle-password">
         <span class="eye-icon" id="eye-icon">
-          <img src="public/assets/icons/phosphor/regular/eye-closed.svg" alt="Show password">
+          <img src="/assets/icons/phosphor/regular/eye-closed.svg" alt="Show password">
         </span>
       </button>
     </div>
   </div>
   <div class="error-message hidden" id="password-error">
-    <span class="error-icon"><img src="public/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
+    <span class="error-icon"><img src="/assets/icons/material-symbols/fill/error.svg" alt="Error"></span>
     <span id="password-error-text">Password must be 8–12 characters and contain uppercase, lowercase, number, and special character.</span>
   </div>
   <button class="btn btn-md btn-gecko-solid create-btn" id="create-account-btn">CREATE ACCOUNT</button>
   <div class="divider"><span>OR</span></div>
   <button class="btn btn-md btn-cloud-outline google-btn" id="google-btn">
     <span class="btn-content">
-      <span class="google-icon"><img src="public/assets/icons/social/google-icon.svg" alt="Google"></span>
+      <span class="google-icon"><img src="/assets/icons/social/google-icon.svg" alt="Google"></span>
       Continue with Google
     </span>
   </button>
@@ -108,8 +108,8 @@
   const togglePassword = document.getElementById('toggle-password');
   const eyeIcon = document.getElementById('eye-icon');
   
-  const EYE_OPEN_SRC = 'public/assets/icons/phosphor/regular/eye.svg';
-  const EYE_CLOSED_SRC = 'public/assets/icons/phosphor/regular/eye-closed.svg';
+  const EYE_OPEN_SRC = '/assets/icons/phosphor/regular/eye.svg';
+  const EYE_CLOSED_SRC = '/assets/icons/phosphor/regular/eye-closed.svg';
   
   // Password toggle
   togglePassword.addEventListener('click', () => {
@@ -165,7 +165,6 @@
     }
     if (hasError) return;
     
-    // Disable button to prevent double submission
     createBtn.disabled = true;
     createBtn.textContent = 'Creating...';
     
@@ -185,8 +184,7 @@
       return;
     }
     
-    // After successful sign-up, redirect to completion page
-    window.location.href = 'registration-completion.html';
+    window.location.href = '/registration-completion.html';
   }
   
   async function signInWithGoogle() {
@@ -206,7 +204,6 @@
   createBtn.addEventListener('click', signUpWithEmail);
   googleBtn.addEventListener('click', signInWithGoogle);
   
-  // Login link – placeholder
   document.getElementById('login-link').addEventListener('click', (e) => {
     e.preventDefault();
     alert('Login page coming soon.');

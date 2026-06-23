@@ -1,7 +1,7 @@
 {
   "title": "Introduction to Nucleic Acids",
   "totalQuestions": 6,
-  "redirectUrl": "https://vulanet.vercel.app/lesson/g12-life-sciences",
+  "redirectUrl": "/lesson/g12-life-sciences",
   "streakKey": "dnaStreak",
   "questions": [
     {
@@ -46,10 +46,10 @@
       "type": "image-selection",
       "questionText": "Which image correctly shows a nucleotide?",
       "images": [
-        { "src": "../public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-001.jpg", "label": "Image 1" },
-        { "src": "../public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-002.jpg", "label": "Image 2" },
-        { "src": "../public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-003.jpg", "label": "Image 3" },
-        { "src": "../public/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-004.jpg", "label": "Image 4" }
+        { "src": "/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-001.jpg", "label": "Image 1" },
+        { "src": "/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-002.jpg", "label": "Image 2" },
+        { "src": "/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-003.jpg", "label": "Image 3" },
+        { "src": "/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/image-004.jpg", "label": "Image 4" }
       ],
       "correctAnswer": 4,
       "explanation": "A nucleotide consists of three parts: a phosphate group, a sugar molecule (deoxyribose in DNA) and a nitrogenous base, all of which Image 4 correctly represents."

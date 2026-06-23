@@ -6,35 +6,35 @@
   <meta name="description" content="Learn by playing a game. It's 100% free, fun, and includes reading material too.">
   <title>Learn a course for free</title>
   
-  <!-- Favicon - Multiple formats -->
-  <link rel="icon" type="image/svg+xml" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
-  <link rel="icon" type="image/png" sizes="16x16" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
-  <link rel="apple-touch-icon" sizes="180x180" href="public/assets/icons/phosphor/fill/rabbit-blue.svg">
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/assets/icons/phosphor/fill/rabbit-blue.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/phosphor/fill/rabbit-blue.svg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/phosphor/fill/rabbit-blue.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/phosphor/fill/rabbit-blue.svg">
   <meta name="msapplication-TileColor" content="#4285F4">
   <meta name="theme-color" content="#4285F4">
   
-  <!-- Open Graph / Social Media Preview (Facebook, WhatsApp, LinkedIn, Telegram, etc.) -->
+  <!-- Open Graph -->
   <meta property="og:title" content="Learn a course for free">
   <meta property="og:description" content="Learn by playing a game. It's 100% free, fun, and includes reading material too.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="public/assets/images/og-preview.png">
+  <meta property="og:image" content="/assets/images/og-preview.png">
   <meta property="og:image:alt" content="Vulanet Rabbit mascot Vusi with learning icons">
   <meta property="og:url" content="https://vulanet.vercel.app">
   <meta property="og:site_name" content="Vulanet">
   
-  <!-- Twitter Card (Twitter/X specific) -->
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Learn a course for free">
   <meta name="twitter:description" content="Learn by playing a game. It's 100% free, fun, and includes reading material too.">
-  <meta name="twitter:image" content="public/assets/images/og-preview.png">
+  <meta name="twitter:image" content="/assets/images/og-preview.png">
   <meta name="twitter:site" content="@vulanet">
   
   <!-- Local Fonts -->
-  <link rel="stylesheet" href="public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
   
   <!-- Button Component Styles -->
-  <link rel="stylesheet" href="src/styles/components/buttons.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
   
   <style>
     /* ===== VARIABLES ===== */
@@ -131,12 +131,11 @@
       letter-spacing: -0.02em;
     }
     
-    /* Header button uses the .btn .btn-carpenter-blue system */
     .header-btn {
       opacity: 0;
       visibility: hidden;
       transition: all 0.2s ease;
-      margin: 0;            /* override the default btn margin */
+      margin: 0;
     }
     
     .header.scrolled .header-btn {
@@ -269,7 +268,6 @@
     .main-btn { margin-bottom: 1.1rem; }
     .secondary-btn { margin-bottom: 0.21rem; }
     
-    /* Make the “GET STARTED” buttons the same width as the secondary button */
     .main-btn,
     .secondary-btn,
     .cta-button {
@@ -311,7 +309,7 @@
     .material-icon img { width: 100%; height: 100%; display: block; }
     .vulanet-description .material-icon img { filter: brightness(0) saturate(100%) invert(31%) sepia(86%) saturate(2382%) hue-rotate(342deg) brightness(92%) contrast(91%); }
     
-    /* ===== CUSTOM ICONS (Backed by Research, Stay on Track, Personalized Learning) ===== */
+    /* ===== CUSTOM ICONS ===== */
     .custom-icon-container {
       position: relative;
       width: 180px;
@@ -344,11 +342,7 @@
       background: white;
     }
     
-    /* Icon 2 - Ladybug Red (Backed by Research) */
-    .icon2 div {
-      border-color: var(--ladybug);
-    }
-    
+    .icon2 div { border-color: var(--ladybug); }
     .icon2 .moon.top {
       top: 15%;
       left: 10%;
@@ -356,7 +350,6 @@
       height: 8%;
       animation: icon2moontop var(--animationtime) ease 0s infinite;
     }
-    
     .icon2 .moon.bottom {
       top: 85%;
       right: 5%;
@@ -364,14 +357,12 @@
       height: 4%;
       animation: icon2moonbottom var(--animationtime) ease 0s infinite;
     }
-    
     .icon2 .planet {
       top: 25%;
       left: 24%;
       width: 63%;
       height: 63%;
     }
-    
     .icon2 .ring {
       top: 45%;
       left: 15%;
@@ -382,7 +373,6 @@
       transform: rotate(17deg);
       animation: icon2ring var(--animationtime) linear 0s infinite alternate;
     }
-    
     .icon2 .ring.planet {
       top: 62.5%;
       left: 40%;
@@ -393,7 +383,6 @@
       z-index: 1;
       animation: icon2ringplanet var(--animationtime) ease 0s infinite;
     }
-    
     .icon2 .ring.planet:after {
       top: -55%;
       left: 80%;
@@ -402,7 +391,6 @@
       border: var(--borderwidth) solid var(--ladybug);
       border-radius: 50%;
     }
-    
     .icon2 .planetoid {
       top: 25%;
       left: 70%;
@@ -411,7 +399,6 @@
       overflow: visible;
       background: white;
     }
-    
     .icon2 .planetoid:before {
       top: -25%;
       left: -25%;
@@ -423,7 +410,6 @@
       transform: rotate(55deg);
       background: transparent;
     }
-    
     .icon2 .planetoid:after {
       top: 100%;
       left: 5%;
@@ -436,11 +422,7 @@
       background: transparent;
     }
     
-    /* Icon 3 - Bee Yellow (Stay on Track) */
-    .icon3 div {
-      border-color: var(--bee);
-    }
-    
+    .icon3 div { border-color: var(--bee); }
     .icon3 .telescope {
       top: 15%;
       left: 10%;
@@ -450,198 +432,45 @@
       border-color: transparent;
       animation: icon3telescope var(--animationtime) ease 0s infinite alternate;
     }
-    
-    .icon3 .telescope:before, 
-    .icon3 .telescope:after {
+    .icon3 .telescope:before, .icon3 .telescope:after {
       height: 1%;
       border: var(--borderwidth) solid var(--bee);
       border-color: var(--bee) transparent transparent transparent;
     }
-    
-    .icon3 .telescope:before {
-      width: 25%;
-      left: 60%;
-    }
-    
-    .icon3 .telescope:after {
-      bottom: 15%;
-      width: 15%;
-      left: 65%;
-    }
-    
-    .icon3 .telescope .body {
-      top: 20%;
-      left: 10%;
-      width: 75%;
-      height: 45%;
-      overflow: visible;
-    }
-    
-    .icon3 .telescope .line {
-      border-color: var(--bee) transparent transparent transparent;
-      transform: rotate(90deg);
-    }
-    
+    .icon3 .telescope:before { width: 25%; left: 60%; }
+    .icon3 .telescope:after { bottom: 15%; width: 15%; left: 65%; }
+    .icon3 .telescope .body { top: 20%; left: 10%; width: 75%; height: 45%; overflow: visible; }
+    .icon3 .telescope .line { border-color: var(--bee) transparent transparent transparent; transform: rotate(90deg); }
     .icon3 .telescope .line1 { top: 45%; left: -5%; width: 40%; }
     .icon3 .telescope .line2 { top: 45%; left: 20%; width: 28%; }
     .icon3 .telescope .line3 { top: 45%; left: 45%; width: 28%; }
     .icon3 .telescope .line4 { top: 45%; left: 65%; width: 28%; }
     .icon3 .telescope .lens { top: 10%; right: 0; width: 16%; height: 62%; }
-    
-    .icon3 .tripod {
-      top: 35%;
-      left: 30%;
-      width: 45%;
-      height: 45%;
-      border-color: transparent;
-    }
-    
-    .icon3 .tripod .anchor {
-      left: 40%;
-      width: 20%;
-      height: 20%;
-      border-radius: 50%;
-    }
-    
-    .icon3 .tripod .foot {
-      top: 20%;
-      left: 50%;
-      height: 1%;
-      border-color: var(--bee) transparent transparent transparent;
-      transform-origin: top left;
-    }
-    
+    .icon3 .tripod { top: 35%; left: 30%; width: 45%; height: 45%; border-color: transparent; }
+    .icon3 .tripod .anchor { left: 40%; width: 20%; height: 20%; border-radius: 50%; }
+    .icon3 .tripod .foot { top: 20%; left: 50%; height: 1%; border-color: var(--bee) transparent transparent transparent; transform-origin: top left; }
     .icon3 .tripod .foot.left { width: 92%; transform: rotate(115deg); }
     .icon3 .tripod .foot.mid { width: 84%; transform: rotate(90deg); }
     .icon3 .tripod .foot.right { width: 92%; transform: rotate(65deg); }
+    .icon3 .ground { top: 80%; left: 30%; width: 45%; height: 1%; border-color: var(--bee) transparent transparent transparent; overflow: visible; }
+    .icon3 .ground:after { top: -10%; left: 115%; width: 8%; height: 1%; border: var(--borderwidth) solid var(--bee); border-color: var(--bee) transparent transparent transparent; }
     
-    .icon3 .ground {
-      top: 80%;
-      left: 30%;
-      width: 45%;
-      height: 1%;
-      border-color: var(--bee) transparent transparent transparent;
-      overflow: visible;
-    }
-    
-    .icon3 .ground:after {
-      top: -10%;
-      left: 115%;
-      width: 8%;
-      height: 1%;
-      border: var(--borderwidth) solid var(--bee);
-      border-color: var(--bee) transparent transparent transparent;
-    }
-    
-    /* Icon 4 - Boa Green (Personalized Learning) */
-    .icon4 div {
-      border-color: var(--boa);
-    }
-    
-    .icon4 .planetoid {
-      top: 10%;
-      left: 20%;
-      width: 10%;
-      height: 10%;
-      overflow: visible;
-      animation: icon4planetoid var(--animationtime) linear 0s infinite;
-    }
-    
-    .icon4 .planetoid:before {
-      top: 110%;
-      left: -60%;
-      width: 4%;
-      height: 4%;
-      border: var(--borderwidth) solid var(--boa);
-      border-radius: 50%;
-    }
-    
-    .icon4 .sattelite {
-      top: 20%;
-      left: 10%;
-      width: 100%;
-      height: 70%;
-      transform: rotate(-45deg);
-      border: 0;
-      animation: icon4sattelite var(--animationtime) linear 0s infinite alternate;
-    }
-    
-    .icon4 .sattelite .solarpanel {
-      top: 15%;
-      width: 30%;
-      height: 30%;
-      overflow: visible;
-      animation: icon4solarpanel calc(var(--animationtime) * 2) linear 0s infinite alternate;
-    }
-    
-    .icon4 .sattelite .solarpanel:after {
-      top: 50%;
-      height: 1%;
-      width: 125%;
-      border: var(--borderwidth) solid var(--boa);
-      border-color: var(--boa) transparent transparent transparent;
-    }
-    
+    .icon4 div { border-color: var(--boa); }
+    .icon4 .planetoid { top: 10%; left: 20%; width: 10%; height: 10%; overflow: visible; animation: icon4planetoid var(--animationtime) linear 0s infinite; }
+    .icon4 .planetoid:before { top: 110%; left: -60%; width: 4%; height: 4%; border: var(--borderwidth) solid var(--boa); border-radius: 50%; }
+    .icon4 .sattelite { top: 20%; left: 10%; width: 100%; height: 70%; transform: rotate(-45deg); border: 0; animation: icon4sattelite var(--animationtime) linear 0s infinite alternate; }
+    .icon4 .sattelite .solarpanel { top: 15%; width: 30%; height: 30%; overflow: visible; animation: icon4solarpanel calc(var(--animationtime) * 2) linear 0s infinite alternate; }
+    .icon4 .sattelite .solarpanel:after { top: 50%; height: 1%; width: 125%; border: var(--borderwidth) solid var(--boa); border-color: var(--boa) transparent transparent transparent; }
     .icon4 .sattelite .solarpanel.left { left: 0; }
     .icon4 .sattelite .solarpanel.right { right: 0; }
     .icon4 .sattelite .solarpanel.right:after { left: -30%; }
+    .icon4 .sattelite .body { top: 0; left: 38%; width: 25%; height: 60%; overflow: visible; }
+    .icon4 .sattelite .body:after { top: 70%; left: calc(-1 * var(--borderwidth)); width: 100%; padding-top: 100%; border: var(--borderwidth) solid var(--boa); border-color: transparent var(--boa) var(--boa) transparent; border-radius: 50%; transform: rotate(45deg); }
+    .icon4 .sattelite .dish { top: 76%; left: 40%; width: 20%; padding-top: 20%; border-color: var(--boa) var(--boa) transparent transparent; border-radius: 50%; transform: rotate(-45deg); overflow: visible; animation: icon4dish var(--animationtime) linear 0s infinite alternate; }
+    .icon4 .sattelite .dish:before, .icon4 .sattelite .dish:after { transform-origin: top left; border: var(--borderwidth) solid var(--boa); }
+    .icon4 .sattelite .dish:before { left: 10%; top: 10%; width: 110%; height: 0; border-color: var(--boa) transparent transparent transparent; transform: rotate(45deg); }
+    .icon4 .sattelite .dish:after { left: 50%; top: 50%; width: 20%; height: 0; border-color: var(--boa) transparent transparent transparent; transform: rotate(135deg); }
     
-    .icon4 .sattelite .body {
-      top: 0;
-      left: 38%;
-      width: 25%;
-      height: 60%;
-      overflow: visible;
-    }
-    
-    .icon4 .sattelite .body:after {
-      top: 70%;
-      left: calc(-1 * var(--borderwidth));
-      width: 100%;
-      padding-top: 100%;
-      border: var(--borderwidth) solid var(--boa);
-      border-color: transparent var(--boa) var(--boa) transparent;
-      border-radius: 50%;
-      transform: rotate(45deg);
-    }
-    
-    .icon4 .sattelite .dish {
-      top: 76%;
-      left: 40%;
-      width: 20%;
-      padding-top: 20%;
-      border-color: var(--boa) var(--boa) transparent transparent;
-      border-radius: 50%;
-      transform: rotate(-45deg);
-      overflow: visible;
-      animation: icon4dish var(--animationtime) linear 0s infinite alternate;
-    }
-    
-    .icon4 .sattelite .dish:before, 
-    .icon4 .sattelite .dish:after {
-      transform-origin: top left;
-      border: var(--borderwidth) solid var(--boa);
-    }
-    
-    .icon4 .sattelite .dish:before {
-      left: 10%;
-      top: 10%;
-      width: 110%;
-      height: 0;
-      border-color: var(--boa) transparent transparent transparent;
-      transform: rotate(45deg);
-    }
-    
-    .icon4 .sattelite .dish:after {
-      left: 50%;
-      top: 50%;
-      width: 20%;
-      height: 0;
-      border-color: var(--boa) transparent transparent transparent;
-      transform: rotate(135deg);
-    }
-    
-    /* Animation Keyframes */
     @keyframes icon2moontop {
       0% { top: 15%; left: 10%; z-index: 0; }
       49% { top: 60%; left: 95%; z-index: 0; }
@@ -649,7 +478,6 @@
       99% { top: 15%; left: 10%; z-index: 1; }
       100% { top: 15%; left: 10%; z-index: 0; }
     }
-    
     @keyframes icon2moonbottom {
       0% { top: 85%; left: 95%; z-index: 0; }
       49% { top: 40%; left: 5%; z-index: 0; }
@@ -657,7 +485,6 @@
       99% { top: 85%; left: 95%; z-index: -1; }
       100% { top: 85%; left: 95%; z-index: 0; }
     }
-    
     @keyframes icon2ring { 0% { transform: rotate(10deg); } 100% { transform: rotate(30deg); } }
     @keyframes icon2ringplanet { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes icon3telescope { 0% { transform: rotate(-10deg); } 100% { transform: rotate(-30deg); } }
@@ -765,10 +592,7 @@
     .footer-col ul li a { color: rgba(255,255,255,0.8); text-decoration: none; }
     .footer-col ul li a:hover { color: white; text-decoration: underline; }
     
-    .footer-logo {
-      margin-bottom: 20px;
-    }
-    
+    .footer-logo { margin-bottom: 20px; }
     .footer-logo h1 {
       font-family: var(--brand-font);
       font-size: 32px;
@@ -783,13 +607,7 @@
       font-weight: 800;
       letter-spacing: -0.02em;
     }
-    
-    .footer-logo h1 span {
-      display: inline-block;
-      position: relative;
-    }
-    
-    /* Individual letter bounce animations with staggered delays - MATCHING EXAMPLE */
+    .footer-logo h1 span { display: inline-block; position: relative; }
     .ud_1 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0s; }
     .ud_2 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.075s; }
     .ud_3 { animation: footer-bounce 1.5s ease-in-out infinite; animation-delay: 0.15s; }
@@ -833,7 +651,7 @@
     <div class="header-inner">
       <div class="logo-container">
         <div class="logo-rabbit">
-          <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet Rabbit">
+          <img src="/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet Rabbit">
         </div>
         <span class="brand-name">vulanet</span>
       </div>
@@ -847,14 +665,14 @@
         <div class="phone-wrap">
           <div class="phone">
             <div class="ph-rabbit">
-              <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet Rabbit">
+              <img src="/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet Rabbit">
             </div>
           </div>
           
           <div class="floating-icons">
-            <div class="icon-box"><div class="icon-el"><img src="public/assets/icons/material-symbols/outline/school.svg" alt="School"></div></div>
-            <div class="icon-box"><div class="icon-el"><img src="public/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition"></div></div>
-            <div class="icon-box"><div class="icon-el"><img src="public/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz"></div></div>
+            <div class="icon-box"><div class="icon-el"><img src="/assets/icons/material-symbols/outline/school.svg" alt="School"></div></div>
+            <div class="icon-box"><div class="icon-el"><img src="/assets/icons/material-symbols/outline/cognition_2.svg" alt="Cognition"></div></div>
+            <div class="icon-box"><div class="icon-el"><img src="/assets/icons/material-symbols/outline/quiz.svg" alt="Quiz"></div></div>
           </div>
         </div>
       </div>
@@ -867,7 +685,7 @@
   
   <div class="content-container">
     <div class="vulanet-description">
-      <div class="icon-container"><div class="material-icon-container"><div class="material-icon"><img src="public/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition"></div></div></div>
+      <div class="icon-container"><div class="material-icon-container"><div class="material-icon"><img src="/assets/icons/material-symbols/outline/cognition.svg" alt="Cognition"></div></div></div>
       <div class="tagline">free. fun. proven.</div>
       <p class="description">Learning with Vulanet is fun, and <a href="#" class="research-link">we have the research to prove it</a>! With quick, easy-to-grasp lessons, you'll earn points and reach new levels while gaining real-world skills.</p>
     </div>
@@ -891,7 +709,7 @@
     </div>
 
     <div class="cta-section">
-      <div class="bouncing-rabbit-container"><div class="bouncing-rabbit"><img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet Rabbit"></div><div class="rabbit-shadow"></div></div>
+      <div class="bouncing-rabbit-container"><div class="bouncing-rabbit"><img src="/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet Rabbit"></div><div class="rabbit-shadow"></div></div>
       <div class="cta-tagline">learn better with vulanet</div>
       <button class="btn btn-carpenter-blue cta-button" onclick="window.location.href='courses.html'">GET STARTED</button>
     </div>
@@ -919,11 +737,11 @@
       <div class="footer-divider"></div>
       <div class="footer-bottom">
         <div class="footer-social">
-          <a href="#" target="_blank"><img src="public/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram"></a>
-          <a href="#" target="_blank"><img src="public/assets/icons/social/tiktok-brands-solid-full.svg" alt="TikTok"></a>
-          <a href="#" target="_blank"><img src="public/assets/icons/social/x-twitter-brands-solid-full.svg" alt="X"></a>
-          <a href="#" target="_blank"><img src="public/assets/icons/social/facebook-brands-solid-full.svg" alt="Facebook"></a>
-          <a href="#" target="_blank"><img src="public/assets/icons/social/youtube-brands-solid-full.svg" alt="YouTube"></a>
+          <a href="#" target="_blank"><img src="/assets/icons/social/instagram-brands-solid-full.svg" alt="Instagram"></a>
+          <a href="#" target="_blank"><img src="/assets/icons/social/tiktok-brands-solid-full.svg" alt="TikTok"></a>
+          <a href="#" target="_blank"><img src="/assets/icons/social/x-twitter-brands-solid-full.svg" alt="X"></a>
+          <a href="#" target="_blank"><img src="/assets/icons/social/facebook-brands-solid-full.svg" alt="Facebook"></a>
+          <a href="#" target="_blank"><img src="/assets/icons/social/youtube-brands-solid-full.svg" alt="YouTube"></a>
         </div>
       </div>
     </footer>
