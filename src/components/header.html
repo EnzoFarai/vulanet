@@ -3,37 +3,35 @@
   <div class="container">
     <div class="header-content">
       <div class="logo">
-        <img src="public/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet" class="logo-icon" style="width:26px;height:26px;">
+        <img src="/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet" class="logo-icon">
         <span class="logo-text">vulanet</span>
       </div>
       <div class="user-stats">
-        <!-- Subject icon -->
+        <!-- Course icon -->
         <div class="stat-item" id="activeCourseItem">
           <div class="icon-box course-icon" id="activeCourseIcon">
-            <img src="public/assets/courses/g12-life-sciences.png"
-                 alt="Course"
-                 class="course-icon-img">
+            <img src="/assets/courses/g12-life-sciences.png" alt="Course" class="course-icon-img">
           </div>
           <span id="activeCourseLevel">1</span>
         </div>
         <!-- Streak -->
         <div class="stat-item" id="streakItem">
           <div class="icon-box">
-            <img src="public/assets/icons/phosphor/fill/fire.svg" alt="Streak" class="stat-icon streak" style="width:26px;height:26px;">
+            <img src="/assets/icons/phosphor/fill/fire.svg" alt="Streak" class="stat-icon streak">
           </div>
           <span id="streakCount">1</span>
         </div>
         <!-- Coins -->
         <div class="stat-item" id="coinsItem">
           <div class="icon-box">
-            <img src="public/assets/icons/phosphor/duotone/coin-vertical.svg" alt="Coins" class="stat-icon coins" style="width:26px;height:26px;">
+            <img src="/assets/icons/phosphor/duotone/coin-vertical.svg" alt="Coins" class="stat-icon coins">
           </div>
           <span>500</span>
         </div>
         <!-- Hearts -->
         <div class="stat-item" id="heartsItem">
           <div class="icon-box">
-            <img src="public/assets/icons/phosphor/fill/heart.svg" alt="Hearts" class="stat-icon hearts" style="width:26px;height:26px;">
+            <img src="/assets/icons/phosphor/fill/heart.svg" alt="Hearts" class="stat-icon hearts">
           </div>
           <span>5</span>
         </div>
@@ -42,7 +40,7 @@
   </div>
 </header>
 
-<!-- Panels (same as before) -->
+<!-- Panels (loaded after header) -->
 <div class="course-panel-container" id="coursePanelContainer">
   <div class="course-panel">
     <div class="courses-slider" id="coursesSlider"></div>
@@ -63,19 +61,19 @@
 <div class="hearts-panel-container" id="heartsPanelContainer">
   <div class="hearts-panel">
     <div class="hearts-display">
-      <img src="public/assets/icons/phosphor/fill/heart.svg" class="heart-icon full" style="width:30px;height:30px;">
-      <img src="public/assets/icons/phosphor/fill/heart.svg" class="heart-icon full" style="width:30px;height:30px;">
-      <img src="public/assets/icons/phosphor/fill/heart.svg" class="heart-icon full" style="width:30px;height:30px;">
-      <img src="public/assets/icons/phosphor/duotone/heart.svg" class="heart-icon next" style="width:30px;height:30px;">
-      <img src="public/assets/icons/phosphor/regular/heart.svg" class="heart-icon empty" style="width:30px;height:30px;">
+      <img src="/assets/icons/phosphor/fill/heart.svg" class="heart-icon full">
+      <img src="/assets/icons/phosphor/fill/heart.svg" class="heart-icon full">
+      <img src="/assets/icons/phosphor/fill/heart.svg" class="heart-icon full">
+      <img src="/assets/icons/phosphor/duotone/heart.svg" class="heart-icon next">
+      <img src="/assets/icons/phosphor/regular/heart.svg" class="heart-icon empty">
     </div>
     <div class="timer">Next heart in <span id="heartTimer">30m</span></div>
     <div class="hearts-button" id="refillHeartsButton">
-      <div class="left"><img src="public/assets/icons/phosphor/fill/heart.svg" style="width:22px;height:22px;"><span>REFILL HEARTS</span></div>
-      <div class="coins-display"><img src="public/assets/icons/phosphor/duotone/coin-vertical.svg" style="width:20px;height:20px;"><span id="refillPrice">500</span></div>
+      <div class="left"><img src="/assets/icons/phosphor/fill/heart.svg"><span>REFILL HEARTS</span></div>
+      <div class="coins-display"><img src="/assets/icons/phosphor/duotone/coin-vertical.svg"><span id="refillPrice">500</span></div>
     </div>
     <a href="#" class="hearts-button practice-button">
-      <div class="left"><img src="public/assets/icons/phosphor/fill/heart.svg" style="width:22px;height:22px;"><span>PRACTICE TO EARN HEARTS</span></div>
+      <div class="left"><img src="/assets/icons/phosphor/fill/heart.svg"><span>PRACTICE TO EARN HEARTS</span></div>
     </a>
   </div>
 </div>
@@ -84,23 +82,44 @@
   <div class="shop-header">
     <div class="shop-close" id="shopCloseButton">✕</div>
     <div class="shop-title">Shop</div>
-    <div class="shop-coins"><img src="public/assets/icons/phosphor/duotone/coin-vertical.svg" class="coin-icon" style="width:20px;height:20px;"><span id="shopCoinCount">500</span></div>
+    <div class="shop-coins"><img src="/assets/icons/phosphor/duotone/coin-vertical.svg" class="coin-icon"><span id="shopCoinCount">500</span></div>
   </div>
   <div class="shop-content">
     <h2>Special Offers</h2>
-    <div class="shop-card"><div class="shop-icon midnight"><img src="public/assets/icons/phosphor/duotone/treasure-chest.svg" class="chest-icon" style="width:48px;height:48px;"></div><div class="shop-card-body"><div class="shop-card-title">Midnight Marauder</div><div class="shop-card-desc">Do a lesson between <strong>midnight</strong> and <strong>3:00am</strong> to unlock this chest.</div><div class="shop-locked">LOCKED</div></div></div>
-    <div class="shop-card"><div class="shop-icon dawn"><img src="public/assets/icons/phosphor/duotone/treasure-chest.svg" class="chest-icon" style="width:48px;height:48px;"></div><div class="shop-card-body"><div class="shop-card-title">Dawn Duster Chest</div><div class="shop-card-desc">Do a lesson between <strong>6:00am</strong> and <strong>9:00am</strong> to unlock this chest.</div><div class="shop-locked">LOCKED</div></div></div>
+    <div class="shop-card">
+      <div class="shop-icon midnight"><img src="/assets/icons/phosphor/duotone/treasure-chest.svg" class="chest-icon"></div>
+      <div class="shop-card-body">
+        <div class="shop-card-title">Midnight Marauder</div>
+        <div class="shop-card-desc">Do a lesson between <strong>midnight</strong> and <strong>3:00am</strong> to unlock this chest.</div>
+        <div class="shop-locked">LOCKED</div>
+      </div>
+    </div>
+    <div class="shop-card">
+      <div class="shop-icon dawn"><img src="/assets/icons/phosphor/duotone/treasure-chest.svg" class="chest-icon"></div>
+      <div class="shop-card-body">
+        <div class="shop-card-title">Dawn Duster Chest</div>
+        <div class="shop-card-desc">Do a lesson between <strong>6:00am</strong> and <strong>9:00am</strong> to unlock this chest.</div>
+        <div class="shop-locked">LOCKED</div>
+      </div>
+    </div>
     <h2>Streak</h2>
-    <div class="shop-card"><div class="shop-icon revival"><img src="public/assets/icons/phosphor/fill/first-aid.svg" class="aid-icon" style="width:48px;height:48px;"></div><div class="shop-card-body"><div class="shop-card-title">Streak Revival</div><div class="shop-card-desc">Protect your streak if you miss a day of practice. Equip up to 2 at once.</div><div class="shop-price"><img src="public/assets/icons/phosphor/duotone/coin-vertical.svg" style="width:20px;height:20px;">200</div></div></div>
+    <div class="shop-card">
+      <div class="shop-icon revival"><img src="/assets/icons/phosphor/fill/first-aid.svg" class="aid-icon"></div>
+      <div class="shop-card-body">
+        <div class="shop-card-title">Streak Revival</div>
+        <div class="shop-card-desc">Protect your streak if you miss a day of practice. Equip up to 2 at once.</div>
+        <div class="shop-price"><img src="/assets/icons/phosphor/duotone/coin-vertical.svg">200</div>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="streak-calendar-container" id="streakCalendarContainer">
   <div class="streak-app">
     <div class="streak-header">
-      <div class="streak-icon" id="streakCloseButton"><img src="public/assets/icons/phosphor/regular/x.svg" style="width:22px;height:22px;"></div>
+      <div class="streak-icon" id="streakCloseButton"><img src="/assets/icons/phosphor/regular/x.svg"></div>
       <div class="title">Streak</div>
-      <div class="streak-icon" id="streakShareButton"><img src="public/assets/icons/phosphor/regular/export.svg" style="width:22px;height:22px;"></div>
+      <div class="streak-icon" id="streakShareButton"><img src="/assets/icons/phosphor/regular/export.svg"></div>
     </div>
     <div class="streak-hero">
       <div class="streak-badge">YOU'RE ON A</div>
@@ -109,11 +128,11 @@
           <div class="streak-number-large" id="streakNumberLarge">1</div>
           <div class="streak-text-large">day streak!</div>
         </div>
-        <div class="fire-emoji"><img src="public/assets/lottie/1f525-static.png" alt="🔥"></div>
+        <div class="fire-emoji"><img src="/assets/lottie/1f525-static.png" alt="🔥"></div>
       </div>
     </div>
     <div class="streak-card">
-      <div class="clock"><img src="public/assets/icons/phosphor/duotone/clock-countdown.svg" style="width:36px;height:36px;"></div>
+      <div class="clock"><img src="/assets/icons/phosphor/duotone/clock-countdown.svg"></div>
       <div>
         <p>Do a lesson today to extend your streak!</p>
         <a href="#" id="startLessonLink">START LESSON</a>
@@ -145,20 +164,20 @@
           I'm on a <span class="large-number" id="shareStreakNumber">1</span>
           <span class="small-text">day learning streak!</span>
         </div>
-        <div class="share-flame-icon"><img src="public/assets/icons/phosphor/duotone/fire.svg" style="width:90px;height:90px;"></div>
+        <div class="share-flame-icon"><img src="/assets/icons/phosphor/duotone/fire.svg"></div>
       </div>
       <div class="share-brand">vulanet</div>
     </div>
     <div class="share-sheet">
       <div class="share-grid">
-        <div class="share-item" id="shareFacebook"><div class="share-icon-circle"><img src="public/assets/icons/social/facebook-full.svg" style="width:28px;height:28px;"></div><div class="share-text">Facebook</div></div>
-        <div class="share-item" id="shareX"><div class="share-icon-circle"><img src="public/assets/icons/social/x-twitter.svg" style="width:28px;height:28px;"></div><div class="share-text">X</div></div>
-        <div class="share-item" id="shareWhatsApp"><div class="share-icon-circle"><img src="public/assets/icons/social/whatsapp.svg" style="width:28px;height:28px;"></div><div class="share-text">WhatsApp</div></div>
-        <div class="share-item" id="shareSms"><div class="share-icon-circle"><img src="public/assets/icons/material-symbols/outline/sms.svg" style="width:28px;height:28px;"></div><div class="share-text">Message</div></div>
+        <div class="share-item" id="shareFacebook"><div class="share-icon-circle"><img src="/assets/icons/social/facebook-full.svg"></div><div class="share-text">Facebook</div></div>
+        <div class="share-item" id="shareX"><div class="share-icon-circle"><img src="/assets/icons/social/x-twitter.svg"></div><div class="share-text">X</div></div>
+        <div class="share-item" id="shareWhatsApp"><div class="share-icon-circle"><img src="/assets/icons/social/whatsapp.svg"></div><div class="share-text">WhatsApp</div></div>
+        <div class="share-item" id="shareSms"><div class="share-icon-circle"><img src="/assets/icons/material-symbols/outline/sms.svg"></div><div class="share-text">Message</div></div>
       </div>
       <div class="bottom-grid">
-        <div class="bottom-item" id="saveImage"><div class="bottom-icon-circle"><img src="public/assets/icons/material-symbols/outline/download.svg" style="width:28px;height:28px;"></div><div class="bottom-text">Save image</div></div>
-        <div class="bottom-item" id="moreOptions"><div class="bottom-icon-circle"><img src="public/assets/icons/material-symbols/outline/more_horiz.svg" style="width:28px;height:28px;"></div><div class="bottom-text">More</div></div>
+        <div class="bottom-item" id="saveImage"><div class="bottom-icon-circle"><img src="/assets/icons/material-symbols/outline/download.svg"></div><div class="bottom-text">Save image</div></div>
+        <div class="bottom-item" id="moreOptions"><div class="bottom-icon-circle"><img src="/assets/icons/material-symbols/outline/more_horiz.svg"></div><div class="bottom-text">More</div></div>
       </div>
     </div>
   </div>

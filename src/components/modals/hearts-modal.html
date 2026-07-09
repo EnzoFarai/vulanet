@@ -6,7 +6,7 @@
   <title>Hearts Modal</title>
 
   <!-- Local Fonts -->
-  <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../../..//assets/fonts/fonts.css">
 
   <!-- Button Styles -->
   <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
@@ -55,7 +55,7 @@
       <div class="modal">
         <div class="hearts-display" aria-label="5 hearts remaining">
           <div class="heart-icon">
-            <img src="../../../public/assets/icons/phosphor/fill/heart.svg" alt="Heart icon" id="heart-img">
+            <img src="../../..//assets/icons/phosphor/fill/heart.svg" alt="Heart icon" id="heart-img">
           </div>
           <div class="hearts-count" id="hearts-count">5</div>
         </div>
@@ -69,8 +69,8 @@
     const heartImg = document.getElementById('heart-img');
     const heartsCount = document.getElementById('hearts-count');
     const actionButton = document.getElementById('action-button');
-    const HEART_FILL_PATH = '../../../public/assets/icons/phosphor/fill/heart.svg';
-    const HEART_EMPTY_PATH = '../../../public/assets/icons/phosphor/regular/heart.svg';
+    const HEART_FILL_PATH = '../../..//assets/icons/phosphor/fill/heart.svg';
+    const HEART_EMPTY_PATH = '../../..//assets/icons/phosphor/regular/heart.svg';
     let count = 5;
     
     function updateHeartIcon() {

@@ -6,7 +6,7 @@
 <title>Lesson Complete</title>
 
 <!-- Local Fonts -->
-<link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../..//assets/fonts/fonts.css">
 <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
 
 <style>
@@ -444,7 +444,7 @@ lottie-player {
   <div class="title">Lesson complete!</div>
   <div class="scene">
     <div class="emoji-container">
-      <lottie-player src="../../../public/assets/lottie/1f973.json" background="transparent" speed="1" loop autoplay></lottie-player>
+      <lottie-player src="../../..//assets/lottie/1f973.json" background="transparent" speed="1" loop autoplay></lottie-player>
     </div>
   </div>
   <div class="stats" id="statsContainer"></div>
@@ -456,7 +456,7 @@ lottie-player {
 
 <script src="../../../src/lib/lottie-player.js"></script>
 <script>
-  const audio = new Audio('../../../public/assets/audio/complete.mp3');
+  const audio = new Audio('../../..//assets/audio/complete.mp3');
   audio.play().catch(e => console.log("Audio play failed:", e));
 
   const params = new URLSearchParams(window.location.search);
@@ -523,15 +523,15 @@ lottie-player {
   document.getElementById('statsContainer').innerHTML = `
     <div class="stat ${xpStatClass}" id="stat1">
       <div class="stat-header">${xpHeader}</div>
-      <div class="stat-content"><div class="value"><img src="../../../public/assets/icons/phosphor/fill/lightning.svg" alt=""> <span id="xpValue">${displayedXP}</span></div></div>
+      <div class="stat-content"><div class="value"><img src="../../..//assets/icons/phosphor/fill/lightning.svg" alt=""> <span id="xpValue">${displayedXP}</span></div></div>
     </div>
     <div class="stat carpenter-blue" id="stat2">
       <div class="stat-header">${committedLabel}</div>
-      <div class="stat-content"><div class="value"><img src="../../../public/assets/icons/phosphor/duotone/clock-countdown.svg" alt=""> <span id="timeValue">${timeString}</span></div></div>
+      <div class="stat-content"><div class="value"><img src="../../..//assets/icons/phosphor/duotone/clock-countdown.svg" alt=""> <span id="timeValue">${timeString}</span></div></div>
     </div>
     <div class="stat boa" id="stat3">
       <div class="stat-header">${accuracyLabel}</div>
-      <div class="stat-content"><div class="value"><img src="../../../public/assets/icons/phosphor/duotone/target.svg" alt=""> <span id="percentValue">${percentage}%</span></div></div>
+      <div class="stat-content"><div class="value"><img src="../../..//assets/icons/phosphor/duotone/target.svg" alt=""> <span id="percentValue">${percentage}%</span></div></div>
     </div>
   `;
 

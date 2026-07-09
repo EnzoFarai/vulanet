@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Personal Record</title>
 
-<link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
+<link rel="stylesheet" href="../../..//assets/fonts/fonts.css">
 <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
 <script src="../../../src/lib/html2canvas.min.js"></script>
 
@@ -98,10 +98,10 @@
 <body>
 <div class="header">
   <div class="header-icon" id="exit-button">
-    <img src="../../../public/assets/icons/material-symbols/outline/close.svg" alt="Close">
+    <img src="../../..//assets/icons/material-symbols/outline/close.svg" alt="Close">
   </div>
   <div class="header-icon" id="share-button">
-    <img src="../../../public/assets/icons/material-symbols/outline/upload.svg" alt="Share">
+    <img src="../../..//assets/icons/material-symbols/outline/upload.svg" alt="Share">
   </div>
 </div>
 
@@ -143,14 +143,14 @@
     </div>
     <div class="share-sheet">
       <div class="share-grid">
-        <div class="share-item" id="share-facebook"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/facebook-full.svg"></div></div><div class="share-text">Facebook</div></div>
-        <div class="share-item" id="share-x"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/x-twitter.svg"></div></div><div class="share-text">X</div></div>
-        <div class="share-item" id="share-whatsapp"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/whatsapp.svg"></div></div><div class="share-text">WhatsApp</div></div>
-        <div class="share-item" id="share-sms"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/material-symbols/outline/sms.svg"></div></div><div class="share-text">Message</div></div>
+        <div class="share-item" id="share-facebook"><div class="share-icon-circle"><div class="share-icon"><img src="../../..//assets/icons/social/facebook-full.svg"></div></div><div class="share-text">Facebook</div></div>
+        <div class="share-item" id="share-x"><div class="share-icon-circle"><div class="share-icon"><img src="../../..//assets/icons/social/x-twitter.svg"></div></div><div class="share-text">X</div></div>
+        <div class="share-item" id="share-whatsapp"><div class="share-icon-circle"><div class="share-icon"><img src="../../..//assets/icons/social/whatsapp.svg"></div></div><div class="share-text">WhatsApp</div></div>
+        <div class="share-item" id="share-sms"><div class="share-icon-circle"><div class="share-icon"><img src="../../..//assets/icons/material-symbols/outline/sms.svg"></div></div><div class="share-text">Message</div></div>
       </div>
       <div class="bottom-grid">
-        <div class="bottom-item" id="save-image"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../../public/assets/icons/material-symbols/outline/download.svg"></div></div><div class="bottom-text">Save image</div></div>
-        <div class="bottom-item" id="more-options"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../../public/assets/icons/material-symbols/outline/more_horiz.svg"></div></div><div class="bottom-text">More</div></div>
+        <div class="bottom-item" id="save-image"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../..//assets/icons/material-symbols/outline/download.svg"></div></div><div class="bottom-text">Save image</div></div>
+        <div class="bottom-item" id="more-options"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../..//assets/icons/material-symbols/outline/more_horiz.svg"></div></div><div class="bottom-text">More</div></div>
       </div>
     </div>
   </div>
@@ -158,7 +158,7 @@
 
 <script>
   (function() {
-    const audio = new Audio('../../../public/assets/audio/achievement.mp3');
+    const audio = new Audio('../../..//assets/audio/achievement.mp3');
     audio.play().catch(() => {});
 
     const params = new URLSearchParams(window.location.search);
@@ -172,7 +172,7 @@
     const shareMsg = params.get('shareMsg') || `I set a new record for my longest streak!`;
 
     document.getElementById('recordDiamond').style.backgroundColor = color;
-    document.getElementById('record-icon').src = `../../../public/assets/icons/phosphor/fill/${icon}.svg`;
+    document.getElementById('record-icon').src = `../../..//assets/icons/phosphor/fill/${icon}.svg`;
     document.getElementById('record-number').textContent = value;
     document.getElementById('record-title').textContent = title;
     document.getElementById('record-message').textContent = message;
@@ -183,7 +183,7 @@
 
     // Share
     document.getElementById('shareDiamond').style.backgroundColor = color;
-    document.getElementById('shareIcon').src = `../../../public/assets/icons/phosphor/fill/${icon}.svg`;
+    document.getElementById('shareIcon').src = `../../..//assets/icons/phosphor/fill/${icon}.svg`;
     document.getElementById('shareNumber').textContent = value;
     document.getElementById('shareTitle').textContent = title;
     document.getElementById('shareDate').textContent = dateStr;

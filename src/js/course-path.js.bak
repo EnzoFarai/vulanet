@@ -41,14 +41,14 @@
         { type: 'heart', amount: 5, title: 'You gained more hearts!', subtitle: 'You now have 5 hearts again.', icon: '/assets/icons/phosphor/fill/heart.svg', buttonText: 'Claim hearts' }
     ];
 
-    // Position map for wave offsets
-    const posMap = {
-        '-2': -70,
-        '-1': -44,
-        '0': 0,
-        '1': 44,
-        '2': 70
-    };
+    const positionMap = new Map([[0,0],[-1,-44],[-2,-70],[1,44],[2,70]]);
+
+    function getRandomReward(chapter) {
+        if (chapter.currentTreasureReward) return chapter.currentTreasureReward;
+        const idx = Math.floor(Math.random() * rewardVariants.length);
+        chapter.currentTreasureReward = rewardVariants[idx];
+        return chapter.currentTreasureReward;
+    }
 
     // ---------- REWARD DISPLAY ----------
     function createRewardDisplay(reward) {
@@ -98,8 +98,10 @@
     }
 
     // ---------- NODE RENDERING ----------
+    // Helper to get local SVG for node icon
     function getNodeIconSVG(lessonType, isCompleted, isMastered) {
-        if (isMastered) {
+        if (isMastered || lessonType === 'joystick') {
+            // Use joystick icon
             return '<img src="/assets/icons/material-symbols/outline/joystick.svg" alt="Joystick" style="width:32px;height:32px;filter:brightness(0) saturate(100%) invert(100%);">';
         } else if (isCompleted) {
             return '<img src="/assets/icons/material-symbols/outline/assignment_turned_in.svg" alt="Done" style="width:32px;height:32px;filter:brightness(0) saturate(100%) invert(100%);">';
@@ -108,48 +110,17 @@
         }
     }
 
-    // Treasure chest filter: yellow/gold when unlocked
-    function getTreasureFilter(status) {
-        if (status === 'unlocked' || status === 'collected') {
-            return 'filter: brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%);';
-        } else {
-            return 'filter: brightness(0) saturate(100%) invert(63%) sepia(0%) saturate(0%) hue-rotate(180deg) brightness(88%) contrast(85%);';
-        }
-    }
-
-    // Generate wave positions using the exact logic from your demo
-    function getWavePositions(length) {
-        const positions = [];
-        let dir = 'L';
-        let pos = 0;
-        for (let i = 0; i < length; i++) {
-            positions.push(pos);
-            // update wave state
-            if (dir === 'L' && pos === -2) {
-                dir = 'R';
-                pos = -1;
-            } else if (dir === 'R' && pos === 2) {
-                dir = 'L';
-                pos = 1;
-            } else {
-                pos += (dir === 'L') ? -1 : 1;
-            }
-        }
-        return positions;
-    }
-
     function createNode(chapter, lesson, wavePos) {
         const isTreasure = lesson.type === 'treasure';
         const isFlag = lesson.type === 'flag';
-        const pos = posMap[wavePos] || 0;
+        const pos = positionMap.get(wavePos) || 0;
         const progress = chapter.userProgress[lesson.id] || {};
         let classes = 'path-node';
         let iconHTML = '';
 
         if (isTreasure) {
             classes += ` treasure ${progress.status || 'locked'}`;
-            const filter = getTreasureFilter(progress.status);
-            iconHTML = `<img src="/assets/icons/phosphor/duotone/treasure-chest.svg" alt="Chest" style="width:53px;height:53px;${filter}">`;
+            iconHTML = `<img src="/assets/icons/phosphor/duotone/treasure-chest.svg" alt="Chest" style="width:53px;height:53px;">`;
         } else if (isFlag) {
             classes += ' flag';
             if (progress.mastered) classes += ' mastered';
@@ -168,10 +139,7 @@
             iconHTML = getNodeIconSVG('joystick', isCompleted, isMastered);
         }
 
-        // For treasure nodes, add pulsing animation when unlocked
-        const pulseClass = (isTreasure && progress.status === 'unlocked') ? ' treasure-unlocked' : '';
-
-        return `<div class="${classes}${pulseClass}" id="${lesson.id}" data-lesson="${lesson.id}" style="position:relative;left:${pos}px;">
+        return `<div class="${classes}" id="${lesson.id}" data-lesson="${lesson.id}" style="position:relative;left:${pos}px;">
             <div class="node-icon">${iconHTML}</div>
         </div>`;
     }
@@ -179,12 +147,14 @@
     function renderChapter(chapter) {
         const pathEl = document.getElementById(chapter.learningPathId);
         if (!pathEl) return;
-
-        const positions = getWavePositions(chapter.lessons.length);
-
+        let wave = 0;
+        let direction = 1;
         let html = '<div class="path-group">';
         chapter.lessons.forEach((lesson, index) => {
-            html += createNode(chapter, lesson, positions[index]);
+            html += createNode(chapter, lesson, wave);
+            if (wave === 2) direction = -1;
+            else if (wave === -2) direction = 1;
+            else wave += direction;
         });
         html += '</div>';
         pathEl.innerHTML = html;
@@ -223,11 +193,6 @@
                 progress.status = 'unlocked';
                 node.classList.remove('locked');
                 node.classList.add('unlocked');
-                // Update chest icon with gold filter
-                const img = node.querySelector('img');
-                if (img) {
-                    img.style.filter = 'brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%)';
-                }
                 setTimeout(() => {
                     setActiveNode(node, chapter);
                     showTreasure(chapter, node);
@@ -435,10 +400,6 @@
 
     // ---------- LESSON ACTIONS ----------
     function startLesson(chapter, lessonId) {
-        // Redirect to the lesson page using the actual lesson ID from config
-        const lesson = chapter.lessons.find(l => l.id === lessonId);
-        if (!lesson) return;
-        // The lesson ID is the same as the JSON filename
         window.location.href = `/pages/lesson.html?course=${config.courseId}&lesson=${lessonId}`;
     }
 
@@ -505,11 +466,6 @@
                 progress.status = 'collected';
                 node.classList.remove('unlocked');
                 node.classList.add('collected');
-                // Keep gold filter
-                const img = node.querySelector('img');
-                if (img) {
-                    img.style.filter = 'brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%)';
-                }
                 treasurePanel.classList.remove('active');
                 overlay.classList.remove('active');
                 currentChapter.currentTreasureReward = null;
@@ -540,10 +496,6 @@
                         progress.status = 'unlocked';
                         node.classList.remove('locked');
                         node.classList.add('unlocked');
-                        const img = node.querySelector('img');
-                        if (img) {
-                            img.style.filter = 'brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%)';
-                        }
                         setTimeout(() => {
                             setActiveNode(node, chapter);
                             showTreasure(chapter, node);

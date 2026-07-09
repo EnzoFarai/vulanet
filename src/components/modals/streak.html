@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Streak</title>
-  <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../../..//assets/fonts/fonts.css">
   <script src="../../../src/lib/html2canvas.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -216,11 +216,11 @@
 </head>
 <body>
 <div class="header">
-  <div class="header-icon" id="exit-button"><img src="../../../public/assets/icons/material-symbols/outline/close.svg" alt="Close"></div>
-  <div class="header-icon" id="share-button"><img src="../../../public/assets/icons/material-symbols/outline/upload.svg" alt="Share"></div>
+  <div class="header-icon" id="exit-button"><img src="../../..//assets/icons/material-symbols/outline/close.svg" alt="Close"></div>
+  <div class="header-icon" id="share-button"><img src="../../..//assets/icons/material-symbols/outline/upload.svg" alt="Share"></div>
 </div>
 <div class="container">
-  <div class="flame" id="flame"><img src="../../../public/assets/lottie/1f525-static.png" alt="flame"></div>
+  <div class="flame" id="flame"><img src="../../..//assets/lottie/1f525-static.png" alt="flame"></div>
   <h1 class="streak-number" id="streakNumber">1</h1>
   <div class="streak-text" id="streakText">day streak!</div>
   <div class="card">
@@ -235,7 +235,7 @@
   <div class="share-content">
     <div class="share-card" id="share-card">
       <div class="mini-streak">
-        <img src="../../../public/assets/lottie/1f525-static.png" width="60" alt="flame" style="margin-bottom: 4px;">
+        <img src="../../..//assets/lottie/1f525-static.png" width="60" alt="flame" style="margin-bottom: 4px;">
         <div class="share-streak-number" id="shareStreakNumber">1</div>
         <div class="share-streak-text">day streak!</div>
         <div class="share-message" id="shareMessage"></div>
@@ -244,21 +244,21 @@
     </div>
     <div class="share-sheet">
       <div class="share-grid">
-        <div class="share-item" id="share-facebook"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/facebook-full.svg" alt="Facebook"></div></div><div class="share-text">Facebook</div></div>
-        <div class="share-item" id="share-x"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/x-twitter.svg" alt="X"></div></div><div class="share-text">X</div></div>
-        <div class="share-item" id="share-whatsapp"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/social/whatsapp.svg" alt="WhatsApp"></div></div><div class="share-text">WhatsApp</div></div>
-        <div class="share-item" id="share-sms"><div class="share-icon-circle"><div class="share-icon"><img src="../../../public/assets/icons/material-symbols/outline/sms.svg" alt="SMS"></div></div><div class="share-text">Message</div></div>
+        <div class="share-item" id="share-facebook"><div class="share-icon-circle"><div class="share-icon"><img src="../../..//assets/icons/social/facebook-full.svg" alt="Facebook"></div></div><div class="share-text">Facebook</div></div>
+        <div class="share-item" id="share-x"><div class="share-icon-circle"><div class="share-icon"><img src="../../..//assets/icons/social/x-twitter.svg" alt="X"></div></div><div class="share-text">X</div></div>
+        <div class="share-item" id="share-whatsapp"><div class="share-icon-circle"><div class="share-icon"><img src="../../..//assets/icons/social/whatsapp.svg" alt="WhatsApp"></div></div><div class="share-text">WhatsApp</div></div>
+        <div class="share-item" id="share-sms"><div class="share-icon-circle"><div class="share-icon"><img src="../../..//assets/icons/material-symbols/outline/sms.svg" alt="SMS"></div></div><div class="share-text">Message</div></div>
       </div>
       <div class="bottom-grid">
-        <div class="bottom-item" id="save-image"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../../public/assets/icons/material-symbols/outline/download.svg" alt="Download"></div></div><div class="bottom-text">Save image</div></div>
-        <div class="bottom-item" id="more-options"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../../public/assets/icons/material-symbols/outline/more_horiz.svg" alt="More"></div></div><div class="bottom-text">More</div></div>
+        <div class="bottom-item" id="save-image"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../..//assets/icons/material-symbols/outline/download.svg" alt="Download"></div></div><div class="bottom-text">Save image</div></div>
+        <div class="bottom-item" id="more-options"><div class="bottom-icon-circle"><div class="bottom-icon"><img src="../../..//assets/icons/material-symbols/outline/more_horiz.svg" alt="More"></div></div><div class="bottom-text">More</div></div>
       </div>
     </div>
   </div>
 </div>
 <script>
   (function() {
-    const streakAudio = new Audio('../../../public/assets/audio/streak.mp3');
+    const streakAudio = new Audio('../../..//assets/audio/streak.mp3');
     streakAudio.play().catch(e => console.log("Audio play failed:", e));
 
     function getTodayInTimezone(tz) {
@@ -391,10 +391,10 @@
       const tick = document.createElement('div');
       tick.className = 'tick';
       if (status === 'revived') {
-        tick.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/first-aid.svg" alt="Revive">';
+        tick.innerHTML = '<img src="../../..//assets/icons/phosphor/fill/first-aid.svg" alt="Revive">';
         tick.classList.add('freeze');
       } else {
-        tick.innerHTML = '<img src="../../../public/assets/icons/phosphor/fill/check-fat.svg" alt="✓">';
+        tick.innerHTML = '<img src="../../..//assets/icons/phosphor/fill/check-fat.svg" alt="✓">';
         if (status === 'completed') {
           const isTodayPos = isEarlyUser ? (idx === totalAppDays - 1) : (idx === 6);
           if (isTodayPos) tick.classList.add('grey');

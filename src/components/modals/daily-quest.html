@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Daily Quests</title>
-  <link rel="stylesheet" href="../../../public/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="../../..//assets/fonts/fonts.css">
   <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -116,7 +116,7 @@
 <div class="daily-quests-module">
   <div class="daily-header-row">
     <div class="section-title">Daily Quests</div>
-    <div class="time-cta" id="timeCta"><img src="../../../public/assets/icons/phosphor/bold/clock-countdown.svg" alt="" id="clockIcon"><span id="timeLeft">20 MINUTES</span></div>
+    <div class="time-cta" id="timeCta"><img src="../../..//assets/icons/phosphor/bold/clock-countdown.svg" alt="" id="clockIcon"><span id="timeLeft">20 MINUTES</span></div>
   </div>
   <div class="card quests" id="questsContainer"></div>
   <div class="continue-action"><button class="btn btn-md btn-carpenter-blue" id="continueButton">CONTINUE</button></div>
@@ -208,7 +208,7 @@
             </div>
           </div>
           <div class="chest ${q.id} ${q.claimed ? 'claimed' : ''} ${!complete ? 'disabled' : ''}" data-id="${q.id}" data-coins="${q.coins}">
-            <img src="../../../public/assets/icons/phosphor/duotone/treasure-chest.svg" alt="chest">
+            <img src="../../..//assets/icons/phosphor/duotone/treasure-chest.svg" alt="chest">
           </div>
         `;
         container.appendChild(row);
