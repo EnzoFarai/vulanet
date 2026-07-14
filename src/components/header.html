@@ -67,6 +67,75 @@
     <div class="timer">Next heart in <span id="heartTimer">30m</span></div>
     <div class="hearts-button refill-button" id="refillHeartsButton">
       <div class="left"><img src="/assets/icons/phosphor/fill/heart.svg"><span>REFILL HEARTS</span></div>
+<!-- src/components/header.html -->
+<header>
+  <div class="container">
+    <div class="header-content">
+      <div class="logo">
+        <img src="/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vulanet" class="logo-icon">
+        <span class="logo-text">vulanet</span>
+      </div>
+      <div class="user-stats">
+        <div class="stat-item" id="activeCourseItem">
+          <div class="icon-box course-icon" id="activeCourseIcon">
+            <img src="/assets/courses/g12-life-sciences.png" alt="Course" class="course-icon-img">
+          </div>
+          <span id="activeCourseLevel">1</span>
+        </div>
+        <div class="stat-item" id="streakItem">
+          <div class="icon-box">
+            <img src="/assets/icons/phosphor/fill/fire.svg" alt="Streak" class="stat-icon streak">
+          </div>
+          <span id="streakCount">1</span>
+        </div>
+        <div class="stat-item" id="coinsItem">
+          <div class="icon-box">
+            <img src="/assets/icons/phosphor/duotone/coin-vertical.svg" alt="Coins" class="stat-icon coins">
+          </div>
+          <span>500</span>
+        </div>
+        <div class="stat-item" id="heartsItem">
+          <div class="icon-box">
+            <img src="/assets/icons/phosphor/fill/heart.svg" alt="Hearts" class="stat-icon hearts">
+          </div>
+          <span>5</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Course Switcher Panel -->
+<div class="course-panel-container" id="coursePanelContainer">
+  <div class="course-panel">
+    <div class="courses-slider" id="coursesSlider"></div>
+    <div class="course-progress">
+      <div class="progress-info">
+        <span class="progress-current" id="currentLevel">Level 1</span>
+        <span class="progress-next" id="nextLevel">Level 2</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="course-status" id="courseStatus">You are on Level 1</div>
+      <a href="#" class="levels-link">MORE ABOUT LEVELS</a>
+    </div>
+  </div>
+</div>
+
+<!-- Hearts Panel -->
+<div class="hearts-panel-container" id="heartsPanelContainer">
+  <div class="hearts-panel">
+    <div class="hearts-display">
+      <img src="/assets/icons/phosphor/fill/heart.svg" class="heart-icon full">
+      <img src="/assets/icons/phosphor/fill/heart.svg" class="heart-icon full">
+      <img src="/assets/icons/phosphor/fill/heart.svg" class="heart-icon full">
+      <img src="/assets/icons/phosphor/duotone/heart.svg" class="heart-icon next">
+      <img src="/assets/icons/phosphor/regular/heart.svg" class="heart-icon empty">
+    </div>
+    <div class="timer">Next heart in <span id="heartTimer">30m</span></div>
+    <div class="hearts-button refill-button" id="refillHeartsButton">
+      <div class="left"><img src="/assets/icons/phosphor/fill/heart.svg"><span>REFILL HEARTS</span></div>
       <div class="coins-display"><img src="/assets/icons/phosphor/duotone/coin-vertical.svg"><span id="refillPrice">500</span></div>
     </div>
     <a href="#" class="hearts-button practice-button">

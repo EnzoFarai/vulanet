@@ -62,12 +62,12 @@
             position: absolute;
             right: 15px;
             bottom: 15px;
-            width: 100px;
-            height: 100px;
+            font-size: 100px;
             opacity: 0.2;
             transform: rotate(-15deg);
+            color: var(--accent-red);
         }
-        .crosshair-icon img { width: 100%; height: 100%; filter: brightness(0) saturate(100%) invert(100%); }
+        .crosshair-icon img { width: 100px; height: 100px; filter: brightness(0) saturate(100%) invert(100%); }
 
         .section-title {
             font-weight: 700;
@@ -98,9 +98,9 @@
         }
         .card:active { transform: scale(0.98); }
         .card .label { font-weight: 700; font-size: 16px; }
-        .card .icon { width: 26px; height: 26px; transform: rotate(-10deg); }
+        .card .icon { width: 26px; height: 26px; }
 
-        /* Icon colour filters – with tilt */
+        /* Icon colour filters */
         .icon-read { filter: brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%); }
         .icon-mistakes { filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(7236%) hue-rotate(1deg) brightness(93%) contrast(118%); }
         .icon-bookmarks { filter: brightness(0) saturate(100%) invert(25%) sepia(67%) saturate(3032%) hue-rotate(234deg) brightness(93%) contrast(96%); }
@@ -110,12 +110,15 @@
 
         @media (max-width: 768px) {
             .practice-section p { max-width: 70%; }
-            .crosshair-icon { width: 80px; height: 80px; }
+            .crosshair-icon { font-size: 80px; }
+            .crosshair-icon img { width: 80px; height: 80px; }
         }
     </style>
 </head>
 <body>
+    <!-- Header will be injected by layout.js -->
     <div class="container">
+        <!-- Practice Hub Section -->
         <section class="practice-section">
             <h3>Practice Hub</h3>
             <p>Sharpen your skills. Train where you're weakest. Repeat for mastery.</p>
@@ -124,6 +127,7 @@
             </div>
         </section>
 
+        <!-- Study Section -->
         <h3 class="section-title">Study</h3>
         <div class="card-container">
             <div class="card" id="readCard">
@@ -140,6 +144,7 @@
             </div>
         </div>
 
+        <!-- Saved Section -->
         <h3 class="section-title">Saved</h3>
         <div class="card-container">
             <div class="card" id="bookmarksCard">
@@ -167,14 +172,18 @@
     <script type="module">
         import { loadLayout } from './src/js/layout.js';
 
+        // Load header/footer
         await loadLayout();
 
+        // Get the active course from localStorage
         const activeCourseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
 
+        // Redirect "Read" to the course's table of contents
         document.getElementById('readCard').addEventListener('click', () => {
-            window.location.href = `/read/${activeCourseId}.html`;
+            window.location.href = `/read/${activeCourseId}/index.html`;
         });
 
+        // Other cards – placeholder for now
         document.getElementById('mistakesCard').addEventListener('click', () => {
             alert('Mistakes review – coming soon!');
         });

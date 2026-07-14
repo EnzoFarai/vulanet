@@ -14,8 +14,9 @@ const ALL_COURSES = [
     { id: 'financial-accounting', name: 'Financial Accounting', level: 1, max: 6, img: '/assets/courses/financial-accounting.png' },
 ];
 
+// Helper: Get course progress (internal use only)
 function getCourseProgress(courseId) {
-    const totalLessons = 50;
+    const totalLessons = 50; // Placeholder – in real app, fetch from course data
     let completedLessons = 0;
     try {
         const progress = JSON.parse(localStorage.getItem(`vulanet_progress_${courseId}`) || '{}');
@@ -30,6 +31,7 @@ function getCourseProgress(courseId) {
     return { completed: completedLessons, total: totalLessons };
 }
 
+// Expose function to update header stats from any page
 window.updateHeaderStats = function(coins, hearts, streak) {
     if (coins !== undefined) {
         localStorage.setItem('coins', String(coins));
@@ -40,6 +42,7 @@ window.updateHeaderStats = function(coins, hearts, streak) {
         localStorage.setItem('hearts', String(hearts));
         const heartsSpan = document.querySelector('#heartsItem span');
         if (heartsSpan) heartsSpan.textContent = hearts;
+        // Update hearts panel UI
         updateHeartsUI();
     }
     if (streak !== undefined) {
@@ -50,18 +53,13 @@ window.updateHeaderStats = function(coins, hearts, streak) {
 };
 
 export async function loadLayout() {
-    if (window.__VULANET_READING_PAGE) {
-        await loadFooterOnly();
+    if (layoutLoaded) {
+        console.log('Layout already loaded.');
         return;
     }
 
     const path = window.location.pathname;
     if (path.includes('/pages/lesson.html') || path.includes('/pages/practice.html')) {
-        return;
-    }
-
-    if (layoutLoaded) {
-        console.log('Layout already loaded.');
         return;
     }
 
@@ -74,7 +72,14 @@ export async function loadLayout() {
         console.error('Failed to load header:', e);
     }
 
-    await loadFooterOnly();
+    try {
+        const resp = await fetch('/src/components/footer.html');
+        if (!resp.ok) throw new Error('Footer not found');
+        const html = await resp.text();
+        document.body.insertAdjacentHTML('beforeend', html);
+    } catch (e) {
+        console.error('Failed to load footer:', e);
+    }
 
     layoutLoaded = true;
     document.body.classList.add('has-header');
@@ -83,20 +88,8 @@ export async function loadLayout() {
     initFooter();
 }
 
-async function loadFooterOnly() {
-    try {
-        const resp = await fetch('/src/components/footer.html');
-        if (!resp.ok) throw new Error('Footer not found');
-        const html = await resp.text();
-        if (!document.querySelector('nav')) {
-            document.body.insertAdjacentHTML('beforeend', html);
-        }
-    } catch (e) {
-        console.error('Failed to load footer:', e);
-    }
-}
-
 async function initHeader() {
+    // Read from localStorage or user profile
     let coins = parseInt(localStorage.getItem('coins') || '500');
     let hearts = parseInt(localStorage.getItem('hearts') || '5');
     let streak = parseInt(localStorage.getItem('userStreakDays') || '1');
@@ -270,15 +263,18 @@ function renderCoursesSlider() {
     const slider = document.getElementById('coursesSlider');
     if (!slider) return;
 
+    // Get user's added courses from localStorage
     let userCourseIds = JSON.parse(localStorage.getItem('userCourses') || '[]');
     const activeId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
     
+    // If no courses added, default to the current one
     if (userCourseIds.length === 0) {
         userCourseIds = [activeId];
         localStorage.setItem('userCourses', JSON.stringify(userCourseIds));
     }
 
     let html = '';
+    // Show user's courses (no percentage)
     userCourseIds.forEach(id => {
         const course = ALL_COURSES.find(c => c.id === id);
         if (course) {
@@ -292,6 +288,7 @@ function renderCoursesSlider() {
         }
     });
 
+    // Add the "+ Course" item
     html += `
         <div class="add-course-slider">
             <div class="add-course-slider-icon">
@@ -321,7 +318,7 @@ function updateCourseProgress(courseId) {
     const progress = getCourseProgress(courseId);
     const pct = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
     
-    const level = Math.floor(pct / 16.67) + 1;
+    const level = Math.floor(pct / 16.67) + 1; // 6 levels (100/6 = 16.67)
     const currentLevelEl = document.getElementById('currentLevel');
     const nextLevelEl = document.getElementById('nextLevel');
     const progressBar = document.getElementById('progressBar');
@@ -610,46 +607,32 @@ function initShareOverlay() {
 
 function initFooter() {
     const navItems = document.querySelectorAll('.nav-item');
-    const activeCourseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
-    
     navItems.forEach(item => {
-        const view = item.dataset.view;
-        
-        const path = window.location.pathname;
-        if (view === 'home' && (path === '/' || path === `/${activeCourseId}.html` || path.includes('/read/'))) {
-            item.classList.add('active');
-        } else if (view === 'book' && path.includes('/practice-hub.html')) {
-            item.classList.add('active');
-        }
-        
         item.addEventListener('click', (e) => {
             e.preventDefault();
             navItems.forEach(n => n.classList.remove('active'));
             item.classList.add('active');
-            
-            switch(view) {
-                case 'home':
-                    const courseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
-                    window.location.href = `/${courseId}.html`;
-                    break;
-                case 'book':
-                    window.location.href = '/practice-hub.html';
-                    break;
-                case 'ranking':
-                    alert('Leaderboard – coming soon!');
-                    break;
-                case 'treasure':
-                    alert('Treasure – coming soon!');
-                    break;
-                case 'user':
-                    alert('Profile – coming soon!');
-                    break;
-                case 'bell':
-                    alert('Notifications – coming soon!');
-                    break;
-                default:
-                    break;
-            }
+            const view = item.dataset.view;
+            updateHeaderVisibility(view);
         });
     });
+}
+
+function updateHeaderVisibility(view) {
+    const statItems = document.querySelectorAll('.stat-item');
+    statItems.forEach(el => el.classList.remove('header-icon-hidden'));
+
+    if (['ranking', 'treasure', 'bell'].includes(view)) {
+        const activeCourse = document.getElementById('activeCourseItem');
+        const streak = document.getElementById('streakItem');
+        const coins = document.getElementById('coinsItem');
+        const hearts = document.getElementById('heartsItem');
+        if (activeCourse) activeCourse.classList.add('header-icon-hidden');
+        if (streak) streak.classList.add('header-icon-hidden');
+        if (coins) coins.classList.add('header-icon-hidden');
+        if (hearts) hearts.classList.add('header-icon-hidden');
+    } else if (view === 'user') {
+        const activeCourse = document.getElementById('activeCourseItem');
+        if (activeCourse) activeCourse.classList.add('header-icon-hidden');
+    }
 }

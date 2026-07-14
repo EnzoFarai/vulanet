@@ -13,148 +13,9 @@
         .no-match-modal { background: #DB4437; }
         main ::selection { background-color: rgba(219,68,55,0.3); }
         .fontsize-panel input[type=range]::-webkit-slider-thumb { background: #DB4437; }
-        #sizeLabel { color: #DB4437 !important; }
-        
-        .toc-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.4);
-            z-index: 2000;
-            display: none;
-            justify-content: flex-start;
-            align-items: flex-start;
-            padding: 0;
-        }
-        .toc-overlay.show { display: flex; }
-        .toc-sidebar {
-            width: 380px;
-            max-width: 85vw;
-            height: 100%;
-            background: #ffffff;
-            box-shadow: 0 0 40px rgba(0,0,0,0.2);
-            padding: 24px 20px 20px 20px;
-            overflow-y: auto;
-            transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-        }
-        .toc-overlay.show .toc-sidebar { transform: translateX(0); }
-        .toc-sidebar::-webkit-scrollbar { width: 4px; }
-        .toc-sidebar::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 4px; }
-        .toc-sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 16px;
-            border-bottom: 2px solid #f0f2f5;
-            margin-bottom: 16px;
-            flex-shrink: 0;
-        }
-        .toc-sidebar-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 700;
-            font-size: 16px;
-            letter-spacing: 1.8px;
-            text-transform: uppercase;
-            color: #2c3e50;
-        }
-        .toc-course-icon { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; }
-        .toc-close-btn { background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
-        .toc-sidebar-body { flex: 1; overflow-y: auto; padding-right: 4px; }
-        .toc-unit { margin-bottom: 4px; }
-        .toc-unit-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 4px 12px 0;
-            font-weight: 700;
-            font-size: 17px;
-            color: #1f3348;
-            cursor: pointer;
-            border-top: 1px solid #edf0f3;
-            transition: background 0.15s;
-        }
-        .toc-unit-title:hover { background: #f4f7fc; }
-        .toc-unit-title:first-of-type { border-top: none; }
-        .toc-unit-title .toc-chevron { width: 18px; height: 18px; transition: transform 0.3s ease; }
-        .toc-unit-title .toc-chevron.open { transform: rotate(90deg); }
-        .toc-chapter-list {
-            overflow: hidden;
-            max-height: 0;
-            opacity: 0;
-            transition: max-height 0.4s ease, opacity 0.3s ease;
-        }
-        .toc-chapter-list.open { max-height: 2000px; opacity: 1; }
-        .toc-chapter { margin: 0; }
-        .toc-chapter-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 8px 10px 16px;
-            font-weight: 600;
-            font-size: 15px;
-            color: #4a5f74;
-            cursor: pointer;
-            border-left: 4px solid transparent;
-            transition: background 0.15s;
-        }
-        .toc-chapter-title:hover { background: #f4f7fc; }
-        .toc-chapter-title .toc-chevron { width: 16px; height: 16px; transition: transform 0.3s ease; }
-        .toc-chapter-title .toc-chevron.open { transform: rotate(90deg); }
-        .toc-lesson-list {
-            overflow: hidden;
-            max-height: 0;
-            opacity: 0;
-            transition: max-height 0.35s ease, opacity 0.3s ease;
-        }
-        .toc-lesson-list.open { max-height: 1500px; opacity: 1; }
-        .toc-lesson {
-            padding: 8px 12px 8px 48px;
-            font-weight: 400;
-            font-size: 14px;
-            color: #5a6f84;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: background 0.15s, color 0.15s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .toc-lesson:hover { background: #f4f7fc; color: #DB4437; }
-        .toc-lesson.active { color: #DB4437; background: #fce8e6; font-weight: 600; }
-        .toc-lesson .lesson-number {
-            display: inline-block;
-            color: #6a7f94;
-            font-weight: 500;
-            font-size: 13px;
-            min-width: 22px;
-            height: 22px;
-            line-height: 22px;
-            text-align: center;
-            background: #f2f5f9;
-            border-radius: 30px;
-            padding: 0 6px;
-            flex-shrink: 0;
-        }
-        .toc-lesson.active .lesson-number { background: #fce8e6; color: #DB4437; }
-        /* Pharmacology chapter colours */
-        .toc-chapter-title.chapter-1 { border-left-color: #EA4335; }
-        .toc-chapter-title.chapter-2 { border-left-color: #FF6D01; }
-        .toc-chapter-title.chapter-3 { border-left-color: #AA00FF; }
-        .toc-chapter-title.chapter-4 { border-left-color: #DB4437; }
-
-        @media (max-width: 480px) {
-            .toc-sidebar { width: 100%; max-width: 100%; padding: 16px; }
-            .toc-lesson { padding-left: 36px; font-size: 13px; }
-            .toc-chapter-title { padding-left: 12px; font-size: 14px; }
-            .toc-unit-title { font-size: 16px; }
-        }
+        .toc-lesson.active { color: #DB4437; }
+        .drug-section { background-color: #fff0f6; border-left: 4px solid #ff69b4; }
+        .drug-section h2 { color: #c2185b; border-bottom-color: rgba(194,24,91,0.2); }
     </style>
 </head>
 <body>
@@ -185,12 +46,11 @@
             <div class="search-box" id="searchBox">
                 <input id="searchInput" type="text" placeholder="Find in page...">
                 <div class="search-icons">
-                    <img src="/assets/icons/phosphor/regular/x.svg" class="clear-btn" id="clearSearchBtn" alt="Clear">
-                    <img src="/assets/icons/phosphor/regular/magnifying-glass.svg" class="search-icon" id="defaultSearchIcon" alt="Search">
-                    <img src="/assets/icons/phosphor/fill/magnifying-glass.svg" class="active-search-icon" id="activeSearchIcon" alt="Search active">
+                    <i class="ph ph-x clear-btn" id="clearSearchBtn"></i>
+                    <i class="ph-thin ph-list-magnifying-glass search-icon" id="defaultSearchIcon"></i>
+                    <i class="ph-bold ph-magnifying-glass active-search-icon" id="activeSearchIcon"></i>
                 </div>
             </div>
-            <span class="match-counter" id="matchCounter"></span>
             <div style="position:relative">
                 <button id="fontToggle" class="icon-btn" aria-label="Text size">
                     <div class="aa-button"><span class="small-a">A</span><span class="large-a">A</span></div>
@@ -198,7 +58,7 @@
                 <div id="fontPanel" class="fontsize-panel" role="dialog">
                     <div class="fontsize-panel-header">
                         <div class="fontsize-panel-title">Text Size</div>
-                        <button class="fontsize-close-btn" id="fontCloseBtn" aria-label="Close"><img src="/assets/icons/phosphor/regular/x.svg" style="width:16px;height:16px;" alt="Close"></button>
+                        <button class="fontsize-close-btn" id="fontCloseBtn"><i class="ph ph-x" style="font-size:16px;"></i></button>
                     </div>
                     <div style="font-size:13px;color:#666;margin-bottom:15px;">Adjust the content text size</div>
                     <div class="row fontsize-controls">
@@ -206,7 +66,7 @@
                         <input id="sizeRange" type="range" min="14" max="24" step="1" value="16">
                         <button id="incBtn" class="btn-lg">A+</button>
                     </div>
-                    <div style="margin-top:15px;font-size:13px;color:#666;text-align:center">Current: <span id="sizeLabel" style="font-weight:700;">16px</span></div>
+                    <div style="margin-top:15px;font-size:13px;color:#666;text-align:center">Current: <span id="sizeLabel" style="font-weight:700;color:#DB4437;">16px</span></div>
                 </div>
             </div>
         </div>
@@ -324,12 +184,8 @@
                 </ul>
             </div>
 
-            <!-- NODE: Ready to test your understanding? -->
-            <div class="lesson-node-container">
-                <div class="node-prompt">Ready to test your understanding?</div>
-                <a href="/pages/lesson.html?course=pharmacology-ii&lesson=intro-anticoagulants" class="start-node">
-                    <img src="/assets/icons/phosphor/bold/arrow-right.svg" alt="Arrow"> Start Lesson
-                </a>
+            <div style="margin-top: 40px; border-top: 2px solid #eee; padding-top: 30px; text-align: center;">
+                <p style="color: #888; font-size: 0.9em;">Ready to test your understanding? <br> <a href="/pages/lesson.html?course=pharmacology-ii&lesson=intro-anticoagulants" style="display:inline-block; background:#DB4437; color:#fff; padding: 10px 24px; border-radius: 8px; text-decoration:none; font-weight:700; margin-top:12px;">Start Lesson →</a></p>
             </div>
         </article>
     </main>
@@ -343,11 +199,11 @@
 
     <div class="selection-toolbar" id="selectionToolbar">
         <button id="removeHighlightBtn" style="display:none;">
-            <div class="remove-highlight-container" id="removeHighlightContainer"><img src="/assets/icons/phosphor/regular/x.svg" style="width:20px;height:20px;"></div>
+            <div class="remove-highlight-container" id="removeHighlightContainer"><i class="ph ph-x" style="color:black;"></i></div>
             <span class="button-text">Remove</span>
         </button>
         <button id="highlightBtn">
-            <div class="highlighter-icon-container"><img src="/assets/icons/phosphor/regular/highlighter.svg" style="width:20px;height:20px;"></div>
+            <div class="highlighter-icon-container"><i class="ph ph-highlighter"></i></div>
             <span class="button-text">Highlight</span>
         </button>
         <div class="color-picker" id="colorPicker">
@@ -360,120 +216,25 @@
                 <div class="color-option violet" onclick="highlightSelection('violet')" title="Violet"></div>
             </div>
         </div>
-        <button onclick="noteSelection()"><img src="/assets/icons/phosphor/regular/note-pencil.svg" style="width:20px;height:20px;"><span class="button-text">Note</span></button>
-        <button onclick="copySelection()"><img src="/assets/icons/phosphor/regular/copy.svg" style="width:20px;height:20px;"><span class="button-text">Copy</span></button>
-        <button onclick="shareSelection()"><img src="/assets/icons/phosphor/fill/share-network.svg" style="width:20px;height:20px;"><span class="button-text">Share</span></button>
+        <button onclick="noteSelection()"><i class="ph ph-note-pencil"></i><span class="button-text">Note</span></button>
+        <button onclick="copySelection()"><i class="ph ph-copy"></i><span class="button-text">Copy</span></button>
+        <button onclick="shareSelection()"><i class="ph-fill ph-share-network" style="font-size:20px;"></i><span class="button-text">Share</span></button>
     </div>
 
     <div class="toast" id="toast"></div>
 
     <div class="toc-overlay" id="tocOverlay">
-        <div class="toc-sidebar">
-            <div class="toc-sidebar-header">
-                <div class="toc-sidebar-title">
-                    <img src="/assets/courses/pharmacology-ii.png" alt="Course" class="toc-course-icon" id="tocCourseIcon">
-                    <span>Table of Contents</span>
-                </div>
-                <button class="toc-close-btn" id="tocCloseBtn">
-                    <img src="/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:24px;height:24px;">
-                </button>
-            </div>
-            <div class="toc-sidebar-body" id="tocContent"></div>
+        <div class="toc-panel">
+            <button class="toc-close" id="tocCloseBtn">✕</button>
+            <h2>Table of Contents</h2>
+            <div id="tocContent"></div>
         </div>
     </div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
-            }
-        }
-    </script>
-    <script type="module">
-        import { loadLayout } from '/src/js/layout.js';
-
+    <script>
         window.__VULANET_READING_PAGE = true;
-        await loadLayout();
 
-        // ---- TOC OVERLAY ----
-        const tocOverlay = document.getElementById('tocOverlay');
-        const tocCloseBtn = document.getElementById('tocCloseBtn');
-        const menuBtn = document.getElementById('menuBtn');
-
-        function loadTOC() {
-            const container = document.getElementById('tocContent');
-            container.innerHTML = `
-                <div class="toc-unit">
-                    <div class="toc-unit-title open" onclick="toggleTOCUnit(this)">
-                        <span>Unit 1</span>
-                        <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron open">
-                    </div>
-                    <div class="toc-chapter-list open">
-                        <div class="toc-chapter">
-                            <div class="toc-chapter-title chapter-1 open" onclick="toggleTOCChapter(this)">
-                                <span>Chapter 1: Anticoagulants</span>
-                                <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron open">
-                            </div>
-                            <div class="toc-lesson-list open">
-                                <div class="toc-lesson active" onclick="window.location.href='/read/pharmacology-ii/introduction-to-anticoagulants.html'"><span class="lesson-number">1</span>Introduction</div>
-                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">2</span>Advanced Parenteral Anticoagulants</div>
-                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">3</span>Oral Anticoagulants</div>
-                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">4</span>DOACs and Therapeutic Uses</div>
-                            </div>
-                        </div>
-                        <div class="toc-chapter">
-                            <div class="toc-chapter-title chapter-2" onclick="toggleTOCChapter(this)">
-                                <span>Chapter 2: Thrombolytics And Antiplatelet Agents</span>
-                                <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron">
-                            </div>
-                            <div class="toc-lesson-list">
-                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">1</span>Fibrinolysis</div>
-                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">2</span>Thrombolytic Drugs</div>
-                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">3</span>Uses and Contraindications</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        window.toggleTOCUnit = function(el) {
-            el.classList.toggle('open');
-            const list = el.nextElementSibling;
-            if (list) list.classList.toggle('open');
-        };
-        window.toggleTOCChapter = function(el) {
-            el.classList.toggle('open');
-            const list = el.nextElementSibling;
-            if (list) list.classList.toggle('open');
-        };
-
-        menuBtn.addEventListener('click', () => {
-            tocOverlay.classList.add('show');
-            if (!document.getElementById('tocContent').children.length) loadTOC();
-        });
-        tocCloseBtn.addEventListener('click', () => { tocOverlay.classList.remove('show'); });
-        tocOverlay.addEventListener('click', (e) => {
-            if (e.target === tocOverlay) tocOverlay.classList.remove('show');
-        });
-
-        // ---- BOOKMARK TOGGLE ----
-        const bookmarkBtn = document.getElementById('bookmarkBtn');
-        bookmarkBtn.addEventListener('click', function() {
-            const isBookmarked = this.classList.toggle('bookmarked');
-            const svg = this.querySelector('svg');
-            if (isBookmarked) {
-                svg.setAttribute('fill', 'white');
-                svg.setAttribute('stroke', 'white');
-                showToast('Bookmarked!');
-            } else {
-                svg.setAttribute('fill', 'none');
-                svg.setAttribute('stroke', 'white');
-                showToast('Bookmark removed');
-            }
-        });
-
-        // ---- FONT SIZE ----
+        // Font size control (same as G12)
         (function(){
             const panel = document.getElementById('fontPanel');
             const toggle = document.getElementById('fontToggle');
@@ -486,9 +247,9 @@
             function applySize(px){
                 document.documentElement.style.setProperty('--content-size', px + 'px');
                 label.textContent = px + 'px';
-                const ratio = px / 16;
                 const smallA = document.querySelector('.small-a');
                 const largeA = document.querySelector('.large-a');
+                const ratio = px / 16;
                 if (smallA) smallA.style.fontSize = (14 * ratio) + 'px';
                 if (largeA) largeA.style.fontSize = (18 * ratio) + 'px';
             }
@@ -511,7 +272,7 @@
             });
         })();
 
-        // ---- SEARCH ----
+        // Search (same as G12)
         (function(){
             const searchBox = document.getElementById('searchBox');
             const searchInput = document.getElementById('searchInput');
@@ -523,26 +284,474 @@
             const clearFind = document.getElementById('clearFind');
             const foundInfo = document.getElementById('foundInfo');
             const noMatchModal = document.getElementById('noMatchModal');
-            const matchCounter = document.getElementById('matchCounter');
 
-            let hits = [];
-            let current = -1;
+            let hits = []; let current = -1;
 
             function escapeRegExp(string){ return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
             function updateSearchBoxState(){
                 const hasText = searchInput.value.length > 0;
-                if (hasText) {
-                    searchBox.classList.add('has-text');
-                    performSearch();
-                } else {
-                    searchBox.classList.remove('has-text');
-                    clearHighlights();
-                }
+                if (hasText) searchBox.classList.add('has-text');
+                else searchBox.classList.remove('has-text');
             }
 
             function clearHighlights(){
                 const marks = article.querySelectorAll('mark.search-hit');
                 marks.forEach(m=>{
                     const parent = m.parentNode;
-                    parent
+                    parent.replaceChild(document.createTextNode(m.textContent), m);
+                    parent.normalize();
+                });
+                hits = []; current = -1;
+                foundInfo.textContent = '0 matches';
+                finderFooter.style.display = 'none';
+                searchBox.classList.remove('searching');
+            }
+
+            function highlightAll(term){
+                clearHighlights();
+                if(!term) return;
+                const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, null, false);
+                const nodes = [];
+                while(walker.nextNode()) nodes.push(walker.currentNode);
+                const re = new RegExp(escapeRegExp(term), 'ig');
+                nodes.forEach(node=>{
+                    const parent = node.parentNode;
+                    if(parent && parent.closest && parent.closest('mark.search-hit')) return;
+                    const text = node.textContent;
+                    if(re.test(text)){
+                        const frag = document.createDocumentFragment();
+                        let lastIndex = 0;
+                        text.replace(re, function(match, offset){
+                            if(offset > lastIndex) frag.appendChild(document.createTextNode(text.slice(lastIndex, offset)));
+                            const m = document.createElement('mark');
+                            m.className = 'search-hit';
+                            m.textContent = match;
+                            frag.appendChild(m);
+                            lastIndex = offset + match.length;
+                            return match;
+                        });
+                        if(lastIndex < text.length) frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+                        parent.replaceChild(frag, node);
+                    }
+                });
+                hits = Array.from(article.querySelectorAll('mark.search-hit'));
+                searchBox.classList.add('searching');
+                if(hits.length){ current=0; scrollToHit(current); finderFooter.style.display='flex'; }
+                else {
+                    current=-1;
+                    noMatchModal.classList.add('show');
+                    setTimeout(()=>{ noMatchModal.classList.remove('show'); }, 3000);
+                }
+                updateCounter();
+            }
+
+            function updateCounter(){ foundInfo.textContent = hits.length + (hits.length === 1 ? ' match' : ' matches'); }
+
+            function scrollToHit(index){
+                if(hits.length===0) return;
+                hits.forEach(h=>h.style.outline='none');
+                const el = hits[index];
+                el.scrollIntoView({behavior:'smooth', block:'center'});
+                el.style.outline='3px solid rgba(255,180,0,0.4)';
+                setTimeout(()=>{ el.style.outline='none'; }, 1400);
+                updateCounter();
+            }
+
+            function performSearch(){
+                const term = searchInput.value.trim();
+                if(term) highlightAll(term);
+                else clearHighlights();
+            }
+
+            searchInput.addEventListener('input', updateSearchBoxState);
+            searchInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') performSearch(); });
+            defaultSearchIcon.addEventListener('click', performSearch);
+            activeSearchIcon.addEventListener('click', performSearch);
+            clearSearchBtn.addEventListener('click', ()=>{ searchInput.value=''; updateSearchBoxState(); clearHighlights(); searchInput.focus(); });
+            clearFind.addEventListener('click', ()=>{ searchInput.value=''; updateSearchBoxState(); clearHighlights(); });
+            searchInput.addEventListener('focus', ()=>{ searchBox.classList.remove('searching'); });
+
+            document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') document.getElementById('fontPanel').classList.remove('show'); });
+
+            article.addEventListener('click', (e)=>{
+                const m = e.target.closest('mark.search-hit');
+                if(m){ const idx = hits.indexOf(m); if(idx>=0){ current=idx; scrollToHit(current); } }
+            });
+            updateSearchBoxState();
+        })();
+
+        // Bookmark toggle
+        document.getElementById('bookmarkBtn').addEventListener('click', function() {
+            const isBookmarked = this.classList.toggle('bookmarked');
+            const svg = this.querySelector('svg');
+            if (isBookmarked) {
+                svg.setAttribute('fill', 'white');
+                svg.setAttribute('stroke', 'white');
+                showToast('Bookmarked!');
+            } else {
+                svg.setAttribute('fill', 'none');
+                svg.setAttribute('stroke', 'white');
+                showToast('Bookmark removed');
+            }
+        });
+
+        // TOC overlay
+        const tocOverlay = document.getElementById('tocOverlay');
+        document.getElementById('menuBtn').addEventListener('click', function() {
+            tocOverlay.classList.toggle('show');
+            if (!document.getElementById('tocContent').children.length) loadTOC();
+        });
+        document.getElementById('tocCloseBtn').addEventListener('click', () => { tocOverlay.classList.remove('show'); });
+        tocOverlay.addEventListener('click', (e) => { if (e.target === tocOverlay) tocOverlay.classList.remove('show'); });
+
+        function loadTOC() {
+            const container = document.getElementById('tocContent');
+            container.innerHTML = `
+                <div class="toc-unit">
+                    <div class="toc-unit-title open" onclick="toggleTOCUnit(this)">Unit 1</div>
+                    <div class="toc-chapter-list open">
+                        <div class="toc-chapter">
+                            <div class="toc-chapter-title open" onclick="toggleTOCChapter(this)">Chapter 1: Anticoagulants</div>
+                            <div class="toc-lesson-list open">
+                                <div class="toc-lesson active" onclick="window.location.href='/read/pharmacology-ii/introduction-to-anticoagulants.html'">1. Introduction</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'">2. Advanced Parenteral Anticoagulants</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'">3. Oral Anticoagulants</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'">4. DOACs and Therapeutic Uses</div>
+                            </div>
+                        </div>
+                        <div class="toc-chapter">
+                            <div class="toc-chapter-title" onclick="toggleTOCChapter(this)">Chapter 2: Thrombolytics And Antiplatelet Agents</div>
+                            <div class="toc-lesson-list">
+                                <div class="toc-lesson" onclick="window.location.href='#'">1. Fibrinolysis</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'">2. Thrombolytic Drugs</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'">3. Uses and Contraindications</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleTOCUnit(el) { el.classList.toggle('open'); const list = el.nextElementSibling; if (list) list.classList.toggle('open'); }
+        function toggleTOCChapter(el) { el.classList.toggle('open'); const list = el.nextElementSibling; if (list) list.classList.toggle('open'); }
+
+        // Highlighting, notes, copy, share – same as G12 article
+        // Reuse all the functions from the G12 article – they are identical.
+        // To avoid duplication, we can include them via a shared script, but for now I'll include them inline.
+        // Since the functions are identical, I'll copy them here.
+        let selectionRange = null;
+        let highlightColorPickerVisible = false;
+
+        function getHighlightsState() {
+            const byGroup = JSON.parse(localStorage.getItem('highlightsByGroup') || '{}');
+            const history = JSON.parse(localStorage.getItem('highlightHistory') || '[]');
+            return { byGroup, history };
+        }
+        function setHighlightsState(byGroup, history) {
+            localStorage.setItem('highlightsByGroup', JSON.stringify(byGroup));
+            localStorage.setItem('highlightHistory', JSON.stringify(history));
+        }
+
+        function highlightSelection(color) {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            const groupId = 'hgrp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
+            const groupTimestamp = Date.now();
+            const ranges = [];
+            for (let i = 0; i < selection.rangeCount; i++) ranges.push(selection.getRangeAt(i).cloneRange());
+            let aggregatedText = '';
+            ranges.forEach(range => {
+                const selectedText = range.toString().trim();
+                if (!selectedText) return;
+                aggregatedText += (aggregatedText ? ' ' : '') + selectedText;
+                const article = document.getElementById('articleContent');
+                const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, {
+                    acceptNode: node => range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+                });
+                const nodes = [];
+                let node;
+                while ((node = walker.nextNode())) nodes.push(node);
+                nodes.forEach(textNode => {
+                    if (textNode.textContent.trim() === '') return;
+                    const nodeRange = document.createRange();
+                    nodeRange.selectNodeContents(textNode);
+                    if (range.compareBoundaryPoints(Range.START_TO_START, nodeRange) > 0)
+                        nodeRange.setStart(range.startContainer, range.startOffset);
+                    if (range.compareBoundaryPoints(Range.END_TO_END, nodeRange) < 0)
+                        nodeRange.setEnd(range.endContainer, range.endOffset);
+                    const fragment = nodeRange.extractContents();
+                    const span = document.createElement('span');
+                    span.className = `highlighted-${color}`;
+                    span.dataset.highlightGroupId = groupId;
+                    span.dataset.groupTimestamp = String(groupTimestamp);
+                    span.appendChild(fragment);
+                    nodeRange.insertNode(span);
+                });
+            });
+            if (aggregatedText) {
+                const { byGroup, history } = getHighlightsState();
+                byGroup[groupId] = { color, text: aggregatedText, timestamp: groupTimestamp };
+                history.push(groupId);
+                setHighlightsState(byGroup, history);
+            }
+            selection.removeAllRanges();
+            hideSelectionToolbar();
+        }
+
+        function removeSelectedHighlight() {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            const groupsInSelection = new Set();
+            for (let i = 0; i < selection.rangeCount; i++) {
+                const range = selection.getRangeAt(i);
+                const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+                    acceptNode: function(node) {
+                        if (range.intersectsNode(node) &&
+                            (node.classList.contains('highlighted-yellow') ||
+                             node.classList.contains('highlighted-green') ||
+                             node.classList.contains('highlighted-blue') ||
+                             node.classList.contains('highlighted-red') ||
+                             node.classList.contains('highlighted-orange') ||
+                             node.classList.contains('highlighted-violet'))) {
+                            const gid = node.dataset?.highlightGroupId;
+                            if (gid) groupsInSelection.add(gid);
+                            return NodeFilter.FILTER_ACCEPT;
+                        }
+                        return NodeFilter.FILTER_SKIP;
+                    }
+                }, false);
+                while (walker.nextNode()) {}
+            }
+            if (groupsInSelection.size === 0) return;
+            const { byGroup, history } = getHighlightsState();
+            let targetGroupId = null;
+            for (let i = history.length - 1; i >= 0; i--) {
+                if (groupsInSelection.has(history[i])) { targetGroupId = history[i]; break; }
+            }
+            if (!targetGroupId) {
+                targetGroupId = Array.from(groupsInSelection).sort((a,b) => (byGroup[b]?.timestamp || 0) - (byGroup[a]?.timestamp || 0))[0];
+            }
+            if (!targetGroupId) return;
+            document.querySelectorAll(`[data-highlight-group-id="${targetGroupId}"]`).forEach(el => {
+                const textNode = document.createTextNode(el.textContent);
+                el.parentNode.replaceChild(textNode, el);
+            });
+            delete byGroup[targetGroupId];
+            const newHistory = history.filter(id => id !== targetGroupId);
+            setHighlightsState(byGroup, newHistory);
+            showToast('Highlight removed');
+            if (checkSelectionHasHighlight(selection)) {
+                const nextColor = getMostRecentHighlightColor(selection);
+                const removeHighlightContainer = document.getElementById('removeHighlightContainer');
+                if (nextColor) removeHighlightContainer.className = 'remove-highlight-container ' + nextColor;
+            } else {
+                hideSelectionToolbar();
+                selection.removeAllRanges();
+            }
+        }
+
+        function getMostRecentHighlightColor(selection) {
+            const { byGroup, history } = getHighlightsState();
+            const groupsInSelection = new Set();
+            const range = selection.getRangeAt(0);
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+                acceptNode: function(node) {
+                    if (range.intersectsNode(node) &&
+                        (node.classList.contains('highlighted-yellow') ||
+                         node.classList.contains('highlighted-green') ||
+                         node.classList.contains('highlighted-blue') ||
+                         node.classList.contains('highlighted-red') ||
+                         node.classList.contains('highlighted-orange') ||
+                         node.classList.contains('highlighted-violet'))) {
+                        const gid = node.dataset?.highlightGroupId;
+                        if (gid) groupsInSelection.add(gid);
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                    return NodeFilter.FILTER_SKIP;
+                }
+            }, false);
+            while (walker.nextNode()) {}
+            for (let i = history.length - 1; i >= 0; i--) {
+                const gid = history[i];
+                if (groupsInSelection.has(gid)) return byGroup[gid]?.color || null;
+            }
+            return null;
+        }
+
+        function checkSelectionHasHighlight(selection) {
+            const range = selection.getRangeAt(0);
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+                acceptNode: function(node) {
+                    if (range.intersectsNode(node) &&
+                        (node.classList.contains('highlighted-yellow') ||
+                         node.classList.contains('highlighted-green') ||
+                         node.classList.contains('highlighted-blue') ||
+                         node.classList.contains('highlighted-red') ||
+                         node.classList.contains('highlighted-orange') ||
+                         node.classList.contains('highlighted-violet'))) {
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                    return NodeFilter.FILTER_SKIP;
+                }
+            }, false);
+            return walker.nextNode() !== null;
+        }
+
+        function addSelectionListeners() {
+            const articleContent = document.getElementById('articleContent');
+            const toolbar = document.getElementById('selectionToolbar');
+            const highlightBtn = document.getElementById('highlightBtn');
+            const colorPicker = document.getElementById('colorPicker');
+            const removeHighlightBtn = document.getElementById('removeHighlightBtn');
+
+            document.addEventListener('selectionchange', () => {
+                const selection = window.getSelection();
+                if (!selection.isCollapsed && isSelectionInArticle(selection)) {
+                    showSelectionToolbar(selection);
+                } else {
+                    hideSelectionToolbar();
+                }
+            });
+
+            highlightBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                colorPicker.classList.toggle('show');
+                highlightColorPickerVisible = colorPicker.classList.contains('show');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (highlightColorPickerVisible && !colorPicker.contains(e.target) && e.target !== highlightBtn) {
+                    colorPicker.classList.remove('show');
+                    highlightColorPickerVisible = false;
+                }
+            });
+
+            removeHighlightBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeSelectedHighlight();
+            });
+        }
+
+        function isSelectionInArticle(selection) {
+            const articleContent = document.getElementById('articleContent');
+            return articleContent.contains(selection.anchorNode) || articleContent.contains(selection.focusNode);
+        }
+
+        function showSelectionToolbar(selection) {
+            const toolbar = document.getElementById('selectionToolbar');
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            toolbar.style.left = `${rect.left + window.scrollX}px`;
+            toolbar.style.bottom = `${window.innerHeight - rect.bottom + window.scrollY + 10}px`;
+            toolbar.style.top = 'auto';
+            const toolbarRect = toolbar.getBoundingClientRect();
+            if (toolbarRect.right > window.innerWidth) toolbar.style.left = `${window.innerWidth - toolbarRect.width - 10}px`;
+            if (toolbarRect.bottom > window.innerHeight) {
+                toolbar.style.bottom = 'auto';
+                toolbar.style.top = `${rect.top + window.scrollY - toolbarRect.height - 10}px`;
+            }
+            const hasHighlight = checkSelectionHasHighlight(selection);
+            const removeHighlightBtn = document.getElementById('removeHighlightBtn');
+            const removeHighlightContainer = document.getElementById('removeHighlightContainer');
+            if (hasHighlight) {
+                removeHighlightBtn.style.display = 'flex';
+                const highlightColor = getMostRecentHighlightColor(selection);
+                if (highlightColor) removeHighlightContainer.className = 'remove-highlight-container ' + highlightColor;
+            } else {
+                removeHighlightBtn.style.display = 'none';
+            }
+            toolbar.classList.add('show');
+            selectionRange = range;
+        }
+
+        function hideSelectionToolbar() {
+            const toolbar = document.getElementById('selectionToolbar');
+            const colorPicker = document.getElementById('colorPicker');
+            toolbar.classList.remove('show');
+            colorPicker.classList.remove('show');
+            highlightColorPickerVisible = false;
+            selectionRange = null;
+        }
+
+        function noteSelection() {
+            if (!selectionRange) return;
+            const selectedText = selectionRange.toString();
+            const note = prompt(`Add a note for:\n"${selectedText}"`);
+            if (note) {
+                const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+                notes.push({ text: selectedText, note, timestamp: new Date().toISOString() });
+                localStorage.setItem('notes', JSON.stringify(notes));
+                showToast('Note saved!');
+            }
+            hideSelectionToolbar();
+            window.getSelection().removeAllRanges();
+        }
+
+        async function copySelection() {
+            if (!selectionRange) return;
+            const selectedText = selectionRange.toString();
+            try {
+                await navigator.clipboard.writeText(selectedText);
+                showToast('Copied to clipboard!');
+            } catch (err) {
+                const textArea = document.createElement('textarea');
+                textArea.value = selectedText;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Copied to clipboard!');
+            }
+            hideSelectionToolbar();
+            window.getSelection().removeAllRanges();
+        }
+
+        async function shareSelection() {
+            if (!selectionRange) return;
+            const selectedText = selectionRange.toString();
+            const articleTitle = document.querySelector('h1').textContent;
+            const pageUrl = window.location.href;
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: articleTitle, text: selectedText, url: pageUrl });
+                    showToast('Shared successfully!');
+                } catch (error) { if (error.name !== 'AbortError') showToast('Failed to share'); }
+            } else {
+                try {
+                    await navigator.clipboard.writeText(`${selectedText}\n\nFrom: ${articleTitle}\n${pageUrl}`);
+                    showToast('Text copied to clipboard for sharing!');
+                } catch (err) {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = `${selectedText}\n\nFrom: ${articleTitle}\n${pageUrl}`;
+                    textArea.style.position = 'fixed';
+                    textArea.style.opacity = '0';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showToast('Text copied to clipboard for sharing!');
+                }
+            }
+            hideSelectionToolbar();
+            window.getSelection().removeAllRanges();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            addSelectionListeners();
+            // Ensure the "Start Lesson" link uses the correct lesson ID
+            const lessonLink = document.querySelector('a[href*="intro-anticoagulants"]');
+            if (lessonLink) lessonLink.href = '/pages/lesson.html?course=pharmacology-ii&lesson=intro-anticoagulants';
+        });
+    </script>
+</body>
+</html>
