@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Nucleic Acids — G12 Life Sciences | Vulanet</title>
+    <link rel="stylesheet" href="/assets/fonts/fonts.css">
+    <link rel="stylesheet" href="/src/styles/reading.css">
+    <link rel="stylesheet" href="/src/styles/layout.css">
+    <style>
+        .statusbar { background: #4285F4; }
+        .search-box:focus-within { border-color: #4285F4; box-shadow: 0 0 0 2px rgba(66,133,244,0.1); }
+        .no-match-modal { background: #4285F4; }
+        main ::selection { background-color: rgba(66,133,244,0.3); }
+        .fontsize-panel input[type=range]::-webkit-slider-thumb { background: #4285F4; }
+        #sizeLabel { color: #4285F4 !important; }
+        
+        /* TOC Sidebar Styles */
+        .toc-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 2000;
+            display: none;
+            justify-content: flex-start;
+            align-items: flex-start;
+            padding: 0;
+        }
+        .toc-overlay.show { display: flex; }
+        .toc-sidebar {
+            width: 380px;
+            max-width: 85vw;
+            height: 100%;
+            background: #ffffff;
+            box-shadow: 0 0 40px rgba(0,0,0,0.2);
+            padding: 24px 20px 20px 20px;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .toc-overlay.show .toc-sidebar {
+            transform: translateX(0);
+        }
+        .toc-sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .toc-sidebar::-webkit-scrollbar-thumb {
+            background: #d0d0d0;
+            border-radius: 4px;
+        }
+        .toc-sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f2f5;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        .toc-sidebar-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: #2c3e50;
+        }
+        .toc-course-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+        .toc-close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .toc-sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .toc-unit {
+            margin-bottom: 4px;
+        }
+        .toc-unit-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 4px 12px 0;
+            font-weight: 700;
+            font-size: 17px;
+            color: #1f3348;
+            cursor: pointer;
+            border-top: 1px solid #edf0f3;
+            transition: background 0.15s;
+        }
+        .toc-unit-title:hover { background: #f4f7fc; }
+        .toc-unit-title:first-of-type { border-top: none; }
+        .toc-unit-title .toc-chevron {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.3s ease;
+        }
+        .toc-unit-title .toc-chevron.open { transform: rotate(90deg); }
+        .toc-chapter-list {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+        }
+        .toc-chapter-list.open {
+            max-height: 2000px;
+            opacity: 1;
+        }
+        .toc-chapter {
+            margin: 0;
+        }
+        .toc-chapter-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 8px 10px 16px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #4a5f74;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+            transition: background 0.15s;
+        }
+        .toc-chapter-title:hover { background: #f4f7fc; }
+        .toc-chapter-title .toc-chevron {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+        .toc-chapter-title .toc-chevron.open { transform: rotate(90deg); }
+        .toc-lesson-list {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.35s ease, opacity 0.3s ease;
+        }
+        .toc-lesson-list.open {
+            max-height: 1500px;
+            opacity: 1;
+        }
+        .toc-lesson {
+            padding: 8px 12px 8px 48px;
+            font-weight: 400;
+            font-size: 14px;
+            color: #5a6f84;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.15s, color 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toc-lesson:hover { background: #f4f7fc; color: #4285F4; }
+        .toc-lesson.active {
+            color: #4285F4;
+            background: #ecf2fe;
+            font-weight: 600;
+        }
+        .toc-lesson .lesson-number {
+            display: inline-block;
+            color: #6a7f94;
+            font-weight: 500;
+            font-size: 13px;
+            min-width: 22px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            background: #f2f5f9;
+            border-radius: 30px;
+            padding: 0 6px;
+            flex-shrink: 0;
+        }
+        .toc-lesson.active .lesson-number {
+            background: #d4e0fa;
+            color: #4285F4;
+        }
+        /* Coloured borders for chapters – Unit 1 */
+        .toc-chapter-title.chapter-1 { border-left-color: #4285F4; }
+        .toc-chapter-title.chapter-2 { border-left-color: #1CB0F6; }
+        .toc-chapter-title.chapter-3 { border-left-color: #AA00FF; }
+        .toc-chapter-title.chapter-4 { border-left-color: #EA4335; }
+        /* Unit 2 */
+        .toc-chapter-title.chapter-5 { border-left-color: #FF6D01; }
+        .toc-chapter-title.chapter-6 { border-left-color: #FBBC05; }
+        .toc-chapter-title.chapter-7 { border-left-color: #34A853; }
+        .toc-chapter-title.chapter-8 { border-left-color: #4285F4; }
+        /* Unit 3 */
+        .toc-chapter-title.chapter-9 { border-left-color: #1CB0F6; }
+
+        @media (max-width: 480px) {
+            .toc-sidebar { width: 100%; max-width: 100%; padding: 16px; }
+            .toc-lesson { padding-left: 36px; font-size: 13px; }
+            .toc-chapter-title { padding-left: 12px; font-size: 14px; }
+            .toc-unit-title { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP STATUS BAR -->
+    <div class="statusbar" role="banner">
+        <div class="navrow">
+            <div class="back" onclick="window.location.href='/read/g12-life-sciences.html'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="transform:translateY(1px)"><path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="display:flex;flex-direction:column">
+                <h2>Unit 1</h2>
+                <p>Chapter 1 — DNA: The Code of Life</p>
+            </div>
+        </div>
+        <div class="status-right">
+            <button class="bookmark-btn" id="bookmarkBtn" aria-label="Bookmark">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16l8-4 8 4V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar" role="toolbar">
+        <div class="left icon-row">
+            <button class="icon-btn" id="menuBtn" aria-label="Menu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="#333" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </button>
+        </div>
+        <div class="icon-row" style="margin-left:auto;">
+            <div class="search-box" id="searchBox">
+                <input id="searchInput" type="text" placeholder="Find in page...">
+                <div class="search-icons">
+                    <img src="/assets/icons/phosphor/regular/x.svg" class="clear-btn" id="clearSearchBtn" alt="Clear">
+                    <img src="/assets/icons/phosphor/regular/magnifying-glass.svg" class="search-icon" id="defaultSearchIcon" alt="Search">
+                    <img src="/assets/icons/phosphor/fill/magnifying-glass.svg" class="active-search-icon" id="activeSearchIcon" alt="Search active">
+                </div>
+            </div>
+            <span class="match-counter" id="matchCounter"></span>
+            <div style="position:relative">
+                <button id="fontToggle" class="icon-btn" aria-label="Text size">
+                    <div class="aa-button"><span class="small-a">A</span><span class="large-a">A</span></div>
+                </button>
+                <div id="fontPanel" class="fontsize-panel" role="dialog">
+                    <div class="fontsize-panel-header">
+                        <div class="fontsize-panel-title">Text Size</div>
+                        <button class="fontsize-close-btn" id="fontCloseBtn" aria-label="Close"><img src="/assets/icons/phosphor/regular/x.svg" style="width:16px;height:16px;" alt="Close"></button>
+                    </div>
+                    <div style="font-size:13px;color:#666;margin-bottom:15px;">Adjust the content text size</div>
+                    <div class="row fontsize-controls">
+                        <button id="decBtn" class="btn-sm">A−</button>
+                        <input id="sizeRange" type="range" min="14" max="24" step="1" value="16">
+                        <button id="incBtn" class="btn-lg">A+</button>
+                    </div>
+                    <div style="margin-top:15px;font-size:13px;color:#666;text-align:center">Current: <span id="sizeLabel" style="font-weight:700;">16px</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="noMatchModal" class="no-match-modal">No matches found</div>
+
+    <main id="mainContent" role="main">
+        <article id="articleContent">
+            <h1>Introduction to Nucleic Acids</h1>
+
+            <p>All living organisms contain both <a href="#">DNA (deoxyribonucleic acid)</a> and <a href="#">RNA (ribonucleic acid)</a>. This chapter focuses on their location, structure and function. It also explores the discovery of DNA, its role in the human body and how it replicates through protein synthesis, a vital process for life that involves DNA and RNA working together.</p>
+
+            <div class="revision-section">
+                <h2>Revision of Cellular Structure</h2>
+                <p>Before going further with DNA and RNA, it is important to know the location and functions of certain organelles, illustrated in <em>Figure 1</em> below.</p>
+
+                <div class="figure-container">
+                    <img src="/assets/images/lessons/g12-life-sciences/cell-structure.png" alt="Structure of a cell" class="figure-image">
+                    <div class="figure-caption">Figure 1: Structure of a cell</div>
+                </div>
+
+                <p>The <strong>cytoplasm</strong> is a watery substance in which the organelles of the cell are suspended. It is the site where most metabolic reactions take place.</p>
+                <p><strong>Ribosomes</strong> are small organelles found either free in the cytoplasm or attached to the endoplasmic reticulum. They are the site of protein synthesis.</p>
+                <p>The <strong>nucleus</strong> is the control centre of the cell and contains most of the cell's DNA.</p>
+
+                <div class="figure-container">
+                    <img src="/assets/images/lessons/g12-life-sciences/cell-nucleus-parts.jpg" alt="Parts of the nucleus" class="figure-image">
+                    <div class="figure-caption">Figure 2: Parts of the nucleus</div>
+                </div>
+
+                <p>The nucleus consists of the following main parts:</p>
+                <ul>
+                    <li>The <strong>double nuclear membrane</strong>, which encloses the nucleus and contains pores that allow substances to move in and out</li>
+                    <li>The <strong>nucleoplasm</strong>, a jelly-like fluid found within the nucleus</li>
+                    <li>The <strong>nucleolus</strong>, a dark structure within the nucleoplasm that produces ribosomes</li>
+                    <li>The <strong>chromatin network</strong>, which contains DNA that carries genetic information.</li>
+                </ul>
+            </div>
+
+            <h2>The Structure of Nucleic Acids</h2>
+
+            <p>Within the nucleus, the chromatin network contains DNA, which carries the genetic information of the cell. This information determines the characteristics and functioning of an organism, and RNA plays a role in how it is used within the cell. Both DNA and RNA are essential for life and belong to a group of organic compounds known as <a href="#">nucleic acids</a>.</p>
+
+            <div class="figure-container">
+                <img src="/assets/images/lessons/g12-life-sciences/basic-nucleotide.png" alt="A nucleotide" class="figure-image">
+                <div class="figure-caption">Figure 3: A nucleotide</div>
+            </div>
+
+            <p>Both DNA and RNA are built from repeating <a href="#">monomers</a> called <a href="#">nucleotides</a> linked together in long chains. Each nucleotide consists of <strong>three basic components</strong>:</p>
+            <ul>
+                <li>a <strong>phosphate group</strong></li>
+                <li>a <strong>sugar molecule</strong></li>
+                <li>a <strong>nitrogenous base</strong></li>
+            </ul>
+
+            <p>In DNA, the sugar present is <strong>deoxyribose</strong>, while in RNA the sugar is <strong>ribose</strong>. The type of nitrogenous base present, as we will cover, also helps differentiate DNA from RNA.</p>
+
+            <!-- NODE: Ready to test your understanding? -->
+            <div class="lesson-node-container">
+                <div class="node-prompt">Ready to test your understanding?</div>
+                <a href="/pages/lesson.html?course=g12-life-sciences&lesson=introduction-to-nucleic-acids" class="start-node">
+                    <img src="/assets/icons/phosphor/bold/arrow-right.svg" alt="Arrow"> Start Lesson
+                </a>
+            </div>
+        </article>
+    </main>
+
+    <!-- Finder footer (hidden by default) -->
+    <div class="finder-footer" style="display:none" id="finderFooter">
+        <div style="background:#fff;border-radius:12px;padding:8px 12px;border:1px solid rgba(0,0,0,0.06);display:flex;gap:8px;align-items:center;">
+            <button id="clearFind" class="btn-sm">Clear</button>
+            <div id="foundInfo" style="font-weight:600">0 matches</div>
+        </div>
+    </div>
+
+    <!-- Selection Toolbar -->
+    <div class="selection-toolbar" id="selectionToolbar">
+        <button id="removeHighlightBtn" style="display:none;">
+            <div class="remove-highlight-container" id="removeHighlightContainer"><img src="/assets/icons/phosphor/regular/x.svg" style="width:20px;height:20px;"></div>
+            <span class="button-text">Remove</span>
+        </button>
+        <button id="highlightBtn">
+            <div class="highlighter-icon-container"><img src="/assets/icons/phosphor/regular/highlighter.svg" style="width:20px;height:20px;"></div>
+            <span class="button-text">Highlight</span>
+        </button>
+        <div class="color-picker" id="colorPicker">
+            <div class="color-picker-grid">
+                <div class="color-option yellow" onclick="highlightSelection('yellow')" title="Yellow"></div>
+                <div class="color-option green" onclick="highlightSelection('green')" title="Green"></div>
+                <div class="color-option blue" onclick="highlightSelection('blue')" title="Blue"></div>
+                <div class="color-option red" onclick="highlightSelection('red')" title="Red"></div>
+                <div class="color-option orange" onclick="highlightSelection('orange')" title="Orange"></div>
+                <div class="color-option violet" onclick="highlightSelection('violet')" title="Violet"></div>
+            </div>
+        </div>
+        <button onclick="noteSelection()"><img src="/assets/icons/phosphor/regular/note-pencil.svg" style="width:20px;height:20px;"><span class="button-text">Note</span></button>
+        <button onclick="copySelection()"><img src="/assets/icons/phosphor/regular/copy.svg" style="width:20px;height:20px;"><span class="button-text">Copy</span></button>
+        <button onclick="shareSelection()"><img src="/assets/icons/phosphor/fill/share-network.svg" style="width:20px;height:20px;"><span class="button-text">Share</span></button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- TOC Overlay – Sidebar -->
+    <div class="toc-overlay" id="tocOverlay">
+        <div class="toc-sidebar">
+            <div class="toc-sidebar-header">
+                <div class="toc-sidebar-title">
+                    <img src="/assets/courses/g12-life-sciences.png" alt="Course" class="toc-course-icon" id="tocCourseIcon">
+                    <span>Table of Contents</span>
+                </div>
+                <button class="toc-close-btn" id="tocCloseBtn">
+                    <img src="/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:24px;height:24px;">
+                </button>
+            </div>
+            <div class="toc-sidebar-body" id="tocContent"></div>
+        </div>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+            }
+        }
+    </script>
+    <script type="module">
+        import { loadLayout } from '/src/js/layout.js';
+
+        window.__VULANET_READING_PAGE = true;
+        await loadLayout();
+
+        // ---- TOC OVERLAY ----
+        const tocOverlay = document.getElementById('tocOverlay');
+        const tocCloseBtn = document.getElementById('tocCloseBtn');
+        const menuBtn = document.getElementById('menuBtn');
+
+        function loadTOC() {
+            const container = document.getElementById('tocContent');
+            container.innerHTML = `
+                <div class="toc-unit">
+                    <div class="toc-unit-title open" onclick="toggleTOCUnit(this)">
+                        <span>Unit 1</span>
+                        <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron open">
+                    </div>
+                    <div class="toc-chapter-list open">
+                        <div class="toc-chapter">
+                            <div class="toc-chapter-title chapter-1 open" onclick="toggleTOCChapter(this)">
+                                <span>Chapter 1: DNA: The Code of Life</span>
+                                <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron open">
+                            </div>
+                            <div class="toc-lesson-list open">
+                                <div class="toc-lesson active" onclick="window.location.href='/read/g12-life-sciences/introduction-to-nucleic-acids.html'"><span class="lesson-number">1</span>Introduction</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">2</span>DNA: location, structure and functions</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">3</span>DNA replication</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">4</span>DNA profiling</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">5</span>RNA: location, structure and function</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">6</span>Protein synthesis</div>
+                            </div>
+                        </div>
+                        <div class="toc-chapter">
+                            <div class="toc-chapter-title chapter-2" onclick="toggleTOCChapter(this)">
+                                <span>Chapter 2: Meiosis</span>
+                                <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron">
+                            </div>
+                            <div class="toc-lesson-list">
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">1</span>Introduction</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">2</span>Meiosis – The process</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">3</span>Importance of meiosis</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">4</span>Abnormal meiosis</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">5</span>Comparison of mitosis and meiosis</div>
+                            </div>
+                        </div>
+                        <div class="toc-chapter">
+                            <div class="toc-chapter-title chapter-3" onclick="toggleTOCChapter(this)">
+                                <span>Chapter 3: Reproduction in Vertebrates</span>
+                                <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron">
+                            </div>
+                            <div class="toc-lesson-list">
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">1</span>Diversity of reproductive strategies</div>
+                            </div>
+                        </div>
+                        <div class="toc-chapter">
+                            <div class="toc-chapter-title chapter-4" onclick="toggleTOCChapter(this)">
+                                <span>Chapter 4: Human Reproduction</span>
+                                <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron">
+                            </div>
+                            <div class="toc-lesson-list">
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">1</span>Introduction</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">2</span>Structure of the male reproductive system</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">3</span>Structure of the female reproductive system</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">4</span>Puberty</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">5</span>Gametogenesis</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">6</span>Menstrual cycle</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">7</span>Fertilisation and development</div>
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">8</span>Implantation, gestation and the role of the placenta</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="toc-unit">
+                    <div class="toc-unit-title" onclick="toggleTOCUnit(this)">
+                        <span>Unit 2</span>
+                        <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron">
+                    </div>
+                    <div class="toc-chapter-list">
+                        <div class="toc-chapter">
+                            <div class="toc-chapter-title chapter-5" onclick="toggleTOCChapter(this)">
+                                <span>Chapter 1: Genetics and Inheritance</span>
+                                <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron">
+                            </div>
+                            <div class="toc-lesson-list">
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">1</span>Introduction</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="toc-unit">
+                    <div class="toc-unit-title" onclick="toggleTOCUnit(this)">
+                        <span>Unit 3</span>
+                        <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron">
+                    </div>
+                    <div class="toc-chapter-list">
+                        <div class="toc-chapter">
+                            <div class="toc-chapter-title chapter-9" onclick="toggleTOCChapter(this)">
+                                <span>Chapter 1: Evolution</span>
+                                <img src="/assets/icons/phosphor/regular/caret-down.svg" class="toc-chevron">
+                            </div>
+                            <div class="toc-lesson-list">
+                                <div class="toc-lesson" onclick="window.location.href='#'"><span class="lesson-number">1</span>Introduction</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.toggleTOCUnit = function(el) {
+            el.classList.toggle('open');
+            const list = el.nextElementSibling;
+            if (list) list.classList.toggle('open');
+        };
+        window.toggleTOCChapter = function(el) {
+            el.classList.toggle('open');
+            const list = el.nextElementSibling;
+            if (list) list.classList.toggle('open');
+        };
+
+        menuBtn.addEventListener('click', () => {
+            tocOverlay.classList.add('show');
+            if (!document.getElementById('tocContent').children.length) loadTOC();
+        });
+        tocCloseBtn.addEventListener('click', () => { tocOverlay.classList.remove('show'); });
+        tocOverlay.addEventListener('click', (e) => {
+            if (e.target === tocOverlay) tocOverlay.classList.remove('show');
+        });
+
+        // ---- BOOKMARK TOGGLE ----
+        const bookmarkBtn = document.getElementById('bookmarkBtn');
+        bookmarkBtn.addEventListener('click', function() {
+            const isBookmarked = this.classList.toggle('bookmarked');
+            const svg = this.querySelector('svg');
+            if (isBookmarked) {
+                svg.setAttribute('fill', 'white');
+                svg.setAttribute('stroke', 'white');
+                showToast('Bookmarked!');
+            } else {
+                svg.setAttribute('fill', 'none');
+                svg.setAttribute('stroke', 'white');
+                showToast('Bookmark removed');
+            }
+        });
+
+        // ---- FONT SIZE ----
+        (function(){
+            const panel = document.getElementById('fontPanel');
+            const toggle = document.getElementById('fontToggle');
+            const range = document.getElementById('sizeRange');
+            const dec = document.getElementById('decBtn');
+            const inc = document.getElementById('incBtn');
+            const label = document.getElementById('sizeLabel');
+            const closeBtn = document.getElementById('fontCloseBtn');
+
+            function applySize(px){
+                document.documentElement.style.setProperty('--content-size', px + 'px');
+                label.textContent = px + 'px';
+                const ratio = px / 16;
+                const smallA = document.querySelector('.small-a');
+                const largeA = document.querySelector('.large-a');
+                if (smallA) smallA.style.fontSize = (14 * ratio) + 'px';
+                if (largeA) largeA.style.fontSize = (18 * ratio) + 'px';
+            }
+
+            applySize(parseInt(range.value,10));
+
+            toggle.addEventListener('click', (e)=>{ panel.classList.toggle('show'); e.stopPropagation(); });
+            closeBtn.addEventListener('click', (e)=>{ panel.classList.remove('show'); e.stopPropagation(); });
+            document.addEventListener('click', (e)=>{
+                if(!panel.contains(e.target) && e.target !== toggle) panel.classList.remove('show');
+            });
+            range.addEventListener('input', (e)=>{ applySize(parseInt(e.target.value,10)); });
+            dec.addEventListener('click', ()=>{
+                let v = Math.max(parseInt(range.min), parseInt(range.value)-1);
+                range.value = v; applySize(v);
+            });
+            inc.addEventListener('click', ()=>{
+                let v = Math.min(parseInt(range.max), parseInt(range.value)+1);
+                range.value = v; applySize(v);
+            });
+        })();
+
+        // ---- SEARCH ----
+        (function(){
+            const searchBox = document.getElementById('searchBox');
+            const searchInput = document.getElementById('searchInput');
+            const defaultSearchIcon = document.getElementById('defaultSearchIcon');
+            const activeSearchIcon = document.getElementById('activeSearchIcon');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            const article = document.getElementById('articleContent');
+            const finderFooter = document.getElementById('finderFooter');
+            const clearFind = document.getElementById('clearFind');
+            const foundInfo = document.getElementById('foundInfo');
+            const noMatchModal = document.getElementById('noMatchModal');
+            const matchCounter = document.getElementById('matchCounter');
+
+            let hits = [];
+            let current = -1;
+
+            function escapeRegExp(string){ return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+            function updateSearchBoxState(){
+                const hasText = searchInput.value.length > 0;
+                if (hasText) {
+                    searchBox.classList.add('has-text');
+                    performSearch();
+                } else {
+                    searchBox.classList.remove('has-text');
+                    clearHighlights();
+                }
+            }
+
+            function clearHighlights(){
+                const marks = article.querySelectorAll('mark.search-hit');
+                marks.forEach(m=>{
+                    const parent = m.parentNode;
+                    parent.replaceChild(document.createTextNode(m.textContent), m);
+                    parent.normalize();
+                });
+                hits = []; current = -1;
+                foundInfo.textContent = '0 / 0 matches';
+                matchCounter.textContent = '';
+                matchCounter.classList.remove('show');
+                finderFooter.style.display = 'none';
+                searchBox.classList.remove('searching');
+            }
+
+            function highlightAll(term){
+                clearHighlights();
+                if(!term) return;
+                const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, null, false);
+                const nodes = [];
+                while(walker.nextNode()) nodes.push(walker.currentNode);
+                const re = new RegExp(escapeRegExp(term), 'ig');
+                nodes.forEach(node=>{
+                    const parent = node.parentNode;
+                    if(parent && parent.closest && parent.closest('mark.search-hit')) return;
+                    const text = node.textContent;
+                    if(re.test(text)){
+                        const frag = document.createDocumentFragment();
+                        let lastIndex = 0;
+                        text.replace(re, function(match, offset){
+                            if(offset > lastIndex) frag.appendChild(document.createTextNode(text.slice(lastIndex, offset)));
+                            const m = document.createElement('mark');
+                            m.className = 'search-hit';
+                            m.textContent = match;
+                            frag.appendChild(m);
+                            lastIndex = offset + match.length;
+                            return match;
+                        });
+                        if(lastIndex < text.length) frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+                        parent.replaceChild(frag, node);
+                    }
+                });
+                hits = Array.from(article.querySelectorAll('mark.search-hit'));
+                searchBox.classList.add('searching');
+                if(hits.length){
+                    current = 0;
+                    scrollToHit(current);
+                    finderFooter.style.display = 'flex';
+                    matchCounter.textContent = `${current + 1} / ${hits.length}`;
+                    matchCounter.classList.add('show');
+                } else {
+                    current = -1;
+                    matchCounter.textContent = '';
+                    matchCounter.classList.remove('show');
+                    noMatchModal.classList.add('show');
+                    setTimeout(()=>{ noMatchModal.classList.remove('show'); }, 3000);
+                }
+                updateCounter();
+            }
+
+            function updateCounter(){
+                foundInfo.textContent = hits.length ? `${current + 1} / ${hits.length} matches` : '0 / 0 matches';
+            }
+
+            function scrollToHit(index){
+                if(hits.length === 0) return;
+                hits.forEach(h=>h.style.outline='none');
+                const el = hits[index];
+                el.scrollIntoView({behavior:'smooth', block:'center'});
+                el.style.outline='3px solid rgba(255,180,0,0.4)';
+                setTimeout(()=>{ el.style.outline='none'; }, 1400);
+                matchCounter.textContent = `${index + 1} / ${hits.length}`;
+                updateCounter();
+            }
+
+            function performSearch(){
+                const term = searchInput.value.trim();
+                if(term){
+                    highlightAll(term);
+                } else {
+                    clearHighlights();
+                }
+            }
+
+            function nextMatch() {
+                if (hits.length === 0) return;
+                current = (current + 1) % hits.length;
+                scrollToHit(current);
+            }
+
+            searchInput.addEventListener('input', updateSearchBoxState);
+            searchInput.addEventListener('keydown', (e)=>{
+                if(e.key === 'Enter') {
+                    e.preventDefault();
+                    nextMatch();
+                }
+            });
+            defaultSearchIcon.addEventListener('click', nextMatch);
+            activeSearchIcon.addEventListener('click', nextMatch);
+            clearSearchBtn.addEventListener('click', ()=>{
+                searchInput.value = '';
+                updateSearchBoxState();
+                searchInput.focus();
+            });
+            clearFind.addEventListener('click', ()=>{
+                searchInput.value = '';
+                updateSearchBoxState();
+            });
+
+            article.addEventListener('click', (e)=>{
+                const m = e.target.closest('mark.search-hit');
+                if(m){ const idx = hits.indexOf(m); if(idx>=0){ current = idx; scrollToHit(current); } }
+            });
+            updateSearchBoxState();
+        })();
+
+        // ---- TOAST ----
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2000);
+        }
+
+        // ---- HIGHLIGHTING (placeholder) ----
+        window.highlightSelection = function(color) {
+            showToast('Highlighted in ' + color);
+        };
+        window.noteSelection = function() {
+            showToast('Note added!');
+        };
+        window.copySelection = function() {
+            showToast('Copied!');
+        };
+        window.shareSelection = function() {
+            showToast('Shared!');
+        };
+
+        console.log('Reading article loaded.');
+    </script>
+</body>
+</html>

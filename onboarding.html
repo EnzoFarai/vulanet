@@ -1004,14 +1004,17 @@
     if (readingSubtext) readingSubtext.textContent = `Ready yourself for a lesson by reading ${currentCourse.name}`;
     
     let currentState = 1;
-    let skipToCourseSelection = false;
     
-    // If adding a new course, skip to the course selection state directly
-    if (onboardingAction === 'add-course') {
-      skipToCourseSelection = true;
-      currentState = 10;
+    // Check if this is an add-course flow
+    const isAddCourse = (onboardingAction === 'add-course');
+    
+    // If add-course, skip states 1,2,3,7,8,9
+    if (isAddCourse) {
+      // Skip initial state and state 3 – go directly to state 4
       document.getElementById('initialState').classList.add('hidden');
-      document.getElementById('courseState').classList.remove('hidden');
+      document.getElementById('thirdState').classList.add('hidden');
+      document.getElementById('fourthState').classList.remove('hidden');
+      currentState = 4;
     }
     
     document.getElementById('continueBtn').addEventListener('click', function() {
@@ -1057,6 +1060,17 @@
     }
     
     function proceedToNextState(nextStateId) {
+      // If add-course, skip states 7,8,9
+      if (isAddCourse && ['seventhState', 'eighthState', 'ninthState'].includes(nextStateId)) {
+        // Go directly to course selection (state 10)
+        document.getElementById('courseState').classList.remove('hidden');
+        // Hide all other states
+        document.querySelectorAll('.third-state, .fourth-state, .fifth-state, .sixth-state, .seventh-state, .eighth-state, .ninth-state').forEach(el => el.classList.add('hidden'));
+        currentState = 10;
+        saveOnboardingData(); // Save data before proceeding
+        return;
+      }
+      
       saveOnboardingData();
       
       document.querySelectorAll('.third-state, .fourth-state, .fifth-state, .sixth-state, .seventh-state, .eighth-state, .ninth-state').forEach(el => {

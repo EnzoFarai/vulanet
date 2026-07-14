@@ -2,16 +2,19 @@
 // Full learning path engine – renders nodes, lesson cards, treasure, start bubble.
 // Uses only local assets (SVG icons). No CDN fonts or icons.
 
-(function() {
-    if (typeof window.COURSE_CONFIG === 'undefined') {
-        console.error('COURSE_CONFIG not defined.');
+export function renderLearningPath(config) {
+    const chapters = config.chapters;
+    const containerId = config.containerId;
+    const courseId = config.courseId;
+    const onLessonStart = config.onLessonStart;
+
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error('Container not found:', containerId);
         return;
     }
 
-    const config = window.COURSE_CONFIG;
-    const chapters = config.chapters;
-
-    // DOM refs
+    // DOM refs (expect these to exist in the page)
     const persistentCard = document.getElementById('persistent-learning-card');
     const progressBar = document.getElementById('persistent-progress-bar');
     const startBubble = document.getElementById('start-speech-bubble');
@@ -28,7 +31,6 @@
     let isTransitioning = false;
     let lastScrollTop = 0;
     let scrollTimeout = null;
-    let currentChapter = chapters[0];
 
     // Reward variants (using local SVGs)
     const rewardVariants = [
@@ -50,7 +52,13 @@
         '2': 70
     };
 
-    // ---------- REWARD DISPLAY ----------
+    function getRandomReward(chapter) {
+        if (chapter.currentTreasureReward) return chapter.currentTreasureReward;
+        const idx = Math.floor(Math.random() * rewardVariants.length);
+        chapter.currentTreasureReward = rewardVariants[idx];
+        return chapter.currentTreasureReward;
+    }
+
     function createRewardDisplay(reward) {
         const container = document.createElement('div');
         container.className = 'reward-icon-container';
@@ -97,7 +105,6 @@
         claimBtn.textContent = reward.buttonText;
     }
 
-    // ---------- NODE RENDERING ----------
     function getNodeIconSVG(lessonType, isCompleted, isMastered) {
         if (isMastered) {
             return '<img src="/assets/icons/material-symbols/outline/joystick.svg" alt="Joystick" style="width:32px;height:32px;filter:brightness(0) saturate(100%) invert(100%);">';
@@ -108,7 +115,6 @@
         }
     }
 
-    // Treasure chest filter: yellow/gold when unlocked
     function getTreasureFilter(status) {
         if (status === 'unlocked' || status === 'collected') {
             return 'filter: brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%);';
@@ -117,14 +123,12 @@
         }
     }
 
-    // Generate wave positions using the exact logic from your demo
     function getWavePositions(length) {
         const positions = [];
         let dir = 'L';
         let pos = 0;
         for (let i = 0; i < length; i++) {
             positions.push(pos);
-            // update wave state
             if (dir === 'L' && pos === -2) {
                 dir = 'R';
                 pos = -1;
@@ -168,9 +172,7 @@
             iconHTML = getNodeIconSVG('joystick', isCompleted, isMastered);
         }
 
-        // For treasure nodes, add pulsing animation when unlocked
         const pulseClass = (isTreasure && progress.status === 'unlocked') ? ' treasure-unlocked' : '';
-
         return `<div class="${classes}${pulseClass}" id="${lesson.id}" data-lesson="${lesson.id}" style="position:relative;left:${pos}px;">
             <div class="node-icon">${iconHTML}</div>
         </div>`;
@@ -179,9 +181,7 @@
     function renderChapter(chapter) {
         const pathEl = document.getElementById(chapter.learningPathId);
         if (!pathEl) return;
-
         const positions = getWavePositions(chapter.lessons.length);
-
         let html = '<div class="path-group">';
         chapter.lessons.forEach((lesson, index) => {
             html += createNode(chapter, lesson, positions[index]);
@@ -201,7 +201,6 @@
         updateProgress(chapter);
     }
 
-    // ---------- NODE CLICK HANDLING ----------
     function handleNodeClick(chapter, e) {
         if (isTransitioning) return;
         const node = e.currentTarget;
@@ -212,6 +211,7 @@
         if (lesson.type === 'treasure') {
             const progress = chapter.userProgress[lessonId];
             if (progress.status === 'locked') {
+                // Check if preceding lessons are completed
                 const idx = chapter.lessons.indexOf(lesson);
                 const preceding = chapter.lessons.slice(0, idx);
                 const allDone = preceding.every(l => {
@@ -223,7 +223,6 @@
                 progress.status = 'unlocked';
                 node.classList.remove('locked');
                 node.classList.add('unlocked');
-                // Update chest icon with gold filter
                 const img = node.querySelector('img');
                 if (img) {
                     img.style.filter = 'brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%)';
@@ -246,7 +245,6 @@
         showLessonCard(chapter, lesson);
     }
 
-    // ---------- ACTIVE NODE & START BUBBLE ----------
     function setActiveNode(node, chapter) {
         document.querySelectorAll('.path-node.active').forEach(n => n.classList.remove('active'));
         node.classList.add('active');
@@ -278,7 +276,6 @@
         startBubble.style.transform = 'translateX(-50%)';
     }
 
-    // ---------- LESSON CARD ----------
     function showLessonCard(chapter, lesson) {
         if (isTransitioning) return;
         isTransitioning = true;
@@ -433,13 +430,10 @@
         }
     }
 
-    // ---------- LESSON ACTIONS ----------
     function startLesson(chapter, lessonId) {
-        // Redirect to the lesson page using the actual lesson ID from config
         const lesson = chapter.lessons.find(l => l.id === lessonId);
         if (!lesson) return;
-        // The lesson ID is the same as the JSON filename
-        window.location.href = `/pages/lesson.html?course=${config.courseId}&lesson=${lessonId}`;
+        window.location.href = `/pages/lesson.html?course=${courseId}&lesson=${lessonId}`;
     }
 
     function startSubLesson(chapter, lessonId, subNum) {
@@ -488,7 +482,6 @@
         checkTreasureUnlock(chapter);
     }
 
-    // ---------- TREASURE ----------
     function showTreasure(chapter, node) {
         const reward = getRandomReward(chapter);
         updateRewardDisplay(reward);
@@ -505,7 +498,6 @@
                 progress.status = 'collected';
                 node.classList.remove('unlocked');
                 node.classList.add('collected');
-                // Keep gold filter
                 const img = node.querySelector('img');
                 if (img) {
                     img.style.filter = 'brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%)';
@@ -554,7 +546,6 @@
         });
     }
 
-    // ---------- HELPERS ----------
     function updateNodeIcon(chapter, lessonId) {
         const node = document.getElementById(lessonId);
         if (!node) return;
@@ -639,7 +630,6 @@
         }
     }
 
-    // ---------- SCROLL DETECTION ----------
     function updatePersistentCard() {
         const cardRect = persistentCard.getBoundingClientRect();
         const cardBottom = cardRect.bottom + window.pageYOffset;
@@ -684,81 +674,77 @@
         updateProgress(chapter);
     }
 
-    // ---------- INIT ----------
-    function init() {
-        const unitTitle = config.unitTitle || 'UNIT 1';
-        const sectionEl = persistentCard.querySelector('.section');
-        if (sectionEl) sectionEl.textContent = unitTitle;
+    // Set unit title
+    const unitTitle = config.unitTitle || 'UNIT 1';
+    const sectionEl = persistentCard.querySelector('.section');
+    if (sectionEl) sectionEl.textContent = unitTitle;
 
+    // Initialize progress for each chapter
+    chapters.forEach(ch => {
+        ch.lessons.forEach(lesson => {
+            if (!ch.userProgress[lesson.id]) {
+                ch.userProgress[lesson.id] = {
+                    status: lesson.type === 'treasure' ? 'locked' : 'unstarted',
+                    mastered: false,
+                    completedSublessons: 0,
+                    totalSublessons: lesson.totalSublessons || 1,
+                    sublessonCompleted: Array(lesson.totalSublessons || 1).fill(false),
+                    sublessonMastered: Array(lesson.totalSublessons || 1).fill(false)
+                };
+            }
+        });
+        renderChapter(ch);
+    });
+
+    // Set initial active node
+    const first = findFirstIncompleteNode(chapters[0]);
+    if (first) {
+        setActiveNode(first.node, first.chapter);
+    } else if (chapters.length > 1) {
+        const second = findFirstIncompleteNode(chapters[1]);
+        if (second) setActiveNode(second.node, second.chapter);
+    }
+
+    updateCardAppearance(chapters[0]);
+
+    // Event listeners
+    claimBtn.addEventListener('click', collectTreasure);
+    overlay.addEventListener('click', () => {
+        treasurePanel.classList.remove('active');
+        overlay.classList.remove('active');
+    });
+
+    window.addEventListener('scroll', () => {
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            requestAnimationFrame(updatePersistentCard);
+        }, 50);
+    });
+
+    window.addEventListener('resize', () => {
         chapters.forEach(ch => {
-            ch.lessons.forEach(lesson => {
-                if (!ch.userProgress[lesson.id]) {
-                    ch.userProgress[lesson.id] = {
-                        status: lesson.type === 'treasure' ? 'locked' : 'unstarted',
-                        mastered: false,
-                        completedSublessons: 0,
-                        totalSublessons: lesson.totalSublessons || 1,
-                        sublessonCompleted: Array(lesson.totalSublessons || 1).fill(false),
-                        sublessonMastered: Array(lesson.totalSublessons || 1).fill(false)
-                    };
-                }
-            });
-            renderChapter(ch);
+            if (ch.currentLessonCard) positionLessonCard(ch);
         });
+        if (currentActiveNode) positionStartBubble(currentActiveNode);
+        updatePersistentCard();
+    });
 
-        const first = findFirstIncompleteNode(chapters[0]);
-        if (first) {
-            setActiveNode(first.node, first.chapter);
-        } else if (chapters.length > 1) {
-            const second = findFirstIncompleteNode(chapters[1]);
-            if (second) setActiveNode(second.node, second.chapter);
-        }
-
-        updateCardAppearance(chapters[0]);
-
-        claimBtn.addEventListener('click', collectTreasure);
-        overlay.addEventListener('click', () => {
-            treasurePanel.classList.remove('active');
-            overlay.classList.remove('active');
+    document.addEventListener('click', (e) => {
+        if (isTransitioning) return;
+        chapters.forEach(ch => {
+            if (ch.currentLessonCard && !ch.currentLessonCard.contains(e.target) && !e.target.closest('.path-node')) {
+                closeLessonCard(ch);
+            }
         });
+    });
 
-        window.addEventListener('scroll', () => {
-            if (scrollTimeout) clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                requestAnimationFrame(updatePersistentCard);
-            }, 50);
+    // Up Next button
+    const upNextBtn = document.querySelector('.up-next-button');
+    if (upNextBtn) {
+        upNextBtn.addEventListener('click', () => {
+            alert('Moving to next unit!');
         });
-
-        window.addEventListener('resize', () => {
-            chapters.forEach(ch => {
-                if (ch.currentLessonCard) positionLessonCard(ch);
-            });
-            if (currentActiveNode) positionStartBubble(currentActiveNode);
-            updatePersistentCard();
-        });
-
-        document.addEventListener('click', (e) => {
-            if (isTransitioning) return;
-            chapters.forEach(ch => {
-                if (ch.currentLessonCard && !ch.currentLessonCard.contains(e.target) && !e.target.closest('.path-node')) {
-                    closeLessonCard(ch);
-                }
-            });
-        });
-
-        const upNextBtn = document.querySelector('.up-next-button');
-        if (upNextBtn) {
-            upNextBtn.addEventListener('click', () => {
-                alert('Moving to next unit!');
-            });
-        }
-
-        console.log('Learning path initialized.');
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
-})();
+    console.log('Learning path initialized.');
+}

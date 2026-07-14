@@ -1,353 +1,655 @@
 // src/js/layout.js
 import { supabase, isLoggedIn, getCurrentUserProfile } from './supabase.js';
 
-/**
- * Load header and footer into the page.
- * Call this on every page except lesson/practice pages.
- */
+let layoutLoaded = false;
+
+// All available courses
+const ALL_COURSES = [
+    { id: 'g12-life-sciences', name: 'G12 Life Sciences', level: 1, max: 6, img: '/assets/courses/g12-life-sciences.png' },
+    { id: 'pharmacology-ii', name: 'Pharmacology-II', level: 3, max: 6, img: '/assets/courses/pharmacology-ii.png' },
+    { id: 'clinical-pharmacy', name: 'Clinical Pharmacy', level: 4, max: 6, img: '/assets/courses/clinical-pharmacy.png' },
+    { id: 'international-law', name: 'International Law', level: 2, max: 6, img: '/assets/courses/international-law.png' },
+    { id: 'java-programming', name: 'Java Programming', level: 1, max: 6, img: '/assets/courses/java-programming.png' },
+    { id: 'web-design', name: 'Web Design', level: 6, max: 6, img: '/assets/courses/web-design.png' },
+    { id: 'financial-accounting', name: 'Financial Accounting', level: 1, max: 6, img: '/assets/courses/financial-accounting.png' },
+];
+
+function getCourseProgress(courseId) {
+    const totalLessons = 50;
+    let completedLessons = 0;
+    try {
+        const progress = JSON.parse(localStorage.getItem(`vulanet_progress_${courseId}`) || '{}');
+        for (const chapterId in progress) {
+            for (const lessonId in progress[chapterId]) {
+                if (progress[chapterId][lessonId]?.status === 'completed' || progress[chapterId][lessonId]?.mastered) {
+                    completedLessons++;
+                }
+            }
+        }
+    } catch(e) {}
+    return { completed: completedLessons, total: totalLessons };
+}
+
+window.updateHeaderStats = function(coins, hearts, streak) {
+    if (coins !== undefined) {
+        localStorage.setItem('coins', String(coins));
+        const coinsSpan = document.querySelector('#coinsItem span');
+        if (coinsSpan) coinsSpan.textContent = coins;
+    }
+    if (hearts !== undefined) {
+        localStorage.setItem('hearts', String(hearts));
+        const heartsSpan = document.querySelector('#heartsItem span');
+        if (heartsSpan) heartsSpan.textContent = hearts;
+        updateHeartsUI();
+    }
+    if (streak !== undefined) {
+        localStorage.setItem('userStreakDays', String(streak));
+        const streakSpan = document.getElementById('streakCount');
+        if (streakSpan) streakSpan.textContent = streak;
+    }
+};
+
 export async function loadLayout() {
-  const path = window.location.pathname;
-  // Don't load on lesson or practice pages
-  if (path.includes('/pages/lesson.html') || path.includes('/pages/practice.html')) {
-    return;
-  }
+    if (window.__VULANET_READING_PAGE) {
+        await loadFooterOnly();
+        return;
+    }
 
-  // Load header HTML
-  const headerResp = await fetch('/src/components/header.html');
-  const headerHTML = await headerResp.text();
-  document.body.insertAdjacentHTML('afterbegin', headerHTML);
+    const path = window.location.pathname;
+    if (path.includes('/pages/lesson.html') || path.includes('/pages/practice.html')) {
+        return;
+    }
 
-  // Load footer HTML
-  const footerResp = await fetch('/src/components/footer.html');
-  const footerHTML = await footerResp.text();
-  document.body.insertAdjacentHTML('beforeend', footerHTML);
+    if (layoutLoaded) {
+        console.log('Layout already loaded.');
+        return;
+    }
 
-  // Initialize functionality
-  await initHeader();
-  initFooter();
+    try {
+        const resp = await fetch('/src/components/header.html');
+        if (!resp.ok) throw new Error('Header not found');
+        const html = await resp.text();
+        document.body.insertAdjacentHTML('afterbegin', html);
+    } catch (e) {
+        console.error('Failed to load header:', e);
+    }
+
+    await loadFooterOnly();
+
+    layoutLoaded = true;
+    document.body.classList.add('has-header');
+
+    await initHeader();
+    initFooter();
+}
+
+async function loadFooterOnly() {
+    try {
+        const resp = await fetch('/src/components/footer.html');
+        if (!resp.ok) throw new Error('Footer not found');
+        const html = await resp.text();
+        if (!document.querySelector('nav')) {
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+    } catch (e) {
+        console.error('Failed to load footer:', e);
+    }
 }
 
 async function initHeader() {
-  // Get user data from Supabase
-  const loggedIn = await isLoggedIn();
-  let userData = null;
-  if (loggedIn) {
-    const profile = await getCurrentUserProfile();
-    if (profile) userData = profile.profile;
-  }
+    let coins = parseInt(localStorage.getItem('coins') || '500');
+    let hearts = parseInt(localStorage.getItem('hearts') || '5');
+    let streak = parseInt(localStorage.getItem('userStreakDays') || '1');
 
-  // Update stats (use localStorage as fallback for demo)
-  const coins = userData?.coins ?? parseInt(localStorage.getItem('coins') || '500');
-  const hearts = userData?.hearts ?? parseInt(localStorage.getItem('hearts') || '5');
-  const streak = userData?.current_streak ?? parseInt(localStorage.getItem('userStreakDays') || '1');
+    const loggedIn = await isLoggedIn();
+    if (loggedIn) {
+        const profile = await getCurrentUserProfile();
+        if (profile && profile.profile) {
+            coins = profile.profile.coins ?? coins;
+            hearts = profile.profile.hearts ?? hearts;
+            streak = profile.profile.current_streak ?? streak;
+        }
+    }
 
-  document.querySelector('#coinsItem span').textContent = coins;
-  document.querySelector('#heartsItem span').textContent = hearts;
-  document.querySelector('#streakCount').textContent = streak;
+    const coinsSpan = document.querySelector('#coinsItem span');
+    const heartsSpan = document.querySelector('#heartsItem span');
+    const streakSpan = document.getElementById('streakCount');
+    if (coinsSpan) coinsSpan.textContent = coins;
+    if (heartsSpan) heartsSpan.textContent = hearts;
+    if (streakSpan) streakSpan.textContent = streak;
 
-  // Set active course icon (default to G12 Life Sciences)
-  const courseImg = document.querySelector('#activeCourseIcon img');
-  const courseLevel = document.querySelector('#activeCourseLevel');
-  // You can load this from user preferences later
+    const activeCourseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
+    const courseImg = document.querySelector('#activeCourseIcon img');
+    if (courseImg) {
+        courseImg.src = `/assets/courses/${activeCourseId}.png`;
+        courseImg.alt = activeCourseId;
+    }
 
-  // Initialize panel toggles
-  initPanelToggles();
+    initPanels();
+    initHeartsTimer();
+    updateHeartsUI();
+    initStreakCalendar();
+    initShareOverlay();
+    updateCourseProgress(activeCourseId);
 }
 
-function initPanelToggles() {
-  const coursePanel = document.getElementById('coursePanelContainer');
-  const heartsPanel = document.getElementById('heartsPanelContainer');
-  const shopPanel = document.getElementById('shopPanelContainer');
-  const streakPanel = document.getElementById('streakCalendarContainer');
-  const shareOverlay = document.getElementById('shareOverlay');
-
-  const activeCourseIcon = document.getElementById('activeCourseIcon');
-  const activeCourseLevel = document.getElementById('activeCourseLevel');
-  const heartsIcon = document.querySelector('#heartsItem .icon-box');
-  const coinsIcon = document.querySelector('#coinsItem .icon-box');
-  const streakIcon = document.querySelector('#streakItem .icon-box');
-  const streakCount = document.getElementById('streakCount');
-
-  function closeAllPanels() {
-    coursePanel.classList.remove('active');
-    heartsPanel.classList.remove('active');
-    shopPanel.classList.remove('active');
-    streakPanel.classList.remove('active');
-    shareOverlay.classList.remove('active');
-  }
-
-  function toggleCoursePanel(e) {
-    e.stopPropagation();
-    closeAllPanels();
-    coursePanel.classList.toggle('active');
-  }
-
-  function toggleHeartsPanel(e) {
-    e.stopPropagation();
-    closeAllPanels();
-    heartsPanel.classList.toggle('active');
-  }
-
-  function toggleShopPanel(e) {
-    e.stopPropagation();
-    closeAllPanels();
-    shopPanel.classList.toggle('active');
-    // Update shop coin count
-    const coins = document.querySelector('#coinsItem span').textContent;
-    document.getElementById('shopCoinCount').textContent = coins;
-  }
-
-  function toggleStreakPanel(e) {
-    e.stopPropagation();
-    closeAllPanels();
-    streakPanel.classList.toggle('active');
-    // Load calendar
-    if (window.loadStreakCalendar) window.loadStreakCalendar();
-  }
-
-  if (activeCourseIcon) activeCourseIcon.addEventListener('click', toggleCoursePanel);
-  if (activeCourseLevel) activeCourseLevel.addEventListener('click', toggleCoursePanel);
-  if (heartsIcon) heartsIcon.addEventListener('click', toggleHeartsPanel);
-  if (coinsIcon) coinsIcon.addEventListener('click', toggleShopPanel);
-  if (streakIcon) streakIcon.addEventListener('click', toggleStreakPanel);
-  if (streakCount) streakCount.addEventListener('click', toggleStreakPanel);
-
-  // Close panels on outside click
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.course-panel-container') && !e.target.closest('#activeCourseIcon') && !e.target.closest('#activeCourseLevel')) {
-      coursePanel.classList.remove('active');
-    }
-    if (!e.target.closest('.hearts-panel-container') && !e.target.closest('#heartsItem')) {
-      heartsPanel.classList.remove('active');
-    }
-    if (!e.target.closest('.shop-panel-container') && !e.target.closest('#coinsItem')) {
-      shopPanel.classList.remove('active');
-    }
-    if (!e.target.closest('.streak-calendar-container') && !e.target.closest('#streakItem') && !e.target.closest('#streakCount')) {
-      streakPanel.classList.remove('active');
-    }
-    if (!e.target.closest('.share-overlay') && !e.target.closest('#streakShareButton')) {
-      shareOverlay.classList.remove('active');
-    }
-  });
-
-  // Streak close button
-  document.getElementById('streakCloseButton')?.addEventListener('click', () => {
-    streakPanel.classList.remove('active');
-  });
-
-  // Streak share button
-  document.getElementById('streakShareButton')?.addEventListener('click', (e) => {
-    e.stopPropagation();
+function initPanels() {
+    const coursePanel = document.getElementById('coursePanelContainer');
+    const heartsPanel = document.getElementById('heartsPanelContainer');
+    const shopPanel = document.getElementById('shopPanelContainer');
+    const streakPanel = document.getElementById('streakCalendarContainer');
     const shareOverlay = document.getElementById('shareOverlay');
-    const shareStreakNumber = document.getElementById('shareStreakNumber');
-    shareStreakNumber.textContent = document.getElementById('streakCount').textContent;
-    shareOverlay.classList.toggle('active');
-  });
 
-  // Shop close button
-  document.getElementById('shopCloseButton')?.addEventListener('click', () => {
-    shopPanel.classList.remove('active');
-  });
+    const activeCourseIcon = document.getElementById('activeCourseIcon');
+    const activeCourseLevel = document.getElementById('activeCourseLevel');
+    const heartsIcon = document.querySelector('#heartsItem .icon-box');
+    const coinsIcon = document.querySelector('#coinsItem .icon-box');
+    const streakIcon = document.querySelector('#streakItem .icon-box');
+    const streakCount = document.getElementById('streakCount');
 
-  // Refill hearts
-  document.getElementById('refillHeartsButton')?.addEventListener('click', () => {
-    const currentCoins = parseInt(document.querySelector('#coinsItem span').textContent);
-    const currentHearts = parseInt(document.querySelector('#heartsItem span').textContent);
+    function closeAllPanels() {
+        if (coursePanel) coursePanel.classList.remove('active');
+        if (heartsPanel) heartsPanel.classList.remove('active');
+        if (shopPanel) shopPanel.classList.remove('active');
+        if (streakPanel) streakPanel.classList.remove('active');
+        if (shareOverlay) shareOverlay.classList.remove('active');
+    }
+
+    function toggleCoursePanel(e) {
+        if (e) e.stopPropagation();
+        closeAllPanels();
+        if (coursePanel) {
+            coursePanel.classList.toggle('active');
+            if (coursePanel.classList.contains('active')) {
+                renderCoursesSlider();
+            }
+        }
+    }
+
+    function toggleHeartsPanel(e) {
+        if (e) e.stopPropagation();
+        closeAllPanels();
+        if (heartsPanel) {
+            heartsPanel.classList.toggle('active');
+            if (heartsPanel.classList.contains('active')) {
+                updateHeartsUI();
+            }
+        }
+    }
+
+    function toggleShopPanel(e) {
+        if (e) e.stopPropagation();
+        closeAllPanels();
+        if (shopPanel) {
+            shopPanel.classList.toggle('active');
+            if (shopPanel.classList.contains('active')) {
+                const coins = document.querySelector('#coinsItem span')?.textContent || '500';
+                const shopCoinCount = document.getElementById('shopCoinCount');
+                if (shopCoinCount) shopCoinCount.textContent = coins;
+            }
+        }
+    }
+
+    function toggleStreakPanel(e) {
+        if (e) e.stopPropagation();
+        closeAllPanels();
+        if (streakPanel) {
+            streakPanel.classList.toggle('active');
+            if (streakPanel.classList.contains('active')) {
+                loadStreakCalendar();
+            }
+        }
+    }
+
+    if (activeCourseIcon) activeCourseIcon.addEventListener('click', toggleCoursePanel);
+    if (activeCourseLevel) activeCourseLevel.addEventListener('click', toggleCoursePanel);
+    if (heartsIcon) heartsIcon.addEventListener('click', toggleHeartsPanel);
+    if (coinsIcon) coinsIcon.addEventListener('click', toggleShopPanel);
+    if (streakIcon) streakIcon.addEventListener('click', toggleStreakPanel);
+    if (streakCount) streakCount.addEventListener('click', toggleStreakPanel);
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.course-panel-container') && !e.target.closest('#activeCourseIcon') && !e.target.closest('#activeCourseLevel')) {
+            if (coursePanel) coursePanel.classList.remove('active');
+        }
+        if (!e.target.closest('.hearts-panel-container') && !e.target.closest('#heartsItem')) {
+            if (heartsPanel) heartsPanel.classList.remove('active');
+        }
+        if (!e.target.closest('.shop-panel-container') && !e.target.closest('#coinsItem')) {
+            if (shopPanel) shopPanel.classList.remove('active');
+        }
+        if (!e.target.closest('.streak-calendar-container') && !e.target.closest('#streakItem') && !e.target.closest('#streakCount')) {
+            if (streakPanel) streakPanel.classList.remove('active');
+        }
+        if (!e.target.closest('.share-overlay') && !e.target.closest('#streakShareButton')) {
+            if (shareOverlay) shareOverlay.classList.remove('active');
+        }
+    });
+
+    const streakClose = document.getElementById('streakCloseButton');
+    if (streakClose) streakClose.addEventListener('click', () => { if (streakPanel) streakPanel.classList.remove('active'); });
+
+    const streakShare = document.getElementById('streakShareButton');
+    if (streakShare) {
+        streakShare.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const shareStreakNumber = document.getElementById('shareStreakNumber');
+            const streakCountEl = document.getElementById('streakCount');
+            if (shareStreakNumber && streakCountEl) {
+                shareStreakNumber.textContent = streakCountEl.textContent;
+            }
+            if (shareOverlay) shareOverlay.classList.toggle('active');
+        });
+    }
+
+    const shopClose = document.getElementById('shopCloseButton');
+    if (shopClose) shopClose.addEventListener('click', () => { if (shopPanel) shopPanel.classList.remove('active'); });
+
+    const refillBtn = document.getElementById('refillHeartsButton');
+    if (refillBtn) refillBtn.addEventListener('click', handleRefillHearts);
+
+    const startLessonLink = document.getElementById('startLessonLink');
+    if (startLessonLink) {
+        startLessonLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (streakPanel) streakPanel.classList.remove('active');
+            const courseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
+            window.location.href = `/${courseId}.html`;
+        });
+    }
+
+    document.addEventListener('click', (e) => {
+        const addBtn = e.target.closest('.add-course-slider');
+        if (addBtn) {
+            window.location.href = '/courses.html?action=add-course';
+        }
+    });
+}
+
+function renderCoursesSlider() {
+    const slider = document.getElementById('coursesSlider');
+    if (!slider) return;
+
+    let userCourseIds = JSON.parse(localStorage.getItem('userCourses') || '[]');
+    const activeId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
+    
+    if (userCourseIds.length === 0) {
+        userCourseIds = [activeId];
+        localStorage.setItem('userCourses', JSON.stringify(userCourseIds));
+    }
+
+    let html = '';
+    userCourseIds.forEach(id => {
+        const course = ALL_COURSES.find(c => c.id === id);
+        if (course) {
+            const isActive = course.id === activeId;
+            html += `
+                <div class="course-slider-item ${isActive ? 'active' : ''}" data-course-id="${course.id}">
+                    <div class="course-slider-icon"><img src="${course.img}" alt="${course.name}" loading="lazy"></div>
+                    <div class="course-slider-name">${course.name}</div>
+                </div>
+            `;
+        }
+    });
+
+    html += `
+        <div class="add-course-slider">
+            <div class="add-course-slider-icon">
+                <img src="/assets/icons/phosphor/regular/plus.svg" alt="Add" style="width:32px;height:32px;">
+            </div>
+            <div class="add-course-slider-text">Course</div>
+        </div>
+    `;
+    slider.innerHTML = html;
+
+    slider.querySelectorAll('.course-slider-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const id = item.dataset.courseId;
+            localStorage.setItem('selectedCourseId', id);
+            const courseImg = document.querySelector('#activeCourseIcon img');
+            if (courseImg) {
+                courseImg.src = `/assets/courses/${id}.png`;
+            }
+            const panel = document.getElementById('coursePanelContainer');
+            if (panel) panel.classList.remove('active');
+            window.location.reload();
+        });
+    });
+}
+
+function updateCourseProgress(courseId) {
+    const progress = getCourseProgress(courseId);
+    const pct = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
+    
+    const level = Math.floor(pct / 16.67) + 1;
+    const currentLevelEl = document.getElementById('currentLevel');
+    const nextLevelEl = document.getElementById('nextLevel');
+    const progressBar = document.getElementById('progressBar');
+    const courseStatus = document.getElementById('courseStatus');
+
+    if (currentLevelEl) currentLevelEl.textContent = `Level ${Math.min(level, 6)}`;
+    if (nextLevelEl) nextLevelEl.textContent = `Level ${Math.min(level + 1, 6)}`;
+    if (progressBar) progressBar.style.width = `${Math.min(pct, 100)}%`;
+    if (courseStatus) {
+        const course = ALL_COURSES.find(c => c.id === courseId);
+        courseStatus.textContent = `You are on Level ${Math.min(level, 6)} of ${course?.name || 'this course'}`;
+    }
+}
+
+function updateHeartsUI() {
+    const heartsSpan = document.querySelector('#heartsItem span');
+    if (!heartsSpan) return;
+    const hearts = parseInt(heartsSpan.textContent) || 0;
+    const missing = 5 - hearts;
+
+    const heartIcons = document.querySelectorAll('.hearts-display .heart-icon');
+    heartIcons.forEach((img, index) => {
+        if (index < hearts) {
+            img.src = '/assets/icons/phosphor/fill/heart.svg';
+            img.className = 'heart-icon full';
+        } else if (index === hearts && missing > 0) {
+            img.src = '/assets/icons/phosphor/duotone/heart.svg';
+            img.className = 'heart-icon next';
+        } else {
+            img.src = '/assets/icons/phosphor/regular/heart.svg';
+            img.className = 'heart-icon empty';
+        }
+    });
+
+    const refillBtn = document.getElementById('refillHeartsButton');
+    const timer = document.querySelector('.timer');
+    const practiceBtn = document.querySelector('.practice-button');
+    const refillPrice = document.getElementById('refillPrice');
+
+    if (hearts >= 5) {
+        if (refillBtn) refillBtn.classList.add('hidden');
+        if (timer) timer.classList.add('hidden');
+        if (practiceBtn) practiceBtn.classList.add('hidden');
+    } else {
+        if (refillBtn) refillBtn.classList.remove('hidden');
+        if (timer) timer.classList.remove('hidden');
+        if (practiceBtn) practiceBtn.classList.remove('hidden');
+        let price = 0;
+        if (missing === 1) price = 90;
+        else if (missing === 2) price = 170;
+        else if (missing === 3) price = 240;
+        else if (missing === 4) price = 300;
+        else if (missing === 5) price = 350;
+        if (refillPrice) refillPrice.textContent = price;
+    }
+}
+
+function handleRefillHearts() {
+    const coinsSpan = document.querySelector('#coinsItem span');
+    const heartsSpan = document.querySelector('#heartsItem span');
+    if (!coinsSpan || !heartsSpan) return;
+
+    const currentCoins = parseInt(coinsSpan.textContent) || 0;
+    const currentHearts = parseInt(heartsSpan.textContent) || 0;
     const missing = 5 - currentHearts;
-    if (missing <= 0) { alert('Hearts are already full!'); return; }
+
+    if (missing <= 0) {
+        alert('Hearts are already full!');
+        return;
+    }
+
     let price = 0;
     if (missing === 1) price = 90;
     else if (missing === 2) price = 170;
     else if (missing === 3) price = 240;
     else if (missing === 4) price = 300;
     else if (missing === 5) price = 350;
+
     if (currentCoins < price) {
-      alert(`Not enough coins! You need ${price} coins to refill ${missing} heart${missing>1?'s':''}.`);
-      return;
+        alert(`Not enough coins! You need ${price} coins to refill ${missing} heart${missing > 1 ? 's' : ''}.`);
+        return;
     }
-    // Deduct coins and refill hearts
+
     const newCoins = currentCoins - price;
-    document.querySelector('#coinsItem span').textContent = newCoins;
-    document.querySelector('#heartsItem span').textContent = 5;
-    // Update hearts display in panel
-    const heartIcons = document.querySelectorAll('.hearts-display .heart-icon');
-    heartIcons.forEach(icon => {
-      icon.src = '/assets/icons/phosphor/fill/heart.svg';
-      icon.classList.remove('empty', 'next');
-    });
-    heartsPanel.classList.remove('active');
+    coinsSpan.textContent = newCoins;
+    heartsSpan.textContent = 5;
+    localStorage.setItem('coins', String(newCoins));
+    localStorage.setItem('hearts', '5');
+
+    updateHeartsUI();
+    const panel = document.getElementById('heartsPanelContainer');
+    if (panel) panel.classList.remove('active');
     alert('Hearts refilled!');
-  });
+}
 
-  // Start lesson link in streak panel
-  document.getElementById('startLessonLink')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    streakPanel.classList.remove('active');
-    // Redirect to the first incomplete lesson of the active course
-    // For now, go to a placeholder
-    const courseId = 'g12-life-sciences'; // Get from active course
-    window.location.href = `/pages/lesson.html?course=${courseId}&lesson=introduction-to-nucleic-acids`;
-  });
+function initHeartsTimer() {
+    const timerEl = document.getElementById('heartTimer');
+    if (timerEl) timerEl.textContent = '30m';
+}
 
-  // Share overlay: save image
-  document.getElementById('saveImage')?.addEventListener('click', async () => {
-    const card = document.getElementById('streakCard');
-    if (!card) return;
-    await document.fonts.ready;
-    const html2canvas = (await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.esm.js')).default;
-    html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true }).then(canvas => {
-      const link = document.createElement('a');
-      const date = new Date().toISOString().slice(0,10);
-      const streak = document.getElementById('streakCount').textContent;
-      link.download = `${date}_vulanet-${streak}-day-streak.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      document.getElementById('shareOverlay').classList.remove('active');
-    }).catch(err => {
-      console.error('Error saving image:', err);
-      alert('Could not save image. Please try again.');
-    });
-  });
+let streakNav = 0;
 
-  // Share overlay: more options (native share)
-  document.getElementById('moreOptions')?.addEventListener('click', async () => {
-    const shareText = `I'm on a ${document.getElementById('streakCount').textContent} day learning streak! Learn a course with me for free! Vulanet is the fun and successful way to learning. #Vulanet`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'My Vulanet Streak', text: shareText, url: 'https://vulanet.com/streak' });
-      } catch(e) {}
-    } else {
-      navigator.clipboard.writeText(shareText).then(() => alert('Copied to clipboard!'));
-    }
-    document.getElementById('shareOverlay').classList.remove('active');
-  });
+function initStreakCalendar() {}
 
-  // Share to specific platforms
-  function shareTo(platform) {
-    const shareText = `I'm on a ${document.getElementById('streakCount').textContent} day learning streak! Learn a course with me for free! Vulanet is the fun and successful way to learning. #Vulanet`;
-    const url = 'https://vulanet.com/streak';
-    let shareUrl = '';
-    if (platform === 'facebook') {
-      shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(shareText)}`;
-    } else if (platform === 'x') {
-      shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-    } else if (platform === 'whatsapp') {
-      shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-    } else if (platform === 'sms') {
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        window.location.href = `sms:?body=${encodeURIComponent(shareText)}`;
-        return;
-      } else {
-        navigator.clipboard.writeText(shareText).then(() => alert('Copied to clipboard!'));
-        return;
-      }
-    }
-    if (shareUrl) window.open(shareUrl, '_blank');
-    document.getElementById('shareOverlay').classList.remove('active');
-  }
-
-  document.getElementById('shareFacebook')?.addEventListener('click', () => shareTo('facebook'));
-  document.getElementById('shareX')?.addEventListener('click', () => shareTo('x'));
-  document.getElementById('shareWhatsApp')?.addEventListener('click', () => shareTo('whatsapp'));
-  document.getElementById('shareSms')?.addEventListener('click', () => shareTo('sms'));
-
-  // Streak calendar navigation
-  let nav = 0;
-  const year = 2026;
-  // Simulated streak data (placeholder)
-  const streakData = { 0: { streakWeeks: [0,1], firstAidDay: 15, yellowDays: [12,14,16,17,18,19,20], greyCircleDay: 21 } };
-  
-  window.loadStreakCalendar = function() {
-    const dt = new Date(year, 0 + nav, 1);
-    const month = dt.getMonth();
+function loadStreakCalendar() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + streakNav;
+    const dt = new Date(year, month, 1);
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const firstDay = dt.getDay();
     const prevMonthDays = new Date(year, month, 0).getDate();
-    document.getElementById('monthDisplay').innerText = dt.toLocaleDateString('en-us', { month: 'long', year: 'numeric' });
-    const weeksContainer = document.getElementById('calendarWeeks');
-    weeksContainer.innerHTML = '';
-    let dayCount = 1 - firstDayOfMonth;
-    const totalCells = Math.ceil((firstDayOfMonth + daysInMonth) / 7) * 7;
-    const totalWeeks = totalCells / 7;
-    for (let week = 0; week < totalWeeks; week++) {
-      const weekDiv = document.createElement('div');
-      weekDiv.className = 'week';
-      const monthData = streakData[nav] || {};
-      if (monthData.streakWeeks && monthData.streakWeeks.includes(week)) {
-        weekDiv.classList.add('streak');
-      }
-      for (let i = 0; i < 7; i++) {
-        const dayDiv = document.createElement('div');
-        dayDiv.className = 'day';
-        if (dayCount < 1) {
-          dayDiv.textContent = prevMonthDays + dayCount;
-          dayDiv.classList.add('inactive');
-        } else if (dayCount > daysInMonth) {
-          dayDiv.textContent = dayCount - daysInMonth;
-          dayDiv.classList.add('inactive');
-        } else {
-          const dayClass = getDayClass(dayCount, monthData);
-          if (dayClass === 'first-aid') {
-            dayDiv.innerHTML = `<i class="ph-fill ph-first-aid icon"></i><span class="number">${dayCount}</span>`;
-            dayDiv.classList.add('first-aid');
-          } else {
-            dayDiv.textContent = dayCount;
-            if (dayClass) dayDiv.classList.add(dayClass);
-          }
-        }
-        weekDiv.appendChild(dayDiv);
-        dayCount++;
-      }
-      weeksContainer.appendChild(weekDiv);
+
+    const monthDisplay = document.getElementById('monthDisplay');
+    if (monthDisplay) {
+        monthDisplay.innerText = dt.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     }
-  };
 
-  function getDayClass(day, monthData) {
-    if (monthData.firstAidDay === day) return 'first-aid';
-    if (monthData.yellowDays && monthData.yellowDays.includes(day)) return 'yellow';
-    if (monthData.greyCircleDay === day) return 'grey-circle';
-    const today = new Date();
-    if (day === today.getDate() && nav === 0) return 'current';
-    return '';
-  }
+    const weeksContainer = document.getElementById('calendarWeeks');
+    if (!weeksContainer) return;
+    weeksContainer.innerHTML = '';
 
-  document.getElementById('prevBtn')?.addEventListener('click', () => { nav--; window.loadStreakCalendar(); });
-  document.getElementById('nextBtn')?.addEventListener('click', () => { nav++; window.loadStreakCalendar(); });
+    let history = {};
+    try {
+        const raw = localStorage.getItem('streakHistory');
+        if (raw) history = JSON.parse(raw);
+    } catch(e) {}
 
-  // Initialize calendar if visible
-  if (document.getElementById('streakCalendarContainer') && document.getElementById('streakCalendarContainer').classList.contains('active')) {
-    window.loadStreakCalendar();
-  }
+    let dayCount = 1 - firstDay;
+    const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+    const totalWeeks = totalCells / 7;
+
+    for (let week = 0; week < totalWeeks; week++) {
+        const weekDiv = document.createElement('div');
+        weekDiv.className = 'week';
+
+        let isFullStreak = true;
+        let hasRevival = false;
+        const weekDays = [];
+        for (let d = 0; d < 7; d++) {
+            const dayNumber = dayCount + d;
+            if (dayNumber < 1 || dayNumber > daysInMonth) continue;
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`;
+            const status = history[dateStr] || 'missed';
+            weekDays.push({ dayNumber, status });
+            if (status === 'revival') hasRevival = true;
+            if (status !== 'completed' && status !== 'revival') isFullStreak = false;
+        }
+
+        if (isFullStreak && !hasRevival && weekDays.length === 7) {
+            weekDiv.classList.add('streak');
+        }
+
+        for (let i = 0; i < 7; i++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day';
+
+            const dayNumber = dayCount + i;
+            if (dayNumber < 1) {
+                const prevDay = prevMonthDays + dayNumber;
+                dayDiv.textContent = prevDay;
+                dayDiv.classList.add('inactive');
+            } else if (dayNumber > daysInMonth) {
+                const nextDay = dayNumber - daysInMonth;
+                dayDiv.textContent = nextDay;
+                dayDiv.classList.add('inactive');
+            } else {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`;
+                const status = history[dateStr] || 'missed';
+                const today = new Date();
+                const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === dayNumber && streakNav === 0);
+
+                if (status === 'revival') {
+                    const icon = document.createElement('img');
+                    icon.src = '/assets/icons/phosphor/fill/first-aid.svg';
+                    icon.className = 'icon';
+                    icon.style.width = '24px';
+                    icon.style.height = '24px';
+                    icon.style.filter = 'brightness(0) saturate(100%) invert(16%) sepia(100%) saturate(7410%) hue-rotate(355deg) brightness(93%) contrast(108%)';
+                    const number = document.createElement('span');
+                    number.className = 'number';
+                    number.textContent = dayNumber;
+                    dayDiv.classList.add('first-aid');
+                    dayDiv.appendChild(icon);
+                    dayDiv.appendChild(number);
+                } else if (status === 'completed') {
+                    if (isFullStreak && !hasRevival) {
+                        dayDiv.classList.add('streak-day');
+                    } else {
+                        dayDiv.classList.add('yellow');
+                    }
+                    dayDiv.textContent = dayNumber;
+                } else if (isToday && status !== 'completed') {
+                    dayDiv.classList.add('grey-circle');
+                    dayDiv.textContent = dayNumber;
+                } else {
+                    dayDiv.textContent = dayNumber;
+                }
+            }
+
+            weekDiv.appendChild(dayDiv);
+        }
+        weeksContainer.appendChild(weekDiv);
+        dayCount += 7;
+    }
+}
+
+document.addEventListener('click', (e) => {
+    const prevBtn = e.target.closest('#prevBtn');
+    const nextBtn = e.target.closest('#nextBtn');
+    if (prevBtn) { streakNav--; loadStreakCalendar(); }
+    else if (nextBtn) { streakNav++; loadStreakCalendar(); }
+});
+
+function initShareOverlay() {
+    const saveImageBtn = document.getElementById('saveImage');
+    if (saveImageBtn) {
+        saveImageBtn.addEventListener('click', async () => {
+            const card = document.getElementById('streakCard');
+            if (!card) return;
+            try {
+                const html2canvas = (await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.esm.js')).default;
+                html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true }).then(canvas => {
+                    const link = document.createElement('a');
+                    const date = new Date().toISOString().slice(0, 10);
+                    const streak = document.getElementById('streakCount')?.textContent || '1';
+                    link.download = `${date}_vulanet-${streak}-day-streak.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    const overlay = document.getElementById('shareOverlay');
+                    if (overlay) overlay.classList.remove('active');
+                });
+            } catch (e) {
+                console.error('Error saving image:', e);
+                alert('Could not save image.');
+            }
+        });
+    }
+
+    const moreOptionsBtn = document.getElementById('moreOptions');
+    if (moreOptionsBtn) {
+        moreOptionsBtn.addEventListener('click', async () => {
+            const streak = document.getElementById('streakCount')?.textContent || '1';
+            const shareText = `I'm on a ${streak} day learning streak! Learn a course with me for free! Vulanet is the fun and successful way to learning. #Vulanet`;
+            if (navigator.share) {
+                try { await navigator.share({ title: 'My Vulanet Streak', text: shareText, url: 'https://vulanet.com/streak' }); } catch(e) {}
+            } else {
+                try { await navigator.clipboard.writeText(shareText); alert('Copied to clipboard!'); } catch(e) { alert('Please copy this text manually:\n' + shareText); }
+            }
+            const overlay = document.getElementById('shareOverlay');
+            if (overlay) overlay.classList.remove('active');
+        });
+    }
+
+    function shareTo(platform) {
+        const streak = document.getElementById('streakCount')?.textContent || '1';
+        const shareText = `I'm on a ${streak} day learning streak! Learn a course with me for free! Vulanet is the fun and successful way to learning. #Vulanet`;
+        const url = 'https://vulanet.com/streak';
+        let shareUrl = '';
+        if (platform === 'facebook') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(shareText)}`;
+        else if (platform === 'x') shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+        else if (platform === 'whatsapp') shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+        else if (platform === 'sms') {
+            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                window.location.href = `sms:?body=${encodeURIComponent(shareText)}`;
+                return;
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => alert('Copied to clipboard!'));
+                return;
+            }
+        }
+        if (shareUrl) window.open(shareUrl, '_blank');
+        const overlay = document.getElementById('shareOverlay');
+        if (overlay) overlay.classList.remove('active');
+    }
+
+    const fbBtn = document.getElementById('shareFacebook');
+    const xBtn = document.getElementById('shareX');
+    const waBtn = document.getElementById('shareWhatsApp');
+    const smsBtn = document.getElementById('shareSms');
+    if (fbBtn) fbBtn.addEventListener('click', () => shareTo('facebook'));
+    if (xBtn) xBtn.addEventListener('click', () => shareTo('x'));
+    if (waBtn) waBtn.addEventListener('click', () => shareTo('whatsapp'));
+    if (smsBtn) smsBtn.addEventListener('click', () => shareTo('sms'));
 }
 
 function initFooter() {
-  const navItems = document.querySelectorAll('.nav-item');
-  navItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      navItems.forEach(n => n.classList.remove('active'));
-      item.classList.add('active');
-      // Here you can navigate or update content
-      const view = item.dataset.view;
-      // Update header visibility based on view
-      updateHeaderVisibility(view);
+    const navItems = document.querySelectorAll('.nav-item');
+    const activeCourseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
+    
+    navItems.forEach(item => {
+        const view = item.dataset.view;
+        
+        const path = window.location.pathname;
+        if (view === 'home' && (path === '/' || path === `/${activeCourseId}.html` || path.includes('/read/'))) {
+            item.classList.add('active');
+        } else if (view === 'book' && path.includes('/practice-hub.html')) {
+            item.classList.add('active');
+        }
+        
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            navItems.forEach(n => n.classList.remove('active'));
+            item.classList.add('active');
+            
+            switch(view) {
+                case 'home':
+                    const courseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
+                    window.location.href = `/${courseId}.html`;
+                    break;
+                case 'book':
+                    window.location.href = '/practice-hub.html';
+                    break;
+                case 'ranking':
+                    alert('Leaderboard – coming soon!');
+                    break;
+                case 'treasure':
+                    alert('Treasure – coming soon!');
+                    break;
+                case 'user':
+                    alert('Profile – coming soon!');
+                    break;
+                case 'bell':
+                    alert('Notifications – coming soon!');
+                    break;
+                default:
+                    break;
+            }
+        });
     });
-  });
 }
-
-function updateHeaderVisibility(view) {
-  document.querySelectorAll('.stat-item').forEach(el => el.classList.remove('header-icon-hidden'));
-  if (['ranking', 'treasure', 'bell'].includes(view)) {
-    document.getElementById('activeCourseItem').classList.add('header-icon-hidden');
-    document.getElementById('streakItem').classList.add('header-icon-hidden');
-    document.getElementById('coinsItem').classList.add('header-icon-hidden');
-    document.getElementById('heartsItem').classList.add('header-icon-hidden');
-  } else if (view === 'user') {
-    document.getElementById('activeCourseItem').classList.add('header-icon-hidden');
-  }
-}
-
-// Auto-load on DOMContentLoaded
-document.addEventListener('DOMContentLoaded', loadLayout);
-

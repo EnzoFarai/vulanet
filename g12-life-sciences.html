@@ -4,59 +4,318 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G12 Life Sciences – Vulanet</title>
-    <!-- Local Fonts -->
     <link rel="stylesheet" href="/assets/fonts/fonts.css">
-    <!-- Local Icons (Material Symbols) – we use SVGs, but this is a fallback font if needed -->
-    <link rel="stylesheet" href="/assets/icons/material-symbols/material-symbols.css">
-    <link rel="stylesheet" href="/src/styles/components/buttons.css">
+    <link rel="stylesheet" href="/src/styles/layout.css">
     <link rel="stylesheet" href="/src/styles/learning-path.css">
+    <link rel="stylesheet" href="/src/styles/components/buttons.css">
     <style>
-        body { padding-top: 100px; background: #F8F9FA; }
-        /* Notebook icon in card */
-        .icon-container img { filter: brightness(0) saturate(100%) invert(100%); }
+        body { background: #F8F9FA; margin: 0; padding: 0; }
+        #learning-path-container { padding-top: 20px; }
+        
+        /* Persistent card styles – restored to your working version */
+        .learning-card {
+            position: fixed;
+            top: 82px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            width: calc(100% - 40px);
+            max-width: 1200px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            overflow: hidden;
+            padding: 18px 22px;
+            background: #4285F4;
+            color: #fff;
+        }
+        .learning-card .text-container { flex-grow: 1; }
+        .learning-card .section { font-weight: 500; font-size: 16px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .learning-card .title { font-weight: 700; font-size: 24px; margin-top: 3px; }
+        .learning-card .card-progress { position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; background: rgba(0,0,0,0.1); border-radius: 0 0 16px 16px; overflow: hidden; }
+        .learning-card .card-progress-bar { height: 100%; background: #fff; width: 0%; transition: width 0.3s ease; }
+        .learning-card .icon-container { 
+            display: flex; 
+            align-items: center; 
+            padding-left: 18px; 
+            margin-left: 18px; 
+            border-left: 1px solid rgba(255,255,255,0.3); 
+            cursor: pointer;
+        }
+        .learning-card .icon-container img { 
+            width: 44px; 
+            height: 44px; 
+            filter: brightness(0) saturate(100%) invert(100%); 
+        }
+        .learning-card .icon-container:hover img {
+            transform: scale(1.1);
+            transition: transform 0.2s ease;
+        }
+        
+        /* START speech bubble – restored width */
+        #start-speech-bubble {
+            --bbColor: white;
+            --bbArrowSize: 0.65rem;
+            --bbBorderRadius: 0.5rem;
+            --bbPadding: 0.65rem 1.1rem;
+            background: var(--bbColor);
+            border-radius: var(--bbBorderRadius);
+            padding: var(--bbPadding);
+            position: absolute;
+            border: 2px solid #e5e5e5;
+            color: black;
+            width: 95px;
+            height: 58px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 3;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+            animation: float 3s infinite ease-in-out;
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            pointer-events: none;
+        }
+        #start-speech-bubble.visible { opacity: 1; visibility: visible; }
+        #start-speech-bubble::before {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: solid transparent;
+            border-width: var(--bbArrowSize) calc(var(--bbArrowSize) * 0.75) 0;
+            border-top-color: #e5e5e5;
+            z-index: 1;
+        }
+        #start-speech-bubble::after {
+            top: calc(100% - 2px);
+            left: 50%;
+            transform: translateX(-50%);
+            border: solid transparent;
+            border-width: calc(var(--bbArrowSize) - 2px) calc(var(--bbArrowSize) * 0.75 - 2px) 0;
+            border-top-color: var(--bbColor);
+            z-index: 1;
+        }
+        .speech-title { font-weight: 700; color: #4285F4; font-size: 1.05rem; line-height: 1.2; display: flex; align-items: center; justify-content: center; height: 100%; }
+        @keyframes float { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-5px); } }
+        
+        /* Treasure panel – hidden by default */
+        #treasure-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 92%;
+            max-width: 420px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 24px 18px 28px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        #treasure-panel.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+        #overlay.active { opacity: 1; visibility: visible; }
+        
+        /* Subtitle styling – full width lines */
+        .subtitle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 24px auto 32px;
+            width: 100%;
+            min-height: 30px;
+            overflow: visible;
+        }
+        .line {
+            flex: 1 1 0;
+            height: 1px;
+            background: #ccc;
+            margin: 0 12px;
+            min-width: 20px;
+        }
+        .subtitle {
+            font-weight: 700;
+            color: #888;
+            white-space: nowrap;
+            font-size: 17px;
+            text-align: center;
+            padding: 0 18px;
+            flex-shrink: 0;
+        }
+        .chapter-container { margin-bottom: 60px; position: relative; }
+        #chapter-1 { padding-top: 110px; }
+        #chapter-2, #chapter-3, #chapter-4 { padding-top: 0; }
+        .learning-path-container {
+            position: relative;
+            margin-bottom: 28px;
+            min-height: 520px;
+            background-color: var(--bg-light);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 22px 0;
+        }
+        .learning-path {
+            position: relative;
+            width: 100%;
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 auto;
+        }
+        .path-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        /* Up Next section */
+        .up-next-section {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #ccc;
+            width: 100%;
+        }
+        .up-next-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 20px 0 40px;
+        }
+        .up-next-card {
+            width: 100%;
+            max-width: 360px;
+            padding: 32px 20px 28px;
+            text-align: center;
+            background: #ffffff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+        .up-next-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: #e8f0ff;
+            color: #4285F4;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 0.08em;
+            margin-bottom: 22px;
+        }
+        .up-next-title { font-size: 32px; font-weight: 700; margin-bottom: 18px; color: var(--text-dark); }
+        .up-next-description { font-size: 18px; line-height: 1.5; color: var(--text-medium); margin: 0 auto 36px; max-width: 300px; }
+        .up-next-button {
+            width: 100%;
+            height: 56px;
+            background: #4285F4;
+            border-radius: 14px;
+            border: none;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #3367D6;
+            transition: all 0.2s ease;
+        }
+        .up-next-button:hover { background: #3a75d9; transform: translateY(-0.125rem); box-shadow: 0 4px 0 #3367D6; }
+        .up-next-button:active { transform: translateY(0.0625rem); box-shadow: 0 2px 0 #3367D6; }
     </style>
 </head>
 <body>
     <!-- Persistent Learning Card -->
     <div class="learning-card chapter-1" id="persistent-learning-card">
         <div class="text-container">
-            <a href="#" class="section-link"><div class="section">UNIT 1</div></a>
-            <a href="#" class="title-link"><div class="title">Chapter 1</div></a>
+            <div class="section">UNIT 1</div>
+            <div class="title">Chapter 1</div>
             <div class="card-progress"><div class="card-progress-bar" id="persistent-progress-bar"></div></div>
         </div>
-        <a href="#" class="icon-link">
-            <div class="icon-container">
-                <img src="/assets/icons/phosphor/bold/notebook.svg" alt="Notebook" style="width:44px;height:44px;">
-            </div>
-        </a>
+        <div class="icon-container" id="notebookIcon">
+            <img src="/assets/icons/phosphor/bold/notebook.svg" alt="Notebook">
+        </div>
     </div>
 
     <!-- START Speech Bubble -->
     <div id="start-speech-bubble"><div class="speech-title">START</div></div>
 
-    <main class="container">
-        <!-- Chapter 1 -->
+    <!-- Learning path content -->
+    <main id="learning-path-container">
+        <!-- Chapter 1: DNA: The Code of Life -->
         <div class="chapter-container" id="chapter-1">
-            <div class="subtitle-container"><div class="line"></div><div class="subtitle">DNA: The Code of Life</div><div class="line"></div></div>
-            <div class="learning-path-container"><div class="learning-path" id="learning-path-1"></div></div>
-        </div>
-        <!-- Chapter 2 -->
-        <div class="chapter-container" id="chapter-2">
-            <div class="subtitle-container"><div class="line"></div><div class="subtitle">Meiosis</div><div class="line"></div></div>
-            <div class="learning-path-container"><div class="learning-path" id="learning-path-2"></div></div>
-        </div>
-        <!-- Chapter 3 -->
-        <div class="chapter-container" id="chapter-3">
-            <div class="subtitle-container"><div class="line"></div><div class="subtitle">Reproduction in Vertebrates</div><div class="line"></div></div>
-            <div class="learning-path-container"><div class="learning-path" id="learning-path-3"></div></div>
-        </div>
-        <!-- Chapter 4 -->
-        <div class="chapter-container" id="chapter-4">
-            <div class="subtitle-container"><div class="line"></div><div class="subtitle">Human Reproduction</div><div class="line"></div></div>
-            <div class="learning-path-container"><div class="learning-path" id="learning-path-4"></div></div>
+            <div class="subtitle-container">
+                <div class="line"></div>
+                <div class="subtitle">DNA: The Code of Life</div>
+                <div class="line"></div>
+            </div>
+            <div class="learning-path-container">
+                <div class="learning-path" id="learning-path-1"></div>
+            </div>
         </div>
 
-        <!-- UP NEXT -->
+        <!-- Chapter 2: Meiosis -->
+        <div class="chapter-container" id="chapter-2">
+            <div class="subtitle-container">
+                <div class="line"></div>
+                <div class="subtitle">Meiosis</div>
+                <div class="line"></div>
+            </div>
+            <div class="learning-path-container">
+                <div class="learning-path" id="learning-path-2"></div>
+            </div>
+        </div>
+
+        <!-- Chapter 3: Reproduction in Vertebrates -->
+        <div class="chapter-container" id="chapter-3">
+            <div class="subtitle-container">
+                <div class="line"></div>
+                <div class="subtitle">Reproduction in Vertebrates</div>
+                <div class="line"></div>
+            </div>
+            <div class="learning-path-container">
+                <div class="learning-path" id="learning-path-3"></div>
+            </div>
+        </div>
+
+        <!-- Chapter 4: Human Reproduction -->
+        <div class="chapter-container" id="chapter-4">
+            <div class="subtitle-container">
+                <div class="line"></div>
+                <div class="subtitle">Human Reproduction</div>
+                <div class="line"></div>
+            </div>
+            <div class="learning-path-container">
+                <div class="learning-path" id="learning-path-4"></div>
+            </div>
+        </div>
+
+        <!-- UP NEXT Section -->
         <div class="up-next-section">
             <div class="up-next-container">
                 <div class="up-next-card">
@@ -69,130 +328,177 @@
         </div>
     </main>
 
-    <!-- Treasure Panel -->
-    <div class="treasure-panel" id="treasure-panel">
-        <div class="reward-scene"><div class="reward-icon-container" id="reward-icon-container"></div></div>
+    <!-- Treasure panel and overlay -->
+    <div id="treasure-panel">
+        <div class="reward-scene">
+            <div class="reward-icon-container" id="reward-icon-container"></div>
+        </div>
         <div class="reward-title" id="reward-title"></div>
         <div class="reward-subtitle" id="reward-subtitle"></div>
-        <div class="reward-buttons-container"><button class="claim-button" id="claim-button">Claim</button></div>
+        <button id="claim-button">Claim</button>
     </div>
-    <div class="overlay" id="overlay"></div>
+    <div id="overlay"></div>
 
-    <script>
-        // COURSE CONFIGURATION – lesson IDs must match JSON filenames!
-        window.COURSE_CONFIG = {
-            courseId: 'g12-life-sciences',
-            unitTitle: 'UNIT 1',
-            chapters: [
-                {
-                    id: 'chapter-1',
-                    number: 1,
-                    colorClass: 'chapter-1',
-                    completedColorClass: 'chapter-1-completed',
-                    nodeColor: '#4285F4',
-                    nodeShadowColor: '#3367D6',
-                    reviewBtnClass: 'btn-review-chapter-1',
-                    reviewCardClass: 'chapter-1-review',
-                    subtitle: 'DNA: The Code of Life',
-                    learningPathId: 'learning-path-1',
-                    lessons: [
-                        { id: 'introduction-to-nucleic-acids', title: 'Introduction to Nucleic Acids', type: 'joystick', totalSublessons: 1 },
-                        { id: 'dna-location-structure-functions', title: 'DNA: Location, Structure and Functions', type: 'joystick', totalSublessons: 1 },
-                        { id: 'dna-replication', title: 'DNA Replication', type: 'joystick', totalSublessons: 1 },
-                        { id: 'midway-checkpoint-1', title: 'Midway Checkpoint', type: 'treasure' },
-                        { id: 'dna-profiling', title: 'DNA Profiling', type: 'joystick', totalSublessons: 1 },
-                        { id: 'rna-structure-function', title: 'RNA: Location, Structure and Function', type: 'joystick', totalSublessons: 1 },
-                        { id: 'protein-synthesis', title: 'Protein Synthesis', type: 'joystick', totalSublessons: 1 },
-                        { id: 'chapter-review-dna', title: 'Chapter Review', type: 'flag', totalSublessons: 1 }
-                    ],
-                    userProgress: {},
-                    currentLessonCard: null,
-                    selectedSublesson: 1,
-                    currentTreasureReward: null
-                },
-                {
-                    id: 'chapter-2',
-                    number: 2,
-                    colorClass: 'chapter-2',
-                    completedColorClass: 'chapter-2-completed',
-                    nodeColor: '#1CB0F6',
-                    nodeShadowColor: '#0A9DE3',
-                    reviewBtnClass: 'btn-review-chapter-2',
-                    reviewCardClass: 'chapter-2-review',
-                    subtitle: 'Meiosis',
-                    learningPathId: 'learning-path-2',
-                    lessons: [
-                        { id: 'introduction-to-meiosis', title: 'Introduction to Meiosis', type: 'joystick', totalSublessons: 1 },
-                        { id: 'meiosis-process', title: 'Meiosis – The Process', type: 'joystick', totalSublessons: 1 },
-                        { id: 'importance-of-meiosis', title: 'Importance of Meiosis', type: 'joystick', totalSublessons: 1 },
-                        { id: 'treasure-meiosis-1', title: 'Treasure Chest', type: 'treasure' },
-                        { id: 'abnormal-meiosis', title: 'Abnormal Meiosis', type: 'joystick', totalSublessons: 1 },
-                        { id: 'comparison-mitosis-meiosis', title: 'Comparison of Mitosis and Meiosis', type: 'joystick', totalSublessons: 1 },
-                        { id: 'chapter-review-meiosis', title: 'Chapter Review', type: 'flag', totalSublessons: 1 }
-                    ],
-                    userProgress: {},
-                    currentLessonCard: null,
-                    selectedSublesson: 1,
-                    currentTreasureReward: null
-                },
-                {
-                    id: 'chapter-3',
-                    number: 3,
-                    colorClass: 'chapter-3',
-                    completedColorClass: 'chapter-3-completed',
-                    nodeColor: '#AA00FF',
-                    nodeShadowColor: '#8A00D4',
-                    reviewBtnClass: 'btn-review-chapter-3',
-                    reviewCardClass: 'chapter-3-review',
-                    subtitle: 'Reproduction in Vertebrates',
-                    learningPathId: 'learning-path-3',
-                    lessons: [
-                        { id: 'intro-vertebrate-reproduction', title: 'Introduction to Reproduction in Vertebrates', type: 'joystick', totalSublessons: 1 },
-                        { id: 'fertilisation-strategies', title: 'External and Internal Fertilisation', type: 'joystick', totalSublessons: 1 },
-                        { id: 'oviparous-ovoviviparous-viviparous', title: 'Oviparous, Ovoviviparous, and Viviparous Strategies', type: 'joystick', totalSublessons: 1 },
-                        { id: 'treasure-vertebrate-1', title: 'Treasure Chest', type: 'treasure' },
-                        { id: 'amniotic-egg', title: 'The Amniotic Egg', type: 'joystick', totalSublessons: 1 },
-                        { id: 'precocial-altricial', title: 'Precocial and Altricial Development', type: 'joystick', totalSublessons: 1 },
-                        { id: 'parental-care', title: 'Parental Care', type: 'joystick', totalSublessons: 1 },
-                        { id: 'chapter-review-vertebrates', title: 'Chapter Review', type: 'flag', totalSublessons: 1 }
-                    ],
-                    userProgress: {},
-                    currentLessonCard: null,
-                    selectedSublesson: 1,
-                    currentTreasureReward: null
-                },
-                {
-                    id: 'chapter-4',
-                    number: 4,
-                    colorClass: 'chapter-4',
-                    completedColorClass: 'chapter-4-completed',
-                    nodeColor: '#EA4335',
-                    nodeShadowColor: '#D32F2F',
-                    reviewBtnClass: 'btn-review-chapter-4',
-                    reviewCardClass: 'chapter-4-review',
-                    subtitle: 'Human Reproduction',
-                    learningPathId: 'learning-path-4',
-                    lessons: [
-                        { id: 'intro-human-reproduction', title: 'Introduction to Human Reproduction', type: 'joystick', totalSublessons: 1 },
-                        { id: 'male-reproductive-system', title: 'Structure of the male reproductive system', type: 'joystick', totalSublessons: 1 },
-                        { id: 'female-reproductive-system', title: 'Structure of the Female Reproductive System', type: 'joystick', totalSublessons: 1 },
-                        { id: 'treasure-human-1', title: 'Treasure Chest', type: 'treasure' },
-                        { id: 'puberty', title: 'Puberty', type: 'joystick', totalSublessons: 1 },
-                        { id: 'gametogenesis', title: 'Gametogenesis', type: 'joystick', totalSublessons: 1 },
-                        { id: 'menstrual-cycle', title: 'Menstrual cycle', type: 'joystick', totalSublessons: 1 },
-                        { id: 'treasure-human-2', title: 'Treasure Chest', type: 'treasure' },
-                        { id: 'fertilisation-development', title: 'Fertilisation and Development of Zygote to Blastocyst', type: 'joystick', totalSublessons: 1 },
-                        { id: 'implantation-gestation-placenta', title: 'Implantation, Gestation and the Role of the Placenta', type: 'joystick', totalSublessons: 1 },
-                        { id: 'chapter-review-human', title: 'Chapter Review', type: 'flag', totalSublessons: 1 }
-                    ],
-                    userProgress: {},
-                    currentLessonCard: null,
-                    selectedSublesson: 1,
-                    currentTreasureReward: null
-                }
-            ]
-        };
+    <script type="importmap">
+        {
+            "imports": {
+                "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+            }
+        }
     </script>
-    <script src="/src/js/course-path.js"></script>
+    <script type="module">
+        import { loadLayout } from './src/js/layout.js';
+        import { renderLearningPath } from './src/js/course-path.js';
+
+        await loadLayout();
+
+        // Notebook icon click → go to reading TOC
+        document.getElementById('notebookIcon').addEventListener('click', () => {
+            window.location.href = '/read/g12-life-sciences.html';
+        });
+
+        const courseId = 'g12-life-sciences';
+        const chapters = [
+            {
+                id: 'chapter-1',
+                number: 1,
+                colorClass: 'chapter-1',
+                completedColorClass: 'chapter-1-completed',
+                nodeColor: '#4285F4',
+                nodeShadowColor: '#3367D6',
+                reviewBtnClass: 'btn-review-chapter-1',
+                reviewCardClass: 'chapter-1-review',
+                subtitle: 'DNA: The Code of Life',
+                learningPathId: 'learning-path-1',
+                lessons: [
+                    { id: 'introduction-to-nucleic-acids', title: 'Introduction to Nucleic Acids', type: 'joystick', totalSublessons: 1 },
+                    { id: 'dna-location-structure-functions', title: 'DNA: Location, Structure and Functions', type: 'joystick', totalSublessons: 1 },
+                    { id: 'dna-replication', title: 'DNA Replication', type: 'joystick', totalSublessons: 1 },
+                    { id: 'midway-checkpoint-1', title: 'Midway Checkpoint', type: 'treasure' },
+                    { id: 'dna-profiling', title: 'DNA Profiling', type: 'joystick', totalSublessons: 1 },
+                    { id: 'rna-structure-function', title: 'RNA: Location, Structure and Function', type: 'joystick', totalSublessons: 1 },
+                    { id: 'protein-synthesis', title: 'Protein Synthesis', type: 'joystick', totalSublessons: 1 },
+                    { id: 'chapter-review-dna', title: 'Chapter Review', type: 'flag', totalSublessons: 1 }
+                ],
+                userProgress: {},
+                currentLessonCard: null,
+                selectedSublesson: 1,
+                currentTreasureReward: null
+            },
+            {
+                id: 'chapter-2',
+                number: 2,
+                colorClass: 'chapter-2',
+                completedColorClass: 'chapter-2-completed',
+                nodeColor: '#1CB0F6',
+                nodeShadowColor: '#0A9DE3',
+                reviewBtnClass: 'btn-review-chapter-2',
+                reviewCardClass: 'chapter-2-review',
+                subtitle: 'Meiosis',
+                learningPathId: 'learning-path-2',
+                lessons: [
+                    { id: 'introduction-to-meiosis', title: 'Introduction to Meiosis', type: 'joystick', totalSublessons: 1 },
+                    { id: 'meiosis-process', title: 'Meiosis – The Process', type: 'joystick', totalSublessons: 1 },
+                    { id: 'importance-of-meiosis', title: 'Importance of Meiosis', type: 'joystick', totalSublessons: 1 },
+                    { id: 'treasure-meiosis-1', title: 'Treasure Chest', type: 'treasure' },
+                    { id: 'abnormal-meiosis', title: 'Abnormal Meiosis', type: 'joystick', totalSublessons: 1 },
+                    { id: 'comparison-mitosis-meiosis', title: 'Comparison of Mitosis and Meiosis', type: 'joystick', totalSublessons: 1 },
+                    { id: 'chapter-review-meiosis', title: 'Chapter Review', type: 'flag', totalSublessons: 1 }
+                ],
+                userProgress: {},
+                currentLessonCard: null,
+                selectedSublesson: 1,
+                currentTreasureReward: null
+            },
+            {
+                id: 'chapter-3',
+                number: 3,
+                colorClass: 'chapter-3',
+                completedColorClass: 'chapter-3-completed',
+                nodeColor: '#AA00FF',
+                nodeShadowColor: '#8A00D4',
+                reviewBtnClass: 'btn-review-chapter-3',
+                reviewCardClass: 'chapter-3-review',
+                subtitle: 'Reproduction in Vertebrates',
+                learningPathId: 'learning-path-3',
+                lessons: [
+                    { id: 'intro-vertebrate-reproduction', title: 'Introduction to Reproduction in Vertebrates', type: 'joystick', totalSublessons: 1 },
+                    { id: 'fertilisation-strategies', title: 'External and Internal Fertilisation', type: 'joystick', totalSublessons: 1 },
+                    { id: 'oviparous-ovoviviparous-viviparous', title: 'Oviparous, Ovoviviparous, and Viviparous Strategies', type: 'joystick', totalSublessons: 1 },
+                    { id: 'treasure-vertebrate-1', title: 'Treasure Chest', type: 'treasure' },
+                    { id: 'amniotic-egg', title: 'The Amniotic Egg', type: 'joystick', totalSublessons: 1 },
+                    { id: 'precocial-altricial', title: 'Precocial and Altricial Development', type: 'joystick', totalSublessons: 1 },
+                    { id: 'parental-care', title: 'Parental Care', type: 'joystick', totalSublessons: 1 },
+                    { id: 'chapter-review-vertebrates', title: 'Chapter Review', type: 'flag', totalSublessons: 1 }
+                ],
+                userProgress: {},
+                currentLessonCard: null,
+                selectedSublesson: 1,
+                currentTreasureReward: null
+            },
+            {
+                id: 'chapter-4',
+                number: 4,
+                colorClass: 'chapter-4',
+                completedColorClass: 'chapter-4-completed',
+                nodeColor: '#EA4335',
+                nodeShadowColor: '#D32F2F',
+                reviewBtnClass: 'btn-review-chapter-4',
+                reviewCardClass: 'chapter-4-review',
+                subtitle: 'Human Reproduction',
+                learningPathId: 'learning-path-4',
+                lessons: [
+                    { id: 'intro-human-reproduction', title: 'Introduction to Human Reproduction', type: 'joystick', totalSublessons: 1 },
+                    { id: 'male-reproductive-system', title: 'Structure of the male reproductive system', type: 'joystick', totalSublessons: 1 },
+                    { id: 'female-reproductive-system', title: 'Structure of the Female Reproductive System', type: 'joystick', totalSublessons: 1 },
+                    { id: 'treasure-human-1', title: 'Treasure Chest', type: 'treasure' },
+                    { id: 'puberty', title: 'Puberty', type: 'joystick', totalSublessons: 1 },
+                    { id: 'gametogenesis', title: 'Gametogenesis', type: 'joystick', totalSublessons: 1 },
+                    { id: 'menstrual-cycle', title: 'Menstrual cycle', type: 'joystick', totalSublessons: 1 },
+                    { id: 'treasure-human-2', title: 'Treasure Chest', type: 'treasure' },
+                    { id: 'fertilisation-development', title: 'Fertilisation and Development of Zygote to Blastocyst', type: 'joystick', totalSublessons: 1 },
+                    { id: 'implantation-gestation-placenta', title: 'Implantation, Gestation and the Role of the Placenta', type: 'joystick', totalSublessons: 1 },
+                    { id: 'chapter-review-human', title: 'Chapter Review', type: 'flag', totalSublessons: 1 }
+                ],
+                userProgress: {},
+                currentLessonCard: null,
+                selectedSublesson: 1,
+                currentTreasureReward: null
+            }
+        ];
+
+        let savedProgress = {};
+        try {
+            const raw = localStorage.getItem(`vulanet_progress_${courseId}`);
+            if (raw) savedProgress = JSON.parse(raw);
+        } catch(e) {}
+
+        chapters.forEach(ch => {
+            ch.userProgress = savedProgress[ch.id] || {};
+            ch.lessons.forEach(lesson => {
+                if (!ch.userProgress[lesson.id]) {
+                    ch.userProgress[lesson.id] = {
+                        status: lesson.type === 'treasure' ? 'locked' : 'unstarted',
+                        mastered: false,
+                        completedSublessons: 0,
+                        totalSublessons: lesson.totalSublessons || 1,
+                        sublessonCompleted: Array(lesson.totalSublessons || 1).fill(false),
+                        sublessonMastered: Array(lesson.totalSublessons || 1).fill(false)
+                    };
+                }
+            });
+        });
+
+        renderLearningPath({
+            containerId: 'learning-path-container',
+            chapters,
+            userProgress: savedProgress,
+            courseId,
+            unitTitle: 'UNIT 1',
+            onLessonStart: (lessonId) => {
+                window.location.href = `/pages/lesson.html?course=${courseId}&lesson=${lessonId}`;
+            }
+        });
+    </script>
 </body>
 </html>

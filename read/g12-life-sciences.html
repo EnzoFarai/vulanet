@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G12 Life Sciences — Table of Contents | Vulanet</title>
+    <link rel="stylesheet" href="/assets/fonts/fonts.css">
+    <link rel="stylesheet" href="/src/styles/layout.css">
+    <style>
+        :root {
+            --primary-blue: #4285F4;
+            --light-blue: #1CB0F6;
+            --violet: #AA00FF;
+            --red: #EA4335;
+            --orange: #FF6D01;
+            --yellow: #FBBC05;
+            --green: #34A853;
+            --text-dark: #202124;
+            --text-light: #FFFFFF;
+            --bg-light: #F8F9FA;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Atkinson Hyperlegible Next', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding: 20px 20px 100px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            color: var(--primary-blue);
+            margin-bottom: 30px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .reading-list-container { margin-top: 20px; }
+
+        .unit-header {
+            font-weight: 700;
+            font-size: 28px;
+            color: var(--text-dark);
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        .unit-header:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+        .unit-header::after {
+            content: '▼';
+            font-size: 18px;
+            color: var(--text-dark);
+            transition: transform 0.2s ease;
+        }
+        .unit-header.expanded::after { transform: rotate(180deg); }
+
+        .unit-content {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), padding 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        .unit-content.expanded {
+            padding: 20px;
+            max-height: 5000px;
+        }
+
+        .chapter-card {
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+            overflow: hidden;
+            background-color: white;
+        }
+
+        .chapter-number-section {
+            padding: 16px 20px;
+            color: var(--text-light);
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .chapter-title-section {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .chapter-title-section:hover { background-color: #f9f9f9; }
+        .chapter-title {
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--text-dark);
+        }
+        .expand-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            transition: transform 0.2s cubic-bezier(0.4,0,0.2,1);
+        }
+        .expand-indicator::after { content: '▼'; font-size: 14px; color: var(--text-dark); }
+        .chapter-card.expanded .expand-indicator { transform: rotate(180deg); }
+
+        .lessons-list {
+            list-style-type: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1);
+        }
+        .lessons-list.expanded { max-height: 1000px; }
+
+        .lesson-item { padding: 14px 20px; border-bottom: 1px solid #f0f0f0; }
+        .lesson-item:last-child { border-bottom: none; }
+        .lesson-link {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.2s ease;
+            display: block;
+        }
+        .lesson-link:hover { color: var(--primary-blue); text-decoration: underline; }
+        .lesson-number { font-weight: 700; color: var(--text-dark); margin-right: 8px; }
+
+        /* Color sequence */
+        .color-1 { background-color: var(--primary-blue); }
+        .color-2 { background-color: var(--light-blue); }
+        .color-3 { background-color: var(--violet); }
+        .color-4 { background-color: var(--red); }
+        .color-5 { background-color: var(--orange); }
+        .color-6 { background-color: var(--yellow); }
+        .color-7 { background-color: var(--green); }
+
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .unit-header { font-size: 24px; padding: 16px; }
+            .chapter-title { font-size: 18px; }
+            .chapter-number-section, .chapter-title-section { padding: 14px 16px; }
+            .lesson-item { padding: 12px 16px; }
+            .lesson-link { font-size: 15px; }
+        }
+        @media (max-width: 480px) {
+            .unit-header { font-size: 22px; padding: 14px; }
+            .chapter-title { font-size: 16px; }
+            .chapter-number-section { font-size: 16px; padding: 12px 14px; }
+            .lesson-item { padding: 10px 14px; }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="page-title">G12 Life Sciences</h1>
+
+    <div class="reading-list-container">
+        <!-- Unit 1 -->
+        <div class="unit-1">
+            <div class="unit-header" onclick="toggleUnit('unit1')">Unit 1</div>
+            <div class="unit-content" id="unit1">
+                <div class="chapter-card">
+                    <div class="chapter-number-section color-1">Chapter 1</div>
+                    <div class="chapter-title-section" onclick="toggleChapter(this, event)">
+                        <div class="chapter-title">DNA: The Code of Life</div>
+                        <div class="expand-indicator"></div>
+                    </div>
+                    <ul class="lessons-list">
+                        <li class="lesson-item"><a href="/read/g12-life-sciences/introduction-to-nucleic-acids.html" class="lesson-link"><span class="lesson-number">1.</span>Introduction</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">2.</span>DNA: location, structure and functions</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">3.</span>DNA replication</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">4.</span>DNA profiling</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">5.</span>RNA: location, structure and function</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">6.</span>Protein synthesis</a></li>
+                    </ul>
+                </div>
+                <div class="chapter-card">
+                    <div class="chapter-number-section color-2">Chapter 2</div>
+                    <div class="chapter-title-section" onclick="toggleChapter(this, event)">
+                        <div class="chapter-title">Meiosis</div>
+                        <div class="expand-indicator"></div>
+                    </div>
+                    <ul class="lessons-list">
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">1.</span>Introduction</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">2.</span>Meiosis – The process</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">3.</span>Importance of meiosis</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">4.</span>Abnormal meiosis</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">5.</span>Comparison of mitosis and meiosis</a></li>
+                    </ul>
+                </div>
+                <div class="chapter-card">
+                    <div class="chapter-number-section color-3">Chapter 3</div>
+                    <div class="chapter-title-section" onclick="toggleChapter(this, event)">
+                        <div class="chapter-title">Reproduction in Vertebrates</div>
+                        <div class="expand-indicator"></div>
+                    </div>
+                    <ul class="lessons-list">
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">1.</span>Diversity of reproductive strategies</a></li>
+                    </ul>
+                </div>
+                <div class="chapter-card">
+                    <div class="chapter-number-section color-4">Chapter 4</div>
+                    <div class="chapter-title-section" onclick="toggleChapter(this, event)">
+                        <div class="chapter-title">Human Reproduction</div>
+                        <div class="expand-indicator"></div>
+                    </div>
+                    <ul class="lessons-list">
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">1.</span>Introduction</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">2.</span>Structure of the male reproductive system</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">3.</span>Structure of the female reproductive system</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">4.</span>Puberty</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">5.</span>Gametogenesis (spermatogenesis, oogenesis)</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">6.</span>Menstrual cycle</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">7.</span>Fertilisation and development of zygote to blastocyst</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">8.</span>Implantation, gestation and the role of the placenta</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unit 2 -->
+        <div class="unit-2">
+            <div class="unit-header" onclick="toggleUnit('unit2')">Unit 2</div>
+            <div class="unit-content" id="unit2">
+                <div class="chapter-card">
+                    <div class="chapter-number-section color-5">Chapter 1</div>
+                    <div class="chapter-title-section" onclick="toggleChapter(this, event)">
+                        <div class="chapter-title">Genetics and Inheritance</div>
+                        <div class="expand-indicator"></div>
+                    </div>
+                    <ul class="lessons-list">
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">1.</span>Introduction</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">2.</span>Concepts in inheritance</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">3.</span>Monohybrid crosses</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">4.</span>Sex determination</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">5.</span>Sex‑linked inheritance</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">6.</span>Blood grouping</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">7.</span>Dihybrid crosses</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">8.</span>Genetic lineages/pedigrees</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">9.</span>Mutations</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">10.</span>Genetic engineering</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">11.</span>Paternity testing</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">12.</span>Genetic links</a></li>
+                    </ul>
+                </div>
+                <div class="chapter-card">
+                    <div class="chapter-number-section color-6">Chapter 2</div>
+                    <div class="chapter-title-section" onclick="toggleChapter(this, event)">
+                        <div class="chapter-title">Responding to the Environment (Humans)</div>
+                        <div class="expand-indicator"></div>
+                    </div>
+                    <ul class="lessons-list">
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">1.</span>Introduction</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">2.</span>Human nervous system</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">3.</span>Central nervous system</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">4.</span>Peripheral nervous system</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">5.</span>Autonomic nervous system</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">6.</span>Structure and functioning of a nerve</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">7.</span>The simple reflex arc</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">8.</span>Disorders of the CNS</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">9.</span>Receptors</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">10.</span>Human eye</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">11.</span>Human ear</a></li>
+                    </ul>
+                </div>
+                <div class="chapter-card">
+                    <div class="chapter-number-section color-7">Chapter 3</div>
+                    <div class="chapter-title-section" onclick="toggleChapter(this, event)">
+                        <div class="chapter-title">Endocrine System and Homeostasis</div>
+                        <div class="expand-indicator"></div>
+                    </div>
+                    <ul class="lessons-list">
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">1.</span>Endocrine system</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">2.</span>Introduction – Homeostasis</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">3.</span>Homeostasis: Negative feedback mechanisms</a></li>
+                    </ul>
+                </div>
+                <div class="chapter-card">
+                    <div class="chapter-number-section color-1">Chapter 4</div>
+                    <div class="chapter-title-section" onclick="toggleChapter(this, event)">
+                        <div class="chapter-title">Responding to the Environment (Plants)</div>
+                        <div class="expand-indicator"></div>
+                    </div>
+                    <ul class="lessons-list">
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">1.</span>Plant hormones</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">2.</span>Plant defence mechanisms</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unit 3 -->
+        <div class="unit-3">
+            <div class="unit-header" onclick="toggleUnit('unit3')">Unit 3</div>
+            <div class="unit-content" id="unit3">
+                <div class="chapter-card">
+                    <div class="chapter-number-section color-2">Chapter 1</div>
+                    <div class="chapter-title-section" onclick="toggleChapter(this, event)">
+                        <div class="chapter-title">Evolution</div>
+                        <div class="expand-indicator"></div>
+                    </div>
+                    <ul class="lessons-list">
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">1.</span>Introduction</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">2.</span>Evidence for evolution</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">3.</span>Variation</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">4.</span>Origin of an idea about origins</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">5.</span>Lamarckism</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">6.</span>Darwinism</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">7.</span>Punctuated Equilibrium</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">8.</span>Artificial selection</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">9.</span>Formation of new species</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">10.</span>Mechanisms of reproductive isolation</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">11.</span>Evolution in present times</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">12.</span>Evidence of common ancestors</a></li>
+                        <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">13.</span>Out‑of‑Africa hypothesis</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleUnit(unitId) {
+            const content = document.getElementById(unitId);
+            const header = content.parentElement.querySelector('.unit-header');
+            const isOpen = content.classList.contains('expanded');
+            document.querySelectorAll('.unit-content.expanded').forEach(el => {
+                if (el.id !== unitId) {
+                    el.classList.remove('expanded');
+                    el.parentElement.querySelector('.unit-header').classList.remove('expanded');
+                }
+            });
+            if (isOpen) {
+                content.classList.remove('expanded');
+                header.classList.remove('expanded');
+            } else {
+                content.classList.add('expanded');
+                header.classList.add('expanded');
+            }
+        }
+
+        function toggleChapter(chapterTitleSection, event) {
+            event.stopPropagation();
+            const chapterCard = chapterTitleSection.parentElement;
+            const lessonsList = chapterCard.querySelector('.lessons-list');
+            lessonsList.classList.toggle('expanded');
+            chapterCard.classList.toggle('expanded');
+        }
+
+        (async function() {
+            const { loadLayout } = await import('/src/js/layout.js');
+            await loadLayout();
+        })();
+    </script>
+</body>
+</html>

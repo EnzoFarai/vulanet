@@ -7,28 +7,24 @@
         <span class="logo-text">vulanet</span>
       </div>
       <div class="user-stats">
-        <!-- Course icon -->
         <div class="stat-item" id="activeCourseItem">
           <div class="icon-box course-icon" id="activeCourseIcon">
             <img src="/assets/courses/g12-life-sciences.png" alt="Course" class="course-icon-img">
           </div>
           <span id="activeCourseLevel">1</span>
         </div>
-        <!-- Streak -->
         <div class="stat-item" id="streakItem">
           <div class="icon-box">
             <img src="/assets/icons/phosphor/fill/fire.svg" alt="Streak" class="stat-icon streak">
           </div>
           <span id="streakCount">1</span>
         </div>
-        <!-- Coins -->
         <div class="stat-item" id="coinsItem">
           <div class="icon-box">
             <img src="/assets/icons/phosphor/duotone/coin-vertical.svg" alt="Coins" class="stat-icon coins">
           </div>
           <span>500</span>
         </div>
-        <!-- Hearts -->
         <div class="stat-item" id="heartsItem">
           <div class="icon-box">
             <img src="/assets/icons/phosphor/fill/heart.svg" alt="Hearts" class="stat-icon hearts">
@@ -40,7 +36,7 @@
   </div>
 </header>
 
-<!-- Panels (loaded after header) -->
+<!-- Course Switcher Panel -->
 <div class="course-panel-container" id="coursePanelContainer">
   <div class="course-panel">
     <div class="courses-slider" id="coursesSlider"></div>
@@ -58,6 +54,7 @@
   </div>
 </div>
 
+<!-- Hearts Panel -->
 <div class="hearts-panel-container" id="heartsPanelContainer">
   <div class="hearts-panel">
     <div class="hearts-display">
@@ -68,7 +65,7 @@
       <img src="/assets/icons/phosphor/regular/heart.svg" class="heart-icon empty">
     </div>
     <div class="timer">Next heart in <span id="heartTimer">30m</span></div>
-    <div class="hearts-button" id="refillHeartsButton">
+    <div class="hearts-button refill-button" id="refillHeartsButton">
       <div class="left"><img src="/assets/icons/phosphor/fill/heart.svg"><span>REFILL HEARTS</span></div>
       <div class="coins-display"><img src="/assets/icons/phosphor/duotone/coin-vertical.svg"><span id="refillPrice">500</span></div>
     </div>
@@ -78,11 +75,12 @@
   </div>
 </div>
 
+<!-- Shop Panel -->
 <div class="shop-panel-container" id="shopPanelContainer">
   <div class="shop-header">
     <div class="shop-close" id="shopCloseButton">✕</div>
     <div class="shop-title">Shop</div>
-    <div class="shop-coins"><img src="/assets/icons/phosphor/duotone/coin-vertical.svg" class="coin-icon"><span id="shopCoinCount">500</span></div>
+    <div class="shop-coins"><img src="/assets/icons/phosphor/duotone/coin-vertical.svg"><span id="shopCoinCount">500</span></div>
   </div>
   <div class="shop-content">
     <h2>Special Offers</h2>
@@ -114,6 +112,7 @@
   </div>
 </div>
 
+<!-- Streak Calendar Panel -->
 <div class="streak-calendar-container" id="streakCalendarContainer">
   <div class="streak-app">
     <div class="streak-header">
