@@ -1,757 +1,1308 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Introduction to Anticoagulants — Pharmacology-II | Vulanet</title>
-    <link rel="stylesheet" href="/assets/fonts/fonts.css">
-    <link rel="stylesheet" href="/src/styles/reading.css">
-    <link rel="stylesheet" href="/src/styles/layout.css">
-    <style>
-        .statusbar { background: #DB4437; }
-        .search-box:focus-within { border-color: #DB4437; box-shadow: 0 0 0 2px rgba(219,68,55,0.1); }
-        .no-match-modal { background: #DB4437; }
-        main ::selection { background-color: rgba(219,68,55,0.3); }
-        .fontsize-panel input[type=range]::-webkit-slider-thumb { background: #DB4437; }
-        .toc-lesson.active { color: #DB4437; }
-        .drug-section { background-color: #fff0f6; border-left: 4px solid #ff69b4; }
-        .drug-section h2 { color: #c2185b; border-bottom-color: rgba(194,24,91,0.2); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Introduction to Anticoagulants — Pharmacology-II | Vulanet</title>
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/layout.css">
+  <link rel="stylesheet" href="/src/styles/reading.css">
+  <style>
+    /* Status bar red */
+    .statusbar { background: #DB4437; }
+    .search-box:focus-within { border-color: #DB4437; box-shadow: 0 0 0 2px rgba(219,68,55,0.1); }
+    .no-match-modal { background: #DB4437; }
+    main ::selection { background-color: rgba(219,68,55,0.3); }
+    .fontsize-panel input[type=range]::-webkit-slider-thumb { background: #DB4437; }
+
+    /* Drug section (pink) */
+    .drug-section {
+      background-color: #fff0f6;
+      border-left: 4px solid #ff69b4;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 24px 0;
+      box-shadow: 0 2px 8px rgba(255,105,180,0.1);
+    }
+    .drug-section h2 {
+      color: #c2185b;
+      border-bottom: 2px solid rgba(194,24,91,0.2);
+      padding-bottom: 8px;
+      margin-top: 0;
+    }
+    .drug-section p { color: #444; }
+    .drug-section ul, .drug-section ol { margin: 16px 0; padding-left: 24px; }
+    .drug-section li { margin: 8px 0; color: #444; }
+
+    /* ---- Lesson Node design (4 nodes) ---- */
+    .lesson-section {
+      max-width: 700px;
+      width: 100%;
+      background: white;
+      border-radius: 28px;
+      padding: 2rem 1.8rem 2.2rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+      margin: 40px auto 20px;
+    }
+    :root {
+      --node-blue: #4285F4;
+      --node-shadow: #3367D6;
+      --node-size: 72px;
+      --node-height: 64px;
+      --shadow-offset: 8px;
+    }
+    .lesson-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2.2rem 2.8rem;
+      margin-top: 1rem;
+    }
+    .lesson-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      text-decoration: none;
+      width: 100px;
+      color: inherit;
+    }
+    .lesson-item:hover {
+      transform: translateY(-4px);
+      text-decoration: none;
+    }
+    .lesson-item:hover .node-circle {
+      box-shadow: 0px calc(var(--shadow-offset) + 4px) 0 0 var(--node-shadow);
+    }
+    .lesson-item:hover .lesson-main {
+      color: #4285F4;
+    }
+    .node-circle {
+      width: var(--node-size);
+      height: var(--node-height);
+      border-radius: 50%;
+      background: var(--node-blue);
+      box-shadow: 0px var(--shadow-offset) 0 0 var(--node-shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: box-shadow 0.15s, transform 0.15s;
+      margin-bottom: 0.75rem;
+      color: white;
+    }
+    .node-circle img {
+      width: 34px;
+      height: 34px;
+      filter: brightness(0) saturate(100%) invert(100%);
+    }
+    .lesson-title {
+      text-align: center;
+      line-height: 1.3;
+      max-width: 100px;
+    }
+    .lesson-main {
+      display: block;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #4B4B4B;
+    }
+    .lesson-sub {
+      display: block;
+      font-weight: 400;
+      font-size: 1rem;
+      color: #5f6368;
+    }
+    .promo-heading {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.2rem;
+      color: #4B4B4B;
+    }
+    .promo-sub {
+      color: #5f6368;
+      font-size: 1.05rem;
+      margin-bottom: 1.2rem;
+      font-weight: 400;
+    }
+    .divider-light {
+      width: 60px;
+      height: 3px;
+      background: #4285F4;
+      border-radius: 4px;
+      margin: 0.2rem 0 1.4rem;
+    }
+    @media (max-width: 480px) {
+      .lesson-section { padding: 1.5rem 1rem; }
+      .lesson-grid { gap: 1.8rem 1.2rem; }
+      .lesson-item { width: 80px; }
+      .node-circle { width: 64px; height: 58px; }
+      .node-circle img { width: 28px; height: 28px; }
+      .promo-heading { font-size: 1.4rem; }
+    }
+
+    /* No underline on hover for lesson items */
+    .lesson-item:hover {
+      text-decoration: none;
+    }
+
+    /* ===== TOC SIDEBAR ===== */
+    .toc-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 2000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      display: none;
+    }
+    .toc-overlay.open {
+      visibility: visible;
+      opacity: 1;
+      display: block;
+    }
+    .toc-sidebar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 480px;
+      max-width: 90vw;
+      height: 100%;
+      background: #ffffff;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+      padding: 24px 20px 30px;
+      overflow-y: auto;
+      transform: translateX(-100%);
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      border-radius: 0 28px 28px 0;
+    }
+    .toc-overlay.open .toc-sidebar { transform: translateX(0); }
+
+    .toc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f2f5;
+    }
+    .toc-course-icon {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .toc-course-icon img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
+    .toc-course-icon span { font-weight: 700; font-size: 16px; color: #1f3348; }
+    .toc-close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+    }
+    .toc-close-btn img { width: 24px; height: 24px; filter: brightness(0) saturate(100%) invert(63%) sepia(0%) hue-rotate(180deg) brightness(88%) contrast(85%); }
+
+    /* ---- TOC menu ---- */
+    .menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
+    .menu li { border-top: 1px solid #edf0f3; }
+    .menu li:first-child { border-top: none; }
+    .menu a {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      color: #1f3348;
+      font-size: 17px;
+      font-weight: 700;
+      padding: 0 6px 0 4px;
+      border-radius: 12px;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+    }
+    .menu a:hover { background: #f4f7fc; color: #4285F4; }
+    .item-left { display: flex; align-items: center; gap: 14px; }
+    .chevron-right {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s ease, filter 0.2s;
+      flex-shrink: 0;
+      filter: brightness(0) saturate(100%) invert(63%) sepia(0%) hue-rotate(180deg) brightness(88%) contrast(85%);
+    }
+    .chevron-right.open { transform: rotate(90deg); filter: brightness(0) saturate(100%) invert(31%) sepia(94%) saturate(1722%) hue-rotate(197deg) brightness(99%) contrast(95%); }
+
+    /* Sub-menu (chapters) */
+    .sub-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 4px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+    }
+    .sub-menu.open { max-height: 2000px; opacity: 1; }
+    .sub-menu li { border-top: none !important; }
+    .sub-menu a {
+      height: 46px;
+      padding-left: 20px;
+      font-weight: 600;
+      font-size: 15px;
+      color: #4a5f74;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      padding-right: 6px;
+      border-left: 4px solid transparent;
+      padding-left: 16px;
+      border-radius: 0;
+    }
+    .sub-menu a:hover { background: #f4f7fc; color: #4285F4; }
+
+    /* ===== COLORED LEFT BORDERS FOR CHAPTERS (STRAIGHT LINE) ===== */
+    /* Unit 1 - Chapter 1: Ladybug #EA4335 */
+    .unit-1-chapters li:nth-child(1) > a {
+      border-left-color: #EA4335;
+    }
+    /* Unit 1 - Chapter 2: Tiger #FF6D01 */
+    .unit-1-chapters li:nth-child(2) > a {
+      border-left-color: #FF6D01;
+    }
+
+    /* Sub-sub-menu (lessons) */
+    .sub-sub-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 4px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.35s ease, opacity 0.3s ease;
+    }
+    .sub-sub-menu.open { max-height: 1500px; opacity: 1; }
+    .sub-sub-menu li { border-top: none !important; }
+    .sub-sub-menu a {
+      height: 38px;
+      padding-left: 52px;
+      font-weight: 400;
+      font-size: 14px;
+      color: #5a6f84;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      padding-right: 6px;
+      border-left: none;
+      border-radius: 8px;
+    }
+    .sub-sub-menu a:hover { background: #f4f7fc; color: #4285F4; }
+    .sub-sub-menu a .lesson-number {
+      display: inline-block;
+      color: #6a7f94;
+      font-weight: 500;
+      font-size: 13px;
+      min-width: 22px;
+      height: 22px;
+      line-height: 22px;
+      text-align: center;
+      background: #f2f5f9;
+      border-radius: 30px;
+      flex-shrink: 0;
+      padding: 0 6px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .sub-sub-menu a:hover .lesson-number { background: #e1e8f2; color: #4285F4; }
+    .sub-sub-menu a .chevron-right { display: none; }
+
+    .menu a.active { color: #4285F4 !important; background: #ecf2fe; border-radius: 12px; }
+    .sub-menu a.active { color: #4285F4 !important; background: #ecf2fe; border-radius: 0; }
+    .sub-sub-menu a.active { color: #4285F4 !important; background: #ecf2fe; border-radius: 8px; }
+    .sub-sub-menu a.active .lesson-number { background: #d4e0fa; color: #4285F4; font-weight: 600; }
+
+    @media (max-width: 480px) {
+      .toc-sidebar { width: 100vw; max-width: 100vw; border-radius: 0; padding: 20px 16px; }
+      .menu a { height: 52px; font-size: 16px; }
+      .sub-menu a { padding-left: 16px; height: 42px; font-size: 14px; }
+      .sub-sub-menu a { padding-left: 38px; height: 36px; font-size: 13px; }
+    }
+
+    /* ===== SEARCH ICON STATES (same as demo) ===== */
+    .search-box .clear-btn { display: none; }
+    .search-box .search-icon { display: flex; }
+    .search-box .active-search-icon { display: none; }
+    .search-box.has-text .clear-btn { display: flex; }
+    .search-box.has-text .search-icon { display: none; }
+    .search-box.has-text .active-search-icon { display: flex; }
+
+    /* ===== FINDER FOOTER – RAISED ABOVE UNIVERSAL FOOTER ===== */
+    .finder-footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(0deg, rgba(0,0,0,0.05), transparent);
+      padding: 10px;
+      display: none;
+      justify-content: center;
+      z-index: 10001;
+      pointer-events: none;
+      padding-bottom: 80px;
+    }
+
+    /* --- Use a unique ID and custom classes to avoid global conflicts --- */
+    #searchFooterInner {
+      background: #fff;
+      border-radius: 12px;
+      padding: 8px 18px;
+      border: 1px solid rgba(0,0,0,0.06);
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      pointer-events: auto;
+      white-space: nowrap;
+      min-height: 44px;
+      min-width: 240px;
+      overflow: hidden;
+    }
+    #searchFooterInner .finder-clear-btn {
+      background: #e0e0e0;
+      border: 1px solid #ccc;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+      line-height: 1.2;
+    }
+    #searchFooterInner .finder-clear-btn:hover { background: #d0d0d0; }
+    #searchFooterInner .finder-nav-btn {
+      background: transparent;
+      border: none;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    #searchFooterInner .finder-nav-btn img {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+    #searchFooterInner .counter {
+      font-weight: 600;
+      font-size: 15px;
+      color: #333;
+      text-align: center;
+      flex-shrink: 0;
+      padding: 0 6px;
+      white-space: nowrap;
+      min-width: 100px;
+    }
+  </style>
 </head>
 <body>
-    <div class="statusbar" role="banner">
-        <div class="navrow">
-            <div class="back" onclick="window.location.href='/read/pharmacology-ii.html'">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="transform:translateY(1px)"><path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div style="display:flex;flex-direction:column">
-                <h2>Unit 1</h2>
-                <p>Chapter 1 — Anticoagulants</p>
-            </div>
-        </div>
-        <div class="status-right">
-            <button class="bookmark-btn" id="bookmarkBtn" aria-label="Bookmark">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16l8-4 8 4V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2z"/></svg>
-            </button>
-        </div>
+
+  <!-- Global Header injected by layout.js -->
+
+  <!-- Custom Status Bar -->
+  <div class="statusbar" role="banner">
+    <div class="navrow">
+      <div class="back" onclick="window.location.href='/read/pharmacology-ii.html'">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="transform:translateY(1px)">
+          <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <h2>Unit 1</h2>
+        <p>Chapter 1 — Anticoagulants</p>
+      </div>
     </div>
-
-    <div class="toolbar" role="toolbar">
-        <div class="left icon-row">
-            <button class="icon-btn" id="menuBtn" aria-label="Menu">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="#333" stroke-width="1.6" stroke-linecap="round"/></svg>
-            </button>
-        </div>
-        <div class="icon-row" style="margin-left:auto;">
-            <div class="search-box" id="searchBox">
-                <input id="searchInput" type="text" placeholder="Find in page...">
-                <div class="search-icons">
-                    <i class="ph ph-x clear-btn" id="clearSearchBtn"></i>
-                    <i class="ph-thin ph-list-magnifying-glass search-icon" id="defaultSearchIcon"></i>
-                    <i class="ph-bold ph-magnifying-glass active-search-icon" id="activeSearchIcon"></i>
-                </div>
-            </div>
-            <div style="position:relative">
-                <button id="fontToggle" class="icon-btn" aria-label="Text size">
-                    <div class="aa-button"><span class="small-a">A</span><span class="large-a">A</span></div>
-                </button>
-                <div id="fontPanel" class="fontsize-panel" role="dialog">
-                    <div class="fontsize-panel-header">
-                        <div class="fontsize-panel-title">Text Size</div>
-                        <button class="fontsize-close-btn" id="fontCloseBtn"><i class="ph ph-x" style="font-size:16px;"></i></button>
-                    </div>
-                    <div style="font-size:13px;color:#666;margin-bottom:15px;">Adjust the content text size</div>
-                    <div class="row fontsize-controls">
-                        <button id="decBtn" class="btn-sm">A−</button>
-                        <input id="sizeRange" type="range" min="14" max="24" step="1" value="16">
-                        <button id="incBtn" class="btn-lg">A+</button>
-                    </div>
-                    <div style="margin-top:15px;font-size:13px;color:#666;text-align:center">Current: <span id="sizeLabel" style="font-weight:700;color:#DB4437;">16px</span></div>
-                </div>
-            </div>
-        </div>
+    <div class="status-right">
+      <button class="bookmark-btn" id="bookmarkBtn" aria-label="Bookmark">
+        <img src="/assets/icons/phosphor/regular/bookmarks.svg" alt="Bookmark" style="width:20px;height:20px;filter:brightness(0) saturate(100%) invert(100%);">
+      </button>
     </div>
+  </div>
 
-    <div id="noMatchModal" class="no-match-modal">No matches found</div>
+  <!-- Toolbar -->
+  <div class="toolbar" role="toolbar">
+    <div class="left icon-row">
+      <button class="icon-btn" id="menuBtn" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke="#333" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="icon-row" style="margin-left:auto;">
+      <div class="search-box" id="searchBox">
+        <input id="searchInput" type="text" placeholder="Find in page...">
+        <div class="search-icons">
+          <!-- X (clear) -->
+          <img src="/assets/icons/phosphor/regular/x.svg" class="clear-btn" id="clearSearchBtn" alt="Clear" style="width:18px;height:18px;cursor:pointer;">
+          <!-- list-magnifying-glass (thin combo) – default -->
+          <img src="/assets/icons/phosphor/regular/list-magnifying-glass.svg" class="search-icon" id="defaultSearchIcon" alt="Search" style="width:18px;height:18px;cursor:pointer;">
+          <!-- magnifying-glass (bold) – active -->
+          <img src="/assets/icons/phosphor/bold/magnifying-glass.svg" class="active-search-icon" id="activeSearchIcon" alt="Search" style="width:18px;height:18px;cursor:pointer;">
+        </div>
+      </div>
+      <div style="position:relative">
+        <button id="fontToggle" class="icon-btn" aria-label="Text size">
+          <div class="aa-button"><span class="small-a">A</span><span class="large-a">A</span></div>
+        </button>
+        <div id="fontPanel" class="fontsize-panel" role="dialog">
+          <div class="fontsize-panel-header">
+            <div class="fontsize-panel-title">Text Size</div>
+            <button class="fontsize-close-btn" id="fontCloseBtn">
+              <img src="/assets/icons/phosphor/regular/x.svg" alt="Close" style="width:16px;height:16px;">
+            </button>
+          </div>
+          <div style="font-size:13px;color:#666;margin-bottom:15px;">Adjust the content text size</div>
+          <div class="row fontsize-controls">
+            <button id="decBtn" class="btn-sm">A−</button>
+            <input id="sizeRange" type="range" min="14" max="24" step="1" value="16">
+            <button id="incBtn" class="btn-lg">A+</button>
+          </div>
+          <div style="margin-top:15px;font-size:13px;color:#666;text-align:center">Current: <span id="sizeLabel" style="font-weight:700;color:#DB4437;">16px</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <main id="mainContent" role="main">
-        <article id="articleContent">
-            <h1>Introduction to Anticoagulants</h1>
+  <!-- No match modal (shown when search returns zero) -->
+  <div id="noMatchModal" class="no-match-modal">No matches found</div>
 
-            <p>Anticoagulants are drugs that prevent or reduce coagulability of blood. They are essential in the prevention and treatment of thrombotic disorders such as deep vein thrombosis, pulmonary embolism, and stroke.</p>
+  <!-- Main content -->
+  <main id="mainContent" role="main">
+    <article id="articleContent">
+      <h1>Introduction to Anticoagulants</h1>
 
-            <h3>Classification:</h3>
+      <p>Anticoagulants are drugs that prevent or reduce coagulability of blood. They are essential in the prevention and treatment of thrombotic disorders such as deep vein thrombosis, pulmonary embolism, and stroke.</p>
+
+      <h3>Classification:</h3>
+      <ol>
+        <li><strong>Used in vitro:</strong>
+          <ul>
+            <li>Heparin</li>
+            <li>Sodium citrate: Used in blood banks to store blood</li>
+            <li>Sodium oxalate</li>
+            <li>Sodium acetate</li>
+            <li>Used as anticoagulant in the laboratory</li>
+          </ul>
+        </li>
+        <li><strong>Used in vivo:</strong>
+          <ul>
+            <li><strong>Parenteral anticoagulants</strong>
+              <ul>
+                <li><em>Indirect thrombin inhibitors</em>: Heparin (UFH), LMWHs (Enoxaparin, dalteparin, ardeparin, reviparin), Synthetic: Fondaparinux</li>
+                <li><em>Direct thrombin inhibitors</em>: Bivalirudin, argatroban, desirudin</li>
+              </ul>
+            </li>
+            <li><strong>Oral anticoagulants</strong>
+              <ul>
+                <li><em>Coumarin derivatives</em>: Warfarin, dicumarol, acenocoumarol</li>
+                <li><em>Indandione derivative</em>: Phenindione</li>
+                <li><em>Direct thrombin inhibitor</em>: Dabigatran</li>
+                <li><em>Factor Xa inhibitor</em>: Rivaroxaban, apixaban, edoxaban</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ol>
+
+      <hr style="margin:30px 0;border:none;border-top:1px solid #ddd;">
+
+      <h2>Anticoagulants</h2>
+      <p>Anticoagulants work by interfering with the coagulation cascade at various points. The choice of anticoagulant depends on the clinical situation, route of administration, and patient factors.</p>
+
+      <h2>Parenteral anticoagulants:</h2>
+      <p>Parenteral anticoagulants are administered by injection or infusion and are used for rapid anticoagulation in acute settings.</p>
+
+      <h2>Indirect thrombin inhibitors:</h2>
+      <p>These anticoagulants require antithrombin as a cofactor to exert their anticoagulant effect.</p>
+
+      <div class="drug-section">
+        <h2>Heparin (unfractioned heparin)</h2>
+        <p>Heparin, the strongest organic acid in the body, was discovered by a medical student, McLean. It was later isolated and identified by Howell as a sulphated mucopolysaccharide. It is strongly electronegative. Commercially, heparin is obtained from ox lung and pig intestinal mucosa.</p>
+
+        <h3>Mechanism of action:</h3>
+        <ul>
+          <li>Heparin binds (via a pentasaccharide sequence) and forms a complex with plasma antithrombin III, activating it.</li>
+          <li>This produces a conformational change in antithrombin which accelerates its binding to clotting factors Xa, IIa, IXa, XIIa and XIIIa.</li>
+          <li>Heparin-antithrombin III complex inhibits activated clotting factors Xa, IIa, IXa, XIIa and XIIIa.</li>
+          <li>To accelerate thrombin inhibition, heparin must bind to both thrombin and anti-thrombin. This is possible because heparin molecules are long. For inhibition of factor Xa, binding of heparin to antithrombin only is necessary without simultaneous binding to Xa. The latter binds to antithrombin.</li>
+          <li>At low concentration, heparin selectively inhibits the conversion of prothrombin to thrombin. Heparin thus prevents further thrombus formation. Heparin, in high doses, has antiplatelet action and prolongs the bleeding time. Heparin releases lipoprotein lipase which hydrolyses triglycerides, resulting in clearing of lipaemic plasma.</li>
+        </ul>
+
+        <div class="figure-container">
+          <img src="/assets/images/lessons/pharmacology-ii/introduction-to-anticoagulants/coagulation-cascade.png" alt="The coagulation cascade" class="figure-image">
+          <div class="figure-caption">Figure 1 – The coagulation cascade</div>
+        </div>
+
+        <h3>Pharmacokinetics:</h3>
+        <ul>
+          <li><strong>Absorption:</strong> Heparin is not absorbed after oral administration because of its high negative charge and large molecular size. Therefore, it must be given parenterally intravenously or subcutaneously. On i.v. administration, the anticoagulant effect starts immediately, whereas through s.c. route, it takes 1-2 hours.</li>
+          <li><strong>Distribution:</strong> Heparin is highly protein bound. It does not cross blood-brain barrier or placental barrier and is safe during pregnancy.</li>
+          <li><strong>Metabolism:</strong> It is rapidly inactivated in the liver by heparinase.</li>
+          <li><strong>Excretion:</strong> The metabolites are excreted in urine.</li>
+        </ul>
+
+        <h3>Mode of administration:</h3>
+        <p>Heparin is usually administered by i.v. infusion (for treatment) or s.c. route (if it cannot be given as i.v. infusion or when given in low dose for prophylaxis). Intramuscular route may cause haematomas, hence should not be used. During heparin therapy, activated partial thromboplastin time (aPTT) monitoring is necessary and it should be maintained at 1.5-2.5 times the control.</p>
+
+        <h3>Adverse effects and contraindications:</h3>
+        <ol>
+          <li><strong>Bleeding:</strong> The main side effect is bleeding. Overdosage may cause serious and fatal haemorrhage. Bleeding can occur in urinary (haematuria is generally the earliest sign) and gastrointestinal tract or anywhere in the body. Hence, heparin therapy requires aPTT monitoring. No antagonist is required in cases of mild bleeding, as effect of heparin disappears within hours of stoppage of therapy. If life-threatening haemorrhage occurs, it can be controlled rapidly by slow i.v. infusion of protamine sulphate (heparin antagonist). It is a strongly basic protein, and hence rapidly neutralizes the anticoagulant effect of heparin.</li>
+          <li><strong>Heparin-induced thrombocytopenia (HIT):</strong> Heparin rarely causes thrombocytopenia. It is due to the formation of antibodies against platelet factor-heparin complex leading to a decrease in platelet count. Thrombotic complications can occur. The incidence is higher with UFH than with LMWHs. Heparin should be discontinued. LMWHs cannot be used in such patients.</li>
+          <li><strong>Hypersensitivity reactions</strong> can occur rarely. They are skin rashes, urticaria, fever, etc.</li>
+          <li><strong>Osteoporosis:</strong> Dose-dependent osteoporosis with spontaneous fractures may occur during long-term therapy.</li>
+          <li><strong>Reversible alopecia</strong> has been reported.</li>
+          <li><strong>Abnormalities in liver function test</strong> can occur.</li>
+        </ol>
+        <p>Heparin is contraindicated in haemophiliacs, patients with HIT, severe hypertension, intracranial haemorrhage, bacterial endocarditis, active tuberculosis, peptic ulcer, threatened abortion, cirrhosis, etc.</p>
+      </div>
+
+      <div class="drug-section">
+        <h2>Low molecular-weight heparins (LMWHs):</h2>
+        <ul>
+          <li>Enoxaparin, dalteparin, tinzaparin, ardeparin, reviparin, etc. are LMWHs and are obtained from standard heparin by fractionation.</li>
+          <li>LMWHs produce anticoagulant effect mainly by inhibition of factor Xa through antithrombin.</li>
+          <li>As they are not of sufficient length to bind to both thrombin and antithrombin simultaneously, they have little effect on thrombin inhibition. Hence, LMWH has less effect on aPTT as compared to unfractionated heparin.</li>
+          <li>LMWH therapy usually does not require aPTT monitoring but patients with chronic renal failure may need monitoring by measuring factor Xa activity since they are excreted through kidney.</li>
+          <li>The effects of LMWHs are not completely reversed by protamine sulfate.</li>
+          <li>LMWHs are given subcutaneously.</li>
+          <li><strong>The following are the advantages of LMWHs:</strong>
             <ol>
-                <li><strong>Used in vitro:</strong>
-                    <ul>
-                        <li>Heparin</li>
-                        <li>Sodium citrate: Used in blood banks to store blood</li>
-                        <li>Sodium oxalate</li>
-                        <li>Sodium acetate</li>
-                        <li>Used as anticoagulant in the laboratory</li>
-                    </ul>
-                </li>
-                <li><strong>Used in vivo:</strong>
-                    <ul>
-                        <li><strong>Parenteral anticoagulants</strong>
-                            <ul>
-                                <li><em>Indirect thrombin inhibitors</em>: Heparin (UFH), LMWHs (Enoxaparin, dalteparin, ardeparin, reviparin), Synthetic: Fondaparinux</li>
-                                <li><em>Direct thrombin inhibitors</em>: Bivalirudin, argatroban, desirudin</li>
-                            </ul>
-                        </li>
-                        <li><strong>Oral anticoagulants</strong>
-                            <ul>
-                                <li><em>Coumarin derivatives</em>: Warfarin, dicumarol, acenocoumarol</li>
-                                <li><em>Indandione derivative</em>: Phenindione</li>
-                                <li><em>Direct thrombin inhibitor</em>: Dabigatran</li>
-                                <li><em>Factor Xa inhibitor</em>: Rivaroxaban, apixaban, edoxaban</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
+              <li>They have a higher s.c. bioavailability as compared to UFH.</li>
+              <li>They have a longer t½, can be administered once a day.</li>
+              <li>They do not routinely require aPTT monitoring.</li>
+              <li>There is a lower incidence of thrombocytopaenia and osteoporosis as compared to UFH.</li>
             </ol>
+          </li>
+          <li>Uses, adverse effects and contraindications are same as other anticoagulants.</li>
+        </ul>
+      </div>
 
-            <hr style="margin:30px 0;border:none;border-top:1px solid #ddd;">
+      <!-- === Lesson Nodes (4 lessons) === -->
+      <div class="lesson-section">
+        <h2 class="promo-heading">Ready to test your knowledge?</h2>
+        <p class="promo-sub">Put what you've just learned into practice with a lesson:</p>
+        <div class="divider-light"></div>
 
-            <h2>Anticoagulants</h2>
-            <p>Anticoagulants work by interfering with the coagulation cascade at various points. The choice of anticoagulant depends on the clinical situation, route of administration, and patient factors.</p>
-
-            <h2>Parenteral anticoagulants:</h2>
-            <p>Parenteral anticoagulants are administered by injection or infusion and are used for rapid anticoagulation in acute settings.</p>
-
-            <h2>Indirect thrombin inhibitors:</h2>
-            <p>These anticoagulants require antithrombin as a cofactor to exert their anticoagulant effect.</p>
-
-            <div class="drug-section">
-                <h2>Heparin (unfractioned heparin)</h2>
-                <p>Heparin, the strongest organic acid in the body, was discovered by a medical student, McLean. It was later isolated and identified by Howell as a sulphated mucopolysaccharide. It is strongly electronegative. Commercially, heparin is obtained from ox lung and pig intestinal mucosa.</p>
-
-                <h3>Mechanism of action:</h3>
-                <ul>
-                    <li>Heparin binds (via a pentasaccharide sequence) and forms a complex with plasma antithrombin III, activating it.</li>
-                    <li>This produces a conformational change in antithrombin which accelerates its binding to clotting factors Xa, IIa, IXa, XIIa and XIIIa.</li>
-                    <li>Heparin-antithrombin III complex inhibits activated clotting factors Xa, IIa, IXa, XIIa and XIIIa.</li>
-                    <li>To accelerate thrombin inhibition, heparin must bind to both thrombin and anti-thrombin. This is possible because heparin molecules are long. For inhibition of factor Xa, binding of heparin to antithrombin only is necessary without simultaneous binding to Xa. The latter binds to antithrombin.</li>
-                    <li>At low concentration, heparin selectively inhibits the conversion of prothrombin to thrombin. Heparin thus prevents further thrombus formation. Heparin, in high doses, has antiplatelet action and prolongs the bleeding time. Heparin releases lipoprotein lipase which hydrolyses triglycerides, resulting in clearing of lipaemic plasma.</li>
-                </ul>
-
-                <div class="figure-container">
-                    <img src="/assets/images/lessons/pharmacology-ii/coagulation-cascade.png" alt="The coagulation cascade" class="figure-image">
-                    <div class="figure-caption">Figure 1 – The coagulation cascade: Heparin inactivates factors XIIa, XIa, IXa, Xa, IIa and XIIIa through antithrombin.</div>
-                </div>
-
-                <h3>Pharmacokinetics:</h3>
-                <ul>
-                    <li><strong>Absorption:</strong> Heparin is not absorbed after oral administration because of its high negative charge and large molecular size. Therefore, it must be given parenterally intravenously or subcutaneously. On i.v. administration, the anticoagulant effect starts immediately, whereas through s.c. route, it takes 1-2 hours.</li>
-                    <li><strong>Distribution:</strong> Heparin is highly protein bound. It does not cross blood-brain barrier or placental barrier and is safe during pregnancy.</li>
-                    <li><strong>Metabolism:</strong> It is rapidly inactivated in the liver by heparinase.</li>
-                    <li><strong>Excretion:</strong> The metabolites are excreted in urine.</li>
-                </ul>
-
-                <h3>Mode of administration:</h3>
-                <p>Heparin is usually administered by i.v. infusion (for treatment) or s.c. route (if it cannot be given as i.v. infusion or when given in low dose for prophylaxis). Intramuscular route may cause haematomas, hence should not be used. During heparin therapy, activated partial thromboplastin time (aPTT) monitoring is necessary and it should be maintained at 1.5-2.5 times the control.</p>
-
-                <h3>Adverse effects and contraindications:</h3>
-                <ol>
-                    <li><strong>Bleeding:</strong> The main side effect is bleeding. Overdosage may cause serious and fatal haemorrhage. Bleeding can occur in urinary (haematuria is generally the earliest sign) and gastrointestinal tract or anywhere in the body. Hence, heparin therapy requires aPTT monitoring. No antagonist is required in cases of mild bleeding, as effect of heparin disappears within hours of stoppage of therapy. If life-threatening haemorrhage occurs, it can be controlled rapidly by slow i.v. infusion of protamine sulphate (heparin antagonist). It is a strongly basic protein, and hence rapidly neutralizes the anticoagulant effect of heparin.</li>
-                    <li><strong>Heparin-induced thrombocytopenia (HIT):</strong> Heparin rarely causes thrombocytopenia. It is due to the formation of antibodies against platelet factor-heparin complex leading to a decrease in platelet count. Thrombotic complications can occur. The incidence is higher with UFH than with LMWHs. Heparin should be discontinued. LMWHs cannot be used in such patients.</li>
-                    <li><strong>Hypersensitivity reactions</strong> can occur rarely. They are skin rashes, urticaria, fever, etc.</li>
-                    <li><strong>Osteoporosis:</strong> Dose-dependent osteoporosis with spontaneous fractures may occur during long-term therapy.</li>
-                    <li><strong>Reversible alopecia</strong> has been reported.</li>
-                    <li><strong>Abnormalities in liver function test</strong> can occur.</li>
-                </ol>
-                <p>Heparin is contraindicated in haemophiliacs, patients with HIT, severe hypertension, intracranial haemorrhage, bacterial endocarditis, active tuberculosis, peptic ulcer, threatened abortion, cirrhosis, etc.</p>
+        <div class="lesson-grid">
+          <a class="lesson-item" href="/pages/lesson.html?course=pharmacology-ii&lesson=intro-anticoagulants-part-1">
+            <div class="node-circle">
+              <img src="/assets/icons/material-symbols/outline/joystick.svg" alt="Joystick">
             </div>
-
-            <div class="drug-section">
-                <h2>Low molecular-weight heparins (LMWHs):</h2>
-                <ul>
-                    <li>Enoxaparin, dalteparin, tinzaparin, ardeparin, reviparin, etc. are LMWHs and are obtained from standard heparin by fractionation.</li>
-                    <li>LMWHs produce anticoagulant effect mainly by inhibition of factor Xa through antithrombin.</li>
-                    <li>As they are not of sufficient length to bind to both thrombin and antithrombin simultaneously, they have little effect on thrombin inhibition. Hence, LMWH has less effect on aPTT as compared to unfractionated heparin.</li>
-                    <li>LMWH therapy usually does not require aPTT monitoring but patients with chronic renal failure may need monitoring by measuring factor Xa activity since they are excreted through kidney.</li>
-                    <li>The effects of LMWHs are not completely reversed by protamine sulfate.</li>
-                    <li>LMWHs are given subcutaneously.</li>
-                    <li><strong>The following are the advantages of LMWHs:</strong>
-                        <ol>
-                            <li>They have a higher s.c. bioavailability as compared to UFH.</li>
-                            <li>They have a longer t½, can be administered once a day.</li>
-                            <li>They do not routinely require aPTT monitoring.</li>
-                            <li>There is a lower incidence of thrombocytopaenia and osteoporosis as compared to UFH.</li>
-                        </ol>
-                    </li>
-                    <li>Uses, adverse effects and contraindications are same as other anticoagulants.</li>
-                </ul>
+            <div class="lesson-title">
+              <span class="lesson-main">Lesson</span>
+              <span class="lesson-sub">1 of 4</span>
             </div>
-
-            <div style="margin-top: 40px; border-top: 2px solid #eee; padding-top: 30px; text-align: center;">
-                <p style="color: #888; font-size: 0.9em;">Ready to test your understanding? <br> <a href="/pages/lesson.html?course=pharmacology-ii&lesson=intro-anticoagulants" style="display:inline-block; background:#DB4437; color:#fff; padding: 10px 24px; border-radius: 8px; text-decoration:none; font-weight:700; margin-top:12px;">Start Lesson →</a></p>
+          </a>
+          <a class="lesson-item" href="/pages/lesson.html?course=pharmacology-ii&lesson=intro-anticoagulants-part-2">
+            <div class="node-circle">
+              <img src="/assets/icons/material-symbols/outline/joystick.svg" alt="Joystick">
             </div>
-        </article>
-    </main>
-
-    <div class="finder-footer" style="display:none" id="finderFooter">
-        <div style="background:#fff;border-radius:12px;padding:8px 12px;border:1px solid rgba(0,0,0,0.06);display:flex;gap:8px;align-items:center;">
-            <button id="clearFind" class="btn-sm">Clear</button>
-            <div id="foundInfo" style="font-weight:600">0 matches</div>
+            <div class="lesson-title">
+              <span class="lesson-main">Lesson</span>
+              <span class="lesson-sub">2 of 4</span>
+            </div>
+          </a>
+          <a class="lesson-item" href="/pages/lesson.html?course=pharmacology-ii&lesson=intro-anticoagulants-part-3">
+            <div class="node-circle">
+              <img src="/assets/icons/material-symbols/outline/joystick.svg" alt="Joystick">
+            </div>
+            <div class="lesson-title">
+              <span class="lesson-main">Lesson</span>
+              <span class="lesson-sub">3 of 4</span>
+            </div>
+          </a>
+          <a class="lesson-item" href="/pages/lesson.html?course=pharmacology-ii&lesson=intro-anticoagulants-part-4">
+            <div class="node-circle">
+              <img src="/assets/icons/material-symbols/outline/joystick.svg" alt="Joystick">
+            </div>
+            <div class="lesson-title">
+              <span class="lesson-main">Lesson</span>
+              <span class="lesson-sub">4 of 4</span>
+            </div>
+          </a>
         </div>
-    </div>
+      </div>
+    </article>
+  </main>
 
-    <div class="selection-toolbar" id="selectionToolbar">
-        <button id="removeHighlightBtn" style="display:none;">
-            <div class="remove-highlight-container" id="removeHighlightContainer"><i class="ph ph-x" style="color:black;"></i></div>
-            <span class="button-text">Remove</span>
+  <!-- Finder footer (search results) – RAISED ABOVE UNIVERSAL FOOTER -->
+  <div class="finder-footer" id="finderFooter" style="display:none;">
+    <div id="searchFooterInner">
+      <button class="finder-clear-btn" id="clearFind">Clear</button>
+      <button class="finder-nav-btn" id="prevMatchBtn" title="Previous match">
+        <img src="/assets/icons/phosphor/regular/arrow-up.svg" alt="Prev" style="width:20px;height:20px;">
+      </button>
+      <span class="counter" id="foundInfo">0 matches</span>
+      <button class="finder-nav-btn" id="nextMatchBtn" title="Next match">
+        <img src="/assets/icons/phosphor/regular/arrow-down.svg" alt="Next" style="width:20px;height:20px;">
+      </button>
+    </div>
+  </div>
+
+  <!-- Selection Toolbar (highlight, note, copy, share) -->
+  <div class="selection-toolbar" id="selectionToolbar">
+    <button id="removeHighlightBtn" style="display:none;">
+      <div class="remove-highlight-container" id="removeHighlightContainer">
+        <img src="/assets/icons/phosphor/regular/x.svg" alt="Remove" style="width:18px;height:18px;">
+      </div>
+      <span class="button-text">Remove</span>
+    </button>
+    <button id="highlightBtn">
+      <div class="highlighter-icon-container">
+        <img src="/assets/icons/phosphor/fill/highlighter.svg" alt="Highlight" style="width:20px;height:20px;">
+      </div>
+      <span class="button-text">Highlight</span>
+    </button>
+    <div class="color-picker" id="colorPicker">
+      <div class="color-picker-grid">
+        <div class="color-option yellow" onclick="highlightSelection('yellow')" title="Yellow"></div>
+        <div class="color-option green" onclick="highlightSelection('green')" title="Green"></div>
+        <div class="color-option blue" onclick="highlightSelection('blue')" title="Blue"></div>
+        <div class="color-option red" onclick="highlightSelection('red')" title="Red"></div>
+        <div class="color-option orange" onclick="highlightSelection('orange')" title="Orange"></div>
+        <div class="color-option violet" onclick="highlightSelection('violet')" title="Violet"></div>
+      </div>
+    </div>
+    <button onclick="noteSelection()">
+      <img src="/assets/icons/phosphor/duotone/note-pencil.svg" alt="Note" style="width:20px;height:20px;">
+      <span class="button-text">Note</span>
+    </button>
+    <button onclick="copySelection()">
+      <img src="/assets/icons/phosphor/regular/copy.svg" alt="Copy" style="width:20px;height:20px;">
+      <span class="button-text">Copy</span>
+    </button>
+    <button onclick="shareSelection()">
+      <img src="/assets/icons/phosphor/fill/share-network.svg" alt="Share" style="width:20px;height:20px;">
+      <span class="button-text">Share</span>
+    </button>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- TOC Sidebar Overlay -->
+  <div class="toc-overlay" id="tocOverlay">
+    <div class="toc-sidebar">
+      <div class="toc-header">
+        <div class="toc-course-icon" id="tocCourseIcon">
+          <img src="/assets/courses/pharmacology-ii.png" alt="Course" id="tocCourseImg">
+          <span id="tocCourseName">Pharmacology-II</span>
+        </div>
+        <button class="toc-close-btn" id="tocCloseBtn">
+          <img src="/assets/icons/phosphor/regular/x.svg" alt="Close">
         </button>
-        <button id="highlightBtn">
-            <div class="highlighter-icon-container"><i class="ph ph-highlighter"></i></div>
-            <span class="button-text">Highlight</span>
-        </button>
-        <div class="color-picker" id="colorPicker">
-            <div class="color-picker-grid">
-                <div class="color-option yellow" onclick="highlightSelection('yellow')" title="Yellow"></div>
-                <div class="color-option green" onclick="highlightSelection('green')" title="Green"></div>
-                <div class="color-option blue" onclick="highlightSelection('blue')" title="Blue"></div>
-                <div class="color-option red" onclick="highlightSelection('red')" title="Red"></div>
-                <div class="color-option orange" onclick="highlightSelection('orange')" title="Orange"></div>
-                <div class="color-option violet" onclick="highlightSelection('violet')" title="Violet"></div>
-            </div>
-        </div>
-        <button onclick="noteSelection()"><i class="ph ph-note-pencil"></i><span class="button-text">Note</span></button>
-        <button onclick="copySelection()"><i class="ph ph-copy"></i><span class="button-text">Copy</span></button>
-        <button onclick="shareSelection()"><i class="ph-fill ph-share-network" style="font-size:20px;"></i><span class="button-text">Share</span></button>
+      </div>
+      <div id="tocTreeContainer"></div>
     </div>
+  </div>
 
-    <div class="toast" id="toast"></div>
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
 
-    <div class="toc-overlay" id="tocOverlay">
-        <div class="toc-panel">
-            <button class="toc-close" id="tocCloseBtn">✕</button>
-            <h2>Table of Contents</h2>
-            <div id="tocContent"></div>
-        </div>
-    </div>
+  <script type="module">
+    import { loadLayout } from '/src/js/layout.js';
 
-    <script>
-        window.__VULANET_READING_PAGE = true;
+    await loadLayout();
 
-        // Font size control (same as G12)
-        (function(){
-            const panel = document.getElementById('fontPanel');
-            const toggle = document.getElementById('fontToggle');
-            const range = document.getElementById('sizeRange');
-            const dec = document.getElementById('decBtn');
-            const inc = document.getElementById('incBtn');
-            const label = document.getElementById('sizeLabel');
-            const closeBtn = document.getElementById('fontCloseBtn');
-
-            function applySize(px){
-                document.documentElement.style.setProperty('--content-size', px + 'px');
-                label.textContent = px + 'px';
-                const smallA = document.querySelector('.small-a');
-                const largeA = document.querySelector('.large-a');
-                const ratio = px / 16;
-                if (smallA) smallA.style.fontSize = (14 * ratio) + 'px';
-                if (largeA) largeA.style.fontSize = (18 * ratio) + 'px';
+    // ---- TOC Data (embedded directly) ----
+    const tocData = {
+      startingColorIndex: 3, // Ladybug (#EA4335) for Chapter 1
+      units: [
+        {
+          title: 'Unit 1',
+          chapters: [
+            {
+              title: 'Chapter 1: Anticoagulants',
+              colorClass: 'unit-1-chapters',
+              lessons: [
+                { number: 1, title: 'Introduction', link: '/read/pharmacology-ii/introduction-to-anticoagulants.html' },
+                { number: 2, title: 'Advanced Parenteral Anticoagulants', link: '#' },
+                { number: 3, title: 'Oral Anticoagulants', link: '#' },
+                { number: 4, title: 'DOACs and Therapeutic Uses', link: '#' }
+              ]
+            },
+            {
+              title: 'Chapter 2: Thrombolytics And Antiplatelet Agents',
+              colorClass: 'unit-1-chapters',
+              lessons: [
+                { number: 1, title: 'Fibrinolysis', link: '#' },
+                { number: 2, title: 'Thrombolytic Drugs', link: '#' },
+                { number: 3, title: 'Uses and Contraindications', link: '#' },
+                { number: 4, title: 'Individual Thrombolytic Agents', link: '#' },
+                { number: 5, title: 'Antifibrinolytic Drugs', link: '#' },
+                { number: 6, title: 'Overview of Antiplatelet Drugs', link: '#' },
+                { number: 7, title: 'Classes of Antiplatelet Drugs', link: '#' },
+                { number: 8, title: 'Clinical Use of Antiplatelet Drugs', link: '#' }
+              ]
             }
+          ]
+        }
+      ]
+    };
 
-            applySize(parseInt(range.value,10));
+    // ---- Render TOC ----
+    function renderTOC(data, containerId, currentPath) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
 
-            toggle.addEventListener('click', (e)=>{ panel.classList.toggle('show'); e.stopPropagation(); });
-            closeBtn.addEventListener('click', (e)=>{ panel.classList.remove('show'); e.stopPropagation(); });
-            document.addEventListener('click', (e)=>{
-                if(!panel.contains(e.target) && e.target !== toggle) panel.classList.remove('show');
-            });
-            range.addEventListener('input', (e)=>{ applySize(parseInt(e.target.value,10)); });
-            dec.addEventListener('click', ()=>{
-                let v = Math.max(parseInt(range.min), parseInt(range.value)-1);
-                range.value = v; applySize(v);
-            });
-            inc.addEventListener('click', ()=>{
-                let v = Math.min(parseInt(range.max), parseInt(range.value)+1);
-                range.value = v; applySize(v);
-            });
-        })();
+      const { units } = data;
 
-        // Search (same as G12)
-        (function(){
-            const searchBox = document.getElementById('searchBox');
-            const searchInput = document.getElementById('searchInput');
-            const defaultSearchIcon = document.getElementById('defaultSearchIcon');
-            const activeSearchIcon = document.getElementById('activeSearchIcon');
-            const clearSearchBtn = document.getElementById('clearSearchBtn');
-            const article = document.getElementById('articleContent');
-            const finderFooter = document.getElementById('finderFooter');
-            const clearFind = document.getElementById('clearFind');
-            const foundInfo = document.getElementById('foundInfo');
-            const noMatchModal = document.getElementById('noMatchModal');
+      let html = '<ul class="menu">';
 
-            let hits = []; let current = -1;
+      units.forEach((unit, unitIndex) => {
+        const unitId = `unit-${unitIndex}`;
+        html += `
+          <li>
+            <a href="#" class="parent-toggle" data-target="${unitId}">
+              <span class="item-left"><span class="unit-label">${unit.title}</span></span>
+              <img src="/assets/icons/phosphor/regular/caret-right.svg" class="chevron-right" alt="Expand">
+            </a>
+            <ul class="sub-menu ${unit.chapters[0]?.colorClass || ''}" id="${unitId}">
+        `;
 
-            function escapeRegExp(string){ return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+        unit.chapters.forEach((chapter, chapterIndex) => {
+          const chapterId = `${unitId}-chapter-${chapterIndex}`;
+          html += `
+            <li>
+              <a href="#" class="chapter-toggle" data-target="${chapterId}">
+                <span class="item-left">${chapter.title}</span>
+                <img src="/assets/icons/phosphor/regular/caret-right.svg" class="chevron-right" alt="Expand">
+              </a>
+              <ul class="sub-sub-menu" id="${chapterId}">
+          `;
 
-            function updateSearchBoxState(){
-                const hasText = searchInput.value.length > 0;
-                if (hasText) searchBox.classList.add('has-text');
-                else searchBox.classList.remove('has-text');
-            }
-
-            function clearHighlights(){
-                const marks = article.querySelectorAll('mark.search-hit');
-                marks.forEach(m=>{
-                    const parent = m.parentNode;
-                    parent.replaceChild(document.createTextNode(m.textContent), m);
-                    parent.normalize();
-                });
-                hits = []; current = -1;
-                foundInfo.textContent = '0 matches';
-                finderFooter.style.display = 'none';
-                searchBox.classList.remove('searching');
-            }
-
-            function highlightAll(term){
-                clearHighlights();
-                if(!term) return;
-                const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, null, false);
-                const nodes = [];
-                while(walker.nextNode()) nodes.push(walker.currentNode);
-                const re = new RegExp(escapeRegExp(term), 'ig');
-                nodes.forEach(node=>{
-                    const parent = node.parentNode;
-                    if(parent && parent.closest && parent.closest('mark.search-hit')) return;
-                    const text = node.textContent;
-                    if(re.test(text)){
-                        const frag = document.createDocumentFragment();
-                        let lastIndex = 0;
-                        text.replace(re, function(match, offset){
-                            if(offset > lastIndex) frag.appendChild(document.createTextNode(text.slice(lastIndex, offset)));
-                            const m = document.createElement('mark');
-                            m.className = 'search-hit';
-                            m.textContent = match;
-                            frag.appendChild(m);
-                            lastIndex = offset + match.length;
-                            return match;
-                        });
-                        if(lastIndex < text.length) frag.appendChild(document.createTextNode(text.slice(lastIndex)));
-                        parent.replaceChild(frag, node);
-                    }
-                });
-                hits = Array.from(article.querySelectorAll('mark.search-hit'));
-                searchBox.classList.add('searching');
-                if(hits.length){ current=0; scrollToHit(current); finderFooter.style.display='flex'; }
-                else {
-                    current=-1;
-                    noMatchModal.classList.add('show');
-                    setTimeout(()=>{ noMatchModal.classList.remove('show'); }, 3000);
-                }
-                updateCounter();
-            }
-
-            function updateCounter(){ foundInfo.textContent = hits.length + (hits.length === 1 ? ' match' : ' matches'); }
-
-            function scrollToHit(index){
-                if(hits.length===0) return;
-                hits.forEach(h=>h.style.outline='none');
-                const el = hits[index];
-                el.scrollIntoView({behavior:'smooth', block:'center'});
-                el.style.outline='3px solid rgba(255,180,0,0.4)';
-                setTimeout(()=>{ el.style.outline='none'; }, 1400);
-                updateCounter();
-            }
-
-            function performSearch(){
-                const term = searchInput.value.trim();
-                if(term) highlightAll(term);
-                else clearHighlights();
-            }
-
-            searchInput.addEventListener('input', updateSearchBoxState);
-            searchInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') performSearch(); });
-            defaultSearchIcon.addEventListener('click', performSearch);
-            activeSearchIcon.addEventListener('click', performSearch);
-            clearSearchBtn.addEventListener('click', ()=>{ searchInput.value=''; updateSearchBoxState(); clearHighlights(); searchInput.focus(); });
-            clearFind.addEventListener('click', ()=>{ searchInput.value=''; updateSearchBoxState(); clearHighlights(); });
-            searchInput.addEventListener('focus', ()=>{ searchBox.classList.remove('searching'); });
-
-            document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') document.getElementById('fontPanel').classList.remove('show'); });
-
-            article.addEventListener('click', (e)=>{
-                const m = e.target.closest('mark.search-hit');
-                if(m){ const idx = hits.indexOf(m); if(idx>=0){ current=idx; scrollToHit(current); } }
-            });
-            updateSearchBoxState();
-        })();
-
-        // Bookmark toggle
-        document.getElementById('bookmarkBtn').addEventListener('click', function() {
-            const isBookmarked = this.classList.toggle('bookmarked');
-            const svg = this.querySelector('svg');
-            if (isBookmarked) {
-                svg.setAttribute('fill', 'white');
-                svg.setAttribute('stroke', 'white');
-                showToast('Bookmarked!');
-            } else {
-                svg.setAttribute('fill', 'none');
-                svg.setAttribute('stroke', 'white');
-                showToast('Bookmark removed');
-            }
-        });
-
-        // TOC overlay
-        const tocOverlay = document.getElementById('tocOverlay');
-        document.getElementById('menuBtn').addEventListener('click', function() {
-            tocOverlay.classList.toggle('show');
-            if (!document.getElementById('tocContent').children.length) loadTOC();
-        });
-        document.getElementById('tocCloseBtn').addEventListener('click', () => { tocOverlay.classList.remove('show'); });
-        tocOverlay.addEventListener('click', (e) => { if (e.target === tocOverlay) tocOverlay.classList.remove('show'); });
-
-        function loadTOC() {
-            const container = document.getElementById('tocContent');
-            container.innerHTML = `
-                <div class="toc-unit">
-                    <div class="toc-unit-title open" onclick="toggleTOCUnit(this)">Unit 1</div>
-                    <div class="toc-chapter-list open">
-                        <div class="toc-chapter">
-                            <div class="toc-chapter-title open" onclick="toggleTOCChapter(this)">Chapter 1: Anticoagulants</div>
-                            <div class="toc-lesson-list open">
-                                <div class="toc-lesson active" onclick="window.location.href='/read/pharmacology-ii/introduction-to-anticoagulants.html'">1. Introduction</div>
-                                <div class="toc-lesson" onclick="window.location.href='#'">2. Advanced Parenteral Anticoagulants</div>
-                                <div class="toc-lesson" onclick="window.location.href='#'">3. Oral Anticoagulants</div>
-                                <div class="toc-lesson" onclick="window.location.href='#'">4. DOACs and Therapeutic Uses</div>
-                            </div>
-                        </div>
-                        <div class="toc-chapter">
-                            <div class="toc-chapter-title" onclick="toggleTOCChapter(this)">Chapter 2: Thrombolytics And Antiplatelet Agents</div>
-                            <div class="toc-lesson-list">
-                                <div class="toc-lesson" onclick="window.location.href='#'">1. Fibrinolysis</div>
-                                <div class="toc-lesson" onclick="window.location.href='#'">2. Thrombolytic Drugs</div>
-                                <div class="toc-lesson" onclick="window.location.href='#'">3. Uses and Contraindications</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          chapter.lessons.forEach((lesson) => {
+            const isActive = lesson.link === currentPath;
+            html += `
+              <li>
+                <a href="${lesson.link}" class="${isActive ? 'active' : ''}">
+                  <span class="item-left">
+                    <span class="lesson-number">${lesson.number}</span>
+                    ${lesson.title}
+                  </span>
+                </a>
+              </li>
             `;
-        }
+          });
 
-        function toggleTOCUnit(el) { el.classList.toggle('open'); const list = el.nextElementSibling; if (list) list.classList.toggle('open'); }
-        function toggleTOCChapter(el) { el.classList.toggle('open'); const list = el.nextElementSibling; if (list) list.classList.toggle('open'); }
-
-        // Highlighting, notes, copy, share – same as G12 article
-        // Reuse all the functions from the G12 article – they are identical.
-        // To avoid duplication, we can include them via a shared script, but for now I'll include them inline.
-        // Since the functions are identical, I'll copy them here.
-        let selectionRange = null;
-        let highlightColorPickerVisible = false;
-
-        function getHighlightsState() {
-            const byGroup = JSON.parse(localStorage.getItem('highlightsByGroup') || '{}');
-            const history = JSON.parse(localStorage.getItem('highlightHistory') || '[]');
-            return { byGroup, history };
-        }
-        function setHighlightsState(byGroup, history) {
-            localStorage.setItem('highlightsByGroup', JSON.stringify(byGroup));
-            localStorage.setItem('highlightHistory', JSON.stringify(history));
-        }
-
-        function highlightSelection(color) {
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-            const groupId = 'hgrp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
-            const groupTimestamp = Date.now();
-            const ranges = [];
-            for (let i = 0; i < selection.rangeCount; i++) ranges.push(selection.getRangeAt(i).cloneRange());
-            let aggregatedText = '';
-            ranges.forEach(range => {
-                const selectedText = range.toString().trim();
-                if (!selectedText) return;
-                aggregatedText += (aggregatedText ? ' ' : '') + selectedText;
-                const article = document.getElementById('articleContent');
-                const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, {
-                    acceptNode: node => range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
-                });
-                const nodes = [];
-                let node;
-                while ((node = walker.nextNode())) nodes.push(node);
-                nodes.forEach(textNode => {
-                    if (textNode.textContent.trim() === '') return;
-                    const nodeRange = document.createRange();
-                    nodeRange.selectNodeContents(textNode);
-                    if (range.compareBoundaryPoints(Range.START_TO_START, nodeRange) > 0)
-                        nodeRange.setStart(range.startContainer, range.startOffset);
-                    if (range.compareBoundaryPoints(Range.END_TO_END, nodeRange) < 0)
-                        nodeRange.setEnd(range.endContainer, range.endOffset);
-                    const fragment = nodeRange.extractContents();
-                    const span = document.createElement('span');
-                    span.className = `highlighted-${color}`;
-                    span.dataset.highlightGroupId = groupId;
-                    span.dataset.groupTimestamp = String(groupTimestamp);
-                    span.appendChild(fragment);
-                    nodeRange.insertNode(span);
-                });
-            });
-            if (aggregatedText) {
-                const { byGroup, history } = getHighlightsState();
-                byGroup[groupId] = { color, text: aggregatedText, timestamp: groupTimestamp };
-                history.push(groupId);
-                setHighlightsState(byGroup, history);
-            }
-            selection.removeAllRanges();
-            hideSelectionToolbar();
-        }
-
-        function removeSelectedHighlight() {
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-            const groupsInSelection = new Set();
-            for (let i = 0; i < selection.rangeCount; i++) {
-                const range = selection.getRangeAt(i);
-                const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
-                    acceptNode: function(node) {
-                        if (range.intersectsNode(node) &&
-                            (node.classList.contains('highlighted-yellow') ||
-                             node.classList.contains('highlighted-green') ||
-                             node.classList.contains('highlighted-blue') ||
-                             node.classList.contains('highlighted-red') ||
-                             node.classList.contains('highlighted-orange') ||
-                             node.classList.contains('highlighted-violet'))) {
-                            const gid = node.dataset?.highlightGroupId;
-                            if (gid) groupsInSelection.add(gid);
-                            return NodeFilter.FILTER_ACCEPT;
-                        }
-                        return NodeFilter.FILTER_SKIP;
-                    }
-                }, false);
-                while (walker.nextNode()) {}
-            }
-            if (groupsInSelection.size === 0) return;
-            const { byGroup, history } = getHighlightsState();
-            let targetGroupId = null;
-            for (let i = history.length - 1; i >= 0; i--) {
-                if (groupsInSelection.has(history[i])) { targetGroupId = history[i]; break; }
-            }
-            if (!targetGroupId) {
-                targetGroupId = Array.from(groupsInSelection).sort((a,b) => (byGroup[b]?.timestamp || 0) - (byGroup[a]?.timestamp || 0))[0];
-            }
-            if (!targetGroupId) return;
-            document.querySelectorAll(`[data-highlight-group-id="${targetGroupId}"]`).forEach(el => {
-                const textNode = document.createTextNode(el.textContent);
-                el.parentNode.replaceChild(textNode, el);
-            });
-            delete byGroup[targetGroupId];
-            const newHistory = history.filter(id => id !== targetGroupId);
-            setHighlightsState(byGroup, newHistory);
-            showToast('Highlight removed');
-            if (checkSelectionHasHighlight(selection)) {
-                const nextColor = getMostRecentHighlightColor(selection);
-                const removeHighlightContainer = document.getElementById('removeHighlightContainer');
-                if (nextColor) removeHighlightContainer.className = 'remove-highlight-container ' + nextColor;
-            } else {
-                hideSelectionToolbar();
-                selection.removeAllRanges();
-            }
-        }
-
-        function getMostRecentHighlightColor(selection) {
-            const { byGroup, history } = getHighlightsState();
-            const groupsInSelection = new Set();
-            const range = selection.getRangeAt(0);
-            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
-                acceptNode: function(node) {
-                    if (range.intersectsNode(node) &&
-                        (node.classList.contains('highlighted-yellow') ||
-                         node.classList.contains('highlighted-green') ||
-                         node.classList.contains('highlighted-blue') ||
-                         node.classList.contains('highlighted-red') ||
-                         node.classList.contains('highlighted-orange') ||
-                         node.classList.contains('highlighted-violet'))) {
-                        const gid = node.dataset?.highlightGroupId;
-                        if (gid) groupsInSelection.add(gid);
-                        return NodeFilter.FILTER_ACCEPT;
-                    }
-                    return NodeFilter.FILTER_SKIP;
-                }
-            }, false);
-            while (walker.nextNode()) {}
-            for (let i = history.length - 1; i >= 0; i--) {
-                const gid = history[i];
-                if (groupsInSelection.has(gid)) return byGroup[gid]?.color || null;
-            }
-            return null;
-        }
-
-        function checkSelectionHasHighlight(selection) {
-            const range = selection.getRangeAt(0);
-            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
-                acceptNode: function(node) {
-                    if (range.intersectsNode(node) &&
-                        (node.classList.contains('highlighted-yellow') ||
-                         node.classList.contains('highlighted-green') ||
-                         node.classList.contains('highlighted-blue') ||
-                         node.classList.contains('highlighted-red') ||
-                         node.classList.contains('highlighted-orange') ||
-                         node.classList.contains('highlighted-violet'))) {
-                        return NodeFilter.FILTER_ACCEPT;
-                    }
-                    return NodeFilter.FILTER_SKIP;
-                }
-            }, false);
-            return walker.nextNode() !== null;
-        }
-
-        function addSelectionListeners() {
-            const articleContent = document.getElementById('articleContent');
-            const toolbar = document.getElementById('selectionToolbar');
-            const highlightBtn = document.getElementById('highlightBtn');
-            const colorPicker = document.getElementById('colorPicker');
-            const removeHighlightBtn = document.getElementById('removeHighlightBtn');
-
-            document.addEventListener('selectionchange', () => {
-                const selection = window.getSelection();
-                if (!selection.isCollapsed && isSelectionInArticle(selection)) {
-                    showSelectionToolbar(selection);
-                } else {
-                    hideSelectionToolbar();
-                }
-            });
-
-            highlightBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                colorPicker.classList.toggle('show');
-                highlightColorPickerVisible = colorPicker.classList.contains('show');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (highlightColorPickerVisible && !colorPicker.contains(e.target) && e.target !== highlightBtn) {
-                    colorPicker.classList.remove('show');
-                    highlightColorPickerVisible = false;
-                }
-            });
-
-            removeHighlightBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                removeSelectedHighlight();
-            });
-        }
-
-        function isSelectionInArticle(selection) {
-            const articleContent = document.getElementById('articleContent');
-            return articleContent.contains(selection.anchorNode) || articleContent.contains(selection.focusNode);
-        }
-
-        function showSelectionToolbar(selection) {
-            const toolbar = document.getElementById('selectionToolbar');
-            const range = selection.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-            toolbar.style.left = `${rect.left + window.scrollX}px`;
-            toolbar.style.bottom = `${window.innerHeight - rect.bottom + window.scrollY + 10}px`;
-            toolbar.style.top = 'auto';
-            const toolbarRect = toolbar.getBoundingClientRect();
-            if (toolbarRect.right > window.innerWidth) toolbar.style.left = `${window.innerWidth - toolbarRect.width - 10}px`;
-            if (toolbarRect.bottom > window.innerHeight) {
-                toolbar.style.bottom = 'auto';
-                toolbar.style.top = `${rect.top + window.scrollY - toolbarRect.height - 10}px`;
-            }
-            const hasHighlight = checkSelectionHasHighlight(selection);
-            const removeHighlightBtn = document.getElementById('removeHighlightBtn');
-            const removeHighlightContainer = document.getElementById('removeHighlightContainer');
-            if (hasHighlight) {
-                removeHighlightBtn.style.display = 'flex';
-                const highlightColor = getMostRecentHighlightColor(selection);
-                if (highlightColor) removeHighlightContainer.className = 'remove-highlight-container ' + highlightColor;
-            } else {
-                removeHighlightBtn.style.display = 'none';
-            }
-            toolbar.classList.add('show');
-            selectionRange = range;
-        }
-
-        function hideSelectionToolbar() {
-            const toolbar = document.getElementById('selectionToolbar');
-            const colorPicker = document.getElementById('colorPicker');
-            toolbar.classList.remove('show');
-            colorPicker.classList.remove('show');
-            highlightColorPickerVisible = false;
-            selectionRange = null;
-        }
-
-        function noteSelection() {
-            if (!selectionRange) return;
-            const selectedText = selectionRange.toString();
-            const note = prompt(`Add a note for:\n"${selectedText}"`);
-            if (note) {
-                const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-                notes.push({ text: selectedText, note, timestamp: new Date().toISOString() });
-                localStorage.setItem('notes', JSON.stringify(notes));
-                showToast('Note saved!');
-            }
-            hideSelectionToolbar();
-            window.getSelection().removeAllRanges();
-        }
-
-        async function copySelection() {
-            if (!selectionRange) return;
-            const selectedText = selectionRange.toString();
-            try {
-                await navigator.clipboard.writeText(selectedText);
-                showToast('Copied to clipboard!');
-            } catch (err) {
-                const textArea = document.createElement('textarea');
-                textArea.value = selectedText;
-                textArea.style.position = 'fixed';
-                textArea.style.opacity = '0';
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showToast('Copied to clipboard!');
-            }
-            hideSelectionToolbar();
-            window.getSelection().removeAllRanges();
-        }
-
-        async function shareSelection() {
-            if (!selectionRange) return;
-            const selectedText = selectionRange.toString();
-            const articleTitle = document.querySelector('h1').textContent;
-            const pageUrl = window.location.href;
-            if (navigator.share) {
-                try {
-                    await navigator.share({ title: articleTitle, text: selectedText, url: pageUrl });
-                    showToast('Shared successfully!');
-                } catch (error) { if (error.name !== 'AbortError') showToast('Failed to share'); }
-            } else {
-                try {
-                    await navigator.clipboard.writeText(`${selectedText}\n\nFrom: ${articleTitle}\n${pageUrl}`);
-                    showToast('Text copied to clipboard for sharing!');
-                } catch (err) {
-                    const textArea = document.createElement('textarea');
-                    textArea.value = `${selectedText}\n\nFrom: ${articleTitle}\n${pageUrl}`;
-                    textArea.style.position = 'fixed';
-                    textArea.style.opacity = '0';
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(textArea);
-                    showToast('Text copied to clipboard for sharing!');
-                }
-            }
-            hideSelectionToolbar();
-            window.getSelection().removeAllRanges();
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 2000);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            addSelectionListeners();
-            // Ensure the "Start Lesson" link uses the correct lesson ID
-            const lessonLink = document.querySelector('a[href*="intro-anticoagulants"]');
-            if (lessonLink) lessonLink.href = '/pages/lesson.html?course=pharmacology-ii&lesson=intro-anticoagulants';
+          html += `
+              </ul>
+            </li>
+          `;
         });
-    </script>
+
+        html += `
+            </ul>
+          </li>
+        `;
+      });
+
+      html += '</ul>';
+      container.innerHTML = html;
+
+      // --- Event listeners for toggling ---
+      container.querySelectorAll('.parent-toggle').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.dataset.target;
+          const subMenu = document.getElementById(targetId);
+          if (subMenu) {
+            subMenu.classList.toggle('open');
+            const chevron = this.querySelector('.chevron-right');
+            if (chevron) chevron.classList.toggle('open');
+          }
+        });
+      });
+
+      container.querySelectorAll('.chapter-toggle').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const targetId = this.dataset.target;
+          const subSubMenu = document.getElementById(targetId);
+          if (subSubMenu) {
+            subSubMenu.classList.toggle('open');
+            const chevron = this.querySelector('.chevron-right');
+            if (chevron) chevron.classList.toggle('open');
+          }
+        });
+      });
+
+      // --- Auto‑expand to the current lesson ---
+      const activeLink = container.querySelector('.sub-sub-menu a.active');
+      if (activeLink) {
+        const subSubMenu = activeLink.closest('.sub-sub-menu');
+        if (subSubMenu) {
+          subSubMenu.classList.add('open');
+          const chapterToggle = subSubMenu.closest('li').querySelector('.chapter-toggle .chevron-right');
+          if (chapterToggle) chapterToggle.classList.add('open');
+          const subMenu = subSubMenu.closest('.sub-menu');
+          if (subMenu) {
+            subMenu.classList.add('open');
+            const parentToggle = subMenu.closest('li').querySelector('.parent-toggle .chevron-right');
+            if (parentToggle) parentToggle.classList.add('open');
+          }
+        }
+        setTimeout(() => {
+          activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }, 100);
+      }
+    }
+
+    // ---- Initialize TOC ----
+    const courseId = 'pharmacology-ii';
+    const currentPath = window.location.pathname;
+
+    document.getElementById('tocCourseImg').src = `/assets/courses/${courseId}.png`;
+    document.getElementById('tocCourseName').textContent = 'Pharmacology-II';
+
+    renderTOC(tocData, 'tocTreeContainer', currentPath);
+
+    // ---- TOC Sidebar open/close ----
+    const overlay = document.getElementById('tocOverlay');
+    const closeBtn = document.getElementById('tocCloseBtn');
+    const menuBtn = document.getElementById('menuBtn');
+
+    function openSidebar() {
+      overlay.style.display = 'block';
+      requestAnimationFrame(() => overlay.classList.add('open'));
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      overlay.classList.remove('open');
+      setTimeout(() => { overlay.style.display = 'none'; }, 350);
+      document.body.style.overflow = '';
+    }
+
+    menuBtn.addEventListener('click', openSidebar);
+    closeBtn.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) closeSidebar();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && overlay.classList.contains('open')) closeSidebar();
+    });
+
+    // Course icon in sidebar opens course switcher
+    document.getElementById('tocCourseIcon').addEventListener('click', function() {
+      const headerCourseIcon = document.querySelector('#activeCourseIcon');
+      if (headerCourseIcon) headerCourseIcon.click();
+      closeSidebar();
+    });
+
+    // ---- Bookmark toggle (bookmarks.svg plural) ----
+    const bookmarkBtn = document.getElementById('bookmarkBtn');
+    bookmarkBtn.addEventListener('click', function() {
+      const isBookmarked = this.classList.toggle('bookmarked');
+      const img = this.querySelector('img');
+      if (isBookmarked) {
+        img.src = '/assets/icons/phosphor/fill/bookmarks.svg';
+        showToast('Bookmarked!');
+        const articlePath = window.location.pathname;
+        let bookmarks = JSON.parse(localStorage.getItem('readingBookmarks') || '[]');
+        if (!bookmarks.includes(articlePath)) {
+          bookmarks.push(articlePath);
+          localStorage.setItem('readingBookmarks', JSON.stringify(bookmarks));
+        }
+      } else {
+        img.src = '/assets/icons/phosphor/regular/bookmarks.svg';
+        showToast('Bookmark removed');
+        const articlePath = window.location.pathname;
+        let bookmarks = JSON.parse(localStorage.getItem('readingBookmarks') || '[]');
+        bookmarks = bookmarks.filter(p => p !== articlePath);
+        localStorage.setItem('readingBookmarks', JSON.stringify(bookmarks));
+      }
+    });
+
+    // Restore bookmark state
+    (function() {
+      const articlePath = window.location.pathname;
+      const bookmarks = JSON.parse(localStorage.getItem('readingBookmarks') || '[]');
+      if (bookmarks.includes(articlePath)) {
+        const btn = document.getElementById('bookmarkBtn');
+        btn.classList.add('bookmarked');
+        const img = btn.querySelector('img');
+        img.src = '/assets/icons/phosphor/fill/bookmarks.svg';
+      }
+    })();
+
+    // ---- Font size ----
+    (function() {
+      const panel = document.getElementById('fontPanel');
+      const toggle = document.getElementById('fontToggle');
+      const range = document.getElementById('sizeRange');
+      const dec = document.getElementById('decBtn');
+      const inc = document.getElementById('incBtn');
+      const label = document.getElementById('sizeLabel');
+      const closeBtn = document.getElementById('fontCloseBtn');
+
+      function applySize(px) {
+        document.documentElement.style.setProperty('--content-size', px + 'px');
+        label.textContent = px + 'px';
+        const ratio = px / 16;
+        const smallA = document.querySelector('.small-a');
+        const largeA = document.querySelector('.large-a');
+        if (smallA) smallA.style.fontSize = (14 * ratio) + 'px';
+        if (largeA) largeA.style.fontSize = (18 * ratio) + 'px';
+      }
+      applySize(parseInt(range.value, 10));
+
+      toggle.addEventListener('click', (e) => { panel.classList.toggle('show'); e.stopPropagation(); });
+      closeBtn.addEventListener('click', () => panel.classList.remove('show'));
+      document.addEventListener('click', (e) => {
+        if (!panel.contains(e.target) && e.target !== toggle) panel.classList.remove('show');
+      });
+      range.addEventListener('input', (e) => applySize(parseInt(e.target.value, 10)));
+      dec.addEventListener('click', () => {
+        let v = Math.max(parseInt(range.min), parseInt(range.value) - 1);
+        range.value = v; applySize(v);
+      });
+      inc.addEventListener('click', () => {
+        let v = Math.min(parseInt(range.max), parseInt(range.value) + 1);
+        range.value = v; applySize(v);
+      });
+    })();
+
+    // ---- Search (with X/Y of matches and icon switching) ----
+    (function() {
+      const searchInput = document.getElementById('searchInput');
+      const searchBox = document.getElementById('searchBox');
+      const clearSearchBtn = document.getElementById('clearSearchBtn');
+      const defaultSearchIcon = document.getElementById('defaultSearchIcon');
+      const activeSearchIcon = document.getElementById('activeSearchIcon');
+      const article = document.getElementById('articleContent');
+      const finderFooter = document.getElementById('finderFooter');
+      const clearFind = document.getElementById('clearFind');
+      const foundInfo = document.getElementById('foundInfo');
+      const prevMatchBtn = document.getElementById('prevMatchBtn');
+      const nextMatchBtn = document.getElementById('nextMatchBtn');
+
+      let hits = [];
+      let currentIndex = -1;
+
+      function escapeRegExp(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      }
+
+      function updateSearchBoxState() {
+        const hasText = searchInput.value.trim().length > 0;
+        searchBox.classList.toggle('has-text', hasText);
+        if (!hasText) {
+          finderFooter.style.display = 'none';
+        } else {
+          finderFooter.style.display = 'flex';
+        }
+      }
+
+      function clearHighlights() {
+        article.querySelectorAll('mark.search-hit').forEach(m => {
+          const parent = m.parentNode;
+          parent.replaceChild(document.createTextNode(m.textContent), m);
+          parent.normalize();
+        });
+        hits = [];
+        currentIndex = -1;
+        updateCounter();
+        updateSearchBoxState();
+      }
+
+      function performSearch() {
+        const term = searchInput.value.trim();
+        clearHighlights();
+        if (!term) {
+          updateSearchBoxState();
+          return;
+        }
+
+        const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, null, false);
+        const textNodes = [];
+        let node;
+        while ((node = walker.nextNode())) textNodes.push(node);
+
+        const re = new RegExp(escapeRegExp(term), 'ig');
+        textNodes.forEach(textNode => {
+          const parent = textNode.parentNode;
+          if (parent.closest && parent.closest('mark.search-hit')) return;
+          const text = textNode.textContent;
+          if (re.test(text)) {
+            const frag = document.createDocumentFragment();
+            let last = 0;
+            let match;
+            re.lastIndex = 0;
+            while ((match = re.exec(text)) !== null) {
+              const offset = match.index;
+              if (offset > last) frag.appendChild(document.createTextNode(text.slice(last, offset)));
+              const mark = document.createElement('mark');
+              mark.className = 'search-hit';
+              mark.textContent = match[0];
+              frag.appendChild(mark);
+              last = offset + match[0].length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            parent.replaceChild(frag, textNode);
+          }
+        });
+
+        hits = Array.from(article.querySelectorAll('mark.search-hit'));
+        currentIndex = hits.length > 0 ? 0 : -1;
+        if (currentIndex !== -1) scrollToHit(currentIndex);
+        updateCounter();
+        updateSearchBoxState();
+      }
+
+      function updateCounter() {
+        if (hits.length === 0) {
+          foundInfo.textContent = 'No matches found';
+        } else {
+          foundInfo.textContent = `${currentIndex+1}/${hits.length} of matches`;
+        }
+      }
+
+      function scrollToHit(index) {
+        if (hits.length === 0 || index < 0 || index >= hits.length) return;
+        hits.forEach(h => h.style.outline = 'none');
+        const el = hits[index];
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.outline = '3px solid rgba(255,180,0,0.6)';
+        setTimeout(() => el.style.outline = 'none', 1200);
+        updateCounter();
+      }
+
+      function goToNext() {
+        if (hits.length === 0) return;
+        currentIndex = (currentIndex + 1) % hits.length;
+        scrollToHit(currentIndex);
+      }
+
+      function goToPrev() {
+        if (hits.length === 0) return;
+        currentIndex = (currentIndex - 1 + hits.length) % hits.length;
+        scrollToHit(currentIndex);
+      }
+
+      // ---- Event listeners ----
+      searchInput.addEventListener('input', function() {
+        performSearch();
+        if (this.value.trim() === '') {
+          clearHighlights();
+          finderFooter.style.display = 'none';
+        }
+        updateSearchBoxState();
+      });
+
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          goToNext();
+        }
+      });
+
+      // Click on search icons -> next match
+      defaultSearchIcon.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (searchInput.value.trim() !== '') goToNext();
+      });
+      activeSearchIcon.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (searchInput.value.trim() !== '') goToNext();
+      });
+
+      // Clear buttons
+      clearSearchBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        clearHighlights();
+        finderFooter.style.display = 'none';
+        updateSearchBoxState();
+        searchInput.focus();
+      });
+      clearFind.addEventListener('click', function() {
+        searchInput.value = '';
+        clearHighlights();
+        finderFooter.style.display = 'none';
+        updateSearchBoxState();
+        searchInput.focus();
+      });
+
+      // Arrow navigation
+      nextMatchBtn.addEventListener('click', goToNext);
+      prevMatchBtn.addEventListener('click', goToPrev);
+
+      // Click on a highlight to jump to it
+      article.addEventListener('click', function(e) {
+        const mark = e.target.closest('mark.search-hit');
+        if (mark) {
+          const idx = hits.indexOf(mark);
+          if (idx !== -1) {
+            currentIndex = idx;
+            scrollToHit(currentIndex);
+          }
+        }
+      });
+
+      // Init
+      updateSearchBoxState();
+      finderFooter.style.display = 'none';
+    })();
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // ---- Highlight, Note, Copy, Share ----
+    window.highlightSelection = function(color) {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      const range = selection.getRangeAt(0);
+      if (range.collapsed) return;
+      const span = document.createElement('span');
+      span.className = `highlighted-${color}`;
+      try {
+        span.appendChild(range.extractContents());
+        range.insertNode(span);
+      } catch(e) { /* ignore */ }
+      selection.removeAllRanges();
+      document.getElementById('selectionToolbar').classList.remove('show');
+      showToast('Highlighted!');
+    };
+
+    window.noteSelection = function() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      const text = selection.toString().trim();
+      if (!text) return;
+      const note = prompt(`Add a note for:\n"${text}"`);
+      if (note) {
+        const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+        notes.push({ text, note, timestamp: new Date().toISOString() });
+        localStorage.setItem('notes', JSON.stringify(notes));
+        showToast('Note saved!');
+      }
+      document.getElementById('selectionToolbar').classList.remove('show');
+      selection.removeAllRanges();
+    };
+
+    window.copySelection = async function() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      const text = selection.toString().trim();
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Copied to clipboard!');
+      } catch(e) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Copied to clipboard!');
+      }
+      document.getElementById('selectionToolbar').classList.remove('show');
+      selection.removeAllRanges();
+    };
+
+    window.shareSelection = async function() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+      const text = selection.toString().trim();
+      if (!text) return;
+      const title = document.querySelector('h1')?.textContent || 'Vulanet';
+      const url = window.location.href;
+      const shareText = `${text}\n\nFrom: ${title}\n${url}`;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, text: shareText, url });
+          showToast('Shared!');
+        } catch(e) { /* user cancelled */ }
+      } else {
+        try {
+          await navigator.clipboard.writeText(shareText);
+          showToast('Copied to clipboard for sharing!');
+        } catch(e) {
+          const ta = document.createElement('textarea');
+          ta.value = shareText;
+          ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast('Copied to clipboard for sharing!');
+        }
+      }
+      document.getElementById('selectionToolbar').classList.remove('show');
+      selection.removeAllRanges();
+    };
+
+    // Selection toolbar visibility
+    document.addEventListener('selectionchange', () => {
+      const selection = window.getSelection();
+      const toolbar = document.getElementById('selectionToolbar');
+      if (!selection.isCollapsed && selection.toString().trim().length > 0) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        toolbar.style.left = `${rect.left + window.scrollX}px`;
+        toolbar.style.top = `${rect.bottom + window.scrollY + 10}px`;
+        toolbar.classList.add('show');
+      } else {
+        toolbar.classList.remove('show');
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      const picker = document.getElementById('colorPicker');
+      const btn = document.getElementById('highlightBtn');
+      if (!picker.contains(e.target) && e.target !== btn) {
+        picker.classList.remove('show');
+      }
+    });
+
+    document.getElementById('highlightBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('colorPicker').classList.toggle('show');
+    });
+
+    console.log('Pharmacology reading article loaded.');
+  </script>
 </body>
 </html>

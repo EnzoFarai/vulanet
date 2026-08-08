@@ -7,6 +7,7 @@ export function renderLearningPath(config) {
     const containerId = config.containerId;
     const courseId = config.courseId;
     const onLessonStart = config.onLessonStart;
+    const onNotebookClick = config.onNotebookClick; // new callback for notebook icon
 
     const container = document.getElementById(containerId);
     if (!container) {
@@ -211,7 +212,6 @@ export function renderLearningPath(config) {
         if (lesson.type === 'treasure') {
             const progress = chapter.userProgress[lessonId];
             if (progress.status === 'locked') {
-                // Check if preceding lessons are completed
                 const idx = chapter.lessons.indexOf(lesson);
                 const preceding = chapter.lessons.slice(0, idx);
                 const allDone = preceding.every(l => {
@@ -269,6 +269,7 @@ export function renderLearningPath(config) {
     function positionStartBubble(node) {
         const rect = node.getBoundingClientRect();
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        // START bubble width restored to 95px (match CSS)
         const top = rect.top + scrollTop - 70;
         const left = rect.left + rect.width/2;
         startBubble.style.top = top + 'px';
@@ -678,6 +679,19 @@ export function renderLearningPath(config) {
     const unitTitle = config.unitTitle || 'UNIT 1';
     const sectionEl = persistentCard.querySelector('.section');
     if (sectionEl) sectionEl.textContent = unitTitle;
+
+    // Notebook icon click handler (white filter applied in CSS)
+    const notebookIcon = document.querySelector('#persistent-learning-card .icon-container');
+    if (notebookIcon) {
+        notebookIcon.addEventListener('click', () => {
+            if (onNotebookClick) {
+                onNotebookClick(courseId);
+            } else {
+                // Default: go to reading TOC
+                window.location.href = `/read/${courseId}.html`;
+            }
+        });
+    }
 
     // Initialize progress for each chapter
     chapters.forEach(ch => {

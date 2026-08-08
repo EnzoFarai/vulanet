@@ -19,13 +19,13 @@
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
   --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
   --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
-  
+
   --header-height: 76px;
   --footer-height: 68px;
   --icon-size: 32px;
   --panel-icon-size: 80px;
   --panel-item-width: 130px;
-  
+
   --btn-border-radius: 0.75rem;
   --btn-border-bottom: 0.25rem;
   --btn-primary-color: #ffffff;
@@ -33,7 +33,7 @@
   --btn-primary-border: #3a75d9;
   --btn-primary-hover: #3a75d9;
   --btn-primary-border-hover: #3166c4;
-  
+
   --streak-bg: #fff4cf;
   --streak-orange: #ff9f0a;
   --streak-orange-dark: #ff8a00;
@@ -65,7 +65,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: var(--footer-height); /* Space for fixed footer */
+  padding-bottom: var(--footer-height);
 }
 body.has-header { padding-top: var(--header-height); }
 
@@ -142,15 +142,13 @@ header {
   width: 24px;
   height: 24px;
   display: block;
-  /* Default: Basalt #4B4B4B */
   filter: brightness(0) saturate(100%) invert(27%) sepia(11%) saturate(149%) hue-rotate(180deg) brightness(90%) contrast(92%);
 }
 .stat-item span { display: block; line-height: 1.2; padding-top: 1px; font-size: 12px; }
 
-/* Brand icon filters */
-.stat-icon.streak { filter: brightness(0) saturate(100%) invert(48%) sepia(86%) saturate(1391%) hue-rotate(2deg) brightness(101%) contrast(104%); } /* #FF9800 */
-.stat-icon.coins { filter: brightness(0) saturate(100%) invert(81%) sepia(77%) saturate(717%) hue-rotate(354deg) brightness(101%) contrast(98%); } /* #FFD700 */
-.stat-icon.hearts { filter: brightness(0) saturate(100%) invert(16%) sepia(100%) saturate(7410%) hue-rotate(355deg) brightness(93%) contrast(108%); } /* #FF0000 */
+.stat-icon.streak { filter: brightness(0) saturate(100%) invert(48%) sepia(86%) saturate(1391%) hue-rotate(2deg) brightness(101%) contrast(104%); }
+.stat-icon.coins { filter: brightness(0) saturate(100%) invert(81%) sepia(77%) saturate(717%) hue-rotate(354deg) brightness(101%) contrast(98%); }
+.stat-icon.hearts { filter: brightness(0) saturate(100%) invert(16%) sepia(100%) saturate(7410%) hue-rotate(355deg) brightness(93%) contrast(108%); }
 
 /* ========== PANELS ========== */
 .course-panel-container,
@@ -287,7 +285,6 @@ header {
   min-height: 36px;
   hyphens: auto;
 }
-/* Remove percentage display */
 .course-slider-item .course-slider-progress { display: none; }
 
 .add-course-slider {
@@ -454,11 +451,9 @@ header {
 .hearts-button .left img { width: 22px; height: 22px; flex-shrink: 0; }
 .hearts-button .coins-display img { width: 20px; height: 20px; flex-shrink: 0; }
 
-/* Practice button icons – correct colors */
 .practice-button .left img { filter: brightness(0) saturate(100%) invert(16%) sepia(100%) saturate(7410%) hue-rotate(355deg) brightness(93%) contrast(108%); }
 .refill-button .left img { filter: brightness(0) saturate(100%) invert(16%) sepia(100%) saturate(7410%) hue-rotate(355deg) brightness(93%) contrast(108%); }
 
-/* Hide practice button when hearts full */
 .practice-button.hidden { display: none; }
 #refillHeartsButton.hidden { display: none; }
 .timer.hidden { display: none; }
@@ -525,7 +520,6 @@ header {
 }
 .shop-price img { width: 20px; height: 20px; }
 
-/* Shop icon colors */
 .midnight .chest-icon { filter: brightness(0) saturate(100%) invert(9%) sepia(98%) saturate(3891%) hue-rotate(208deg) brightness(96%) contrast(96%); }
 .dawn .chest-icon { filter: brightness(0) saturate(100%) invert(64%) sepia(29%) saturate(1682%) hue-rotate(327deg) brightness(101%) contrast(106%); }
 .revival .aid-icon { filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(7236%) hue-rotate(1deg) brightness(93%) contrast(118%); }
@@ -571,7 +565,7 @@ header {
   font-weight: 800;
   line-height: 1;
   color: white;
-  text-shadow: 
+  text-shadow:
     3px 0 0 var(--streak-badge-bg),
     -3px 0 0 var(--streak-badge-bg),
     0 3px 0 var(--streak-badge-bg),
@@ -774,7 +768,7 @@ header {
   font-weight: 800;
   line-height: 1;
   color: white;
-  text-shadow: 
+  text-shadow:
     3px 0 0 var(--streak-orange),
     -3px 0 0 var(--streak-orange),
     0 3px 0 var(--streak-orange),
@@ -889,7 +883,6 @@ nav {
 .nav-icon {
   width: 26px;
   height: 26px;
-  /* Default: Basalt #4B4B4B */
   filter: brightness(0) saturate(100%) invert(27%) sepia(11%) saturate(149%) hue-rotate(180deg) brightness(90%) contrast(92%);
 }
 .nav-item.active .nav-icon {

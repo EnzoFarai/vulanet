@@ -1,0 +1,126 @@
+{
+  "startingColorIndex": 0,
+  "units": [
+    {
+      "title": "Unit 1",
+      "chapters": [
+        {
+          "title": "DNA: The Code of Life",
+          "lessons": [
+            { "number": 1, "title": "Introduction", "link": "/read/g12-life-sciences/introduction-to-nucleic-acids.html" },
+            { "number": 2, "title": "DNA: location, structure and functions", "link": "#" },
+            { "number": 3, "title": "DNA replication", "link": "#" },
+            { "number": 4, "title": "DNA profiling", "link": "#" },
+            { "number": 5, "title": "RNA: location, structure and function", "link": "#" },
+            { "number": 6, "title": "Protein synthesis", "link": "#" }
+          ]
+        },
+        {
+          "title": "Meiosis",
+          "lessons": [
+            { "number": 1, "title": "Introduction", "link": "#" },
+            { "number": 2, "title": "Meiosis – The process", "link": "#" },
+            { "number": 3, "title": "Importance of meiosis", "link": "#" },
+            { "number": 4, "title": "Abnormal meiosis", "link": "#" },
+            { "number": 5, "title": "Comparison of mitosis and meiosis", "link": "#" }
+          ]
+        },
+        {
+          "title": "Reproduction in Vertebrates",
+          "lessons": [
+            { "number": 1, "title": "Diversity of reproductive strategies", "link": "#" }
+          ]
+        },
+        {
+          "title": "Human Reproduction",
+          "lessons": [
+            { "number": 1, "title": "Introduction", "link": "#" },
+            { "number": 2, "title": "Structure of the male reproductive system", "link": "#" },
+            { "number": 3, "title": "Structure of the female reproductive system", "link": "#" },
+            { "number": 4, "title": "Puberty", "link": "#" },
+            { "number": 5, "title": "Gametogenesis (spermatogenesis, oogenesis)", "link": "#" },
+            { "number": 6, "title": "Menstrual cycle", "link": "#" },
+            { "number": 7, "title": "Fertilisation and development of zygote to blastocyst", "link": "#" },
+            { "number": 8, "title": "Implantation, gestation and the role of the placenta", "link": "#" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Unit 2",
+      "chapters": [
+        {
+          "title": "Genetics and Inheritance",
+          "lessons": [
+            { "number": 1, "title": "Introduction", "link": "#" },
+            { "number": 2, "title": "Concepts in inheritance", "link": "#" },
+            { "number": 3, "title": "Monohybrid crosses", "link": "#" },
+            { "number": 4, "title": "Sex determination", "link": "#" },
+            { "number": 5, "title": "Sex‑linked inheritance", "link": "#" },
+            { "number": 6, "title": "Blood grouping", "link": "#" },
+            { "number": 7, "title": "Dihybrid crosses", "link": "#" },
+            { "number": 8, "title": "Genetic lineages/pedigrees", "link": "#" },
+            { "number": 9, "title": "Mutations", "link": "#" },
+            { "number": 10, "title": "Genetic engineering", "link": "#" },
+            { "number": 11, "title": "Paternity testing", "link": "#" },
+            { "number": 12, "title": "Genetic links", "link": "#" }
+          ]
+        },
+        {
+          "title": "Responding to the Environment (Humans)",
+          "lessons": [
+            { "number": 1, "title": "Introduction", "link": "#" },
+            { "number": 2, "title": "Human nervous system", "link": "#" },
+            { "number": 3, "title": "Central nervous system", "link": "#" },
+            { "number": 4, "title": "Peripheral nervous system", "link": "#" },
+            { "number": 5, "title": "Autonomic nervous system", "link": "#" },
+            { "number": 6, "title": "Structure and functioning of a nerve", "link": "#" },
+            { "number": 7, "title": "The simple reflex arc", "link": "#" },
+            { "number": 8, "title": "Disorders of the CNS", "link": "#" },
+            { "number": 9, "title": "Receptors", "link": "#" },
+            { "number": 10, "title": "Human eye", "link": "#" },
+            { "number": 11, "title": "Human ear", "link": "#" }
+          ]
+        },
+        {
+          "title": "Endocrine System and Homeostasis",
+          "lessons": [
+            { "number": 1, "title": "Endocrine system", "link": "#" },
+            { "number": 2, "title": "Introduction – Homeostasis", "link": "#" },
+            { "number": 3, "title": "Homeostasis: Negative feedback mechanisms", "link": "#" }
+          ]
+        },
+        {
+          "title": "Responding to the Environment (Plants)",
+          "lessons": [
+            { "number": 1, "title": "Plant hormones", "link": "#" },
+            { "number": 2, "title": "Plant defence mechanisms", "link": "#" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Unit 3",
+      "chapters": [
+        {
+          "title": "Evolution",
+          "lessons": [
+            { "number": 1, "title": "Introduction", "link": "#" },
+            { "number": 2, "title": "Evidence for evolution", "link": "#" },
+            { "number": 3, "title": "Variation", "link": "#" },
+            { "number": 4, "title": "Origin of an idea about origins", "link": "#" },
+            { "number": 5, "title": "Lamarckism", "link": "#" },
+            { "number": 6, "title": "Darwinism", "link": "#" },
+            { "number": 7, "title": "Punctuated Equilibrium", "link": "#" },
+            { "number": 8, "title": "Artificial selection", "link": "#" },
+            { "number": 9, "title": "Formation of new species", "link": "#" },
+            { "number": 10, "title": "Mechanisms of reproductive isolation", "link": "#" },
+            { "number": 11, "title": "Evolution in present times", "link": "#" },
+            { "number": 12, "title": "Evidence of common ancestors", "link": "#" },
+            { "number": 13, "title": "Out‑of‑Africa hypothesis", "link": "#" }
+          ]
+        }
+      ]
+    }
+  ]
+}

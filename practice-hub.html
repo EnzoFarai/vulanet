@@ -1,204 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Practice Hub | Vulanet</title>
-    <link rel="stylesheet" href="/assets/fonts/fonts.css">
-    <link rel="stylesheet" href="/src/styles/layout.css">
-    <link rel="stylesheet" href="/src/styles/components/buttons.css">
-    <style>
-        :root {
-            --primary-blue: #4285F4;
-            --dark-blue: #3367D6;
-            --light-blue: #E8F0FE;
-            --accent-orange: #FF9800;
-            --accent-green: #0F9D58;
-            --accent-red: #DB4437;
-            --accent-yellow: #F4B400;
-            --accent-turquoise: #40E0D0;
-            --text-dark: #202124;
-            --text-medium: #5F6368;
-            --text-light: #FFFFFF;
-            --bg-light: #F8F9FA;
-            --border-radius: 16px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice Hub | Vulanet</title>
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/layout.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+  <style>
+    :root {
+      --primary-blue: #4285F4;
+      --dark-blue: #3367D6;
+      --light-blue: #E8F0FE;
+      --accent-orange: #FF9800;
+      --accent-green: #0F9D58;
+      --accent-red: #DB4437;
+      --accent-yellow: #F4B400;
+      --accent-turquoise: #40E0D0;
+      --text-dark: #202124;
+      --text-medium: #5F6368;
+      --text-light: #FFFFFF;
+      --bg-light: #F8F9FA;
+      --border-radius: 16px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
-            font-family: 'Atkinson Hyperlegible Next', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.5;
-            padding: 24px 20px 100px 20px;
-        }
+    body {
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.5;
+      padding: 24px 20px 100px 20px;
+    }
 
-        .container { max-width: 800px; margin: 0 auto; }
+    .container { max-width: 800px; margin: 0 auto; }
 
-        .practice-section {
-            background-color: var(--primary-blue);
-            border-radius: var(--border-radius);
-            color: white;
-            padding: 20px;
-            margin-bottom: 24px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-        }
-        .practice-section h3 {
-            font-weight: 700;
-            font-size: 20px;
-            margin: 0 0 8px;
-        }
-        .practice-section p {
-            font-size: 16px;
-            opacity: 0.9;
-            max-width: 80%;
-        }
-        .crosshair-icon {
-            position: absolute;
-            right: 15px;
-            bottom: 15px;
-            font-size: 100px;
-            opacity: 0.2;
-            transform: rotate(-15deg);
-            color: var(--accent-red);
-        }
-        .crosshair-icon img { width: 100px; height: 100px; filter: brightness(0) saturate(100%) invert(100%); }
+    .practice-section {
+      background-color: var(--primary-blue);
+      border-radius: var(--border-radius);
+      color: white;
+      padding: 20px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    .practice-section h3 {
+      font-weight: 700;
+      font-size: 20px;
+      margin: 0 0 8px;
+    }
+    .practice-section p {
+      font-size: 16px;
+      opacity: 0.9;
+      max-width: 80%;
+    }
+    .crosshair-icon {
+      position: absolute;
+      right: 15px;
+      bottom: 15px;
+      font-size: 100px;
+      opacity: 0.2;
+      transform: rotate(-15deg);
+      color: var(--accent-red);
+    }
+    .crosshair-icon img { width: 100px; height: 100px; filter: brightness(0) saturate(100%) invert(100%); }
 
-        .section-title {
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--primary-blue);
-            margin: 24px 0 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .section-title {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--primary-blue);
+      margin: 24px 0 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        .card-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+    .card-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-        .card {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow-sm);
-            transition: transform 0.2s;
-            cursor: pointer;
-        }
-        .card:active { transform: scale(0.98); }
-        .card .label { font-weight: 700; font-size: 16px; }
-        .card .icon { width: 26px; height: 26px; }
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    .card:active { transform: scale(0.98); }
+    .card .label { font-weight: 700; font-size: 16px; }
+    .card .icon {
+      width: 26px;
+      height: 26px;
+      transform: rotate(-10deg);
+      transition: transform 0.2s ease;
+    }
+    .card:hover .icon {
+      transform: rotate(0deg) scale(1.1);
+    }
 
-        /* Icon colour filters */
-        .icon-read { filter: brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%); }
-        .icon-mistakes { filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(7236%) hue-rotate(1deg) brightness(93%) contrast(118%); }
-        .icon-bookmarks { filter: brightness(0) saturate(100%) invert(25%) sepia(67%) saturate(3032%) hue-rotate(234deg) brightness(93%) contrast(96%); }
-        .icon-highlights { filter: brightness(0) saturate(100%) invert(38%) sepia(67%) saturate(1217%) hue-rotate(80deg) brightness(97%) contrast(93%); }
-        .icon-notes { filter: brightness(0) saturate(100%) invert(31%) sepia(94%) saturate(1722%) hue-rotate(197deg) brightness(99%) contrast(95%); }
-        .icon-glossary { filter: brightness(0) saturate(100%) invert(48%) sepia(86%) saturate(1391%) hue-rotate(2deg) brightness(101%) contrast(104%); }
+    /* Icon colour filters */
+    .icon-read { filter: brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%); }
+    .icon-mistakes { filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(7236%) hue-rotate(1deg) brightness(93%) contrast(118%); }
+    .icon-bookmarks { filter: brightness(0) saturate(100%) invert(25%) sepia(67%) saturate(3032%) hue-rotate(234deg) brightness(93%) contrast(96%); }
+    .icon-highlights { filter: brightness(0) saturate(100%) invert(38%) sepia(67%) saturate(1217%) hue-rotate(80deg) brightness(97%) contrast(93%); }
+    .icon-notes { filter: brightness(0) saturate(100%) invert(31%) sepia(94%) saturate(1722%) hue-rotate(197deg) brightness(99%) contrast(95%); }
+    .icon-glossary { filter: brightness(0) saturate(100%) invert(48%) sepia(86%) saturate(1391%) hue-rotate(2deg) brightness(101%) contrast(104%); }
 
-        @media (max-width: 768px) {
-            .practice-section p { max-width: 70%; }
-            .crosshair-icon { font-size: 80px; }
-            .crosshair-icon img { width: 80px; height: 80px; }
-        }
-    </style>
+    @media (max-width: 768px) {
+      .practice-section p { max-width: 70%; }
+      .crosshair-icon { font-size: 80px; }
+      .crosshair-icon img { width: 80px; height: 80px; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Header will be injected by layout.js -->
-    <div class="container">
-        <!-- Practice Hub Section -->
-        <section class="practice-section">
-            <h3>Practice Hub</h3>
-            <p>Sharpen your skills. Train where you're weakest. Repeat for mastery.</p>
-            <div class="crosshair-icon">
-                <img src="/assets/icons/phosphor/duotone/crosshair.svg" alt="Crosshair">
-            </div>
-        </section>
 
-        <!-- Study Section -->
-        <h3 class="section-title">Study</h3>
-        <div class="card-container">
-            <div class="card" id="readCard">
-                <span class="label">Read</span>
-                <img src="/assets/icons/phosphor/duotone/book-open-user.svg" alt="Read" class="icon icon-read">
-            </div>
-            <div class="card" id="mistakesCard">
-                <span class="label">Mistakes</span>
-                <img src="/assets/icons/phosphor/duotone/eraser.svg" alt="Mistakes" class="icon icon-mistakes">
-            </div>
-            <div class="card" id="glossaryCard">
-                <span class="label">Glossary</span>
-                <img src="/assets/icons/phosphor/duotone/notebook.svg" alt="Glossary" class="icon icon-glossary">
-            </div>
-        </div>
+  <!-- Header injected by layout.js -->
 
-        <!-- Saved Section -->
-        <h3 class="section-title">Saved</h3>
-        <div class="card-container">
-            <div class="card" id="bookmarksCard">
-                <span class="label">Bookmarks</span>
-                <img src="/assets/icons/phosphor/duotone/bookmarks-simple.svg" alt="Bookmarks" class="icon icon-bookmarks">
-            </div>
-            <div class="card" id="highlightsCard">
-                <span class="label">Highlights</span>
-                <img src="/assets/icons/phosphor/duotone/highlighter.svg" alt="Highlights" class="icon icon-highlights">
-            </div>
-            <div class="card" id="notesCard">
-                <span class="label">Notes</span>
-                <img src="/assets/icons/phosphor/duotone/note-pencil.svg" alt="Notes" class="icon icon-notes">
-            </div>
-        </div>
+  <div class="container">
+    <section class="practice-section">
+      <h3>Practice Hub</h3>
+      <p>Sharpen your skills. Train where you're weakest. Repeat for mastery.</p>
+      <div class="crosshair-icon">
+        <img src="/assets/icons/phosphor/duotone/crosshair.svg" alt="Crosshair">
+      </div>
+    </section>
+
+    <h3 class="section-title">Study</h3>
+    <div class="card-container">
+      <div class="card" id="readCard">
+        <span class="label">Read</span>
+        <img src="/assets/icons/phosphor/duotone/book-open-user.svg" alt="Read" class="icon icon-read">
+      </div>
+      <div class="card" id="mistakesCard">
+        <span class="label">Mistakes</span>
+        <img src="/assets/icons/phosphor/duotone/eraser.svg" alt="Mistakes" class="icon icon-mistakes">
+      </div>
+      <div class="card" id="glossaryCard">
+        <span class="label">Glossary</span>
+        <img src="/assets/icons/phosphor/duotone/notebook.svg" alt="Glossary" class="icon icon-glossary">
+      </div>
     </div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
-            }
-        }
-    </script>
-    <script type="module">
-        import { loadLayout } from './src/js/layout.js';
+    <h3 class="section-title">Saved</h3>
+    <div class="card-container">
+      <div class="card" id="bookmarksCard">
+        <span class="label">Bookmarks</span>
+        <img src="/assets/icons/phosphor/duotone/bookmarks-simple.svg" alt="Bookmarks" class="icon icon-bookmarks">
+      </div>
+      <div class="card" id="highlightsCard">
+        <span class="label">Highlights</span>
+        <img src="/assets/icons/phosphor/duotone/highlighter.svg" alt="Highlights" class="icon icon-highlights">
+      </div>
+      <div class="card" id="notesCard">
+        <span class="label">Notes</span>
+        <img src="/assets/icons/phosphor/duotone/note-pencil.svg" alt="Notes" class="icon icon-notes">
+      </div>
+    </div>
+  </div>
 
-        // Load header/footer
-        await loadLayout();
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
 
-        // Get the active course from localStorage
-        const activeCourseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
+  <script type="module">
+    import { loadLayout } from './src/js/layout.js';
 
-        // Redirect "Read" to the course's table of contents
-        document.getElementById('readCard').addEventListener('click', () => {
-            window.location.href = `/read/${activeCourseId}/index.html`;
-        });
+    // Load header/footer
+    await loadLayout();
 
-        // Other cards – placeholder for now
-        document.getElementById('mistakesCard').addEventListener('click', () => {
-            alert('Mistakes review – coming soon!');
-        });
-        document.getElementById('glossaryCard').addEventListener('click', () => {
-            alert('Glossary – coming soon!');
-        });
-        document.getElementById('bookmarksCard').addEventListener('click', () => {
-            alert('Bookmarks – coming soon!');
-        });
-        document.getElementById('highlightsCard').addEventListener('click', () => {
-            alert('Highlights – coming soon!');
-        });
-        document.getElementById('notesCard').addEventListener('click', () => {
-            alert('Notes – coming soon!');
-        });
-    </script>
+    // Get the active course from localStorage
+    const activeCourseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
+
+    // Redirect "Read" to the course's TOC
+    document.getElementById('readCard').addEventListener('click', () => {
+      window.location.href = `/read/${activeCourseId}.html`;
+    });
+
+    // Other cards – placeholders
+    document.getElementById('mistakesCard').addEventListener('click', () => {
+      alert('Mistakes review – coming soon!');
+    });
+    document.getElementById('glossaryCard').addEventListener('click', () => {
+      alert('Glossary – coming soon!');
+    });
+    document.getElementById('bookmarksCard').addEventListener('click', () => {
+      alert('Bookmarks – coming soon!');
+    });
+    document.getElementById('highlightsCard').addEventListener('click', () => {
+      alert('Highlights – coming soon!');
+    });
+    document.getElementById('notesCard').addEventListener('click', () => {
+      alert('Notes – coming soon!');
+    });
+  </script>
 </body>
 </html>

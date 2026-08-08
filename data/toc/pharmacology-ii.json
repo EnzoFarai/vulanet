@@ -1,0 +1,32 @@
+{
+  "startingColorIndex": 3,
+  "units": [
+    {
+      "title": "Unit 1",
+      "chapters": [
+        {
+          "title": "Anticoagulants",
+          "lessons": [
+            { "number": 1, "title": "Introduction", "link": "/read/pharmacology-ii/introduction-to-anticoagulants.html" },
+            { "number": 2, "title": "Advanced Parenteral Anticoagulants", "link": "#" },
+            { "number": 3, "title": "Oral Anticoagulants", "link": "#" },
+            { "number": 4, "title": "DOACs and Therapeutic Uses", "link": "#" }
+          ]
+        },
+        {
+          "title": "Thrombolytics And Antiplatelet Agents",
+          "lessons": [
+            { "number": 1, "title": "Fibrinolysis", "link": "#" },
+            { "number": 2, "title": "Thrombolytic Drugs", "link": "#" },
+            { "number": 3, "title": "Uses and Contraindications", "link": "#" },
+            { "number": 4, "title": "Individual Thrombolytic Agents", "link": "#" },
+            { "number": 5, "title": "Antifibrinolytic Drugs", "link": "#" },
+            { "number": 6, "title": "Overview of Antiplatelet Drugs", "link": "#" },
+            { "number": 7, "title": "Classes of Antiplatelet Drugs", "link": "#" },
+            { "number": 8, "title": "Clinical Use of Antiplatelet Drugs", "link": "#" }
+          ]
+        }
+      ]
+    }
+  ]
+}
