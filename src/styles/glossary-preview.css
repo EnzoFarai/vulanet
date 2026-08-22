@@ -1,0 +1,151 @@
+/* src/styles/glossary-preview.css */
+/* Styles for glossary preview cards on reading pages */
+
+.preview-trigger {
+    position: relative;
+    display: inline-block;
+}
+
+.glossary-link {
+    color: #1CB0F6 !important;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.15s ease;
+    position: relative;
+    z-index: 2;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+.glossary-link:hover {
+    color: #0e8fc9;
+    text-decoration: underline;
+}
+
+.preview-card {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(2px);
+    min-width: 220px;
+    max-width: 300px;
+    width: max-content;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem 1rem 1.25rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.13), 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    z-index: 100;
+    text-align: left;
+    font-family: 'Atkinson Hyperlegible Next', serif;
+    cursor: default;
+}
+
+.preview-card::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-bottom-color: #ffffff;
+    filter: drop-shadow(0 -1px 2px rgba(0, 0, 0, 0.02));
+    pointer-events: none;
+}
+
+.preview-trigger.active .preview-card {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0px);
+}
+
+.glossary-term {
+    display: block;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #1e1e1e;
+    margin-bottom: 0.15rem;
+    letter-spacing: -0.01em;
+}
+
+.glossary-definition {
+    display: block;
+    font-weight: 400;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #4B4B4B;
+    margin-bottom: 0.75rem;
+}
+
+.glossary-view-link {
+    display: inline-block;
+    font-family: 'Atkinson Hyperlegible Next', serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #1CB0F6;
+    text-decoration: none !important;
+    padding-bottom: 1px;
+    transition: color 0.2s ease;
+    cursor: pointer;
+}
+
+.glossary-view-link:hover {
+    color: #0e8fc9;
+    text-decoration: none !important;
+}
+
+.dismiss-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: transparent;
+    touch-action: none;
+}
+
+.dismiss-overlay.show {
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .preview-card {
+        min-width: 180px;
+        max-width: 240px;
+        padding: 0.9rem 1rem 0.85rem 1rem;
+        top: calc(100% + 6px);
+    }
+    .glossary-term {
+        font-size: 1rem;
+    }
+    .glossary-definition {
+        font-size: 0.85rem;
+    }
+    .glossary-view-link {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .preview-card {
+        min-width: 160px;
+        max-width: 200px;
+        padding: 0.75rem 0.85rem 0.7rem 0.85rem;
+        top: calc(100% + 6px);
+    }
+    .glossary-term {
+        font-size: 0.95rem;
+    }
+    .glossary-definition {
+        font-size: 0.8rem;
+    }
+    .glossary-view-link {
+        font-size: 0.75rem;
+    }
+}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glossary | Pharmacology-II</title>
+    <link rel="stylesheet" href="/assets/fonts/fonts.css" />
+    <link rel="stylesheet" href="/src/styles/layout.css" />
+    <link rel="stylesheet" href="/src/styles/glossary.css" />
+    <link rel="stylesheet" href="/src/styles/glossary-preview.css" />
+</head>
+<body>
+    <div class="glossary-container" id="glossaryContainer"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+            }
+        }
+    </script>
+
+    <script>
+        window.glossaryData = {
+            "courseId": "pharmacology-ii",
+            "title": "Glossary",
+            "subtitle": "Pharmacology-II",
+            "terms": [
+                { "term": "Absorption", "definition": "The movement of a drug from its site of administration into the bloodstream." },
+                { "term": "Activated Partial Thromboplastin Time (aPTT)", "definition": "A laboratory test used to monitor the anticoagulant effect of unfractionated heparin." },
+                { "term": "Active Tuberculosis", "definition": "A contagious infection caused by Mycobacterium tuberculosis." },
+                { "term": "Alopecia", "definition": "Partial or complete loss of hair." },
+                { "term": "Antagonist", "definition": "A substance that blocks or reverses the action of another substance." },
+                { "term": "Anticoagulant", "definition": "A drug that prevents or reduces the coagulation (clotting) of blood." },
+                { "term": "Antiplatelet Action", "definition": "Inhibition of platelet aggregation and platelet-mediated clot formation." },
+                { "term": "Antithrombin III (AT III)", "definition": "A plasma protein that inactivates thrombin and several activated clotting factors; its activity is greatly enhanced by heparin." },
+                { "term": "Apixaban", "definition": "An oral direct Factor Xa inhibitor." },
+                { "term": "Bacterial Endocarditis", "definition": "Infection of the inner lining of the heart and heart valves." },
+                { "term": "Bioavailability", "definition": "The proportion of an administered drug that reaches the systemic circulation unchanged." },
+                { "term": "Bleeding Time", "definition": "The time required for bleeding to stop after a standardized skin puncture." },
+                { "term": "Blood-Brain Barrier", "definition": "A selective barrier that restricts the passage of substances from blood into the brain." },
+                { "term": "Cirrhosis", "definition": "Chronic liver disease characterized by fibrosis and impaired liver function." },
+                { "term": "Clotting Factors", "definition": "Plasma proteins that participate in the coagulation cascade to produce blood clots." },
+                { "term": "Coagulability", "definition": "The ability of blood to form clots." },
+                { "term": "Coagulation Cascade", "definition": "The sequential activation of clotting factors that results in blood clot formation." },
+                { "term": "Conformational Change", "definition": "A structural alteration in a protein that modifies its biological activity." },
+                { "term": "Contraindication", "definition": "A condition in which a particular drug or treatment should not be used because it may be harmful." },
+                { "term": "Dabigatran", "definition": "An oral direct thrombin inhibitor." },
+                { "term": "Deep Vein Thrombosis (DVT)", "definition": "Formation of a blood clot in a deep vein, usually of the leg." },
+                { "term": "Direct Thrombin Inhibitor", "definition": "An anticoagulant that directly inhibits thrombin without requiring antithrombin." },
+                { "term": "Distribution", "definition": "The reversible transfer of a drug between blood and body tissues." },
+                { "term": "Edoxaban", "definition": "An oral direct Factor Xa inhibitor." },
+                { "term": "Excretion", "definition": "The removal of drugs or their metabolites from the body." },
+                { "term": "Factor Xa", "definition": "An activated clotting factor responsible for converting prothrombin to thrombin." },
+                { "term": "Factor Xa Inhibitor", "definition": "An anticoagulant that selectively inhibits activated Factor Xa to prevent thrombin formation." },
+                { "term": "Fondaparinux", "definition": "A synthetic pentasaccharide anticoagulant that selectively inhibits Factor Xa through antithrombin." },
+                { "term": "Fractionation", "definition": "The process of separating a substance into smaller components based on physical or chemical properties." },
+                { "term": "Haematoma", "definition": "A localized collection of blood outside blood vessels." },
+                { "term": "Haematuria", "definition": "Presence of blood in the urine." },
+                { "term": "Haemophilia", "definition": "An inherited bleeding disorder caused by deficiency of clotting factors." },
+                { "term": "Haemorrhage", "definition": "Excessive bleeding due to rupture of blood vessels." },
+                { "term": "Half-life (t½)", "definition": "The time required for the plasma concentration of a drug to decrease by 50%." },
+                { "term": "Heparin", "definition": "A naturally occurring sulfated polysaccharide anticoagulant that enhances the activity of antithrombin III." },
+                { "term": "Heparin-Induced Thrombocytopenia (HIT)", "definition": "An immune-mediated adverse effect of heparin characterized by low platelet count and increased risk of thrombosis." },
+                { "term": "Heparinase", "definition": "The hepatic enzyme responsible for degradation of heparin." },
+                { "term": "Hypersensitivity Reaction", "definition": "An exaggerated immune response to a drug or other substance." },
+                { "term": "In Vitro", "definition": "Performed outside the living body, such as in a laboratory or test tube." },
+                { "term": "In Vivo", "definition": "Occurring within a living organism." },
+                { "term": "Indirect Thrombin Inhibitor", "definition": "An anticoagulant that inhibits thrombin indirectly through activation of antithrombin." },
+                { "term": "Intracranial Haemorrhage", "definition": "Bleeding within the skull." },
+                { "term": "Intramuscular (IM) Administration", "definition": "Administration of a drug into skeletal muscle." },
+                { "term": "Intravenous (IV) Administration", "definition": "Administration of a drug directly into a vein." },
+                { "term": "Lipaemic Plasma", "definition": "Plasma containing abnormally high concentrations of lipids, giving it a milky appearance." },
+                { "term": "Lipoprotein Lipase", "definition": "An enzyme that hydrolyses triglycerides in circulating lipoproteins." },
+                { "term": "Liver Function Test (LFT)", "definition": "A group of laboratory tests used to assess liver function and injury." },
+                { "term": "Low Molecular Weight Heparin (LMWH)", "definition": "Fractionated heparin with shorter polysaccharide chains that predominantly inhibits Factor Xa." },
+                { "term": "Metabolism", "definition": "The enzymatic conversion of a drug into metabolites." },
+                { "term": "Oral Administration", "definition": "Administration of drugs through the mouth." },
+                { "term": "Osteoporosis", "definition": "A disease characterized by decreased bone mass and increased fracture risk." },
+                { "term": "Parenteral Administration", "definition": "Administration of drugs by injection or infusion, bypassing the gastrointestinal tract." },
+                { "term": "Pentasaccharide Sequence", "definition": "The specific five-sugar sequence in heparin that binds and activates antithrombin III." },
+                { "term": "Peptic Ulcer", "definition": "An ulcer occurring in the stomach or duodenum." },
+                { "term": "Pharmacokinetics", "definition": "The study of the absorption, distribution, metabolism, and excretion of drugs." },
+                { "term": "Placental Barrier", "definition": "The physiological barrier between maternal and fetal circulation." },
+                { "term": "Platelet Factor 4 (PF4)", "definition": "A platelet protein that forms complexes with heparin and may trigger HIT." },
+                { "term": "Protamine Sulphate", "definition": "A strongly basic protein used as the antidote for heparin overdose." },
+                { "term": "Prophylaxis", "definition": "Prevention of disease before it occurs." },
+                { "term": "Prothrombin (Factor II)", "definition": "The inactive precursor of thrombin." },
+                { "term": "Pulmonary Embolism (PE)", "definition": "Obstruction of a pulmonary artery by a blood clot, usually originating from a deep vein thrombosis." },
+                { "term": "Rivaroxaban", "definition": "An oral direct Factor Xa inhibitor." },
+                { "term": "Severe Hypertension", "definition": "Markedly elevated blood pressure associated with increased risk of complications." },
+                { "term": "Stroke", "definition": "Sudden loss of brain function caused by interruption of blood supply or bleeding within the brain." },
+                { "term": "Subcutaneous (SC) Administration", "definition": "Administration of a drug into the tissue beneath the skin." },
+                { "term": "Threatened Abortion", "definition": "Vaginal bleeding during early pregnancy with the fetus still viable." },
+                { "term": "Thrombin (Factor IIa)", "definition": "An enzyme that converts fibrinogen into fibrin during blood coagulation." },
+                { "term": "Thrombocytopenia", "definition": "A reduction in the number of circulating platelets." },
+                { "term": "Thrombotic Disorder", "definition": "A condition characterized by abnormal formation of blood clots within blood vessels." },
+                { "term": "Thrombus", "definition": "A blood clot formed within a blood vessel." },
+                { "term": "Triglycerides", "definition": "The major form of fat stored in the body and transported in blood." },
+                { "term": "Unfractionated Heparin (UFH)", "definition": "Conventional heparin consisting of a mixture of polysaccharide chains of varying molecular weights." },
+                { "term": "Urticaria", "definition": "An allergic skin reaction characterized by itchy wheals (hives)." },
+                { "term": "Warfarin", "definition": "An oral coumarin anticoagulant that inhibits vitamin K-dependent clotting factor synthesis." }
+            ]
+        };
+    </script>
+
+    <script type="module">
+        import { loadLayout } from '/src/js/layout.js';
+        await loadLayout();
+
+        const script = document.createElement('script');
+        script.src = '/src/js/glossary.js';
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

@@ -121,8 +121,9 @@ async function initHeader() {
     const isReadingPage = path.startsWith('/read/');
     const isPracticeHub = path.includes('/practice-hub.html');
     const isCoursePage = path.endsWith('.html') && !isReadingPage && !isPracticeHub && !path.includes('/pages/');
+    const isGlossaryPage = path.startsWith('/glossary/');
 
-    if (isReadingPage) {
+    if (isReadingPage || isGlossaryPage) {
         document.querySelectorAll('.stat-item').forEach(el => {
             if (el.id !== 'activeCourseItem') {
                 el.classList.add('header-icon-hidden');
@@ -277,16 +278,13 @@ function renderCoursesSlider() {
     const slider = document.getElementById('coursesSlider');
     if (!slider) return;
 
-    // Get user's added courses from localStorage, but never remove existing courses
     let userCourseIds = JSON.parse(localStorage.getItem('userCourses') || '[]');
     const activeId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
 
-    // Ensure the active course is in the list
     if (userCourseIds.length === 0) {
         userCourseIds = [activeId];
         localStorage.setItem('userCourses', JSON.stringify(userCourseIds));
     } else if (!userCourseIds.includes(activeId)) {
-        // If active course is not in the list, add it (but keep the others)
         userCourseIds.push(activeId);
         localStorage.setItem('userCourses', JSON.stringify(userCourseIds));
     }
@@ -318,9 +316,7 @@ function renderCoursesSlider() {
     slider.querySelectorAll('.course-slider-item').forEach(item => {
         item.addEventListener('click', () => {
             const id = item.dataset.courseId;
-            // Switch to this course, but don't remove any courses
             localStorage.setItem('selectedCourseId', id);
-            // Ensure the selected course is in the list (it already is)
             const courseImg = document.querySelector('#activeCourseIcon img');
             if (courseImg) {
                 courseImg.src = `/assets/courses/${id}.png`;
@@ -331,6 +327,8 @@ function renderCoursesSlider() {
             const path = window.location.pathname;
             if (path.startsWith('/read/')) {
                 window.location.href = `/read/${id}.html`;
+            } else if (path.startsWith('/glossary/')) {
+                window.location.href = `/glossary/${id}.html`;
             } else {
                 window.location.href = `/${id}.html`;
             }
@@ -449,7 +447,106 @@ function initStreakCalendar() {}
 
 function loadStreakCalendar() {
     // (unchanged – uses real streak data)
-    // ... (keep the existing implementation)
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + streakNav;
+    const dt = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = dt.getDay();
+    const prevMonthDays = new Date(year, month, 0).getDate();
+
+    const monthDisplay = document.getElementById('monthDisplay');
+    if (monthDisplay) {
+        monthDisplay.innerText = dt.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
+
+    const weeksContainer = document.getElementById('calendarWeeks');
+    if (!weeksContainer) return;
+    weeksContainer.innerHTML = '';
+
+    let history = {};
+    try {
+        const raw = localStorage.getItem('streakHistory');
+        if (raw) history = JSON.parse(raw);
+    } catch(e) {}
+
+    let dayCount = 1 - firstDay;
+    const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+    const totalWeeks = totalCells / 7;
+
+    for (let week = 0; week < totalWeeks; week++) {
+        const weekDiv = document.createElement('div');
+        weekDiv.className = 'week';
+
+        let isFullStreak = true;
+        let hasRevival = false;
+        const weekDays = [];
+        for (let d = 0; d < 7; d++) {
+            const dayNumber = dayCount + d;
+            if (dayNumber < 1 || dayNumber > daysInMonth) continue;
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`;
+            const status = history[dateStr] || 'missed';
+            weekDays.push({ dayNumber, status });
+            if (status === 'revival') hasRevival = true;
+            if (status !== 'completed' && status !== 'revival') isFullStreak = false;
+        }
+
+        if (isFullStreak && !hasRevival && weekDays.length === 7) {
+            weekDiv.classList.add('streak');
+        }
+
+        for (let i = 0; i < 7; i++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day';
+
+            const dayNumber = dayCount + i;
+            if (dayNumber < 1) {
+                const prevDay = prevMonthDays + dayNumber;
+                dayDiv.textContent = prevDay;
+                dayDiv.classList.add('inactive');
+            } else if (dayNumber > daysInMonth) {
+                const nextDay = dayNumber - daysInMonth;
+                dayDiv.textContent = nextDay;
+                dayDiv.classList.add('inactive');
+            } else {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`;
+                const status = history[dateStr] || 'missed';
+                const today = new Date();
+                const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === dayNumber && streakNav === 0);
+
+                if (status === 'revival') {
+                    const icon = document.createElement('img');
+                    icon.src = '/assets/icons/phosphor/fill/first-aid.svg';
+                    icon.className = 'icon';
+                    icon.style.width = '24px';
+                    icon.style.height = '24px';
+                    icon.style.filter = 'brightness(0) saturate(100%) invert(16%) sepia(100%) saturate(7410%) hue-rotate(355deg) brightness(93%) contrast(108%)';
+                    const number = document.createElement('span');
+                    number.className = 'number';
+                    number.textContent = dayNumber;
+                    dayDiv.classList.add('first-aid');
+                    dayDiv.appendChild(icon);
+                    dayDiv.appendChild(number);
+                } else if (status === 'completed') {
+                    if (isFullStreak && !hasRevival) {
+                        dayDiv.classList.add('streak-day');
+                    } else {
+                        dayDiv.classList.add('yellow');
+                    }
+                    dayDiv.textContent = dayNumber;
+                } else if (isToday && status !== 'completed') {
+                    dayDiv.classList.add('grey-circle');
+                    dayDiv.textContent = dayNumber;
+                } else {
+                    dayDiv.textContent = dayNumber;
+                }
+            }
+
+            weekDiv.appendChild(dayDiv);
+        }
+        weeksContainer.appendChild(weekDiv);
+        dayCount += 7;
+    }
 }
 
 document.addEventListener('click', (e) => {
@@ -460,8 +557,75 @@ document.addEventListener('click', (e) => {
 });
 
 function initShareOverlay() {
-    // (unchanged)
-    // ... (keep the existing implementation)
+    const saveImageBtn = document.getElementById('saveImage');
+    if (saveImageBtn) {
+        saveImageBtn.addEventListener('click', async () => {
+            const card = document.getElementById('streakCard');
+            if (!card) return;
+            try {
+                const html2canvas = (await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.esm.js')).default;
+                html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true }).then(canvas => {
+                    const link = document.createElement('a');
+                    const date = new Date().toISOString().slice(0, 10);
+                    const streak = document.getElementById('streakCount')?.textContent || '1';
+                    link.download = `${date}_vulanet-${streak}-day-streak.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    const overlay = document.getElementById('shareOverlay');
+                    if (overlay) overlay.classList.remove('active');
+                });
+            } catch (e) {
+                console.error('Error saving image:', e);
+                alert('Could not save image.');
+            }
+        });
+    }
+
+    const moreOptionsBtn = document.getElementById('moreOptions');
+    if (moreOptionsBtn) {
+        moreOptionsBtn.addEventListener('click', async () => {
+            const streak = document.getElementById('streakCount')?.textContent || '1';
+            const shareText = `I'm on a ${streak} day learning streak! Learn a course with me for free! Vulanet is the fun and successful way to learning. #Vulanet`;
+            if (navigator.share) {
+                try { await navigator.share({ title: 'My Vulanet Streak', text: shareText, url: 'https://vulanet.com/streak' }); } catch(e) {}
+            } else {
+                try { await navigator.clipboard.writeText(shareText); alert('Copied to clipboard!'); } catch(e) { alert('Please copy this text manually:\n' + shareText); }
+            }
+            const overlay = document.getElementById('shareOverlay');
+            if (overlay) overlay.classList.remove('active');
+        });
+    }
+
+    function shareTo(platform) {
+        const streak = document.getElementById('streakCount')?.textContent || '1';
+        const shareText = `I'm on a ${streak} day learning streak! Learn a course with me for free! Vulanet is the fun and successful way to learning. #Vulanet`;
+        const url = 'https://vulanet.com/streak';
+        let shareUrl = '';
+        if (platform === 'facebook') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(shareText)}`;
+        else if (platform === 'x') shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+        else if (platform === 'whatsapp') shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+        else if (platform === 'sms') {
+            if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                window.location.href = `sms:?body=${encodeURIComponent(shareText)}`;
+                return;
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => alert('Copied to clipboard!'));
+                return;
+            }
+        }
+        if (shareUrl) window.open(shareUrl, '_blank');
+        const overlay = document.getElementById('shareOverlay');
+        if (overlay) overlay.classList.remove('active');
+    }
+
+    const fbBtn = document.getElementById('shareFacebook');
+    const xBtn = document.getElementById('shareX');
+    const waBtn = document.getElementById('shareWhatsApp');
+    const smsBtn = document.getElementById('shareSms');
+    if (fbBtn) fbBtn.addEventListener('click', () => shareTo('facebook'));
+    if (xBtn) xBtn.addEventListener('click', () => shareTo('x'));
+    if (waBtn) waBtn.addEventListener('click', () => shareTo('whatsapp'));
+    if (smsBtn) smsBtn.addEventListener('click', () => shareTo('sms'));
 }
 
 function initFooter() {
@@ -497,7 +661,7 @@ function highlightFooterIcon() {
     navItems.forEach(el => el.classList.remove('active'));
 
     let view = 'home';
-    if (path.includes('/practice-hub.html') || path.startsWith('/read/')) {
+    if (path.includes('/practice-hub.html') || path.startsWith('/read/') || path.startsWith('/glossary/')) {
         view = 'book';
     } else if (path.includes('/ranking')) {
         view = 'ranking';

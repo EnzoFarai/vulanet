@@ -1,0 +1,279 @@
+/* ========================================
+   GLOSSARY STYLES – Vulanet Integration
+   ======================================== */
+
+.glossary-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 16px 20px 100px; /* extra bottom padding for footer */
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* ----- Header (glossary card) ----- */
+.glossary-header-card {
+    background: linear-gradient(135deg, #4285F4, #1CB0F6);
+    border-radius: 16px;
+    color: white;
+    padding: 24px 30px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+.glossary-header-card .header-content {
+    display: flex;
+    flex-direction: column;   /* Stack title and subtitle vertically */
+    align-items: flex-start;
+    gap: 4px;
+}
+.glossary-header-card .header-content h1 {
+    font-weight: 700;
+    font-size: 32px;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+.glossary-header-card .header-content .subtitle {
+    font-size: 18px;
+    font-weight: 400;
+    opacity: 0.9;
+    margin-top: 0;
+}
+.glossary-header-card .header-icon {
+    font-size: 100px;
+    opacity: 0.2;
+    transform: rotate(-15deg);
+    color: white;
+    flex-shrink: 0;
+}
+.glossary-header-card .header-icon img {
+    width: 100px;
+    height: 100px;
+    filter: brightness(0) saturate(100%) invert(100%);
+}
+
+/* ----- Alphabet navigation ----- */
+.glossary-alphabet-nav {
+    text-align: center;
+    font-size: 18px;
+    margin: 16px 0 24px;
+    word-spacing: 6px;
+}
+.glossary-alphabet-nav a,
+.glossary-alphabet-nav span {
+    display: inline-block;
+    padding: 0 2px;
+    font-weight: 700;
+}
+.glossary-alphabet-nav a.available {
+    color: #1CB0F6;
+    cursor: pointer;
+    text-decoration: none;
+}
+.glossary-alphabet-nav a.available:hover {
+    text-decoration: underline;
+}
+.glossary-alphabet-nav span.unavailable {
+    color: #d3d3d3;
+    font-weight: 400;
+}
+
+/* ----- Search bar ----- */
+.glossary-search {
+    background: white;
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: box-shadow 0.2s;
+}
+.glossary-search:focus-within {
+    box-shadow: 0 2px 8px rgba(28,176,246,0.25);
+}
+.glossary-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 18px;
+    font-family: inherit;
+    color: #4B4B4B;
+    background: transparent;
+}
+.glossary-search input::placeholder {
+    color: #9aa0a6;
+    opacity: 0.8;
+}
+.glossary-search .search-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.glossary-search .search-icons img {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.glossary-search .search-icons img:hover {
+    opacity: 1;
+}
+.glossary-search .clear-icon {
+    display: none;
+}
+.glossary-search .clear-icon.visible {
+    display: inline-block;
+}
+
+/* ----- Glossary items (accordion) ----- */
+.glossary-item {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin-bottom: 8px;
+    transition: background 0.2s;
+}
+.glossary-item.hidden {
+    display: none;
+}
+
+.glossary-item button.accordion {
+    background-color: #ffffff;
+    color: #4B4B4B;
+    cursor: pointer;
+    padding: 16px 20px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.2s;
+}
+.glossary-item button.accordion:hover {
+    background-color: #D6F0FA;
+    color: #4B4B4B;
+}
+.glossary-item button.accordion.active {
+    background-color: #1CB0F6;
+    color: white;
+}
+.glossary-item .accordion-text {
+    flex: 1;
+}
+.glossary-item .accordion-icon {
+    width: 22px;
+    height: 22px;
+    margin-left: auto;
+    transition: filter 0.2s;
+    filter: brightness(0) saturate(100%) invert(53%) sepia(95%) saturate(504%) hue-rotate(146deg) brightness(95%) contrast(86%);
+}
+.glossary-item button.accordion:hover .accordion-icon,
+.glossary-item button.accordion.active .accordion-icon {
+    filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+}
+.glossary-item div.panel {
+    padding: 0 20px 20px 20px;
+    display: none;
+    background-color: white;
+    width: 100%;
+    text-align: left;
+    border-top: 1px solid #e8eaed;
+}
+.glossary-item div.panel.show {
+    display: block !important;
+}
+.glossary-item div.panel p {
+    margin: 0;
+    line-height: 1.6;
+    color: #4B4B4B;
+}
+
+/* ----- Letter headings ----- */
+.glossary-letter-heading {
+    font-size: 28px;
+    font-weight: 700;
+    color: #202124;
+    margin: 30px 0 12px 0;
+    padding-bottom: 6px;
+    border-bottom: 3px solid #4285F4;
+    display: inline-block;
+}
+
+/* ----- No results ----- */
+.glossary-no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: #5f6368;
+    font-size: 18px;
+    display: none;
+}
+.glossary-no-results.show {
+    display: block;
+}
+.glossary-no-results img {
+    width: 48px;
+    height: 48px;
+    display: block;
+    margin: 0 auto 12px;
+    opacity: 0.4;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .glossary-container {
+        padding: 12px 14px 80px;
+    }
+    .glossary-header-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+    }
+    .glossary-header-card .header-content h1 {
+        font-size: 26px;
+    }
+    .glossary-header-card .header-content .subtitle {
+        font-size: 16px;
+    }
+    .glossary-header-card .header-icon {
+        font-size: 60px;
+        align-self: flex-end;
+        margin-top: -40px;
+    }
+    .glossary-header-card .header-icon img {
+        width: 60px;
+        height: 60px;
+    }
+    .glossary-item button.accordion {
+        font-size: 16px;
+        padding: 14px 16px;
+    }
+    .glossary-alphabet-nav {
+        font-size: 16px;
+        word-spacing: 4px;
+    }
+    .glossary-search input {
+        font-size: 16px;
+    }
+}
+@media (max-width: 400px) {
+    .glossary-item button.accordion {
+        font-size: 14px;
+        padding: 12px 14px;
+    }
+    .glossary-item .accordion-icon {
+        width: 18px;
+        height: 18px;
+    }
+}
