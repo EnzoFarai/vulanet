@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile | Vulanet</title>
+
+  <!-- Local Fonts (assumed already loaded via @font-face in global styles) -->
+  <link rel="stylesheet" href="/assets/fonts/fonts.css" />
+
+  <!-- Local Phosphor Icons (CSS) -->
+  <link rel="stylesheet" href="/assets/icons/phosphor/phosphor.css" />
+
+  <!-- Local Material Symbols -->
+  <link rel="stylesheet" href="/assets/icons/material-symbols/material-symbols.css" />
+
+  <!-- Local html2canvas and QRCode (assumed placed in src/lib/) -->
+  <script src="/src/lib/html2canvas.min.js"></script>
+  <script src="/src/lib/qrcode.min.js"></script>
+
+  <style>
+    /* ===== Colour Palette ===== */
+    :root {
+      --basalt: #4B4B4B;
+      --hippo: #777777;
+      --koala: #AFAFAF;
+      --beluga: #E5E5E5;
+      --arctic: #F7F7F7;
+      --cloud: #FFFFFF;
+      --carpenter-blue: #4285F4;
+      --carpenter-blue-dark: #3367D6;
+      --carpenter-blue-light: #E8F0FE;
+
+      --text-dark: var(--basalt);
+      --text-medium: var(--hippo);
+      --text-light: var(--cloud);
+      --bg-light: #F8F9FA;
+      --primary-blue: var(--carpenter-blue);
+      --dark-blue: var(--carpenter-blue-dark);
+      --light-blue: var(--carpenter-blue-light);
+
+      --border-radius: 16px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+
+      --icon-streak: #FF9800;
+      --icon-lightning: #FFD700;
+      --icon-trophy: #FFC800;
+      --icon-graduation: var(--carpenter-blue);
+
+      --panel-icon-size: 60px;
+      --panel-item-width: 80px;
+    }
+
+    /* ===== Reset & Base ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      background-color: var(--arctic);
+      color: var(--basalt);
+      line-height: 1.5;
+      padding: 20px;
+    }
+    .container { max-width:1200px; margin:0 auto; padding:0 20px; }
+    a, a:visited, a:hover, a:active { text-decoration:none; color:inherit; }
+
+    /* ===== Profile Header ===== */
+    .profile-header {
+      background: var(--cloud);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+      margin: 24px 0;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      position: relative;
+    }
+    .profile-share-icon {
+      position: absolute;
+      top: 16px;
+      right: 56px;
+      color: var(--hippo);
+      font-size: 28px;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.2s ease;
+      z-index: 10;
+    }
+    .profile-share-icon:hover { color: var(--basalt); }
+
+    .profile-settings-icon {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      color: var(--hippo);
+      font-size: 28px;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.2s ease;
+      z-index: 10;
+    }
+    .profile-settings-icon:hover { color: var(--basalt); }
+    .profile-settings-icon.hidden { display: none; }
+
+    .profile-pic-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      flex-shrink: 0;
+      margin-left: 0;
+    }
+    .profile-pic {
+      width: 100%; height:100%;
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:42px;
+      color:var(--cloud);
+      box-shadow: var(--shadow-md);
+      background-color: var(--carpenter-blue);
+    }
+    .profile-pic img {
+      width: 100%; height:100%; border-radius:50%; object-fit:cover;
+    }
+    .profile-pic-edit {
+      position:absolute; bottom:0; right:0;
+      width:32px; height:32px;
+      background-color:var(--carpenter-blue);
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      color:var(--cloud);
+      border:3px solid var(--cloud);
+      box-shadow:var(--shadow-sm);
+      cursor:pointer;
+      transition: all 0.2s ease;
+    }
+    .profile-pic-edit:hover { opacity:1; transform:scale(1.05); }
+    .profile-pic-edit img { width:16px; height:16px; filter: brightness(0) saturate(100%) invert(100%); }
+
+    .profile-info { flex:1; }
+    .profile-name {
+      font-family:'Bricolage Grotesque', sans-serif;
+      font-weight:700; font-size:24px;
+      color:var(--basalt);
+      margin-bottom:4px;
+    }
+    .profile-username {
+      color:var(--hippo);
+      font-size:16px;
+      font-weight:400;
+      margin-bottom:8px;
+    }
+    .profile-joined {
+      color:var(--hippo);
+      font-size:14px;
+      margin-bottom:16px;
+    }
+    .follow-stats { display:flex; gap:16px; margin-bottom:24px; }
+    .follow-stat-link {
+      font-size:14px;
+      color:var(--carpenter-blue);
+      font-weight:700;
+      transition:color 0.2s ease;
+    }
+    .follow-stat-link:hover { color:var(--carpenter-blue-dark); text-decoration:underline; }
+
+    /* ===== Courses ===== */
+    .courses-section {
+      margin-top:20px;
+      background:var(--cloud);
+      border-radius:var(--border-radius);
+      box-shadow:var(--shadow-sm);
+      padding:20px;
+      margin-bottom:24px;
+    }
+    .courses-slider-container {
+      background:var(--arctic);
+      border-radius:12px;
+      padding:16px;
+      overflow:hidden;
+    }
+    .courses-slider {
+      display:flex;
+      gap:16px;
+      overflow-x:auto;
+      scrollbar-width:none;
+      padding:4px; margin:-4px;
+    }
+    .courses-slider::-webkit-scrollbar { display:none; }
+    .course-slider-item {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      cursor:pointer;
+      flex-shrink:0;
+      width:var(--panel-item-width);
+      padding:12px;
+      border-radius:14px;
+      transition: all 0.2s ease;
+      min-height:100px;
+    }
+    .course-slider-item:hover {
+      background-color:var(--carpenter-blue-light);
+      transform:translateY(-2px);
+      box-shadow:var(--shadow-md);
+    }
+    .course-slider-icon {
+      width:var(--panel-icon-size); height:var(--panel-icon-size);
+      border-radius:12px;
+      overflow:hidden;
+      transition:transform 0.2s ease;
+      border:2px solid transparent;
+    }
+    .course-slider-item:hover .course-slider-icon {
+      transform:scale(1.05);
+      border-color:var(--carpenter-blue-light);
+    }
+    .course-slider-icon img { width:100%; height:100%; object-fit:cover; }
+    .add-course-slider {
+      display:flex; flex-direction:column; align-items:center; cursor:pointer;
+      flex-shrink:0;
+      width:var(--panel-item-width);
+      padding:12px;
+      border-radius:14px;
+      transition:all 0.2s ease;
+      min-height:100px;
+    }
+    .add-course-slider:hover {
+      background-color:var(--carpenter-blue-light);
+      transform:translateY(-2px);
+      box-shadow:var(--shadow-md);
+    }
+    .add-course-slider-icon {
+      width:var(--panel-icon-size); height:var(--panel-icon-size);
+      border-radius:12px;
+      border:2px dashed var(--hippo);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--hippo);
+      font-size:24px;
+      transition:all 0.2s ease;
+    }
+    .add-course-slider:hover .add-course-slider-icon {
+      border-color:var(--carpenter-blue);
+      color:var(--carpenter-blue);
+      border-style:solid;
+    }
+
+    /* ===== Stats ===== */
+    .stats-section {
+      background:var(--cloud);
+      border-radius:var(--border-radius);
+      box-shadow:var(--shadow-sm);
+      padding:20px;
+      margin-bottom:24px;
+    }
+    .section-title {
+      font-family:'Bricolage Grotesque', sans-serif;
+      font-weight:700; font-size:18px;
+      color:var(--carpenter-blue);
+      margin-bottom:16px;
+    }
+    .stats-grid {
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+    .stat-card {
+      background:var(--arctic);
+      border-radius:12px;
+      padding:14px 12px;
+      text-align:center;
+    }
+    .stat-icon { width:24px; height:24px; margin:0 auto 6px; display:block; }
+    .stat-icon img { width:100%; height:100%; object-fit:contain; }
+    .stat-value {
+      font-weight:700;
+      font-size:18px;
+      margin-bottom:2px;
+      line-height:1.2;
+      color:var(--basalt);
+    }
+    .stat-label {
+      font-size:13px;
+      color:var(--hippo);
+      line-height:1.2;
+    }
+
+    /* ===== Personal Records ===== */
+    .records-section {
+      background:var(--cloud);
+      border-radius:var(--border-radius);
+      box-shadow:var(--shadow-sm);
+      padding:24px;
+      margin-bottom:24px;
+    }
+    .records-list {
+      display:flex;
+      gap:16px;
+      overflow-x:auto;
+      padding:8px 0;
+      scrollbar-width:none;
+    }
+    .records-list::-webkit-scrollbar { display:none; }
+    .record-card {
+      flex:0 0 auto;
+      width:160px;
+      background:var(--arctic);
+      border-radius:12px;
+      padding:16px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+      transition:all 0.2s ease;
+    }
+    .record-card:hover {
+      transform:translateY(-2px);
+      box-shadow:var(--shadow-md);
+      background-color:var(--carpenter-blue-light);
+    }
+    .record-diamond {
+      position:relative;
+      width:80px; height:80px;
+      transform:rotate(45deg);
+      border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:10px;
+      background-color:var(--koala); /* grey by default */
+    }
+    .record-diamond-content {
+      transform:rotate(-45deg);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      width:100%; height:100%;
+    }
+    .record-icon { width:24px; height:24px; margin-bottom:2px; }
+    .record-icon img { width:100%; height:100%; filter: brightness(0) saturate(100%) invert(100%); }
+    .record-number { font-weight:700; font-size:14px; color:var(--cloud); line-height:1.2; }
+    .record-title { font-weight:700; font-size:14px; margin-top:4px; color:var(--basalt); }
+    .record-date { font-size:12px; color:var(--hippo); }
+
+    /* Record colours (applied when achieved) */
+    .record-streak { background-color:#ff6336; }
+    .record-medal { background-color:#fbc02d; }
+    .record-target { background-color:#009d98; }
+    .record-xp { background-color:#1976d2; }
+
+    /* ===== Achievements ===== */
+    .achievements-section {
+      background:var(--cloud);
+      border-radius:var(--border-radius);
+      box-shadow:var(--shadow-sm);
+      padding:24px;
+      margin-bottom:24px;
+    }
+    .achievements-list {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+      gap:16px;
+    }
+    .achievement-card {
+      background:var(--arctic);
+      border-radius:12px;
+      padding:16px 8px;
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+      transition:all 0.2s ease;
+    }
+    .achievement-card:hover {
+      transform:translateY(-2px);
+      box-shadow:var(--shadow-md);
+      background-color:var(--carpenter-blue-light);
+    }
+    .achievement-diamond {
+      position:relative;
+      width:80px; height:80px;
+      transform:rotate(45deg);
+      border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:10px;
+      background-color:var(--koala); /* grey by default */
+    }
+    .achievement-diamond-content {
+      transform:rotate(-45deg);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      width:100%; height:100%;
+    }
+    .achievement-icon { width:24px; height:24px; margin-bottom:2px; }
+    .achievement-icon img { width:100%; height:100%; filter: brightness(0) saturate(100%) invert(100%); }
+    .achievement-number { font-weight:700; font-size:14px; color:var(--cloud); line-height:1.2; }
+    .achievement-title { font-weight:700; font-size:14px; margin-top:4px; color:var(--basalt); }
+    .achievement-progress { font-size:12px; color:var(--hippo); }
+
+    /* Achievement colours (applied when achieved) */
+    .award-1 { background-color:#db2777; }
+    .award-2 { background-color:#2563eb; }
+    .award-3 { background-color:#ea580c; }
+    .award-4 { background-color:#16a34a; }
+    .award-5 { background-color:#eab308; }
+    .award-6 { background-color:#4279b7; }
+    .award-7 { background-color:#d946ef; }
+    .award-8 { background-color:#ec7e14; }
+    .award-9 { background-color:#10b981; }
+    .award-10 { background-color:#ec4899; }
+    .award-11 { background-color:#61677c; }
+    .award-12 { background-color:#3b82f6; }
+    .award-13 { background-color:#f59e0b; }
+    .award-14 { background-color:#a855f7; }
+
+    /* ===== Modals ===== */
+    .modal-overlay {
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.5);
+      display:none;
+      justify-content:center; align-items:center;
+      z-index:2000;
+      padding:20px;
+    }
+    .modal-overlay.active { display:flex; }
+    .modal {
+      background:var(--cloud);
+      border-radius:var(--border-radius);
+      box-shadow:var(--shadow-lg);
+      width:100%; max-width:500px;
+      max-height:80vh;
+      overflow:hidden;
+      display:flex; flex-direction:column;
+    }
+    .modal-header {
+      padding:20px 24px;
+      border-bottom:1px solid var(--beluga);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .modal-title {
+      font-family:'Bricolage Grotesque', sans-serif;
+      font-weight:700; font-size:20px;
+      color:var(--basalt);
+    }
+    .modal-close {
+      background:none; border:none;
+      font-size:24px; color:var(--hippo);
+      cursor:pointer;
+      width:36px; height:36px;
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      transition:all 0.2s ease;
+    }
+    .modal-close:hover { background:var(--arctic); color:var(--basalt); }
+    .modal-content { padding:0; overflow-y:auto; flex:1; }
+    .courses-list { list-style:none; }
+    .course-list-item {
+      display:flex; align-items:center;
+      padding:16px 24px;
+      border-bottom:1px solid var(--beluga);
+      transition:background 0.2s ease;
+    }
+    .course-list-item:last-child { border-bottom:none; }
+    .course-list-item:hover { background:var(--arctic); }
+    .course-list-icon {
+      width:40px; height:40px;
+      border-radius:10px;
+      overflow:hidden;
+      margin-right:16px;
+      flex-shrink:0;
+    }
+    .course-list-icon img { width:100%; height:100%; object-fit:cover; }
+    .course-list-info { flex:1; }
+    .course-list-name { font-weight:600; font-size:16px; color:var(--basalt); margin-bottom:4px; }
+    .course-list-level { font-size:14px; color:var(--hippo); }
+    .course-list-xp { font-weight:700; font-size:16px; color:var(--carpenter-blue); }
+
+    /* Record Modal */
+    .record-modal-overlay {
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.7);
+      display:none;
+      justify-content:center; align-items:center;
+      z-index:3000;
+      padding:20px;
+    }
+    .record-modal-overlay.active { display:flex; }
+    .record-modal {
+      width:100%; max-width:420px;
+      background:var(--cloud);
+      display:flex; flex-direction:column; align-items:center;
+      position:relative;
+      border-radius:24px;
+      box-shadow:var(--shadow-lg);
+      padding:60px 24px 28px;
+      margin:20px;
+      max-height:90vh;
+      overflow-y:auto;
+    }
+    .record-modal-header {
+      position:absolute; top:0; left:0; right:0;
+      height:60px;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:0 20px;
+      background:var(--cloud);
+      border-top-left-radius:24px; border-top-right-radius:24px;
+      z-index:3100;
+    }
+    .record-header-icon {
+      width:40px; height:40px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+      color:var(--hippo);
+      font-size:24px;
+    }
+    .record-title-text {
+      margin-top:8px;
+      text-align:center;
+      font-weight:700;
+      color:var(--basalt);
+      font-size:20px;
+      line-height:1.4;
+      max-width:320px;
+    }
+    .record-scene {
+      position:relative;
+      width:100%;
+      display:flex; justify-content:center; align-items:center;
+      z-index:30;
+      margin:20px 0;
+    }
+    .record-display-card {
+      text-align:center;
+      display:flex; flex-direction:column; align-items:center;
+      gap:12px;
+      background:transparent;
+    }
+    .record-display-diamond {
+      position:relative;
+      width:120px; height:120px;
+      transform:rotate(45deg);
+      border-radius:16px;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:8px;
+    }
+    .record-display-diamond-content {
+      transform:rotate(-45deg);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      width:100%; height:100%;
+    }
+    .record-display-icon { width:32px; height:32px; margin-bottom:4px; }
+    .record-display-icon img { width:100%; height:100%; filter: brightness(0) saturate(100%) invert(100%); }
+    .record-display-number { font-weight:700; font-size:18px; color:var(--cloud); line-height:1.2; }
+    .record-display-title { font-weight:700; font-size:18px; margin-top:8px; color:var(--basalt); }
+    .record-display-date { font-size:14px; color:var(--cloud); background:#D4AF37; padding:6px 16px; border-radius:20px; font-weight:600; }
+
+    /* Achievement Modal */
+    .achievement-modal-overlay {
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.7);
+      display:none;
+      justify-content:center; align-items:center;
+      z-index:3000;
+      padding:20px;
+    }
+    .achievement-modal-overlay.active { display:flex; }
+    .achievement-modal {
+      width:100%; max-width:420px;
+      background:var(--cloud);
+      display:flex; flex-direction:column; align-items:center;
+      position:relative;
+      border-radius:24px;
+      box-shadow:var(--shadow-lg);
+      padding:60px 24px 28px;
+      margin:20px;
+      max-height:90vh;
+      overflow-y:auto;
+    }
+    .achievement-modal-header {
+      position:absolute; top:0; left:0; right:0;
+      height:60px;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:0 20px;
+      background:var(--cloud);
+      border-top-left-radius:24px; border-top-right-radius:24px;
+      z-index:3100;
+    }
+    .achievement-header-icon {
+      width:40px; height:40px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+      color:var(--hippo);
+      font-size:24px;
+    }
+    .achievement-title-text {
+      margin-top:8px;
+      text-align:center;
+      font-weight:700;
+      color:var(--basalt);
+      font-size:20px;
+      line-height:1.4;
+      max-width:320px;
+    }
+    .achievement-scene {
+      position:relative;
+      width:100%;
+      display:flex; justify-content:center; align-items:center;
+      z-index:30;
+      margin:20px 0;
+    }
+    .achievement-display-card {
+      text-align:center;
+      display:flex; flex-direction:column; align-items:center;
+      gap:12px;
+      background:transparent;
+    }
+    .achievement-display-diamond {
+      position:relative;
+      width:120px; height:120px;
+      transform:rotate(45deg);
+      border-radius:16px;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:8px;
+    }
+    .achievement-display-diamond-content {
+      transform:rotate(-45deg);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      width:100%; height:100%;
+    }
+    .achievement-display-icon { width:32px; height:32px; margin-bottom:4px; }
+    .achievement-display-icon img { width:100%; height:100%; filter: brightness(0) saturate(100%) invert(100%); }
+    .achievement-display-number { font-weight:700; font-size:18px; color:var(--cloud); line-height:1.2; }
+    .achievement-display-title { font-weight:700; font-size:18px; margin-top:8px; color:var(--basalt); }
+    .achievement-display-date { font-size:14px; color:var(--cloud); background:#D4AF37; padding:6px 16px; border-radius:20px; font-weight:600; }
+
+    /* ===== Achievement Share Overlay ===== */
+    .achievement-share-overlay {
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.5);
+      display:none;
+      justify-content:center; align-items:center;
+      z-index:3200;
+      padding:20px;
+    }
+    .achievement-share-overlay.active { display:flex; }
+    .achievement-share-content {
+      width:100%; max-width:357px;
+      background:#f5f5f7;
+      border-radius:24px;
+      overflow:hidden;
+    }
+    .achievement-share-card {
+      background:var(--cloud);
+      border-radius:24px;
+      padding:32px 24px 28px;
+      margin-bottom:10px;
+      box-shadow:0 10px 25px rgba(0,0,0,.06);
+      text-align:center;
+      display:flex; flex-direction:column; align-items:center;
+    }
+    .achievement-share-brand {
+      margin-top:16px;
+      font-weight:700;
+      color:var(--carpenter-blue);
+      font-size:24px;
+      text-align:center;
+      width:100%;
+    }
+    .achievement-share-sheet {
+      background:var(--cloud);
+      border-top:1px solid #dadada;
+      border-radius:24px 24px 0 0;
+      padding:16px 12px;
+    }
+    .achievement-share-grid {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:20px;
+    }
+    .achievement-share-item {
+      display:flex; flex-direction:column; align-items:center; text-align:center;
+      cursor:pointer;
+    }
+    .achievement-share-icon-circle {
+      width:44px; height:44px;
+      border-radius:50%;
+      background:#f0f0f0;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:8px;
+      overflow:hidden;
+    }
+    .achievement-share-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; }
+    .achievement-share-icon img { width:100%; height:100%; object-fit:contain; }
+    .achievement-share-text { font-size:11px; color:var(--basalt); }
+    .achievement-bottom-grid {
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:20px;
+      padding:0 20px;
+    }
+    .achievement-bottom-item {
+      display:flex; flex-direction:column; align-items:center; text-align:center;
+      cursor:pointer;
+    }
+    .achievement-bottom-icon-circle {
+      width:44px; height:44px;
+      border-radius:50%;
+      background:#f0f0f0;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:8px;
+      overflow:hidden;
+    }
+    .achievement-bottom-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; }
+    .achievement-bottom-text { font-size:11px; color:var(--basalt); }
+
+    /* ===== Profile Share Overlay ===== */
+    .profile-share-overlay {
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.6);
+      display:none;
+      justify-content:center; align-items:flex-end;
+      z-index:4000;
+      padding:20px;
+      animation:fadeIn 0.25s ease;
+    }
+    .profile-share-overlay.active { display:flex; }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes slideUp { from { transform:translateY(30px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+
+    .profile-share-content {
+      width:100%; max-width:440px;
+      background:#f5f5f7;
+      border-radius:24px;
+      overflow:hidden;
+      animation:slideUp 0.3s ease;
+      margin-bottom:0;
+    }
+    .profile-share-card {
+      background:var(--cloud);
+      border-radius:24px 24px 0 0;
+      padding:36px 28px 24px;
+      margin-bottom:14px;
+      box-shadow:0 10px 25px rgba(0,0,0,.06);
+      display:flex; flex-direction:column; align-items:center;
+      position:relative;
+    }
+    .profile-share-avatar {
+      width:150px; height:150px;
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:64px;
+      color:var(--cloud);
+      box-shadow:var(--shadow-md);
+      margin-bottom:18px;
+      flex-shrink:0;
+    }
+    .profile-share-avatar img {
+      width:100%; height:100%; border-radius:50%; object-fit:cover;
+    }
+    .profile-share-bottom {
+      width:100%;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      margin-top:4px;
+    }
+    .profile-share-text {
+      display:flex; flex-direction:column; flex:1;
+    }
+    .profile-share-display-name {
+      font-family:'Bricolage Grotesque', sans-serif;
+      font-weight:700; font-size:28px;
+      color:var(--basalt);
+      line-height:1.2;
+    }
+    .profile-share-username {
+      font-weight:400; font-size:18px;
+      color:var(--hippo);
+      margin-top:2px;
+    }
+    .profile-share-brand {
+      font-weight:700;
+      color:var(--carpenter-blue);
+      font-size:24px;
+      margin-top:6px;
+    }
+    .profile-share-qr {
+      position:relative;
+      width:120px; height:120px;
+      flex-shrink:0;
+      margin-left:18px;
+    }
+    .profile-share-qr #profileQrCode { width:120px; height:120px; }
+    .profile-share-qr canvas { width:120px !important; height:120px !important; }
+    .qr-rabbit-overlay {
+      position:absolute;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      width:40px; height:40px;
+      border-radius:50%;
+      background:var(--cloud);
+      display:flex; align-items:center; justify-content:center;
+      border:2px solid var(--carpenter-blue);
+      box-shadow:0 0 0 2px var(--cloud);
+      pointer-events:none;
+      font-size:22px;
+      color:var(--carpenter-blue);
+    }
+    .qr-rabbit-overlay img { width:22px; height:22px; filter: brightness(0) saturate(100%) invert(31%) sepia(94%) saturate(1722%) hue-rotate(197deg) brightness(99%) contrast(95%); }
+
+    .profile-share-sheet {
+      background:var(--cloud);
+      border-top:1px solid #dadada;
+      border-radius:0 0 24px 24px;
+      padding:16px 12px 20px;
+    }
+    .profile-share-grid {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:16px;
+    }
+    .profile-share-item {
+      display:flex; flex-direction:column; align-items:center; text-align:center;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .profile-share-item:active { opacity:0.6; }
+    .profile-share-icon-circle {
+      width:44px; height:44px;
+      border-radius:50%;
+      background:#f0f0f0;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:6px;
+      overflow:hidden;
+    }
+    .profile-share-icon-circle img { width:28px; height:28px; object-fit:contain; }
+    .profile-share-icon-circle .material-symbols-outlined { font-size:28px; color:var(--basalt); }
+    .profile-share-label { font-size:11px; color:var(--basalt); }
+
+    .profile-bottom-grid {
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:20px;
+      padding:0 20px;
+    }
+    .profile-bottom-item {
+      display:flex; flex-direction:column; align-items:center; text-align:center;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .profile-bottom-item:active { opacity:0.6; }
+    .profile-bottom-icon-circle {
+      width:44px; height:44px;
+      border-radius:50%;
+      background:#f0f0f0;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:6px;
+      overflow:hidden;
+    }
+    .profile-bottom-icon-circle .material-symbols-outlined { font-size:28px; color:var(--basalt); }
+    .profile-bottom-label { font-size:11px; color:var(--basalt); }
+
+    /* ===== Record Share Overlay ===== */
+    .record-share-overlay {
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.5);
+      display:none;
+      justify-content:center; align-items:center;
+      z-index:3300;
+      padding:20px;
+    }
+    .record-share-overlay.active { display:flex; }
+    .record-share-content {
+      width:100%; max-width:357px;
+      background:#f5f5f7;
+      border-radius:24px;
+      overflow:hidden;
+    }
+    .record-share-card {
+      background:var(--cloud);
+      border-radius:24px;
+      padding:32px 24px 28px;
+      margin-bottom:10px;
+      box-shadow:0 10px 25px rgba(0,0,0,.06);
+      text-align:center;
+      display:flex; flex-direction:column; align-items:center;
+    }
+    .record-share-card .record-display-diamond {
+      width:120px; height:120px;
+      transform:rotate(45deg);
+      border-radius:16px;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:8px;
+    }
+    .record-share-card .record-display-diamond-content {
+      transform:rotate(-45deg);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      width:100%; height:100%;
+    }
+    .record-share-card .record-display-icon { width:32px; height:32px; margin-bottom:4px; }
+    .record-share-card .record-display-number { font-weight:700; font-size:18px; color:var(--cloud); line-height:1.2; }
+    .record-share-card .record-display-title { font-weight:700; font-size:18px; margin-top:8px; color:var(--basalt); }
+    .record-share-card .record-display-date { font-size:14px; color:var(--cloud); background:#D4AF37; padding:6px 16px; border-radius:20px; font-weight:600; margin-top:4px; }
+    .record-share-brand {
+      margin-top:16px;
+      font-weight:700;
+      color:var(--carpenter-blue);
+      font-size:24px;
+      text-align:center;
+      width:100%;
+    }
+    .record-share-sheet {
+      background:var(--cloud);
+      border-top:1px solid #dadada;
+      border-radius:24px 24px 0 0;
+      padding:16px 12px;
+    }
+    .record-share-grid {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-bottom:20px;
+    }
+    .record-share-item {
+      display:flex; flex-direction:column; align-items:center; text-align:center;
+      cursor:pointer;
+    }
+    .record-share-icon-circle {
+      width:44px; height:44px;
+      border-radius:50%;
+      background:#f0f0f0;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:8px;
+      overflow:hidden;
+    }
+    .record-share-icon-circle img { width:28px; height:28px; object-fit:contain; }
+    .record-share-icon-circle .material-symbols-outlined { font-size:28px; color:var(--basalt); }
+    .record-share-text { font-size:11px; color:var(--basalt); }
+
+    .record-bottom-grid {
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:20px;
+      padding:0 20px;
+    }
+    .record-bottom-item {
+      display:flex; flex-direction:column; align-items:center; text-align:center;
+      cursor:pointer;
+    }
+    .record-bottom-icon-circle {
+      width:44px; height:44px;
+      border-radius:50%;
+      background:#f0f0f0;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:8px;
+      overflow:hidden;
+    }
+    .record-bottom-icon-circle .material-symbols-outlined { font-size:28px; color:var(--basalt); }
+    .record-bottom-text { font-size:11px; color:var(--basalt); }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      body { padding:10px; }
+      .profile-header { flex-direction:column; text-align:center; padding:20px; }
+      .profile-share-icon {
+        top:12px; left:12px; right:auto;
+        font-size:24px;
+      }
+      .profile-settings-icon {
+        top:12px; right:12px;
+        font-size:24px;
+      }
+      .profile-pic-container { width:80px; height:80px; margin-left:0; }
+      .profile-pic { font-size:32px; }
+      .profile-pic-edit { width:28px; height:28px; }
+      .profile-pic-edit img { width:14px; height:14px; }
+      .follow-stats { justify-content:center; }
+      .courses-slider { gap:12px; }
+      :root { --panel-item-width:70px; --panel-icon-size:55px; }
+      .course-slider-item, .add-course-slider { min-height:90px; padding:10px; }
+      .add-course-slider-icon { font-size:22px; }
+      .modal { max-width:90%; }
+      .modal-header { padding:16px 20px; }
+      .course-list-item { padding:14px 20px; }
+      .course-list-icon { width:36px; height:36px; margin-right:12px; }
+      .stats-grid { grid-template-columns:repeat(2,1fr); }
+      .stat-card { padding:12px 10px; }
+      .stat-icon { width:20px; height:20px; }
+      .stat-value { font-size:16px; }
+      .stat-label { font-size:12px; }
+      .achievements-list { grid-template-columns:repeat(2,1fr); }
+      .records-list { gap:12px; }
+      .record-card { width:140px; padding:14px 12px; }
+      .achievement-diamond, .record-diamond { width:70px; height:70px; }
+      .achievement-icon, .record-icon { width:20px; height:20px; }
+      .achievement-number, .record-number { font-size:12px; }
+      .achievement-modal, .record-modal { padding:70px 20px 24px; }
+      .achievement-title-text, .record-title-text { font-size:18px; max-width:280px; margin-top:6px; }
+      .achievement-scene, .record-scene { margin:20px 0 15px 0; }
+      .achievement-display-diamond, .record-display-diamond { width:100px; height:100px; }
+      .achievement-display-icon, .record-display-icon { width:26px; height:26px; }
+      .achievement-display-number, .record-display-number { font-size:16px; }
+      .achievement-display-title, .record-display-title { font-size:16px; }
+
+      .profile-share-avatar { width:130px; height:130px; font-size:52px; }
+      .profile-share-display-name { font-size:24px; }
+      .profile-share-username { font-size:17px; }
+      .profile-share-brand { font-size:20px; }
+      .profile-share-qr { width:100px; height:100px; }
+      .profile-share-qr #profileQrCode { width:100px !important; height:100px !important; }
+      .profile-share-qr canvas { width:100px !important; height:100px !important; }
+      .qr-rabbit-overlay { width:34px; height:34px; font-size:18px; }
+      .profile-share-card { padding:24px 20px 18px; margin-bottom:12px; }
+    }
+
+    @media (max-width: 480px) {
+      .profile-share-avatar { width:110px; height:110px; font-size:44px; }
+      .profile-share-display-name { font-size:21px; }
+      .profile-share-username { font-size:15px; }
+      .profile-share-brand { font-size:18px; }
+      .profile-share-qr { width:84px; height:84px; }
+      .profile-share-qr #profileQrCode { width:84px !important; height:84px !important; }
+      .profile-share-qr canvas { width:84px !important; height:84px !important; }
+      .qr-rabbit-overlay { width:28px; height:28px; font-size:15px; }
+      .profile-share-card { padding:20px 14px 14px; margin-bottom:10px; }
+      .profile-share-grid { gap:8px; }
+      .profile-share-icon-circle { width:38px; height:38px; }
+      .profile-share-icon-circle img { width:22px; height:22px; }
+      .profile-share-icon-circle .material-symbols-outlined { font-size:22px; }
+      .profile-bottom-icon-circle { width:38px; height:38px; }
+      .profile-bottom-icon-circle .material-symbols-outlined { font-size:22px; }
+      .profile-bottom-grid { gap:12px; padding:0 10px; }
+      .profile-share-label, .profile-bottom-label { font-size:10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== COURSES MODAL ===== -->
+  <div class="modal-overlay" id="coursesModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="coursesModalTitle">Courses</h2>
+        <button class="modal-close" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-content">
+        <ul class="courses-list" id="coursesList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RECORD MODAL ===== -->
+  <div class="record-modal-overlay" id="recordModal">
+    <div class="record-modal">
+      <div class="record-modal-header">
+        <div class="record-header-icon" id="closeRecordModal"><span class="material-symbols-outlined">close</span></div>
+        <div class="record-header-icon" id="shareRecordButton"><span class="material-symbols-outlined">upload</span></div>
+      </div>
+      <div class="record-scene">
+        <div class="record-display-card" id="recordDisplayCard">
+          <div class="record-display-diamond" id="recordDisplayDiamond">
+            <div class="record-display-diamond-content">
+              <div class="record-display-icon"><img src="/assets/icons/phosphor/duotone/fire.svg" alt="Icon"></div>
+              <div class="record-display-number" id="recordDisplayNumber">—</div>
+            </div>
+          </div>
+          <div class="record-display-title" id="recordDisplayTitle">Record</div>
+          <div class="record-display-date" id="recordDisplayDate"></div>
+        </div>
+      </div>
+      <div class="record-title-text" id="recordMessage">Start your journey!</div>
+    </div>
+  </div>
+
+  <!-- ===== ACHIEVEMENT MODAL ===== -->
+  <div class="achievement-modal-overlay" id="achievementModal">
+    <div class="achievement-modal">
+      <div class="achievement-modal-header">
+        <div class="achievement-header-icon" id="closeAchievementModal"><span class="material-symbols-outlined">close</span></div>
+        <div class="achievement-header-icon" id="shareAchievementButton"><span class="material-symbols-outlined">upload</span></div>
+      </div>
+      <div class="achievement-scene">
+        <div class="achievement-display-card" id="achievementDisplayCard">
+          <div class="achievement-display-diamond" id="achievementDisplayDiamond">
+            <div class="achievement-display-diamond-content">
+              <div class="achievement-display-icon"><img src="/assets/icons/material-symbols/outline/exercise.svg" alt="Icon"></div>
+              <div class="achievement-display-number" id="achievementDisplayNumber">0</div>
+            </div>
+          </div>
+          <div class="achievement-display-title" id="achievementDisplayTitle">Achievement</div>
+          <div class="achievement-display-date" id="achievementDisplayDate"></div>
+        </div>
+      </div>
+      <div class="achievement-title-text" id="achievementMessage">Keep going!</div>
+    </div>
+  </div>
+
+  <!-- ===== ACHIEVEMENT SHARE OVERLAY ===== -->
+  <div class="achievement-share-overlay" id="achievementShareOverlay">
+    <div class="achievement-share-content">
+      <div class="achievement-share-card" id="achievementShareCard">
+        <div class="achievement-display-diamond" id="shareDisplayDiamond">
+          <div class="achievement-display-diamond-content">
+            <div class="achievement-display-icon"><img src="/assets/icons/material-symbols/outline/exercise.svg" alt="Icon"></div>
+            <div class="achievement-display-number" id="shareDisplayNumber">0</div>
+          </div>
+        </div>
+        <div class="achievement-display-title" id="shareDisplayTitle">Achievement</div>
+        <div class="achievement-display-date" id="shareDisplayDate"></div>
+        <div class="title achievement-share-title" id="shareMessage" style="margin-top:20px;font-size:18px;">I earned this achievement!</div>
+        <div class="achievement-share-brand">vulanet</div>
+      </div>
+      <div class="achievement-share-sheet">
+        <div class="achievement-share-grid">
+          <div class="achievement-share-item" id="shareFacebook"><div class="achievement-share-icon-circle"><div class="achievement-share-icon"><img src="/assets/icons/social/facebook-full.svg"></div></div><div class="achievement-share-text">Facebook</div></div>
+          <div class="achievement-share-item" id="shareX"><div class="achievement-share-icon-circle"><div class="achievement-share-icon"><img src="/assets/icons/social/x-twitter.svg"></div></div><div class="achievement-share-text">X</div></div>
+          <div class="achievement-share-item" id="shareWhatsApp"><div class="achievement-share-icon-circle"><div class="achievement-share-icon"><img src="/assets/icons/social/whatsapp.svg"></div></div><div class="achievement-share-text">WhatsApp</div></div>
+          <div class="achievement-share-item" id="shareSMS"><div class="achievement-share-icon-circle"><div class="achievement-share-icon"><span class="material-symbols-outlined">sms</span></div></div><div class="achievement-share-text">Message</div></div>
+        </div>
+        <div class="achievement-bottom-grid">
+          <div class="achievement-bottom-item" id="saveImage"><div class="achievement-bottom-icon-circle"><span class="material-symbols-outlined">download</span></div><div class="achievement-bottom-text">Save image</div></div>
+          <div class="achievement-bottom-item" id="moreOptions"><div class="achievement-bottom-icon-circle"><span class="material-symbols-outlined">more_horiz</span></div><div class="achievement-bottom-text">More</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PROFILE SHARE OVERLAY ===== -->
+  <div class="profile-share-overlay" id="profileShareOverlay">
+    <div class="profile-share-content">
+      <div class="profile-share-card" id="profileShareCard">
+        <div class="profile-share-avatar" id="profileShareAvatar">L</div>
+        <div class="profile-share-bottom">
+          <div class="profile-share-text">
+            <div class="profile-share-display-name" id="profileShareDisplayName">User</div>
+            <div class="profile-share-username" id="profileShareUsername">@user</div>
+            <div class="profile-share-brand">vulanet</div>
+          </div>
+          <div class="profile-share-qr" id="profileShareQrContainer">
+            <div id="profileQrCode"></div>
+            <div class="qr-rabbit-overlay"><img src="/assets/icons/phosphor/fill/rabbit-blue.svg" alt="Vusi"></div>
+          </div>
+        </div>
+      </div>
+      <div class="profile-share-sheet">
+        <div class="profile-share-grid">
+          <div class="profile-share-item" id="profileShareFacebook"><div class="profile-share-icon-circle"><img src="/assets/icons/social/facebook-full.svg"></div><div class="profile-share-label">Facebook</div></div>
+          <div class="profile-share-item" id="profileShareWhatsApp"><div class="profile-share-icon-circle"><img src="/assets/icons/social/whatsapp.svg"></div><div class="profile-share-label">WhatsApp</div></div>
+          <div class="profile-share-item" id="profileShareSMS"><div class="profile-share-icon-circle"><span class="material-symbols-outlined">sms</span></div><div class="profile-share-label">Message</div></div>
+          <div class="profile-share-item" id="profileShareX"><div class="profile-share-icon-circle"><img src="/assets/icons/social/x-twitter.svg"></div><div class="profile-share-label">X</div></div>
+        </div>
+        <div class="profile-bottom-grid">
+          <div class="profile-bottom-item" id="profileSaveImage"><div class="profile-bottom-icon-circle"><span class="material-symbols-outlined">download</span></div><div class="profile-bottom-label">Save image</div></div>
+          <div class="profile-bottom-item" id="profileMoreOptions"><div class="profile-bottom-icon-circle"><span class="material-symbols-outlined">more_horiz</span></div><div class="profile-bottom-label">More</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RECORD SHARE OVERLAY ===== -->
+  <div class="record-share-overlay" id="recordShareOverlay">
+    <div class="record-share-content">
+      <div class="record-share-card" id="recordShareCard">
+        <div class="record-display-diamond" id="recordShareDiamond">
+          <div class="record-display-diamond-content">
+            <div class="record-display-icon"><img src="/assets/icons/phosphor/duotone/fire.svg" alt="Icon"></div>
+            <div class="record-display-number" id="recordShareNumber">—</div>
+          </div>
+        </div>
+        <div class="record-display-title" id="recordShareTitle">Record</div>
+        <div class="record-display-date" id="recordShareDate"></div>
+        <div class="title record-share-message" id="recordShareMessage" style="margin-top:16px;font-size:18px;color:var(--basalt);">I set a new record!</div>
+        <div class="record-share-brand">vulanet</div>
+      </div>
+      <div class="record-share-sheet">
+        <div class="record-share-grid">
+          <div class="record-share-item" id="recordShareFacebook"><div class="record-share-icon-circle"><img src="/assets/icons/social/facebook-full.svg"></div><div class="record-share-text">Facebook</div></div>
+          <div class="record-share-item" id="recordShareWhatsApp"><div class="record-share-icon-circle"><img src="/assets/icons/social/whatsapp.svg"></div><div class="record-share-text">WhatsApp</div></div>
+          <div class="record-share-item" id="recordShareSMS"><div class="record-share-icon-circle"><span class="material-symbols-outlined">sms</span></div><div class="record-share-text">Message</div></div>
+          <div class="record-share-item" id="recordShareX"><div class="record-share-icon-circle"><img src="/assets/icons/social/x-twitter.svg"></div><div class="record-share-text">X</div></div>
+        </div>
+        <div class="record-bottom-grid">
+          <div class="record-bottom-item" id="recordSaveImage"><div class="record-bottom-icon-circle"><span class="material-symbols-outlined">download</span></div><div class="record-bottom-text">Save image</div></div>
+          <div class="record-bottom-item" id="recordMoreOptions"><div class="record-bottom-icon-circle"><span class="material-symbols-outlined">more_horiz</span></div><div class="record-bottom-text">More</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="container" id="mainContent">
+    <!-- Profile header will be populated by JS -->
+  </main>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    // Import Supabase client and utilities
+    import { supabase, isLoggedIn, getCurrentUserProfile } from '/src/js/supabase.js';
+    import { formatDateOrdinal, formatNumberShort } from '/src/js/date-utils.js';
+    import { getAvatarColor, getAvatarInitial } from '/src/js/profile-utils.js';
+    import { ACHIEVEMENT_DEFS, getAchievementLevel } from '/src/js/achievement-defs.js';
+    import { RECORD_DEFS } from '/src/js/record-defs.js';
+
+    // ============================================================
+    // 1. GET USERNAME FROM URL
+    // ============================================================
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const username = pathParts[pathParts.length - 1] || '';
+    if (!username) {
+      // Fallback: redirect to home or show error
+      document.body.innerHTML = '<h1>User not specified</h1>';
+      throw new Error('No username in URL');
+    }
+
+    // ============================================================
+    // 2. FETCH PROFILE DATA FROM SUPABASE
+    // ============================================================
+    let profileData = null;
+    let userStats = null;
+    let userRecords = null;
+    let userAchievements = [];
+    let lessonProgress = [];
+    let isOwnProfile = false;
+
+    try {
+      // Fetch profile by username
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('username', username)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error('Profile not found');
+      }
+      profileData = profile;
+
+      // Determine if this is the current user's profile
+      const currentUser = await getCurrentUserProfile();
+      isOwnProfile = currentUser && currentUser.user && currentUser.user.id === profile.id;
+
+      // Fetch user stats
+      const { data: stats, error: statsError } = await supabase
+        .from('user_stats')
+        .select('*')
+        .eq('user_id', profile.id)
+        .single();
+      if (!statsError && stats) userStats = stats;
+
+      // Fetch user records
+      const { data: records, error: recordsError } = await supabase
+        .from('user_records')
+        .select('*')
+        .eq('user_id', profile.id)
+        .single();
+      if (!recordsError && records) userRecords = records;
+
+      // Fetch user achievements
+      const { data: achievements, error: achError } = await supabase
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', profile.id);
+      if (!achError && achievements) userAchievements = achievements;
+
+      // Fetch lesson progress (to compute course levels and XP per course)
+      const { data: progress, error: progError } = await supabase
+        .from('lesson_progress')
+        .select('*')
+        .eq('user_id', profile.id);
+      if (!progError && progress) lessonProgress = progress;
+
+    } catch (err) {
+      console.error('Error loading profile:', err);
+      document.body.innerHTML = `<h1>User not found</h1><p>${err.message}</p>`;
+      throw err;
+    }
+
+    // ============================================================
+    // 3. BUILD ACHIEVEMENT MAP (keyed by achievement id)
+    // ============================================================
+    const achievementMap = {};
+    userAchievements.forEach(a => {
+      achievementMap[a.achievement_key] = a;
+    });
+
+    // ============================================================
+    // 4. COMPUTE COURSES AND XP
+    // ============================================================
+    // Group lesson progress by course_id
+    const courseMap = {};
+    lessonProgress.forEach(lp => {
+      if (!courseMap[lp.course_id]) {
+        courseMap[lp.course_id] = { lessons: [], totalXp: 0, level: 1 };
+      }
+      courseMap[lp.course_id].lessons.push(lp);
+      // XP: we need to get XP per lesson; if not stored, we can estimate or fetch from lesson data.
+      // For now, we'll assume each completed lesson gives some XP; we can compute later.
+      // We'll simulate XP based on status: completed or mastered gives 10 XP each.
+      if (lp.status === 'completed' || lp.mastered) {
+        courseMap[lp.course_id].totalXp += 10;
+      }
+    });
+
+    // Sort courses by XP descending (most XP first)
+    const courses = Object.keys(courseMap).map(id => ({
+      id,
+      totalXp: courseMap[id].totalXp,
+      lessonCount: courseMap[id].lessons.length,
+      level: 1 // We'll compute level based on lesson count / total lessons per course later
+    })).sort((a, b) => b.totalXp - a.totalXp);
+
+    // For now, we only have course IDs; we need to fetch course names and icons from the app's course data.
+    // We'll import the course definitions from course-data.js
+    import { getAllCourses } from '/src/js/course-data.js';
+    const allCourses = getAllCourses();
+    const courseDetails = courses.map(c => {
+      const def = allCourses.find(d => d.id === c.id);
+      return {
+        id: c.id,
+        name: def ? def.name : c.id,
+        icon: def ? def.icon : '/assets/courses/default.png',
+        totalXp: c.totalXp,
+        level: c.level,
+        lessonCount: c.lessonCount
+      };
+    });
+
+    // Compute course level: 6 levels, based on percentage of lessons completed
+    // We'll need total lessons per course from the course data.
+    // For simplicity, we'll assume each course has 50 lessons total; level = floor((completedLessons / totalLessons) * 6) + 1
+    // But we don't have total lessons count per course here. We'll set level based on XP.
+    // We'll use XP thresholds: level 1: 0-50, level 2: 51-150, etc.
+    courseDetails.forEach(c => {
+      const xp = c.totalXp;
+      let level = 1;
+      if (xp > 50) level = 2;
+      if (xp > 150) level = 3;
+      if (xp > 300) level = 4;
+      if (xp > 500) level = 5;
+      if (xp > 800) level = 6;
+      c.level = level;
+    });
+
+    // ============================================================
+    // 5. RENDER THE PROFILE
+    // ============================================================
+    const main = document.getElementById('mainContent');
+
+    // ---- Avatar & header ----
+    const avatarColor = getAvatarColor(profileData.id);
+    const initial = getAvatarInitial(profileData.display_name, profileData.username);
+    const joinedDate = new Date(profileData.created_at);
+
+    // Profile header HTML
+    const headerHTML = `
+      <div class="profile-header">
+        <span class="material-symbols-outlined profile-share-icon" id="profileShareTrigger">upload</span>
+        <span class="material-symbols-outlined profile-settings-icon ${isOwnProfile ? '' : 'hidden'}" id="profileSettingsTrigger">settings</span>
+
+        <div class="profile-pic-container">
+          <div id="profile-pic" class="profile-pic" style="background-color:${avatarColor};">${initial}</div>
+          <div class="profile-pic-edit" title="Change profile picture"><img src="/assets/icons/phosphor/regular/pencil-simple.svg" alt="Edit"></div>
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-name">${profileData.display_name}</h1>
+          <div class="profile-username">@${profileData.username}</div>
+          <div class="profile-joined">Joined ${formatDateOrdinal(joinedDate)}</div>
+          <div class="follow-stats">
+            <a href="#" class="follow-stat-link" id="followingLink">0 Following</a>
+            <a href="#" class="follow-stat-link" id="followersLink">0 Followers</a>
+          </div>
+        </div>
+      </div>
+    `;
+    main.innerHTML = headerHTML;
+
+    // ---- Populate following/followers (placeholder, will be dynamic later) ----
+    // For now, we'll just show 0, but we can fetch from a follow table later.
+    document.getElementById('followingLink').textContent = '0 Following';
+    document.getElementById('followersLink').textContent = '0 Followers';
+
+    // ---- Settings click ----
+    document.getElementById('profileSettingsTrigger').addEventListener('click', () => {
+      window.location.href = '/settings';
+    });
+
+    // ---- Avatar and edit click ----
+    const avatarContainer = document.querySelector('.profile-pic-container');
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+    avatarContainer.querySelector('.profile-pic-edit').addEventListener('click', () => fileInput.click());
+    avatarContainer.querySelector('.profile-pic').addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = document.querySelector('.profile-pic img');
+          if (img) {
+            img.src = ev.target.result;
+          } else {
+            const pic = document.querySelector('.profile-pic');
+            pic.innerHTML = `<img src="${ev.target.result}" alt="Profile photo">`;
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // ---- Courses section ----
+    const coursesHTML = `
+      <section class="courses-section">
+        <h2 class="section-title">Courses</h2>
+        <div class="courses-slider-container">
+          <div class="courses-slider" id="coursesSlider">
+            ${courseDetails.map(c => `
+              <div class="course-slider-item" data-course="${c.id}">
+                <div class="course-slider-icon"><img src="${c.icon}" alt="${c.name}"></div>
+              </div>
+            `).join('')}
+            <div class="add-course-slider" id="addCourseBtn">
+              <div class="add-course-slider-icon"><img src="/assets/icons/phosphor/regular/plus.svg" alt="Add" style="width:24px;height:24px;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
+    main.insertAdjacentHTML('beforeend', coursesHTML);
+
+    // Add course button
+    document.getElementById('addCourseBtn').addEventListener('click', () => {
+      window.location.href = '/courses.html?action=add-course';
+    });
+
+    // Course click -> open modal
+    document.querySelectorAll('.course-slider-item').forEach(el => {
+      el.addEventListener('click', () => {
+        openCoursesModal(profileData.display_name, courseDetails);
+      });
+    });
+
+    // ---- Overview stats ----
+    const statsHTML = `
+      <section class="stats-section">
+        <h2 class="section-title">Overview</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><img src="/assets/icons/phosphor/duotone/fire.svg" alt="Streak"></div>
+            <div class="stat-value">${userStats ? userStats.current_streak : 0}</div>
+            <div class="stat-label">Day streak</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><img src="/assets/icons/phosphor/duotone/lightning.svg" alt="XP"></div>
+            <div class="stat-value">${userStats ? userStats.total_xp : 0}</div>
+            <div class="stat-label">Total XP</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><img src="/assets/icons/phosphor/duotone/trophy.svg" alt="League"></div>
+            <div class="stat-value">${userStats ? userStats.highest_league : 'Beginner'}</div>
+            <div class="stat-label">Current League</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><img src="/assets/icons/phosphor/duotone/graduation-cap.svg" alt="Course Level"></div>
+            <div class="stat-value">${courseDetails.length > 0 ? courseDetails[0].level : 1}</div>
+            <div class="stat-label">Course Level</div>
+          </div>
+        </div>
+      </section>
+    `;
+    main.insertAdjacentHTML('beforeend', statsHTML);
+
+    // ---- Personal Records ----
+    const recordsHTML = `
+      <section class="records-section">
+        <h2 class="section-title">Personal Records</h2>
+        <div class="records-list" id="recordsList"></div>
+      </section>
+    `;
+    main.insertAdjacentHTML('beforeend', recordsHTML);
+
+    // Render records dynamically
+    function renderRecords() {
+      const container = document.getElementById('recordsList');
+      container.innerHTML = '';
+      const recordKeys = ['longestStreak', 'highestLeague', 'perfectLessons', 'mostXp'];
+      recordKeys.forEach(key => {
+        const def = RECORD_DEFS[key];
+        // Determine if achieved: check userRecords
+        let achieved = false;
+        let value = def.defaultNumber;
+        let date = null;
+        if (userRecords) {
+          switch (key) {
+            case 'longestStreak':
+              if (userRecords.longest_streak && userRecords.longest_streak > 0) {
+                achieved = true;
+                value = userRecords.longest_streak;
+                date = userRecords.updated_at; // placeholder, we need a separate date field
+              }
+              break;
+            case 'highestLeague':
+              if (userRecords.highest_league && userRecords.highest_league !== 'Beginner') {
+                achieved = true;
+                value = userRecords.highest_league;
+                date = userRecords.updated_at;
+              }
+              break;
+            case 'perfectLessons':
+              if (userRecords.perfect_lessons_in_day && userRecords.perfect_lessons_in_day > 0) {
+                achieved = true;
+                value = userRecords.perfect_lessons_in_day;
+                date = userRecords.updated_at;
+              }
+              break;
+            case 'mostXp':
+              if (userRecords.most_xp_in_day && userRecords.most_xp_in_day > 0) {
+                achieved = true;
+                value = userRecords.most_xp_in_day;
+                date = userRecords.updated_at;
+              }
+              break;
+          }
+        }
+        // For unachieved, we show grey diamond
+        const colorClass = achieved ? `record-${key === 'longestStreak' ? 'streak' : key === 'highestLeague' ? 'medal' : key === 'perfectLessons' ? 'target' : 'xp'}` : '';
+        const diamondStyle = achieved ? '' : 'background-color: var(--koala);';
+        const numberDisplay = achieved ? value : '—';
+        const dateDisplay = achieved && date ? formatDateOrdinal(new Date(date)) : '';
+
+        const card = document.createElement('div');
+        card.className = 'record-card';
+        card.dataset.record = key;
+        card.innerHTML = `
+          <div class="record-diamond ${colorClass}" style="${diamondStyle}">
+            <div class="record-diamond-content">
+              <div class="record-icon"><img src="/assets/icons/phosphor/duotone/${def.icon}.svg" alt="${def.title}"></div>
+              <div class="record-number">${numberDisplay}</div>
+            </div>
+          </div>
+          <div class="record-title">${def.title}</div>
+          <div class="record-date">${dateDisplay || (achieved ? '' : 'Not yet achieved')}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+    renderRecords();
+
+    // ---- Achievements ----
+    const achievementsHTML = `
+      <section class="achievements-section">
+        <h2 class="section-title">Achievements</h2>
+        <div class="achievements-list" id="achievementsList"></div>
+      </section>
+    `;
+    main.insertAdjacentHTML('beforeend', achievementsHTML);
+
+    function renderAchievements() {
+      const container = document.getElementById('achievementsList');
+      container.innerHTML = '';
+      const achievementIds = Object.keys(ACHIEVEMENT_DEFS);
+      achievementIds.forEach(id => {
+        const def = ACHIEVEMENT_DEFS[id];
+        const userAch = achievementMap[id];
+        let level = 0;
+        let progressValue = 0;
+        let achieved = false;
+        if (userAch) {
+          level = userAch.level || 0;
+          // We need to get the actual progress value to determine which level the user is at.
+          // For demonstration, we'll use the achievement data to compute level.
+          // In a real implementation, we'd store the progress value in the table.
+          // For now, we'll assume level is stored.
+          achieved = level >= def.maxLevel;
+        }
+        // If not achieved, show grey diamond; if achieved, use the achievement's color class.
+        const colorClass = achieved ? `award-${achievementIds.indexOf(id) + 1}` : '';
+        const diamondStyle = achieved ? '' : 'background-color: var(--koala);';
+        const numberDisplay = achieved ? def.levels[def.levels.length - 1] : (def.levels[0] || '0');
+        const progressText = achieved ? `${level} of ${def.maxLevel}` : `0 of ${def.maxLevel}`;
+
+        const card = document.createElement('div');
+        card.className = 'achievement-card';
+        card.dataset.achievement = id;
+        card.innerHTML = `
+          <div class="achievement-diamond ${colorClass}" style="${diamondStyle}">
+            <div class="achievement-diamond-content">
+              <div class="achievement-icon"><img src="/assets/icons/material-symbols/outline/${def.icon}.svg" alt="${def.title}"></div>
+              <div class="achievement-number">${numberDisplay}</div>
+            </div>
+          </div>
+          <div class="achievement-title">${def.title}</div>
+          <div class="achievement-progress">${progressText}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+    renderAchievements();
+
+    // ============================================================
+    // 6. MODAL LOGIC
+    // ============================================================
+
+    // ---- Courses Modal ----
+    const coursesModal = document.getElementById('coursesModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const coursesList = document.getElementById('coursesList');
+    const coursesModalTitle = document.getElementById('coursesModalTitle');
+
+    function openCoursesModal(displayName, coursesData) {
+      coursesModalTitle.textContent = `${displayName}'s Courses`;
+      coursesList.innerHTML = '';
+      coursesData.forEach(c => {
+        const li = document.createElement('li');
+        li.className = 'course-list-item';
+        li.innerHTML = `
+          <div class="course-list-icon"><img src="${c.icon}"></div>
+          <div class="course-list-info">
+            <div class="course-list-name">${c.name}</div>
+            <div class="course-list-level">Level ${c.level}</div>
+          </div>
+          <div class="course-list-xp">${c.totalXp} XP</div>
+        `;
+        coursesList.appendChild(li);
+      });
+      coursesModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCoursesModal() {
+      coursesModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    closeModalBtn.addEventListener('click', closeCoursesModal);
+    coursesModal.addEventListener('click', (e) => { if (e.target === coursesModal) closeCoursesModal(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && coursesModal.classList.contains('active')) closeCoursesModal();
+    });
+
+    // ---- Record Modal ----
+    const recordModal = document.getElementById('recordModal');
+    const closeRecordModal = document.getElementById('closeRecordModal');
+    const recordDisplayDiamond = document.getElementById('recordDisplayDiamond');
+    const recordDisplayIcon = document.getElementById('recordDisplayIcon');
+    const recordDisplayNumber = document.getElementById('recordDisplayNumber');
+    const recordDisplayTitle = document.getElementById('recordDisplayTitle');
+    const recordDisplayDate = document.getElementById('recordDisplayDate');
+    const recordMessage = document.getElementById('recordMessage');
+    const shareRecordButton = document.getElementById('shareRecordButton');
+
+    function openRecordModal(recordKey) {
+      const def = RECORD_DEFS[recordKey];
+      if (!def) return;
+      // Determine if achieved
+      let achieved = false;
+      let value = def.defaultNumber;
+      let date = null;
+      if (userRecords) {
+        switch (recordKey) {
+          case 'longestStreak':
+            if (userRecords.longest_streak && userRecords.longest_streak > 0) {
+              achieved = true;
+              value = userRecords.longest_streak;
+              date = userRecords.updated_at;
+            }
+            break;
+          case 'highestLeague':
+            if (userRecords.highest_league && userRecords.highest_league !== 'Beginner') {
+              achieved = true;
+              value = userRecords.highest_league;
+              date = userRecords.updated_at;
+            }
+            break;
+          case 'perfectLessons':
+            if (userRecords.perfect_lessons_in_day && userRecords.perfect_lessons_in_day > 0) {
+              achieved = true;
+              value = userRecords.perfect_lessons_in_day;
+              date = userRecords.updated_at;
+            }
+            break;
+          case 'mostXp':
+            if (userRecords.most_xp_in_day && userRecords.most_xp_in_day > 0) {
+              achieved = true;
+              value = userRecords.most_xp_in_day;
+              date = userRecords.updated_at;
+            }
+            break;
+        }
+      }
+      const color = achieved ? def.color : '#AFAFAF';
+      const iconSrc = `/assets/icons/phosphor/duotone/${def.icon}.svg`;
+      recordDisplayDiamond.style.backgroundColor = color;
+      recordDisplayIcon.innerHTML = `<img src="${iconSrc}" alt="Icon">`;
+      recordDisplayNumber.textContent = achieved ? value : '—';
+      recordDisplayTitle.textContent = def.title;
+      recordDisplayDate.textContent = achieved && date ? formatDateOrdinal(new Date(date)) : '';
+      recordMessage.textContent = achieved ? def.message(value) : def.unachievedMessage;
+      // Store current record key for share
+      window._currentRecordId = recordKey;
+      recordModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeRecordModalFn() {
+      recordModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    closeRecordModal.addEventListener('click', closeRecordModalFn);
+    recordModal.addEventListener('click', (e) => { if (e.target === recordModal) closeRecordModalFn(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && recordModal.classList.contains('active')) closeRecordModalFn();
+    });
+
+    // Share record button
+    shareRecordButton.addEventListener('click', () => {
+      // Open record share overlay
+      const recordKey = window._currentRecordId || 'longestStreak';
+      openRecordShare(recordKey);
+    });
+
+    // ---- Achievement Modal ----
+    const achievementModal = document.getElementById('achievementModal');
+    const closeAchievementModal = document.getElementById('closeAchievementModal');
+    const achievementDisplayDiamond = document.getElementById('achievementDisplayDiamond');
+    const achievementDisplayIcon = document.getElementById('achievementDisplayIcon');
+    const achievementDisplayNumber = document.getElementById('achievementDisplayNumber');
+    const achievementDisplayTitle = document.getElementById('achievementDisplayTitle');
+    const achievementDisplayDate = document.getElementById('achievementDisplayDate');
+    const achievementMessage = document.getElementById('achievementMessage');
+    const shareAchievementButton = document.getElementById('shareAchievementButton');
+
+    function openAchievementModal(achievementId) {
+      const def = ACHIEVEMENT_DEFS[achievementId];
+      if (!def) return;
+      const userAch = achievementMap[achievementId];
+      const level = userAch ? userAch.level : 0;
+      const achieved = level >= def.maxLevel;
+      const color = achieved ? def.color : '#AFAFAF';
+      const numberDisplay = achieved ? def.levels[def.levels.length - 1] : (def.levels[0] || '0');
+      const iconSrc = `/assets/icons/material-symbols/outline/${def.icon}.svg`;
+      achievementDisplayDiamond.style.backgroundColor = color;
+      achievementDisplayIcon.innerHTML = `<img src="${iconSrc}" alt="Icon">`;
+      achievementDisplayNumber.textContent = numberDisplay;
+      achievementDisplayTitle.textContent = def.title;
+      const now = new Date();
+      achievementDisplayDate.textContent = achieved ? formatDateOrdinal(now) : '';
+      achievementMessage.textContent = achieved ? def.messageTemplate(level) : 'Keep going to earn this achievement!';
+      // Store achievement id for share
+      window._currentAchievementId = achievementId;
+      achievementModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAchievementModalFn() {
+      achievementModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    closeAchievementModal.addEventListener('click', closeAchievementModalFn);
+    achievementModal.addEventListener('click', (e) => { if (e.target === achievementModal) closeAchievementModalFn(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && achievementModal.classList.contains('active')) closeAchievementModalFn();
+    });
+
+    // Share achievement button
+    shareAchievementButton.addEventListener('click', () => {
+      const achievementId = window._currentAchievementId || 'xppowerhouse';
+      openAchievementShare(achievementId);
+    });
+
+    // ============================================================
+    // 7. SHARE OVERLAYS
+    // ============================================================
+
+    // ---- Profile Share ----
+    const profileShareOverlay = document.getElementById('profileShareOverlay');
+    const profileShareTrigger = document.getElementById('profileShareTrigger');
+    const profileShareDisplayName = document.getElementById('profileShareDisplayName');
+    const profileShareUsername = document.getElementById('profileShareUsername');
+    const profileShareAvatar = document.getElementById('profileShareAvatar');
+
+    profileShareDisplayName.textContent = profileData.display_name;
+    profileShareUsername.textContent = `@${profileData.username}`;
+    profileShareAvatar.textContent = initial;
+    profileShareAvatar.style.backgroundColor = avatarColor;
+
+    function openProfileShare() {
+      profileShareOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      generateProfileQR(profileData.username);
+    }
+
+    function closeProfileShare() {
+      profileShareOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    profileShareTrigger.addEventListener('click', openProfileShare);
+    profileShareOverlay.addEventListener('click', (e) => {
+      if (e.target === profileShareOverlay) closeProfileShare();
+    });
+
+    function generateProfileQR(username) {
+      const url = `${window.location.origin}/profile/${username}`;
+      const container = document.getElementById('profileQrCode');
+      container.innerHTML = '';
+      try {
+        new QRCode(container, {
+          text: url,
+          width: 120,
+          height: 120,
+          colorDark: '#000',
+          colorLight: '#fff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      } catch (e) {
+        container.textContent = 'QR';
+      }
+    }
+
+    // Profile share actions (simplified)
+    function getProfileShareText() {
+      return `Check out my progress learning on Vulanet!\n${window.location.origin}/profile/${profileData.username}`;
+    }
+
+    async function shareWithImage(cardElement, text, filename) {
+      try {
+        await document.fonts.ready;
+        const canvas = await html2canvas(cardElement, { scale: 2, backgroundColor: '#ffffff', useCORS: true, allowTaint: true });
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([blob], filename, {type: 'image/png'})] })) {
+          await navigator.share({ title: 'Vulanet Profile', text: text, files: [new File([blob], filename, {type: 'image/png'})] });
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    async function profileShareAction(platform) {
+      const text = getProfileShareText();
+      const card = document.getElementById('profileShareCard');
+      const shared = await shareWithImage(card, text, 'vulanet-profile.png');
+      if (shared) return;
+
+      const encoded = encodeURIComponent(text);
+      let url = '';
+      if (platform === 'facebook') url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encoded}&hashtag=%23Vulanet`;
+      else if (platform === 'whatsapp') url = `https://wa.me/?text=${encoded}`;
+      else if (platform === 'sms') {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) { window.location.href = `sms:?body=${encoded}`; return; }
+        else { fallbackCopy(text); return; }
+      } else if (platform === 'x') url = `https://twitter.com/intent/tweet?text=${encoded}`;
+      if (url) window.open(url, '_blank');
+    }
+
+    document.getElementById('profileShareFacebook').addEventListener('click', () => profileShareAction('facebook'));
+    document.getElementById('profileShareWhatsApp').addEventListener('click', () => profileShareAction('whatsapp'));
+    document.getElementById('profileShareSMS').addEventListener('click', () => profileShareAction('sms'));
+    document.getElementById('profileShareX').addEventListener('click', () => profileShareAction('x'));
+
+    document.getElementById('profileSaveImage').addEventListener('click', async function() {
+      const card = document.getElementById('profileShareCard');
+      await document.fonts.ready;
+      html2canvas(card, { scale: 2, backgroundColor: '#ffffff', useCORS: true, allowTaint: true })
+        .then(canvas => {
+          const link = document.createElement('a');
+          link.download = `vulanet-${profileData.username}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        })
+        .catch(() => alert('Could not save image.'));
+    });
+
+    document.getElementById('profileMoreOptions').addEventListener('click', async function() {
+      const text = getProfileShareText();
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: 'My Vulanet Profile', text: text });
+        } catch (e) { if (e.name !== 'AbortError') fallbackCopy(text); }
+      } else { fallbackCopy(text); }
+    });
+
+    function fallbackCopy(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!')).catch(() => legacyCopy(text));
+      } else { legacyCopy(text); }
+    }
+
+    function legacyCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); alert('Copied to clipboard!'); } catch (_) { alert('Please copy manually:\n\n' + text); }
+      document.body.removeChild(ta);
+    }
+
+    // ---- Achievement Share ----
+    const achievementShareOverlay = document.getElementById('achievementShareOverlay');
+
+    function openAchievementShare(achievementId) {
+      const def = ACHIEVEMENT_DEFS[achievementId];
+      if (!def) return;
+      const userAch = achievementMap[achievementId];
+      const level = userAch ? userAch.level : 0;
+      const achieved = level >= def.maxLevel;
+      const color = achieved ? def.color : '#AFAFAF';
+      const numberDisplay = achieved ? def.levels[def.levels.length - 1] : (def.levels[0] || '0');
+      document.getElementById('shareDisplayDiamond').style.backgroundColor = color;
+      document.getElementById('shareDisplayIcon').innerHTML = `<img src="/assets/icons/material-symbols/outline/${def.icon}.svg" alt="Icon">`;
+      document.getElementById('shareDisplayNumber').textContent = numberDisplay;
+      document.getElementById('shareDisplayTitle').textContent = def.title;
+      const now = new Date();
+      document.getElementById('shareDisplayDate').textContent = achieved ? formatDateOrdinal(now) : '';
+      document.getElementById('shareMessage').textContent = achieved ? def.shareMessageTemplate(level) : 'I will earn this achievement!';
+      achievementShareOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAchievementShare() {
+      achievementShareOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    achievementShareOverlay.addEventListener('click', (e) => {
+      if (e.target === achievementShareOverlay) closeAchievementShare();
+    });
+
+    // Achievement share actions (reuse similar logic)
+    async function achievementShareAction(platform) {
+      const text = document.getElementById('shareMessage').textContent;
+      const card = document.getElementById('achievementShareCard');
+      const shared = await shareWithImage(card, text, 'vulanet-achievement.png');
+      if (shared) return;
+      const encoded = encodeURIComponent(text);
+      let url = '';
+      if (platform === 'facebook') url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encoded}&hashtag=%23Vulanet`;
+      else if (platform === 'whatsapp') url = `https://wa.me/?text=${encoded}`;
+      else if (platform === 'sms') {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) { window.location.href = `sms:?body=${encoded}`; return; }
+        else { fallbackCopy(text); return; }
+      } else if (platform === 'x') url = `https://twitter.com/intent/tweet?text=${encoded}`;
+      if (url) window.open(url, '_blank');
+    }
+
+    document.getElementById('shareFacebook').addEventListener('click', () => achievementShareAction('facebook'));
+    document.getElementById('shareWhatsApp').addEventListener('click', () => achievementShareAction('whatsapp'));
+    document.getElementById('shareSMS').addEventListener('click', () => achievementShareAction('sms'));
+    document.getElementById('shareX').addEventListener('click', () => achievementShareAction('x'));
+
+    document.getElementById('saveImage').addEventListener('click', async function() {
+      const card = document.getElementById('achievementShareCard');
+      await document.fonts.ready;
+      html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true })
+        .then(canvas => {
+          const link = document.createElement('a');
+          link.download = 'vulanet-achievement.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        })
+        .catch(() => alert('Could not save image.'));
+    });
+
+    document.getElementById('moreOptions').addEventListener('click', async function() {
+      const text = document.getElementById('shareMessage').textContent;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: 'My Vulanet Achievement', text: text });
+        } catch (e) { if (e.name !== 'AbortError') fallbackCopy(text); }
+      } else { fallbackCopy(text); }
+    });
+
+    // ---- Record Share ----
+    const recordShareOverlay = document.getElementById('recordShareOverlay');
+
+    function openRecordShare(recordKey) {
+      const def = RECORD_DEFS[recordKey];
+      if (!def) return;
+      let achieved = false;
+      let value = def.defaultNumber;
+      let date = null;
+      if (userRecords) {
+        switch (recordKey) {
+          case 'longestStreak':
+            if (userRecords.longest_streak && userRecords.longest_streak > 0) {
+              achieved = true;
+              value = userRecords.longest_streak;
+              date = userRecords.updated_at;
+            }
+            break;
+          case 'highestLeague':
+            if (userRecords.highest_league && userRecords.highest_league !== 'Beginner') {
+              achieved = true;
+              value = userRecords.highest_league;
+              date = userRecords.updated_at;
+            }
+            break;
+          case 'perfectLessons':
+            if (userRecords.perfect_lessons_in_day && userRecords.perfect_lessons_in_day > 0) {
+              achieved = true;
+              value = userRecords.perfect_lessons_in_day;
+              date = userRecords.updated_at;
+            }
+            break;
+          case 'mostXp':
+            if (userRecords.most_xp_in_day && userRecords.most_xp_in_day > 0) {
+              achieved = true;
+              value = userRecords.most_xp_in_day;
+              date = userRecords.updated_at;
+            }
+            break;
+        }
+      }
+      const color = achieved ? def.color : '#AFAFAF';
+      const iconSrc = `/assets/icons/phosphor/duotone/${def.icon}.svg`;
+      document.getElementById('recordShareDiamond').style.backgroundColor = color;
+      document.getElementById('recordShareIcon').innerHTML = `<img src="${iconSrc}" alt="Icon">`;
+      document.getElementById('recordShareNumber').textContent = achieved ? value : '—';
+      document.getElementById('recordShareTitle').textContent = def.title;
+      document.getElementById('recordShareDate').textContent = achieved && date ? formatDateOrdinal(new Date(date)) : '';
+      document.getElementById('recordShareMessage').textContent = achieved ? def.shareMessage(value) : def.unachievedMessage;
+      recordShareOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeRecordShare() {
+      recordShareOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    recordShareOverlay.addEventListener('click', (e) => {
+      if (e.target === recordShareOverlay) closeRecordShare();
+    });
+
+    // Record share actions
+    async function recordShareAction(platform) {
+      const text = document.getElementById('recordShareMessage').textContent;
+      const card = document.getElementById('recordShareCard');
+      const shared = await shareWithImage(card, text, 'vulanet-record.png');
+      if (shared) return;
+      const encoded = encodeURIComponent(text);
+      let url = '';
+      if (platform === 'facebook') url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encoded}&hashtag=%23Vulanet`;
+      else if (platform === 'whatsapp') url = `https://wa.me/?text=${encoded}`;
+      else if (platform === 'sms') {
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) { window.location.href = `sms:?body=${encoded}`; return; }
+        else { fallbackCopy(text); return; }
+      } else if (platform === 'x') url = `https://twitter.com/intent/tweet?text=${encoded}`;
+      if (url) window.open(url, '_blank');
+    }
+
+    document.getElementById('recordShareFacebook').addEventListener('click', () => recordShareAction('facebook'));
+    document.getElementById('recordShareWhatsApp').addEventListener('click', () => recordShareAction('whatsapp'));
+    document.getElementById('recordShareSMS').addEventListener('click', () => recordShareAction('sms'));
+    document.getElementById('recordShareX').addEventListener('click', () => recordShareAction('x'));
+
+    document.getElementById('recordSaveImage').addEventListener('click', async function() {
+      const card = document.getElementById('recordShareCard');
+      await document.fonts.ready;
+      html2canvas(card, { scale: 2, backgroundColor: '#ffffff', useCORS: true, allowTaint: true })
+        .then(canvas => {
+          const link = document.createElement('a');
+          link.download = `vulanet-record-${window._currentRecordId || 'record'}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        })
+        .catch(() => alert('Could not save image.'));
+    });
+
+    document.getElementById('recordMoreOptions').addEventListener('click', async function() {
+      const text = document.getElementById('recordShareMessage').textContent;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: 'My Vulanet Record', text: text });
+        } catch (e) { if (e.name !== 'AbortError') fallbackCopy(text); }
+      } else { fallbackCopy(text); }
+    });
+
+    // ============================================================
+    // 8. EVENT LISTENERS FOR RECORD / ACHIEVEMENT CARDS
+    // ============================================================
+    document.addEventListener('click', (e) => {
+      const recordCard = e.target.closest('.record-card');
+      if (recordCard) {
+        const key = recordCard.dataset.record;
+        if (key) openRecordModal(key);
+        return;
+      }
+      const achCard = e.target.closest('.achievement-card');
+      if (achCard) {
+        const id = achCard.dataset.achievement;
+        if (id) openAchievementModal(id);
+        return;
+      }
+    });
+
+    // ============================================================
+    // 9. KEYBOARD SHORTCUTS
+    // ============================================================
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (profileShareOverlay.classList.contains('active')) closeProfileShare();
+        if (recordShareOverlay.classList.contains('active')) closeRecordShare();
+        if (achievementShareOverlay.classList.contains('active')) closeAchievementShare();
+        if (coursesModal.classList.contains('active')) closeCoursesModal();
+        if (recordModal.classList.contains('active')) closeRecordModalFn();
+        if (achievementModal.classList.contains('active')) closeAchievementModalFn();
+      }
+    });
+
+    console.log('✅ Profile page loaded for', profileData.username);
+  </script>
+</body>
+</html>
