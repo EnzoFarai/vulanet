@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log in — Vulanet</title>
+
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Atkinson Hyperlegible Next', sans-serif; }
+
+    body {
+      background: #FFFFFF;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 360px;
+      background: #ffffff;
+      padding: 30px 25px 40px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 700;
+      color: #3c3c3c;
+      margin-bottom: 25px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 2px solid #e5e5e5;
+      background: #f2f2f2;
+      font-size: 16px;
+      margin-bottom: 14px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .input-field:focus { border-color: #1cb0f6; }
+
+    .password-wrapper {
+      position: relative;
+      margin-bottom: 14px;
+    }
+    .password-wrapper input {
+      width: 100%;
+      padding: 14px 16px;
+      padding-right: 130px;
+      border-radius: 12px;
+      border: 2px solid #e5e5e5;
+      background: #f2f2f2;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .password-wrapper input:focus { border-color: #1cb0f6; }
+
+    .password-actions {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .forgot-link {
+      font-size: 14px;
+      font-weight: 700;
+      color: #757575;
+      text-decoration: none;
+      cursor: pointer;
+      pointer-events: auto;
+      padding: 4px 0;
+      transition: color 0.1s;
+    }
+    .forgot-link:hover { color: #5a5a5a; text-decoration: underline; }
+
+    .password-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    .password-toggle img { width: 22px; height: 22px; display: block; }
+    .password-toggle:active { opacity: 0.7; }
+
+    .error-message {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: -8px;
+      margin-bottom: 14px;
+      color: #EA4335;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+    .error-message img { width: 18px; height: 18px; flex-shrink: 0; }
+    .error-message.hidden { display: none; }
+
+    .login-btn { width: 100%; margin-top: 8px; }
+
+    .google-btn {
+      width: 100%;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .google-btn img { width: 20px; height: 20px; display: block; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 25px 0;
+      color: #9e9e9e;
+      font-weight: 700;
+    }
+    .divider::before, .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: #e5e5e5;
+    }
+    .divider span { margin: 0 10px; font-size: 14px; }
+
+    .terms {
+      text-align: center;
+      font-size: 12px;
+      color: #9e9e9e;
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+    .terms a { color: #6c6c6c; text-decoration: none; }
+    .terms a:hover { text-decoration: underline; }
+
+    .signup-prompt {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #3c3c3c;
+    }
+    .signup-prompt a {
+      color: #1cb0f6;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .signup-prompt a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Log in</h1>
+
+  <div>
+    <input class="input-field" type="text" placeholder="Email or username" id="username-email-input" autocomplete="username" spellcheck="false">
+    <div class="error-message hidden" id="account-error">
+      <img src="/assets/icons/material-symbols/fill/error.svg" alt="">
+      <span id="account-error-text">We couldn't find an account with that info.</span>
+    </div>
+  </div>
+
+  <div class="password-wrapper">
+    <input type="password" placeholder="Password" id="password-input" autocomplete="current-password">
+    <div class="password-actions">
+      <a href="#" class="forgot-link" id="forgot-link">FORGOT?</a>
+      <button class="password-toggle" id="toggle-password" type="button" aria-label="Show password">
+        <img src="/assets/icons/phosphor/regular/eye-closed.svg" alt="Show password" id="eye-icon">
+      </button>
+    </div>
+  </div>
+
+  <div class="error-message hidden" id="password-error">
+    <img src="/assets/icons/material-symbols/fill/error.svg" alt="">
+    <span id="password-error-text">Wrong password. Try again or reset it.</span>
+  </div>
+
+  <button class="btn btn-md btn-gecko-solid login-btn" id="login-btn">LOG IN</button>
+
+  <div class="divider"><span>OR</span></div>
+
+  <button class="btn btn-md btn-cloud-outline google-btn" id="google-btn">
+    <img src="/assets/icons/social/google-icon.svg" alt="Google">
+    <span>Continue with Google</span>
+  </button>
+
+  <div class="terms">
+    By logging in to Vulanet, you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.<br><br>
+    This site is protected by reCAPTCHA Enterprise and the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.
+  </div>
+
+  <div class="signup-prompt">
+    No account? <a href="/registration.html">CREATE PROFILE</a>
+  </div>
+</div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    }
+  }
+</script>
+
+<script type="module">
+  import { supabase } from '/src/js/supabase.js';
+
+  const EYE_OPEN = '/assets/icons/phosphor/regular/eye.svg';
+  const EYE_CLOSED = '/assets/icons/phosphor/regular/eye-closed.svg';
+
+  const loginInput      = document.getElementById('username-email-input');
+  const passwordInput   = document.getElementById('password-input');
+  const accountError    = document.getElementById('account-error');
+  const accountErrorTxt = document.getElementById('account-error-text');
+  const passwordError   = document.getElementById('password-error');
+  const passwordErrTxt  = document.getElementById('password-error-text');
+  const loginBtn        = document.getElementById('login-btn');
+  const googleBtn       = document.getElementById('google-btn');
+  const forgotLink      = document.getElementById('forgot-link');
+  const togglePassword  = document.getElementById('toggle-password');
+  const eyeIcon         = document.getElementById('eye-icon');
+
+  // ── Eye toggle ─────────────────────────────────────────────
+  togglePassword.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      eyeIcon.src = EYE_OPEN;
+      eyeIcon.alt = 'Hide password';
+    } else {
+      passwordInput.type = 'password';
+      eyeIcon.src = EYE_CLOSED;
+      eyeIcon.alt = 'Show password';
+    }
+    passwordInput.focus();
+  });
+
+  // ── Hide errors on input ───────────────────────────────────
+  loginInput.addEventListener('input', () => {
+    accountError.classList.add('hidden');
+    passwordError.classList.add('hidden');
+  });
+  passwordInput.addEventListener('input', () => {
+    accountError.classList.add('hidden');
+    passwordError.classList.add('hidden');
+  });
+
+  // ── Resolve email-or-username → email ──────────────────────
+  // Supabase auth.signInWithPassword needs an email. If the user
+  // typed a username, look it up in profiles first.
+  async function resolveIdentifier(identifier) {
+    if (identifier.includes('@')) return identifier;
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('email')
+      .ilike('username', identifier)
+      .maybeSingle();
+    if (error || !data) return null;
+    return data.email;
+  }
+
+  // ── Login ──────────────────────────────────────────────────
+  async function attemptLogin() {
+    const identifier = loginInput.value.trim();
+    const password   = passwordInput.value;
+
+    accountError.classList.add('hidden');
+    passwordError.classList.add('hidden');
+
+    if (!identifier) {
+      accountErrorTxt.textContent = 'Enter your email or username.';
+      accountError.classList.remove('hidden');
+      return;
+    }
+    if (!password) {
+      passwordErrTxt.textContent = 'Enter your password.';
+      passwordError.classList.remove('hidden');
+      return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'LOGGING IN…';
+
+    const email = await resolveIdentifier(identifier);
+    if (!email) {
+      accountErrorTxt.textContent = "We couldn't find an account with that info.";
+      accountError.classList.remove('hidden');
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'LOG IN';
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      if (error.message.toLowerCase().includes('invalid login')) {
+        passwordErrTxt.textContent = 'Wrong password. Try again or reset it.';
+        passwordError.classList.remove('hidden');
+      } else if (error.message.toLowerCase().includes('email not confirmed')) {
+        accountErrorTxt.textContent = 'Please confirm your email before logging in.';
+        accountError.classList.remove('hidden');
+      } else {
+        passwordErrTxt.textContent = error.message;
+        passwordError.classList.remove('hidden');
+      }
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'LOG IN';
+      return;
+    }
+
+    // ── Success: check for pending temp lesson progress ────
+    const tempRaw = sessionStorage.getItem('tempLessonProgress');
+    let redirectUrl = '/';
+    if (tempRaw) {
+      try {
+        const tmp = JSON.parse(tempRaw);
+        redirectUrl = `/${tmp.courseId}.html?lesson=${encodeURIComponent(tmp.lessonId)}`;
+        sessionStorage.removeItem('tempLessonProgress');
+      } catch (e) { /* fall through to default */ }
+    } else {
+      const courseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
+      redirectUrl = `/${courseId}.html`;
+    }
+    window.location.href = redirectUrl;
+  }
+
+  loginBtn.addEventListener('click', attemptLogin);
+
+  // Enter-key submit on either field
+  passwordInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); attemptLogin(); }
+  });
+  loginInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); attemptLogin(); }
+  });
+
+  // ── Google OAuth ───────────────────────────────────────────
+  googleBtn.addEventListener('click', async () => {
+    googleBtn.disabled = true;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/registration-completion.html'
+      }
+    });
+    if (error) {
+      alert('Google sign-in failed: ' + error.message);
+      googleBtn.disabled = false;
+    }
+  });
+
+  // ── Forgot password ────────────────────────────────────────
+  forgotLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    const id = loginInput.value.trim();
+    // Pre-fill the forgot page with whatever the user typed
+    const q = id.includes('@') ? `?email=${encodeURIComponent(id)}` : '';
+    window.location.href = `/forgot-password${q}`;
+  });
+</script>
+</body>
+</html>

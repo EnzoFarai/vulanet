@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Profile Settings — Vulanet</title>
+
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background-color: #FFFFFF;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 16px;
+      color: #4B4B4B;
+    }
+
+    .canvas {
+      max-width: 390px;
+      width: 100%;
+      background: #FFFFFF;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .screen { display: block; width: 100%; }
+    .screen.hidden { display: none !important; }
+
+    /* ===== HEADER ===== */
+    .nav-bar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: #FFFFFF;
+      margin-bottom: 8px;
+    }
+    .nav-left {
+      width: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+    }
+    .nav-left img { width: 22px; height: 22px; opacity: 0.7; display: block; }
+    .nav-left:hover img { opacity: 1; }
+    .nav-left:focus-visible { outline: 2px solid #1CB0F6; outline-offset: 2px; }
+    .nav-title {
+      font-weight: 700;
+      font-size: 18px;
+      color: #4B4B4B;
+      text-align: center;
+    }
+    .nav-right {
+      width: 60px;
+      text-align: right;
+    }
+
+    /* ===== PROFILE PICTURE ===== */
+    .profile-pic-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 24px 0 12px;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 48px;
+      color: #FFFFFF;
+      background-color: #4285F4;
+      transition: transform 0.15s ease;
+    }
+    .avatar-wrapper:hover { transform: scale(1.02); }
+    .avatar-wrapper:focus-visible {
+      outline: 3px solid #1CB0F6;
+      outline-offset: 3px;
+    }
+    .avatar-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .avatar-wrapper.has-image img { display: block; }
+    .avatar-wrapper.has-image .avatar-initial { display: none; }
+    .avatar-initial {
+      display: block;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .change-pic-btn {
+      max-width: 240px;
+    }
+
+    /* ===== FORM ===== */
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 8px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-weight: 700;
+      font-size: 13px;
+      color: #777777;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      padding-left: 4px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 2px solid #E5E5E5;
+      background: #F2F2F2;
+      font-size: 16px;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      color: #4B4B4B;
+      outline: none;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .form-input:focus { border-color: #1CB0F6; background: #FFFFFF; }
+    .form-input.invalid { border-color: #EA4335; }
+    .form-input:disabled { opacity: 0.6; cursor: not-allowed; }
+    .form-input::placeholder { color: #AFAFAF; }
+
+    /* Username input with @ prefix */
+    .input-with-prefix {
+      display: flex;
+      align-items: center;
+      border: 2px solid #E5E5E5;
+      border-radius: 12px;
+      background: #F2F2F2;
+      padding: 0 16px;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .input-with-prefix:focus-within {
+      border-color: #1CB0F6;
+      background: #FFFFFF;
+    }
+    .input-with-prefix.invalid { border-color: #EA4335; }
+    .input-with-prefix .prefix {
+      color: #777777;
+      font-size: 16px;
+      font-weight: 700;
+      user-select: none;
+      padding-right: 2px;
+    }
+    .input-with-prefix input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 14px 0 14px 2px;
+      font-size: 16px;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      color: #4B4B4B;
+      outline: none;
+      min-width: 0;
+    }
+
+    /* Password clickable row */
+    .password-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 2px solid #E5E5E5;
+      background: #F2F2F2;
+      font-size: 16px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .password-row:hover { background: #FAFAFA; }
+    .password-row:focus-visible {
+      outline: none;
+      border-color: #1CB0F6;
+      background: #FFFFFF;
+    }
+    .password-dots {
+      font-size: 20px;
+      letter-spacing: 3px;
+      color: #4B4B4B;
+      line-height: 1;
+      user-select: none;
+    }
+    .password-row .chevron::after {
+      content: "›";
+      font-size: 28px;
+      color: #AFAFAF;
+      margin-left: 12px;
+      line-height: 1;
+    }
+
+    /* Error message */
+    .error-message {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #EA4335;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.4;
+      padding-left: 4px;
+    }
+    .error-message img { width: 16px; height: 16px; flex-shrink: 0; display: block; }
+    .error-message.hidden { display: none !important; }
+
+    /* Email confirmation block */
+    .email-confirm-block {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      animation: fadeIn 0.2s ease;
+    }
+    .email-confirm-block.hidden { display: none !important; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .forgot-inline {
+      align-self: flex-end;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1CB0F6;
+      text-decoration: none;
+      margin-top: -2px;
+      padding: 2px 4px;
+      cursor: pointer;
+    }
+    .forgot-inline:hover { text-decoration: underline; }
+    .forgot-inline.hidden { display: none !important; }
+
+    /* Save button */
+    .save-btn {
+      margin-top: 28px;
+    }
+    .save-btn.hidden { display: none !important; }
+
+    /* Delete account zone */
+    .danger-zone {
+      margin-top: 36px;
+      margin-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .delete-account-btn {
+      color: #EA4335 !important;
+    }
+
+    /* ===== PASSWORD CHANGE SCREEN ===== */
+    .password-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 8px;
+    }
+    .password-form .save-btn {
+      margin-top: 28px;
+      margin-bottom: 40px;
+    }
+
+    /* ===== DELETE CONFIRMATION SCREEN ===== */
+    .delete-warning {
+      padding: 24px 6px 12px;
+      font-size: 15px;
+      line-height: 1.55;
+      color: #4B4B4B;
+      text-align: center;
+    }
+    .delete-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+      margin-bottom: 40px;
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #323232;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 10001;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      font-weight: 600;
+      font-size: 14px;
+      max-width: 90%;
+      text-align: center;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 420px) {
+      .avatar-wrapper { width: 96px; height: 96px; font-size: 42px; }
+    }
+  </style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- ============ SCREEN 1: MAIN PROFILE SETTINGS ============ -->
+  <div id="profileScreen" class="screen">
+    <header class="nav-bar">
+      <div class="nav-left" id="backFromProfile" role="button" tabindex="0" aria-label="Back to settings">
+        <img src="/assets/icons/phosphor/regular/arrow-left.svg" alt="">
+      </div>
+      <span class="nav-title">Profile</span>
+      <span class="nav-right"></span>
+    </header>
+
+    <div class="profile-pic-section">
+      <div class="avatar-wrapper" id="avatarWrapper" role="button" tabindex="0" aria-label="Change profile picture">
+        <span class="avatar-initial" id="avatarInitial">?</span>
+        <img id="avatarImage" alt="Profile picture">
+      </div>
+      <button class="btn btn-sm btn-cloud-outline change-pic-btn" id="changePicBtn">CHANGE PICTURE</button>
+      <input type="file" accept="image/*" id="avatarFileInput" style="display:none">
+    </div>
+
+    <div class="form-section">
+
+      <!-- NAME -->
+      <div class="form-group">
+        <label class="form-label" for="nameInput">Name</label>
+        <input class="form-input" type="text" id="nameInput" maxlength="60" autocomplete="name" placeholder="Your name">
+        <div class="error-message hidden" id="nameError">
+          <img src="/assets/icons/material-symbols/fill/error.svg" alt="">
+          <span>Your name must be between 1 and 30 characters long</span>
+        </div>
+      </div>
+
+      <!-- USERNAME -->
+      <div class="form-group">
+        <label class="form-label" for="usernameInput">Username</label>
+        <div class="input-with-prefix" id="usernameWrapper">
+          <span class="prefix">@</span>
+          <input type="text" id="usernameInput" maxlength="20" autocomplete="username" spellcheck="false" placeholder="username">
+        </div>
+        <div class="error-message hidden" id="usernameError">
+          <img src="/assets/icons/material-symbols/fill/error.svg" alt="">
+          <span id="usernameErrorText">Username must be between 3 and 16 valid characters (letters, numbers and '-', '.', '_')</span>
+        </div>
+      </div>
+
+      <!-- PASSWORD (clickable row) -->
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="password-row" id="passwordRow" role="button" tabindex="0" aria-label="Change password">
+          <span class="password-dots">••••••••••</span>
+          <span class="chevron"></span>
+        </div>
+      </div>
+
+      <!-- EMAIL -->
+      <div class="form-group">
+        <label class="form-label" for="emailInput">Email</label>
+        <input class="form-input" type="email" id="emailInput" autocomplete="email" spellcheck="false" placeholder="you@example.com">
+        <div class="error-message hidden" id="emailError">
+          <img src="/assets/icons/material-symbols/fill/error.svg" alt="">
+          <span id="emailErrorText">Please enter a valid email address</span>
+        </div>
+      </div>
+
+      <!-- EMAIL PASSWORD CONFIRM -->
+      <div class="form-group email-confirm-block hidden" id="emailConfirmBlock">
+        <label class="form-label" for="emailConfirmInput">Enter password to save email</label>
+        <input class="form-input" type="password" id="emailConfirmInput" autocomplete="current-password" placeholder="Password">
+        <div class="error-message hidden" id="emailConfirmError">
+          <img src="/assets/icons/material-symbols/fill/error.svg" alt="">
+          <span id="emailConfirmErrorText">Wrong password. Try again or reset it.</span>
+        </div>
+        <a href="#" class="forgot-inline hidden" id="emailForgotLink">FORGOT?</a>
+      </div>
+
+    </div>
+
+    <button class="btn btn-md btn-gecko-solid btn-full save-btn hidden" id="saveBtn">SAVE CHANGES</button>
+
+    <div class="danger-zone">
+      <button class="btn btn-md btn-cloud-outline btn-full delete-account-btn" id="deleteAccountBtn">DELETE ACCOUNT</button>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2: PASSWORD CHANGE ============ -->
+  <div id="passwordScreen" class="screen hidden">
+    <header class="nav-bar">
+      <div class="nav-left" id="backFromPassword" role="button" tabindex="0" aria-label="Back">
+        <img src="/assets/icons/phosphor/regular/arrow-left.svg" alt="">
+      </div>
+      <span class="nav-title">Change Password</span>
+      <span class="nav-right"></span>
+    </header>
+
+    <div class="password-form">
+      <div class="form-group">
+        <label class="form-label" for="currentPasswordInput">Current password</label>
+        <input class="form-input" type="password" id="currentPasswordInput" autocomplete="current-password" placeholder="Current password">
+        <div class="error-message hidden" id="currentPasswordError">
+          <img src="/assets/icons/material-symbols/fill/error.svg" alt="">
+          <span>Wrong password. Try again or reset it.</span>
+        </div>
+        <a href="#" class="forgot-inline" id="currentPasswordForgot">FORGOT?</a>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="newPasswordInput">New password</label>
+        <input class="form-input" type="password" id="newPasswordInput" autocomplete="new-password" placeholder="New password">
+        <div class="error-message hidden" id="newPasswordError">
+          <img src="/assets/icons/material-symbols/fill/error.svg" alt="">
+          <span>Password must be 8–12 characters and contain uppercase, lowercase, number, and special character.</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirmPasswordInput">Confirm new password</label>
+        <input class="form-input" type="password" id="confirmPasswordInput" autocomplete="new-password" placeholder="Confirm new password">
+        <div class="error-message hidden" id="confirmPasswordError">
+          <img src="/assets/icons/material-symbols/fill/error.svg" alt="">
+          <span>Passwords do not match</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-md btn-gecko-solid btn-full save-btn" id="savePasswordBtn" disabled>SAVE</button>
+  </div>
+
+  <!-- ============ SCREEN 3: DELETE ACCOUNT CONFIRMATION ============ -->
+  <div id="deleteScreen" class="screen hidden">
+    <header class="nav-bar">
+      <div class="nav-left" id="backFromDelete" role="button" tabindex="0" aria-label="Back">
+        <img src="/assets/icons/phosphor/regular/arrow-left.svg" alt="">
+      </div>
+      <span class="nav-title">Delete Account</span>
+      <span class="nav-right"></span>
+    </header>
+
+    <p class="delete-warning">
+      By proceeding, you will delete your Vulanet account and erase all of your personal data stored by Vulanet. You will lose your learning progress and achievements. This deletion can take up to 30 days. You will have a 7-day grace period to reverse the account deactivation process. After this period, the deletion cannot be undone.
+    </p>
+
+    <div class="delete-actions">
+      <button class="btn btn-md btn-ladybug-solid btn-full" id="confirmDeleteBtn">DELETE ACCOUNT</button>
+      <button class="btn btn-md btn-gecko-outline btn-full" id="cancelDeleteBtn">CANCEL</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    }
+  }
+</script>
+
+<script type="module">
+  import { supabase, isLoggedIn, getCurrentUserProfile } from '/src/js/supabase.js';
+  import { getAvatarColor, getAvatarInitial } from '/src/js/profile-utils.js';
+
+  // ── DOM refs ─────────────────────────────────────────────────
+  const profileScreen  = document.getElementById('profileScreen');
+  const passwordScreen = document.getElementById('passwordScreen');
+  const deleteScreen   = document.getElementById('deleteScreen');
+
+  const nameInput        = document.getElementById('nameInput');
+  const nameError        = document.getElementById('nameError');
+  const usernameInput    = document.getElementById('usernameInput');
+  const usernameWrapper  = document.getElementById('usernameWrapper');
+  const usernameError    = document.getElementById('usernameError');
+  const usernameErrorText= document.getElementById('usernameErrorText');
+  const passwordRow      = document.getElementById('passwordRow');
+  const emailInput       = document.getElementById('emailInput');
+  const emailError       = document.getElementById('emailError');
+  const emailErrorText   = document.getElementById('emailErrorText');
+  const emailConfirmBlock= document.getElementById('emailConfirmBlock');
+  const emailConfirmInput= document.getElementById('emailConfirmInput');
+  const emailConfirmError= document.getElementById('emailConfirmError');
+  const emailConfirmErrorText = document.getElementById('emailConfirmErrorText');
+  const emailForgotLink  = document.getElementById('emailForgotLink');
+  const saveBtn          = document.getElementById('saveBtn');
+  const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+
+  const avatarWrapper    = document.getElementById('avatarWrapper');
+  const avatarInitial    = document.getElementById('avatarInitial');
+  const avatarImage      = document.getElementById('avatarImage');
+  const changePicBtn     = document.getElementById('changePicBtn');
+  const avatarFileInput  = document.getElementById('avatarFileInput');
+
+  const currentPasswordInput  = document.getElementById('currentPasswordInput');
+  const currentPasswordError  = document.getElementById('currentPasswordError');
+  const currentPasswordForgot = document.getElementById('currentPasswordForgot');
+  const newPasswordInput      = document.getElementById('newPasswordInput');
+  const newPasswordError      = document.getElementById('newPasswordError');
+  const confirmPasswordInput  = document.getElementById('confirmPasswordInput');
+  const confirmPasswordError  = document.getElementById('confirmPasswordError');
+  const savePasswordBtn       = document.getElementById('savePasswordBtn');
+
+  const toast = document.getElementById('toast');
+
+  // ── State ────────────────────────────────────────────────────
+  let currentUser          = null;
+  let currentProfile       = null;
+  let originalName         = '';
+  let originalUsername     = '';
+  let originalEmail        = '';
+  let usernameIsAvailable  = true;
+  let usernameCheckTimer   = null;
+  let usernameCheckToken   = 0;
+  let avatarPreviewDataUrl = null; // preview only — real upload flow TBD
+
+  // ── Small helpers ────────────────────────────────────────────
+  function showToast(message, duration = 2200) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), duration);
+  }
+
+  function showScreen(target) {
+    [profileScreen, passwordScreen, deleteScreen].forEach(s => s.classList.add('hidden'));
+    target.classList.remove('hidden');
+    window.scrollTo(0, 0);
+  }
+
+  function validateName(name) {
+    const t = name.trim();
+    return t.length >= 1 && t.length <= 30;
+  }
+
+  function validateUsername(username) {
+    const t = username.trim();
+    if (t.length < 3 || t.length > 16) return false;
+    return /^[A-Za-z0-9._-]+$/.test(t);
+  }
+
+  function validateEmail(email) {
+    const t = email.trim();
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t);
+  }
+
+  function validateNewPassword(pw) {
+    if (pw.length < 8 || pw.length > 12) return false;
+    if (!/[A-Z]/.test(pw)) return false;
+    if (!/[a-z]/.test(pw)) return false;
+    if (!/[0-9]/.test(pw)) return false;
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw)) return false;
+    return true;
+  }
+
+  // ── Load current profile ────────────────────────────────────
+  async function loadProfile() {
+    const loggedIn = await isLoggedIn();
+    if (!loggedIn) {
+      window.location.href = '/registration.html';
+      return;
+    }
+
+    const result = await getCurrentUserProfile();
+    if (!result || !result.user || !result.profile) {
+      showToast('Could not load your profile.');
+      return;
+    }
+
+    currentUser    = result.user;
+    currentProfile = result.profile;
+
+    originalName     = currentProfile.display_name || '';
+    originalUsername = currentProfile.username || '';
+    originalEmail    = currentProfile.email || currentUser.email || '';
+
+    nameInput.value     = originalName;
+    usernameInput.value = originalUsername;
+    emailInput.value    = originalEmail;
+
+    renderAvatar();
+    updateSaveVisibility();
+  }
+
+  function renderAvatar() {
+    if (avatarPreviewDataUrl) {
+      avatarImage.src = avatarPreviewDataUrl;
+      avatarWrapper.classList.add('has-image');
+      return;
+    }
+    const initial = getAvatarInitial(currentProfile?.display_name, currentProfile?.username);
+    const color   = getAvatarColor(currentUser?.id || '');
+    avatarInitial.textContent = initial;
+    avatarWrapper.style.backgroundColor = color;
+    avatarWrapper.classList.remove('has-image');
+  }
+
+  // ── Change detection ────────────────────────────────────────
+  function hasNameChanged()     { return nameInput.value.trim() !== originalName.trim(); }
+  function hasUsernameChanged() { return usernameInput.value.trim() !== originalUsername.trim(); }
+  function hasEmailChanged()    {
+    return emailInput.value.trim().toLowerCase() !== originalEmail.trim().toLowerCase();
+  }
+  function hasAnyChanges() {
+    return hasNameChanged() || hasUsernameChanged() || hasEmailChanged();
+  }
+
+  function updateSaveVisibility() {
+    if (hasAnyChanges()) {
+      saveBtn.classList.remove('hidden');
+    } else {
+      saveBtn.classList.add('hidden');
+    }
+
+    if (hasEmailChanged()) {
+      emailConfirmBlock.classList.remove('hidden');
+    } else {
+      emailConfirmBlock.classList.add('hidden');
+      emailConfirmInput.value = '';
+      emailConfirmError.classList.add('hidden');
+      emailForgotLink.classList.add('hidden');
+    }
+  }
+
+  // ── Username uniqueness (Supabase) ──────────────────────────
+  async function isUsernameTaken(username) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .ilike('username', username)
+      .maybeSingle();
+    if (error || !data) return false;
+    return data.id !== currentUser.id;
+  }
+
+  // ── Name input listener ─────────────────────────────────────
+  nameInput.addEventListener('input', () => {
+    const ok = validateName(nameInput.value);
+    nameError.classList.toggle('hidden', ok);
+    nameInput.classList.toggle('invalid', !ok);
+    updateSaveVisibility();
+  });
+
+  // ── Username input listener ─────────────────────────────────
+  usernameInput.addEventListener('input', () => {
+    const val = usernameInput.value.trim();
+    const formatOk = validateUsername(val);
+    usernameWrapper.classList.toggle('invalid', !formatOk);
+
+    if (!formatOk) {
+      usernameError.classList.remove('hidden');
+      usernameErrorText.textContent = "Username must be between 3 and 16 valid characters (letters, numbers and '-', '.', '_')";
+      usernameIsAvailable = false;
+    } else {
+      usernameError.classList.add('hidden');
+      usernameIsAvailable = true;
+    }
+
+    if (usernameCheckTimer) clearTimeout(usernameCheckTimer);
+
+    if (formatOk && val !== originalUsername) {
+      const myToken = ++usernameCheckToken;
+      usernameCheckTimer = setTimeout(async () => {
+        const taken = await isUsernameTaken(val);
+        if (myToken !== usernameCheckToken) return; // stale
+        if (taken) {
+          usernameIsAvailable = false;
+          usernameError.classList.remove('hidden');
+          usernameErrorText.textContent = 'Username unavailable';
+          usernameWrapper.classList.add('invalid');
+        } else {
+          usernameIsAvailable = true;
+        }
+        updateSaveVisibility();
+      }, 350);
+    } else if (formatOk && val === originalUsername) {
+      usernameIsAvailable = true;
+      usernameError.classList.add('hidden');
+    }
+
+    updateSaveVisibility();
+  });
+
+  // ── Email input listener ────────────────────────────────────
+  emailInput.addEventListener('input', () => {
+    const val = emailInput.value.trim();
+    const ok = validateEmail(val);
+    emailError.classList.toggle('hidden', ok);
+    emailInput.classList.toggle('invalid', !ok);
+    updateSaveVisibility();
+  });
+
+  emailConfirmInput.addEventListener('input', () => {
+    emailConfirmError.classList.add('hidden');
+    emailForgotLink.classList.add('hidden');
+  });
+
+  emailForgotLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = `/forgot-password?email=${encodeURIComponent(originalEmail)}`;
+  });
+
+  // ── Avatar picker ───────────────────────────────────────────
+  function openFilePicker() { avatarFileInput.click(); }
+
+  changePicBtn.addEventListener('click', openFilePicker);
+  avatarWrapper.addEventListener('click', openFilePicker);
+  avatarWrapper.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFilePicker(); }
+  });
+
+  avatarFileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select an image file.');
+      avatarFileInput.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Image must be smaller than 5 MB.');
+      avatarFileInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      avatarPreviewDataUrl = ev.target.result;
+      renderAvatar();
+      showToast('Preview updated. Upload coming soon.');
+    };
+    reader.readAsDataURL(file);
+    avatarFileInput.value = '';
+  });
+
+  // ── Save changes ────────────────────────────────────────────
+  saveBtn.addEventListener('click', async () => {
+    const nameOk       = validateName(nameInput.value);
+    const usernameOk   = validateUsername(usernameInput.value) && usernameIsAvailable;
+    const emailOk      = validateEmail(emailInput.value);
+    const emailChanged = hasEmailChanged();
+    const emailConfirmOk = !emailChanged || emailConfirmInput.value.length > 0;
+
+    if (!nameOk) { nameError.classList.remove('hidden'); nameInput.classList.add('invalid'); }
+    if (!usernameOk) {
+      usernameError.classList.remove('hidden');
+      if (!usernameIsAvailable && validateUsername(usernameInput.value)) {
+        usernameErrorText.textContent = 'Username unavailable';
+      }
+      usernameWrapper.classList.add('invalid');
+    }
+    if (!emailOk) { emailError.classList.remove('hidden'); emailInput.classList.add('invalid'); }
+
+    if (!nameOk || !usernameOk || !emailOk || !emailConfirmOk) {
+      if (!emailConfirmOk) {
+        emailConfirmErrorText.textContent = 'Enter your password to save the new email.';
+        emailConfirmError.classList.remove('hidden');
+      }
+      return;
+    }
+
+    saveBtn.disabled = true;
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = 'SAVING…';
+
+    try {
+      // Extra synchronous uniqueness check right before saving
+      if (hasUsernameChanged()) {
+        const taken = await isUsernameTaken(usernameInput.value.trim());
+        if (taken) {
+          usernameIsAvailable = false;
+          usernameError.classList.remove('hidden');
+          usernameErrorText.textContent = 'Username unavailable';
+          usernameWrapper.classList.add('invalid');
+          saveBtn.disabled = false;
+          saveBtn.textContent = originalText;
+          return;
+        }
+      }
+
+      // Verify password if email is changing
+      if (emailChanged) {
+        const { error: verifyError } = await supabase.auth.signInWithPassword({
+          email: originalEmail,
+          password: emailConfirmInput.value
+        });
+        if (verifyError) {
+          emailConfirmErrorText.textContent = 'Wrong password. Try again or reset it.';
+          emailConfirmError.classList.remove('hidden');
+          emailForgotLink.classList.remove('hidden');
+          saveBtn.disabled = false;
+          saveBtn.textContent = originalText;
+          return;
+        }
+      }
+
+      // Update profile row (name, username)
+      const profileUpdates = {};
+      if (hasNameChanged())     profileUpdates.display_name = nameInput.value.trim();
+      if (hasUsernameChanged()) profileUpdates.username     = usernameInput.value.trim();
+
+      if (Object.keys(profileUpdates).length > 0) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update(profileUpdates)
+          .eq('id', currentUser.id);
+        if (profileError) throw profileError;
+
+        if (profileUpdates.display_name) originalName     = profileUpdates.display_name;
+        if (profileUpdates.username)     originalUsername = profileUpdates.username;
+        if (currentProfile) Object.assign(currentProfile, profileUpdates);
+        renderAvatar();
+      }
+
+      // Update email via auth
+      if (emailChanged) {
+        const { error: emailUpdateError } = await supabase.auth.updateUser({
+          email: emailInput.value.trim()
+        });
+        if (emailUpdateError) {
+          const msg = (emailUpdateError.message || '').toLowerCase();
+          if (msg.includes('already') || msg.includes('registered') || msg.includes('in use')) {
+            emailErrorText.textContent = 'Email already in use.';
+          } else {
+            emailErrorText.textContent = emailUpdateError.message;
+          }
+          emailError.classList.remove('hidden');
+          emailInput.classList.add('invalid');
+          saveBtn.disabled = false;
+          saveBtn.textContent = originalText;
+          return;
+        }
+        originalEmail = emailInput.value.trim();
+        emailConfirmInput.value = '';
+      }
+
+      showToast('Changes saved.');
+      updateSaveVisibility();
+    } catch (err) {
+      console.error('Save failed:', err);
+      showToast('Could not save changes. Please try again.');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalText;
+    }
+  });
+
+  // ── Header navigation ───────────────────────────────────────
+  document.getElementById('backFromProfile').addEventListener('click', () => {
+    window.location.href = '/settings';
+  });
+  document.getElementById('backFromProfile').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = '/settings'; }
+  });
+
+  // ── Password row → password change screen ──────────────────
+  passwordRow.addEventListener('click', () => {
+    clearPasswordFields();
+    showScreen(passwordScreen);
+  });
+  passwordRow.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); passwordRow.click(); }
+  });
+
+  document.getElementById('backFromPassword').addEventListener('click', () => {
+    showScreen(profileScreen);
+  });
+
+  // ── Delete account navigation ───────────────────────────────
+  deleteAccountBtn.addEventListener('click', () => {
+    showScreen(deleteScreen);
+  });
+  document.getElementById('backFromDelete').addEventListener('click', () => {
+    showScreen(profileScreen);
+  });
+  document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+    showScreen(profileScreen);
+  });
+
+  // ── Password change screen ──────────────────────────────────
+  function clearPasswordFields() {
+    currentPasswordInput.value = '';
+    newPasswordInput.value = '';
+    confirmPasswordInput.value = '';
+    currentPasswordError.classList.add('hidden');
+    newPasswordError.classList.add('hidden');
+    confirmPasswordError.classList.add('hidden');
+    savePasswordBtn.disabled = true;
+  }
+
+  function checkPasswordForm() {
+    const cur = currentPasswordInput.value;
+    const nw  = newPasswordInput.value;
+    const cf  = confirmPasswordInput.value;
+    const allFilled = cur.length > 0 && nw.length > 0 && cf.length > 0;
+    const newOk     = validateNewPassword(nw);
+    const matchOk   = nw === cf;
+    savePasswordBtn.disabled = !(allFilled && newOk && matchOk);
+  }
+
+  currentPasswordInput.addEventListener('input', () => {
+    currentPasswordError.classList.add('hidden');
+    checkPasswordForm();
+  });
+
+  newPasswordInput.addEventListener('input', () => {
+    const ok = validateNewPassword(newPasswordInput.value);
+    newPasswordError.classList.toggle('hidden', ok || newPasswordInput.value.length === 0);
+    checkPasswordForm();
+  });
+
+  confirmPasswordInput.addEventListener('input', () => {
+    const nw = newPasswordInput.value;
+    const cf = confirmPasswordInput.value;
+    const matchOk = nw === cf;
+    confirmPasswordError.classList.toggle('hidden', matchOk || cf.length === 0);
+    checkPasswordForm();
+  });
+
+  currentPasswordForgot.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = `/forgot-password?email=${encodeURIComponent(originalEmail)}`;
+  });
+
+  savePasswordBtn.addEventListener('click', async () => {
+    const cur = currentPasswordInput.value;
+    const nw  = newPasswordInput.value;
+
+    if (!validateNewPassword(nw) || nw !== confirmPasswordInput.value) return;
+
+    savePasswordBtn.disabled = true;
+    const originalText = savePasswordBtn.textContent;
+    savePasswordBtn.textContent = 'SAVING…';
+
+    try {
+      // Verify current password
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: originalEmail,
+        password: cur
+      });
+      if (verifyError) {
+        currentPasswordError.classList.remove('hidden');
+        savePasswordBtn.disabled = false;
+        savePasswordBtn.textContent = originalText;
+        return;
+      }
+
+      // Update password
+      const { error: updateError } = await supabase.auth.updateUser({ password: nw });
+      if (updateError) {
+        showToast(updateError.message || 'Could not update password.');
+        savePasswordBtn.disabled = false;
+        savePasswordBtn.textContent = originalText;
+        return;
+      }
+
+      showToast('Password updated.');
+      setTimeout(() => showScreen(profileScreen), 600);
+    } catch (err) {
+      console.error('Password change failed:', err);
+      showToast('Could not update password.');
+      savePasswordBtn.disabled = false;
+      savePasswordBtn.textContent = originalText;
+    }
+  });
+
+  // ── Delete account (confirmation) ───────────────────────────
+  document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('confirmDeleteBtn');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'DELETING…';
+
+    try {
+      // TODO: Real deletion endpoint / Supabase Edge Function TBD.
+      // For now we sign the user out and show a request acknowledgement.
+      await supabase.auth.signOut();
+      showToast('Deletion requested. You have 7 days to reverse it.', 3500);
+      setTimeout(() => { window.location.href = '/'; }, 1800);
+    } catch (err) {
+      console.error('Delete failed:', err);
+      btn.disabled = false;
+      btn.textContent = originalText;
+      showToast('Could not process deletion.');
+    }
+  });
+
+  // ── Boot ────────────────────────────────────────────────────
+  (async () => {
+    await loadProfile();
+  })();
+</script>
+</body>
+</html>

@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Coins Reward</title>
-  <link rel="stylesheet" href="../../..//assets/fonts/fonts.css">
-  <link rel="stylesheet" href="../../../src/styles/components/buttons.css">
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -35,27 +35,35 @@
 </head>
 <body>
   <audio id="coinAudio" preload="auto">
-    <source src="../../..//assets/audio/coins.mp3" type="audio/mpeg">
+    <source src="/assets/audio/coins.mp3" type="audio/mpeg">
   </audio>
   <div class="treasure-panel">
     <div class="reward-scene">
-      <img src="../../..//assets/icons/phosphor/duotone/coins.svg" alt="Coins" class="coin-icon">
+      <img src="/assets/icons/phosphor/duotone/coins.svg" alt="Coins" class="coin-icon">
     </div>
     <div class="reward-title" id="rewardTitle">You have earned 250 coins!</div>
     <div class="reward-subtitle">Spend them wisely</div>
     <button class="btn btn-md btn-carpenter-blue" id="claimButton">Claim 250</button>
   </div>
   <script>
+    // ============================================================
+    // Pure display modal.
+    // Does NOT credit coins — the parent (quiz-engine pipeline or
+    // quests.html) credits via supabase.incrementCoins() at the
+    // correct moment (spec §9: mark → credit → modal). This avoids
+    // double-crediting when the DB and localStorage are out of
+    // sync.
+    // ============================================================
     const audio = document.getElementById('coinAudio');
     audio.play().catch(() => {});
+
     const params = new URLSearchParams(window.location.search);
-    const amount = parseInt(params.get('amount')) || 250;
+    const amount = parseInt(params.get('amount'), 10) || 250;
+
     document.getElementById('rewardTitle').textContent = `You have earned ${amount} coins!`;
     document.getElementById('claimButton').textContent = `Claim ${amount}`;
+
     document.getElementById('claimButton').addEventListener('click', () => {
-      // Coins already added in daily-quest, but for streak milestone we add them here
-      const current = parseInt(localStorage.getItem('coins') || '500', 10);
-      localStorage.setItem('coins', String(current + amount));
       window.parent.postMessage('modalClose', '*');
     });
   </script>

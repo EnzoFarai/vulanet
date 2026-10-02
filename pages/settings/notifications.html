@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Notifications — Vulanet</title>
+
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background-color: #FFFFFF;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px;
+      color: #4B4B4B;
+    }
+
+    .canvas {
+      max-width: 390px;
+      width: 100%;
+      background: #FFFFFF;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    .nav-bar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: #FFFFFF;
+      margin-bottom: 8px;
+    }
+    .nav-left {
+      width: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+    }
+    .nav-left img { width: 22px; height: 22px; opacity: 0.7; display: block; }
+    .nav-left:hover img { opacity: 1; }
+    .nav-left:focus-visible { outline: 2px solid #1CB0F6; outline-offset: 2px; }
+    .nav-title {
+      font-weight: 700;
+      font-size: 18px;
+      color: #4B4B4B;
+      text-align: center;
+    }
+    .nav-right { width: 60px; }
+
+    .section-header {
+      font-weight: 700;
+      font-size: 15px;
+      color: #777777;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .card {
+      background: #FFFFFF;
+      border: 2px solid #E5E5E5;
+      border-radius: 14px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* ===== ROW TYPES ===== */
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 60px;
+      padding: 0 16px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #E5E5E5;
+      font-weight: 700;
+      font-size: 16px;
+      color: #4B4B4B;
+      gap: 12px;
+    }
+    .row:last-child { border-bottom: none; }
+    .row-label { flex: 1; text-align: left; }
+
+    /* Toggle visual */
+    .toggle {
+      width: 52px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: filter 0.1s;
+      flex-shrink: 0;
+    }
+    .toggle img { width: 52px; height: 32px; display: block; pointer-events: none; }
+    .toggle.swiping { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15)); opacity: 0.9; }
+    .toggle:focus-visible { outline: 3px solid #1CB0F6; outline-offset: 3px; border-radius: 6px; }
+
+    /* Reminder time row */
+    .reminder-time-value {
+      font-weight: 400;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 8px 4px;
+      color: #1CB0F6;
+      background: none;
+      border: none;
+      font-family: 'Atkinson Hermelible Next', sans-serif;
+      transition: color 0.15s;
+    }
+    .reminder-time-value:hover { text-decoration: underline; }
+    .reminder-time-value:disabled {
+      color: #AFAFAF;
+      cursor: default;
+      pointer-events: none;
+      text-decoration: none;
+    }
+
+    /* ===== TIME PICKER MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      width: 300px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px 0 8px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+      overflow: hidden;
+    }
+
+    .picker {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      height: 180px;
+      overflow: hidden;
+    }
+    .column {
+      flex: 1;
+      text-align: center;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .column::-webkit-scrollbar { display: none; }
+    .picker-item {
+      height: 60px;
+      line-height: 60px;
+      font-size: 20px;
+      color: #AFAFAF;
+      scroll-snap-align: center;
+      font-weight: 400;
+    }
+    .picker-item.active {
+      color: #4B4B4B;
+      font-weight: 700;
+    }
+    .selection-lines {
+      position: absolute;
+      top: 50%;
+      left: 20%;
+      right: 20%;
+      pointer-events: none;
+    }
+    .selection-lines::before,
+    .selection-lines::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #4B4B4B;
+    }
+    .selection-lines::before { top: -30px; }
+    .selection-lines::after { top: 30px; }
+
+    .modal-actions {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 20px 8px;
+    }
+    .modal-actions button {
+      background: none;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      padding: 6px 8px;
+      border-radius: 6px;
+    }
+    .modal-actions .cancel-btn { color: #4B4B4B; }
+    .modal-actions .ok-btn { color: #1CB0F6; }
+    .modal-actions .cancel-btn:hover { background: #F7F7F7; }
+    .modal-actions .ok-btn:hover { background: #EFF9FF; }
+
+    @media (max-width: 420px) {
+      .toggle { width: 48px; height: 30px; }
+      .toggle img { width: 48px; height: 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="canvas">
+  <header class="nav-bar">
+    <div class="nav-left" id="backBtn" role="button" tabindex="0" aria-label="Back to settings">
+      <img src="/assets/icons/phosphor/regular/arrow-left.svg" alt="">
+    </div>
+    <span class="nav-title">Notifications</span>
+    <span class="nav-right"></span>
+  </header>
+
+  <div class="section-header">REMINDERS</div>
+  <div class="card">
+    <div class="row">
+      <span class="row-label" id="smartReminderLabel">Smart reminder</span>
+      <div class="toggle" id="smartToggle" role="switch" tabindex="0" aria-labelledby="smartReminderLabel">
+        <img src="/assets/icons/phosphor/fill/toggle-right.svg" alt="On">
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label" id="reminderTimeLabel">Reminder time</span>
+      <button class="reminder-time-value" id="reminderTimeDisplay" aria-labelledby="reminderTimeLabel">18:00</button>
+    </div>
+    <div class="row">
+      <span class="row-label" id="nightOwlLabel">Night Owl</span>
+      <div class="toggle" id="nightOwlToggle" role="switch" tabindex="0" aria-labelledby="nightOwlLabel">
+        <img src="/assets/icons/phosphor/fill/toggle-right.svg" alt="On">
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label" id="earlyBirdLabel">Early Bird</span>
+      <div class="toggle" id="earlyBirdToggle" role="switch" tabindex="0" aria-labelledby="earlyBirdLabel">
+        <img src="/assets/icons/phosphor/fill/toggle-right.svg" alt="On">
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label" id="leagueStatusLabel">League status</span>
+      <div class="toggle" id="leagueStatusToggle" role="switch" tabindex="0" aria-labelledby="leagueStatusLabel">
+        <img src="/assets/icons/phosphor/fill/toggle-right.svg" alt="On">
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label" id="friendsQuestLabel">Friends Quest</span>
+      <div class="toggle" id="friendsQuestToggle" role="switch" tabindex="0" aria-labelledby="friendsQuestLabel">
+        <img src="/assets/icons/phosphor/fill/toggle-right.svg" alt="On">
+      </div>
+    </div>
+  </div>
+
+  <div style="height:36px;"></div>
+</div>
+
+<!-- ===== TIME PICKER MODAL ===== -->
+<div class="modal-overlay" id="timePickerModal" role="dialog" aria-modal="true" aria-label="Choose reminder time">
+  <div class="modal">
+    <div class="picker">
+      <div class="column" id="hourColumn"></div>
+      <div class="selection-lines"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="cancel-btn" id="cancelTimeBtn">CANCEL</button>
+      <button class="ok-btn" id="okTimeBtn">OK</button>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    }
+  }
+</script>
+
+<script type="module">
+  import { initToggle } from '/src/js/toggle.js';
+  import { getPreference, setPreference } from '/src/js/preferences.js';
+
+  // ── DOM ────────────────────────────────────────────────────
+  const smartToggleEl    = document.getElementById('smartToggle');
+  const nightOwlEl       = document.getElementById('nightOwlToggle');
+  const earlyBirdEl      = document.getElementById('earlyBirdToggle');
+  const leagueEl         = document.getElementById('leagueStatusToggle');
+  const friendsQuestEl   = document.getElementById('friendsQuestToggle');
+  const reminderBtn      = document.getElementById('reminderTimeDisplay');
+
+  const modal            = document.getElementById('timePickerModal');
+  const hourColumn       = document.getElementById('hourColumn');
+  const cancelTimeBtn    = document.getElementById('cancelTimeBtn');
+  const okTimeBtn        = document.getElementById('okTimeBtn');
+
+  // ── State ──────────────────────────────────────────────────
+  let reminderHour = 18;
+  let smartOn = true;
+
+  // Toggle controllers so we can update state programmatically
+  const toggles = {};
+
+  // ── Reminder display ──────────────────────────────────────
+  function updateReminderDisplay() {
+    reminderBtn.textContent = `${String(reminderHour).padStart(2, '0')}:00`;
+    if (smartOn) {
+      reminderBtn.disabled = true;
+      reminderBtn.setAttribute('aria-disabled', 'true');
+    } else {
+      reminderBtn.disabled = false;
+      reminderBtn.removeAttribute('aria-disabled');
+    }
+  }
+
+  // ── Save helper ───────────────────────────────────────────
+  async function save(key, value) {
+    const ok = await setPreference(key, value);
+    if (!ok) console.warn(`Failed to save preference: ${key}`);
+    return ok;
+  }
+
+  // ── Init toggles ──────────────────────────────────────────
+  async function initAllToggles() {
+    const [
+      s, n, e, l, f
+    ] = await Promise.all([
+      getPreference('smart_reminder'),
+      getPreference('night_owl'),
+      getPreference('early_bird'),
+      getPreference('league_status'),
+      getPreference('friends_quest')
+    ]);
+
+    smartOn = !!s;
+    updateReminderDisplay();
+
+    toggles.smart = initToggle(smartToggleEl, !!s, (on) => {
+      smartOn = on;
+      updateReminderDisplay();
+      save('smart_reminder', on);
+    });
+    toggles.night = initToggle(nightOwlEl, !!n, (on) => save('night_owl', on));
+    toggles.early = initToggle(earlyBirdEl, !!e, (on) => save('early_bird', on));
+    toggles.league = initToggle(leagueEl, !!l, (on) => save('league_status', on));
+    toggles.friends = initToggle(friendsQuestEl, !!f, (on) => save('friends_quest', on));
+  }
+
+  // ── Reminder hour load ────────────────────────────────────
+  async function initReminderHour() {
+    const h = await getPreference('reminder_hour');
+    if (typeof h === 'number' && h >= 0 && h <= 23) {
+      reminderHour = h;
+    }
+    updateReminderDisplay();
+  }
+
+  // ── Build the hour picker ─────────────────────────────────
+  function buildHourPicker() {
+    // 0..23, plus 2 buffer items on each side (so snap works)
+    // We duplicate the neighbouring values for wrapping illusion.
+    const items = [];
+    // Two items of "safety" before real start
+    items.push({ value: 22, ghost: true });
+    items.push({ value: 23, ghost: true });
+    for (let h = 0; h < 24; h++) items.push({ value: h, ghost: false });
+    items.push({ value: 0, ghost: true });
+    items.push({ value: 1, ghost: true });
+
+    hourColumn.innerHTML = items.map(it =>
+      `<div class="picker-item${it.ghost ? ' ghost' : ''}" data-value="${it.value}">${String(it.value).padStart(2, '0')}</div>`
+    ).join('');
+  }
+
+  const ITEM_HEIGHT = 60;
+
+  function scrollToHour(hour, animate = false) {
+    const items = hourColumn.querySelectorAll('.picker-item');
+    // Real items start at index 2 → the real 0-hour is at index 2.
+    // Target index = 2 + hour
+    const targetIdx = 2 + hour;
+    const target = items[targetIdx];
+    if (!target) return;
+    const targetTop = target.offsetTop - (hourColumn.clientHeight / 2 - ITEM_HEIGHT / 2);
+    hourColumn.scrollTo({ top: targetTop, behavior: animate ? 'smooth' : 'auto' });
+    updateActiveItem();
+  }
+
+  function updateActiveItem() {
+    const items = hourColumn.querySelectorAll('.picker-item');
+    const center = hourColumn.scrollTop + hourColumn.clientHeight / 2;
+    let closest = null;
+    let closestDist = Infinity;
+    items.forEach(item => {
+      const itemCenter = item.offsetTop + item.offsetHeight / 2;
+      const d = Math.abs(center - itemCenter);
+      if (d < closestDist) { closestDist = d; closest = item; }
+    });
+    items.forEach(it => it.classList.toggle('active', it === closest));
+  }
+
+  function getSelectedHour() {
+    const active = hourColumn.querySelector('.picker-item.active');
+    if (!active) return reminderHour;
+    return parseInt(active.dataset.value, 10);
+  }
+
+  let scrollTimeout = null;
+  hourColumn.addEventListener('scroll', () => {
+    requestAnimationFrame(updateActiveItem);
+    if (scrollTimeout) clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      // Snap correction for wraparound
+      const items = hourColumn.querySelectorAll('.picker-item');
+      const realMin = items[2].offsetTop - (hourColumn.clientHeight / 2 - ITEM_HEIGHT / 2);
+      const realMax = items[25].offsetTop - (hourColumn.clientHeight / 2 - ITEM_HEIGHT / 2);
+      if (hourColumn.scrollTop < realMin) {
+        // Too far up — jump back to equivalent real hour
+        const h = getSelectedHour();
+        hourColumn.scrollTop = items[2 + h].offsetTop - (hourColumn.clientHeight / 2 - ITEM_HEIGHT / 2);
+      } else if (hourColumn.scrollTop > realMax) {
+        const h = getSelectedHour();
+        hourColumn.scrollTop = items[2 + h].offsetTop - (hourColumn.clientHeight / 2 - ITEM_HEIGHT / 2);
+      }
+    }, 120);
+  }, { passive: true });
+
+  // ── Modal open / close ────────────────────────────────────
+  reminderBtn.addEventListener('click', () => {
+    if (smartOn) return;
+    modal.classList.add('active');
+    // Need a tick for layout to settle before we scroll
+    setTimeout(() => scrollToHour(reminderHour, false), 30);
+  });
+
+  cancelTimeBtn.addEventListener('click', () => {
+    modal.classList.remove('active');
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('active');
+  });
+
+  okTimeBtn.addEventListener('click', async () => {
+    const h = getSelectedHour();
+    reminderHour = h;
+    updateReminderDisplay();
+    modal.classList.remove('active');
+    await save('reminder_hour', h);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      modal.classList.remove('active');
+    }
+  });
+
+  // ── Header nav ────────────────────────────────────────────
+  document.getElementById('backBtn').addEventListener('click', () => {
+    window.location.href = '/settings';
+  });
+
+  // ── Boot ──────────────────────────────────────────────────
+  buildHourPicker();
+  await Promise.all([initAllToggles(), initReminderHour()]);
+</script>
+</body>
+</html>

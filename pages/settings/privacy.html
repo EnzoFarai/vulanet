@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Privacy Settings — Vulanet</title>
+
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background-color: #FFFFFF;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px;
+      color: #4B4B4B;
+    }
+
+    .canvas {
+      max-width: 390px;
+      width: 100%;
+      background: #FFFFFF;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .nav-bar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: #FFFFFF;
+      margin-bottom: 8px;
+    }
+    .nav-left {
+      width: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+    }
+    .nav-left img { width: 22px; height: 22px; opacity: 0.7; display: block; }
+    .nav-left:hover img { opacity: 1; }
+    .nav-left:focus-visible { outline: 2px solid #1CB0F6; outline-offset: 2px; }
+    .nav-title {
+      font-weight: 700;
+      font-size: 18px;
+      color: #4B4B4B;
+      text-align: center;
+    }
+    .nav-right { width: 60px; }
+
+    .section-header {
+      font-weight: 700;
+      font-size: 15px;
+      color: #777777;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .card {
+      background: #FFFFFF;
+      border: 2px solid #E5E5E5;
+      border-radius: 14px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 60px;
+      padding: 0 16px;
+      background: #FFFFFF;
+      font-weight: 700;
+      font-size: 16px;
+      color: #4B4B4B;
+      gap: 12px;
+    }
+    .row-label { flex: 1; text-align: left; line-height: 1.35; }
+
+    .toggle {
+      width: 52px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: filter 0.1s;
+      flex-shrink: 0;
+    }
+    .toggle img { width: 52px; height: 32px; display: block; pointer-events: none; }
+    .toggle.swiping { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15)); opacity: 0.9; }
+    .toggle:focus-visible { outline: 3px solid #1CB0F6; outline-offset: 3px; border-radius: 6px; }
+
+    .toggle.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .note {
+      font-size: 13px;
+      font-weight: 400;
+      color: #777777;
+      line-height: 1.5;
+      padding: 4px 4px 0;
+    }
+
+    @media (max-width: 420px) {
+      .toggle { width: 48px; height: 30px; }
+      .toggle img { width: 48px; height: 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="canvas">
+  <header class="nav-bar">
+    <div class="nav-left" id="backBtn" role="button" tabindex="0" aria-label="Back to settings">
+      <img src="/assets/icons/phosphor/regular/arrow-left.svg" alt="">
+    </div>
+    <span class="nav-title">Privacy settings</span>
+    <span class="nav-right"></span>
+  </header>
+
+  <div class="section-header">ADVERTISING</div>
+  <div class="card">
+    <div class="row">
+      <span class="row-label" id="adTrackingLabel">Tracking and personalisation for advertising</span>
+      <div class="toggle" id="adTrackingToggle" role="switch" tabindex="0" aria-labelledby="adTrackingLabel">
+        <img src="/assets/icons/phosphor/fill/toggle-right.svg" alt="On">
+      </div>
+    </div>
+  </div>
+  <p class="note" id="childNote" style="display:none;">
+    Tracking and personalisation for advertising is disabled for accounts belonging to children under 13.
+  </p>
+
+  <div style="height:36px;"></div>
+</div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    }
+  }
+</script>
+
+<script type="module">
+  import { initToggle } from '/src/js/toggle.js';
+  import { getPreference, setPreference } from '/src/js/preferences.js';
+  import { isLoggedIn, getCurrentUserProfile } from '/src/js/supabase.js';
+
+  const adTrackingEl = document.getElementById('adTrackingToggle');
+  const childNote    = document.getElementById('childNote');
+
+  // ── Determine child-account status ────────────────────────
+  let isChild = false;
+  try {
+    const loggedIn = await isLoggedIn();
+    if (loggedIn) {
+      const current = await getCurrentUserProfile();
+      const age = current && current.profile ? current.profile.age : null;
+      if (typeof age === 'number' && age < 13) {
+        isChild = true;
+      }
+    }
+  } catch (e) {
+    // fail-open: treat as adult if lookup fails
+  }
+
+  if (isChild) {
+    // Force ad_tracking off in the backend (best-effort)
+    await setPreference('ad_tracking', false);
+    childNote.style.display = 'block';
+    adTrackingEl.classList.add('disabled');
+    adTrackingEl.setAttribute('aria-disabled', 'true');
+    adTrackingEl.removeAttribute('tabindex');
+  } else {
+    const initial = await getPreference('ad_tracking');
+    initToggle(adTrackingEl, !!initial, async (on) => {
+      const ok = await setPreference('ad_tracking', on);
+      if (!ok) console.warn('Failed to save ad_tracking preference');
+    });
+  }
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    window.location.href = '/settings';
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Preferences — Vulanet</title>
+
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background-color: #FFFFFF;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px;
+      color: #4B4B4B;
+    }
+
+    .canvas {
+      max-width: 390px;
+      width: 100%;
+      background: #FFFFFF;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .nav-bar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: #FFFFFF;
+      margin-bottom: 8px;
+    }
+    .nav-left {
+      width: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+    }
+    .nav-left img { width: 22px; height: 22px; opacity: 0.7; display: block; }
+    .nav-left:hover img { opacity: 1; }
+    .nav-left:focus-visible { outline: 2px solid #1CB0F6; outline-offset: 2px; }
+    .nav-title {
+      font-weight: 700;
+      font-size: 18px;
+      color: #4B4B4B;
+      text-align: center;
+    }
+    .nav-right { width: 60px; }
+
+    .section-header {
+      font-weight: 700;
+      font-size: 15px;
+      color: #777777;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .card {
+      background: #FFFFFF;
+      border: 2px solid #E5E5E5;
+      border-radius: 14px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 60px;
+      padding: 0 16px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #E5E5E5;
+      font-weight: 700;
+      font-size: 16px;
+      color: #4B4B4B;
+      gap: 12px;
+    }
+    .row:last-child { border-bottom: none; }
+    .row-label { flex: 1; text-align: left; }
+
+    .toggle {
+      width: 52px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: filter 0.1s;
+      flex-shrink: 0;
+    }
+    .toggle img { width: 52px; height: 32px; display: block; pointer-events: none; }
+    .toggle.swiping { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15)); opacity: 0.9; }
+    .toggle:focus-visible { outline: 3px solid #1CB0F6; outline-offset: 3px; border-radius: 6px; }
+
+    @media (max-width: 420px) {
+      .toggle { width: 48px; height: 30px; }
+      .toggle img { width: 48px; height: 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="canvas">
+  <header class="nav-bar">
+    <div class="nav-left" id="backBtn" role="button" tabindex="0" aria-label="Back to settings">
+      <img src="/assets/icons/phosphor/regular/arrow-left.svg" alt="">
+    </div>
+    <span class="nav-title">Preferences</span>
+    <span class="nav-right"></span>
+  </header>
+
+  <div class="section-header">LESSON EXPERIENCE</div>
+  <div class="card">
+    <div class="row">
+      <span class="row-label" id="soundEffectsLabel">Sound effects</span>
+      <div class="toggle" id="soundEffectsToggle" role="switch" tabindex="0" aria-labelledby="soundEffectsLabel">
+        <img src="/assets/icons/phosphor/fill/toggle-right.svg" alt="On">
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label" id="motivationalLabel">Motivational messages</span>
+      <div class="toggle" id="motivationalToggle" role="switch" tabindex="0" aria-labelledby="motivationalLabel">
+        <img src="/assets/icons/phosphor/fill/toggle-right.svg" alt="On">
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label" id="friendsQuestsLabel">Friends Quests</span>
+      <div class="toggle" id="friendsQuestsToggle" role="switch" tabindex="0" aria-labelledby="friendsQuestsLabel">
+        <img src="/assets/icons/phosphor/fill/toggle-right.svg" alt="On">
+      </div>
+    </div>
+  </div>
+
+  <div style="height:36px;"></div>
+</div>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    }
+  }
+</script>
+
+<script type="module">
+  import { initToggle } from '/src/js/toggle.js';
+  import { getPreference, setPreference } from '/src/js/preferences.js';
+
+  const soundToggleEl     = document.getElementById('soundEffectsToggle');
+  const motivationToggleEl= document.getElementById('motivationalToggle');
+  const friendsToggleEl   = document.getElementById('friendsQuestsToggle');
+
+  async function save(key, value) {
+    const ok = await setPreference(key, value);
+    if (!ok) console.warn(`Failed to save preference: ${key}`);
+  }
+
+  const [sound, motivation, friends] = await Promise.all([
+    getPreference('sound_effects'),
+    getPreference('motivational_messages'),
+    getPreference('pref_friends_quests')
+  ]);
+
+  initToggle(soundToggleEl,      !!sound,      (on) => save('sound_effects', on));
+  initToggle(motivationToggleEl, !!motivation, (on) => save('motivational_messages', on));
+  initToggle(friendsToggleEl,    !!friends,    (on) => save('pref_friends_quests', on));
+
+  document.getElementById('backBtn').addEventListener('click', () => {
+    window.location.href = '/settings';
+  });
+</script>
+</body>
+</html>

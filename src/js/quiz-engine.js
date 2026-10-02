@@ -1,10 +1,65 @@
 // src/js/quiz-engine.js
 // ============================================================
-// VULANET QUIZ ENGINE – Complete lesson / streak / reward pipeline
-// WITH SUPABASE AUTHENTICATION INTEGRATION
+// VULANET QUIZ ENGINE — Complete lesson / streak / reward pipeline
+// ============================================================
+//
+// This file orchestrates the entire lesson lifecycle:
+//   1. Runs the quiz (renderers, retry queue, answer streak)
+//   2. Persists progress to Supabase (lesson_progress, user_stats,
+//      daily_progress via quest-engine)
+//   3. Runs the post-lesson reward pipeline sequentially:
+//        lesson-complete → daily-goal coins → streak modal →
+//        streak rewards → achievements → records → daily quests
+//   4. Redirects to the course page (or to /registration.html for
+//      guests, with temp progress saved to sessionStorage)
+//
+// Design rules (see spec §4 and inspection report §7):
+//
+//   • Reward sequence is LINEAR. Each step awaits the previous
+//     modal's close before opening the next. No stacking.
+//
+//   • Coin grants go through incrementCoins() in supabase.js so
+//     the DB stays canonical. coins-reward.html is a pure display
+//     modal that credits nothing.
+//
+//   • NEVER call showCoinReward / showBoostReward / showHeartReward
+//     from inside a message handler that is already running inside
+//     an open modal. showModalAsync reuses the same iframe, so
+//     opening a nested modal replaces the parent's iframe and
+//     hangs the parent's promise.
+//
+//   • Quest claim ordering (spec §9): mark → credit → modal.
+//     showDailyQuestsFlow uses the close-and-reopen pattern:
+//     daily-quest modal → requestClaim + close → mark + credit →
+//     coin modal → repeat if more ready chests.
+//
+//   • quest-engine must be initialised before any of its methods
+//     are called. initQuestEngine() is idempotent and cached.
+//
+//   • Pipeline robustness: every step in runPostLessonPipeline is
+//     wrapped in try/catch so a failure in one step does not
+//     prevent later steps or the final redirect.
+//
 // ============================================================
 
-import { supabase, isLoggedIn, saveTempProgress, clearTempProgress, getTempProgress } from './supabase.js';
+import {
+  supabase,
+  isLoggedIn,
+  saveTempProgress,
+  setHearts,
+  setStreakState,
+  getStreakState,
+  getCurrentUserProfile,
+  incrementCoins,
+  recordLessonCompletion as persistLessonProgressRow
+} from './supabase.js';
+
+import {
+  getLocalDateString,
+  getLocalHour
+} from './date-utils.js';
+
+import * as questEngine from './quest-engine.js';
 
 function sanitiseHTML(str) {
   const div = document.createElement('div');
@@ -19,6 +74,16 @@ class QuizEngine {
     this.redirectUrl = lessonData.redirectUrl || '/';
     this.streakKey = lessonData.streakKey || 'userStreakDays';
     this.questionsData = lessonData.questions || [];
+
+    const urlParams = new URLSearchParams(window.location.search);
+    this.courseId    = urlParams.get('course') || 'g12-life-sciences';
+    this.lessonId    = urlParams.get('lesson') || 'introduction-to-nucleic-acids';
+    this.lessonMode  = urlParams.get('mode') || 'regular';
+
+    this.maxStreakInLesson = 0;
+    this.mistakesMade      = 0;
+
+    this._resolvedTimezone = null;
 
     this.lives = 5;
     this.currentQuestion = 0;
@@ -39,7 +104,8 @@ class QuizEngine {
     this.questionFinalCorrect = new Array(this.totalQuestions).fill(false);
     this.heartsAtCompletion = 5;
     this.currentStreakDays = 1;
-    this._streakRewardProcessed = false;
+    this.currentTotalAppDays = 1;
+    this.lessonStats = null;
 
     this.hasCompletedFirstLesson = localStorage.getItem('hasCompletedFirstLesson') === 'true';
     if (!localStorage.getItem('coins')) localStorage.setItem('coins', '500');
@@ -51,12 +117,14 @@ class QuizEngine {
     this.handleIncorrectAnswer = this.handleIncorrectAnswer.bind(this);
     this.showResultOverlay = this.showResultOverlay.bind(this);
     this.showModal = this.showModal.bind(this);
+    this.showModalAsync = this.showModalAsync.bind(this);
     this.updateStreakCounter = this.updateStreakCounter.bind(this);
     this.updateHeartIcon = this.updateHeartIcon.bind(this);
     this.processAfterExplanation = this.processAfterExplanation.bind(this);
     this.shuffleArray = this.shuffleArray.bind(this);
     this.normalizeAnswer = this.normalizeAnswer.bind(this);
     this.playSound = this.playSound.bind(this);
+    this.runPostLessonPipeline = this.runPostLessonPipeline.bind(this);
 
     this.progressBar = null;
     this.livesCountSpan = null;
@@ -111,155 +179,255 @@ class QuizEngine {
     if (saved) this.currentStreakDays = parseInt(saved, 10);
     else localStorage.setItem(this.streakKey, '1');
   }
-  saveStreakToStorage() { localStorage.setItem(this.streakKey, String(this.currentStreakDays)); }
-  incrementStreak() { this.currentStreakDays++; this.saveStreakToStorage(); }
 
-  isFirstLessonOfDay() {
-    const tz = localStorage.getItem('userTimezone') || 'UTC';
-    const today = this.getDateInTimezone(tz);
-    const last = localStorage.getItem('lastLessonDate');
-    return last !== today;
+  saveStreakToStorage() {
+    localStorage.setItem(this.streakKey, String(this.currentStreakDays));
   }
 
-  getDateInTimezone(tz) {
+  async resolveTimezone() {
+    if (this._resolvedTimezone) return this._resolvedTimezone;
+
+    const cached = localStorage.getItem('userTimezone');
+    const isLegacy = typeof cached === 'string'
+      && /^(UTC[+-]|Etc\/GMT)/.test(cached);
+    const isRealIana = typeof cached === 'string'
+      && (cached === 'UTC' || cached.includes('/'));
+
+    if (cached && isRealIana && !isLegacy) {
+      this._resolvedTimezone = cached;
+      return cached;
+    }
+
     try {
-      const parts = new Intl.DateTimeFormat('en-CA', {
-        timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit'
-      }).formatToParts(new Date());
-      return `${parts.find(p => p.type === 'year').value}-${parts.find(p => p.type === 'month').value}-${parts.find(p => p.type === 'day').value}`;
+      const profile = await getCurrentUserProfile();
+      if (profile && profile.profile && profile.profile.timezone) {
+        localStorage.setItem('userTimezone', profile.profile.timezone);
+        this._resolvedTimezone = profile.profile.timezone;
+        return profile.profile.timezone;
+      }
     } catch (e) {
-      return new Date().toISOString().slice(0, 10);
+      console.error('resolveTimezone: Supabase read failed', e);
     }
+
+    const fallback = cached || 'UTC';
+    this._resolvedTimezone = fallback;
+    return fallback;
   }
 
-  buildStreakData() {
-    const tz = localStorage.getItem('userTimezone') || 'UTC';
-    const todayStr = this.getDateInTimezone(tz);
-    let streakData = {};
+  async buildStreakData() {
+    const tz = await this.resolveTimezone();
+    const todayStr = getLocalDateString(tz);
 
-    const stored = localStorage.getItem('streakState');
-    if (stored) streakData = JSON.parse(stored);
+    let dbStreak = { currentStreak: 0, longestStreak: 0, lastLessonDate: null };
+    try {
+      dbStreak = await getStreakState();
+    } catch (e) {
+      console.error('buildStreakData: Supabase read failed', e);
+    }
 
-    const defaults = {
-      currentStreak: 1,
-      totalAppDays: 1,
-      lastLessonDate: todayStr,
+    let localStreak = {};
+    try {
+      const stored = localStorage.getItem('streakState');
+      if (stored) localStreak = JSON.parse(stored);
+    } catch (e) {
+      console.error('buildStreakData: localStorage read failed', e);
+    }
+
+    const merged = {
+      currentStreak: Math.max(
+        Number(dbStreak.currentStreak) || 0,
+        Number(localStreak.currentStreak) || 0
+      ),
+      longestStreak: Math.max(
+        Number(dbStreak.longestStreak) || 0,
+        Number(localStreak.longestStreak) || 0,
+        Number(localStreak.currentStreak) || 0
+      ),
+      lastLessonDate: this._moreRecentDate(
+        dbStreak.lastLessonDate,
+        localStreak.lastLessonDate
+      ),
+      totalAppDays: Number(localStreak.totalAppDays) || 1,
       timezone: tz,
-      recentDays: []
+      recentDays: Array.isArray(localStreak.recentDays)
+        ? localStreak.recentDays.slice()
+        : []
     };
-    streakData = Object.assign({}, defaults, streakData);
 
-    if (!streakData.recentDays || streakData.recentDays.length === 0) {
-      streakData.recentDays = [{ date: todayStr, status: 'completed' }];
-      streakData.totalAppDays = 1;
-      streakData.currentStreak = 1;
-      localStorage.setItem('firstLessonDate', todayStr);
-    } else {
-      const todayEntry = streakData.recentDays.find(d => d.date === todayStr);
+    const shouldIncrement = merged.lastLessonDate !== todayStr;
+
+    if (shouldIncrement) {
+      const isConsecutive = this._isPreviousDay(merged.lastLessonDate, todayStr);
+
+      if (isConsecutive) {
+        merged.currentStreak = (merged.currentStreak || 0) + 1;
+      } else {
+        merged.currentStreak = 1;
+      }
+
+      if (merged.currentStreak > merged.longestStreak) {
+        merged.longestStreak = merged.currentStreak;
+      }
+
+      const todayEntry = merged.recentDays.find(d => d.date === todayStr);
       if (!todayEntry) {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().slice(0, 10);
-        const prevDay = streakData.recentDays.find(d => d.date === yesterdayStr);
-        if (prevDay && (prevDay.status === 'completed' || prevDay.status === 'revived')) {
-          streakData.currentStreak = (streakData.currentStreak || 0) + 1;
-        } else {
-          streakData.currentStreak = 1;
+        merged.recentDays.push({ date: todayStr, status: 'completed' });
+        if (merged.recentDays.length > 7) {
+          merged.recentDays = merged.recentDays.slice(-7);
         }
-        streakData.recentDays.push({ date: todayStr, status: 'completed' });
-        if (streakData.recentDays.length > 7) streakData.recentDays = streakData.recentDays.slice(-7);
-        const first = localStorage.getItem('firstLessonDate');
-        if (first) {
-          const firstDate = new Date(first + 'T12:00:00Z');
-          const now = new Date(todayStr + 'T12:00:00Z');
-          const diffDays = Math.floor((now - firstDate) / 86400000) + 1;
-          streakData.totalAppDays = diffDays;
-        } else {
-          streakData.totalAppDays = streakData.recentDays.length;
-        }
+      }
+
+      const first = localStorage.getItem('firstLessonDate');
+      if (!first) {
+        localStorage.setItem('firstLessonDate', todayStr);
+        merged.totalAppDays = 1;
+      } else {
+        const firstDate = new Date(first + 'T12:00:00Z');
+        const now = new Date(todayStr + 'T12:00:00Z');
+        merged.totalAppDays = Math.floor((now - firstDate) / 86400000) + 1;
       }
     }
 
-    streakData.lastLessonDate = todayStr;
-    localStorage.setItem('streakState', JSON.stringify(streakData));
-    localStorage.setItem('lastLessonDate', todayStr);
-    this.currentStreakDays = streakData.currentStreak;
+    merged.lastLessonDate = shouldIncrement ? todayStr : merged.lastLessonDate;
+
+    localStorage.setItem('streakState', JSON.stringify(merged));
+    if (shouldIncrement) {
+      localStorage.setItem('lastLessonDate', todayStr);
+    }
+    localStorage.setItem(this.streakKey, String(merged.currentStreak));
+    localStorage.setItem('userTimezone', tz);
+
+    this.currentStreakDays = merged.currentStreak;
+    this.currentTotalAppDays = merged.totalAppDays;
     this.saveStreakToStorage();
-    return streakData;
+
+    if (shouldIncrement) {
+      try {
+        await setStreakState({
+          currentStreak: merged.currentStreak,
+          longestStreak: merged.longestStreak,
+          lastLessonDate: todayStr
+        });
+      } catch (e) {
+        console.error('buildStreakData: Supabase write failed', e);
+      }
+    }
+
+    return { shouldIncrement, streakData: merged };
   }
 
-  processStreakReward(rewardInfo) {
-    if (this._streakRewardProcessed) return;
-    this._streakRewardProcessed = true;
+  _moreRecentDate(a, b) {
+    if (!a) return b || null;
+    if (!b) return a;
+    return a > b ? a : b;
+  }
 
-    const { isMilestone, heartsAtCompletion } = rewardInfo;
-    const streakDays = this.currentStreakDays;
+  _isPreviousDay(prevStr, currentStr) {
+    if (!prevStr) return false;
+    const prev = new Date(prevStr + 'T12:00:00Z');
+    const current = new Date(currentStr + 'T12:00:00Z');
+    const diffDays = Math.round((current - prev) / 86400000);
+    return diffDays === 1;
+  }
 
-    if (isMilestone) {
-      let coins = 250;
-      if (streakDays >= 30 && streakDays <= 70) coins = 500;
-      if (streakDays > 70 && streakDays <= 360) coins = 750;
-      if (streakDays > 360) coins = 1000;
-      this.showModal(`../src/components/modals/coins-reward.html?amount=${coins}`, () => {
-        this.openDailyQuest();
-      });
-    } else {
-      if (heartsAtCompletion >= 3 && heartsAtCompletion <= 5) {
-        const multipliers = [
-          { mult: 1.5, dur: 30 },
-          { mult: 2, dur: 20 },
-          { mult: 3, dur: 15 }
-        ];
-        const chosen = multipliers[Math.floor(Math.random() * multipliers.length)];
-        this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
-          this.openDailyQuest();
-        });
-      } else if (heartsAtCompletion >= 1 && heartsAtCompletion <= 2) {
-        if (Math.random() < 0.5) {
-          this.showModal(`../src/components/modals/heart-reward.html?hearts=full`, () => {
-            this.openDailyQuest();
-          });
-        } else {
-          const multipliers = [
-            { mult: 1.5, dur: 30 },
-            { mult: 2, dur: 20 },
-            { mult: 3, dur: 15 }
-          ];
-          const chosen = multipliers[Math.floor(Math.random() * multipliers.length)];
-          this.showModal(`../src/components/modals/boost-reward.html?multiplier=${chosen.mult}&duration=${chosen.dur}`, () => {
-            this.openDailyQuest();
-          });
-        }
-      } else {
-        this.openDailyQuest();
-      }
+  getActiveBoostMultiplier() {
+    try {
+      const raw = localStorage.getItem('activeBoosts');
+      if (!raw) return 1;
+      const boosts = JSON.parse(raw) || [];
+      const now = Date.now();
+      const active = boosts.filter(b => b.expiresAt > now);
+      if (active.length === 0) return 1;
+      return Math.max(...active.map(b => b.multiplier || 1), 1);
+    } catch (e) {
+      return 1;
     }
   }
 
-  async openDailyQuest() {
-    this.showModal(`../src/components/modals/daily-quest.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&completed=true`, async () => {
-      // After daily quest modal closes, check if user is logged in
-      const loggedIn = await isLoggedIn();
-      if (loggedIn) {
-        // Save lesson progress to Supabase here if needed
-        window.location.href = this.redirectUrl;
-      } else {
-        // Store temporary progress and redirect to registration
-        const urlParams = new URLSearchParams(window.location.search);
-        const courseId = urlParams.get('course') || 'g12-life-sciences';
-        const lessonId = urlParams.get('lesson') || 'introduction-to-nucleic-acids';
-        saveTempProgress(courseId, lessonId, {
-          correct: this.totalCorrectAttempts,
-          total: this.totalAttempts,
-          hearts: this.heartsAtCompletion,
-          streak: this.currentStreakDays
-        });
-        window.location.href = '/registration.html';
-      }
-    });
+  pushActiveBoost(multiplier, durationMinutes) {
+    try {
+      const raw = localStorage.getItem('activeBoosts');
+      const boosts = raw ? JSON.parse(raw) : [];
+      const now = Date.now();
+      const active = boosts.filter(b => b.expiresAt > now);
+      active.push({
+        multiplier,
+        durationMinutes,
+        expiresAt: now + durationMinutes * 60 * 1000
+      });
+      localStorage.setItem('activeBoosts', JSON.stringify(active));
+    } catch (e) {
+      console.error('pushActiveBoost failed:', e);
+    }
   }
 
-  updateStreakCounter() { this.streakCounterSpan.textContent = this.currentStreak >= 2 ? `${this.currentStreak} in a row!` : ''; }
+  computeXP({ correctAttempts, totalAttempts, timeSeconds, totalQuestions, boost }) {
+    const T_expected = totalQuestions * 15;
+    const T_max = 2 * T_expected;
+
+    const ratio = totalAttempts > 0 ? correctAttempts / totalAttempts : 0;
+    const accuracyXP = Math.min(Math.max(Math.round(ratio * 10), 0), 10);
+
+    let speedXP = 0;
+    if (timeSeconds <= T_expected) {
+      speedXP = 10;
+    } else if (timeSeconds <= T_max) {
+      speedXP = Math.round(10 * (2 - timeSeconds / T_expected));
+      if (speedXP < 0) speedXP = 0;
+    } else {
+      speedXP = 0;
+    }
+
+    const baseXP = 10 + accuracyXP + speedXP;
+    if (boost && boost > 1) return Math.round(baseXP * boost);
+    return baseXP;
+  }
+
+  computeLessonStats(timeSeconds) {
+    const totalAttempts = this.totalAttempts;
+    const totalCorrect  = this.totalCorrectAttempts;
+    const accuracy      = totalAttempts > 0 ? totalCorrect / totalAttempts : 0;
+    const perfectLesson = totalAttempts > 0 && totalCorrect === totalAttempts;
+    const hadAnswerStreak5 = this.maxStreakInLesson >= 5;
+
+    const isReview        = this.lessonMode === 'review';
+    const isMastery       = this.lessonMode === 'master';
+    const isChapterReview = this.lessonMode === 'chapter-review';
+
+    const boost = this.getActiveBoostMultiplier();
+    const xpEarned = this.computeXP({
+      correctAttempts: totalCorrect,
+      totalAttempts,
+      timeSeconds,
+      totalQuestions: this.totalQuestions,
+      boost
+    });
+
+    return {
+      courseId: this.courseId,
+      lessonId: this.lessonId,
+      timeSeconds,
+      xpEarned,
+      accuracy,
+      perfectLesson,
+      hadAnswerStreak5,
+      isReview,
+      isMastery,
+      isChapterReview,
+      correctAttempts: totalCorrect,
+      totalAttempts,
+      heartsAtCompletion: this.lives,
+      boost,
+      totalQuestions: this.totalQuestions
+    };
+  }
+
+  updateStreakCounter() {
+    this.streakCounterSpan.textContent = this.currentStreak >= 2
+      ? `${this.currentStreak} in a row!`
+      : '';
+  }
+
   updateHeartIcon() {
     this.livesIcon.src = this.lives === 0
       ? '../public/assets/icons/phosphor/regular/heart.svg'
@@ -267,12 +435,42 @@ class QuizEngine {
   }
 
   playSound(isCorrect) {
-    const audio = isCorrect ? document.getElementById('correctSound') : document.getElementById('incorrectSound');
+    const audio = isCorrect
+      ? document.getElementById('correctSound')
+      : document.getElementById('incorrectSound');
     if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
   }
 
-  normalizeAnswer(a) { return a.toLowerCase().replace(/\s+/g,' ').replace(/[()]/g,'').replace(/\//g,' ').trim(); }
-  shuffleArray(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  handleCorrectAnswer() {
+    this.currentStreak++;
+    if (this.currentStreak > this.maxStreakInLesson) {
+      this.maxStreakInLesson = this.currentStreak;
+    }
+    this.updateStreakCounter();
+    if (this.currentStreak % 5 === 0 && this.currentStreak > 0) {
+      this.pendingCelebration = true;
+      this.pendingCelebrationStreak = this.currentStreak;
+    }
+  }
+
+  handleIncorrectAnswer() {
+    this.currentStreak = 0;
+    this.mistakesMade++;
+    this.updateStreakCounter();
+  }
+
+  normalizeAnswer(a) {
+    return a.toLowerCase().replace(/\s+/g, ' ').replace(/[()]/g, '').replace(/\//g, ' ').trim();
+  }
+
+  shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
 
   showModal(modalUrl, onClose) {
     this.modalIframe.src = modalUrl;
@@ -292,11 +490,14 @@ class QuizEngine {
         this.modalIframe.src = 'about:blank';
         const coins = parseInt(localStorage.getItem('coins') || '500', 10);
         if (coins >= 450) {
-          localStorage.setItem('coins', String(coins - 450));
+          incrementCoins(-450).catch(() => {});
           this.lives = 5;
           this.livesCountSpan.textContent = '5';
           this.updateHeartIcon();
-          const currentActualIdx = this.inRetryMode ? this.retryQueue[this.currentQuestion] : this.currentQuestion;
+          setHearts(5).catch(() => {});
+          const currentActualIdx = this.inRetryMode
+            ? this.retryQueue[this.currentQuestion]
+            : this.currentQuestion;
           const idxInQueue = this.retryQueue.indexOf(currentActualIdx);
           if (idxInQueue !== -1) this.retryQueue.splice(idxInQueue, 1);
           this.moveToNextQuestion();
@@ -304,50 +505,93 @@ class QuizEngine {
           window.location.href = this.redirectUrl;
         }
         if (onClose) onClose();
-      } else if (event.data && event.data.type === 'streakClosed') {
-        window.removeEventListener('message', handler);
-        this.fullscreenOverlay.classList.remove('visible');
-        this.modalIframe.src = 'about:blank';
-        this.currentStreakDays = event.data.streakDays;
-        this.saveStreakToStorage();
-        this.processStreakReward({
-          isMilestone: event.data.isMilestone,
-          heartsAtCompletion: event.data.heartsAtCompletion
-        });
-      } else if (event.data && event.data.type === 'openCoinReward') {
-        const coinModalUrl = `../src/components/modals/coins-reward.html?amount=${event.data.amount}`;
-        this.modalIframe.src = coinModalUrl;
-        this.fullscreenOverlay.classList.add('visible');
-        const subHandler = (subEvent) => {
-          if (subEvent.data === 'modalClose') {
-            window.removeEventListener('message', subHandler);
-            this.fullscreenOverlay.classList.remove('visible');
-            this.modalIframe.src = 'about:blank';
-          }
-        };
-        window.addEventListener('message', subHandler);
-      } else if (event.data && event.data.type === 'questChestClaimed') {
-        const coins = parseInt(localStorage.getItem('coins') || '500', 10);
-        localStorage.setItem('coins', String(coins + (event.data.amount || 0)));
       }
     };
     window.addEventListener('message', handler);
   }
 
-  resetCurrentQuestion() { this.showQuestion(this.currentQuestion); }
+  showModalAsync(modalUrl, handlers = {}) {
+    return new Promise((resolve) => {
+      const cleanup = () => {
+        window.removeEventListener('message', handler);
+        this.fullscreenOverlay.classList.remove('visible');
+        this.modalIframe.src = 'about:blank';
+      };
+      const handler = (event) => {
+        if (event.data === 'modalClose') {
+          cleanup();
+          resolve({ type: 'modalClose' });
+          return;
+        }
+        if (event.data === 'modalQuit') {
+          cleanup();
+          window.location.href = this.redirectUrl;
+          resolve({ type: 'modalQuit' });
+          return;
+        }
+        if (event.data && event.data.type && typeof handlers[event.data.type] === 'function') {
+          const result = handlers[event.data.type](event.data);
+          if (result === 'close') {
+            cleanup();
+            resolve({ type: 'handled', data: event.data });
+          }
+        }
+      };
+      window.addEventListener('message', handler);
+      this.modalIframe.src = modalUrl;
+      this.fullscreenOverlay.classList.add('visible');
+    });
+  }
 
-  handleCorrectAnswer() { this.currentStreak++; this.updateStreakCounter(); if (this.currentStreak % 5 === 0 && this.currentStreak > 0) { this.pendingCelebration = true; this.pendingCelebrationStreak = this.currentStreak; } }
-  handleIncorrectAnswer() { this.currentStreak = 0; this.updateStreakCounter(); }
+  async showCoinReward(amount) {
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    await this.showModalAsync(
+      `../src/components/modals/coins-reward.html?amount=${amount}`
+    );
+    try {
+      await incrementCoins(amount);
+    } catch (e) {
+      console.error('coin credit failed:', e);
+    }
+  }
+
+  async showBoostReward(multiplier, durationMinutes) {
+    await this.showModalAsync(
+      `../src/components/modals/boost-reward.html?multiplier=${multiplier}&duration=${durationMinutes}`
+    );
+    this.pushActiveBoost(multiplier, durationMinutes);
+  }
+
+  async showHeartReward() {
+    await this.showModalAsync(
+      `../src/components/modals/heart-reward.html?hearts=full`
+    );
+    try {
+      await setHearts(5);
+    } catch (e) {
+      console.error('hearts credit failed:', e);
+    }
+    this.lives = 5;
+    this.livesCountSpan.textContent = '5';
+    this.updateHeartIcon();
+  }
 
   processAfterExplanation(onComplete) {
     if (this.pendingCelebration) {
       const streak = this.pendingCelebrationStreak;
-      this.pendingCelebration = false; this.pendingCelebrationStreak = null; this.waitingForCelebration = true;
-      this.showModal(`../src/components/modals/answer-streak.html?streak=${streak}`, () => {
-        this.waitingForCelebration = false;
-        if (onComplete) onComplete();
-      });
-    } else { if (onComplete) onComplete(); }
+      this.pendingCelebration = false;
+      this.pendingCelebrationStreak = null;
+      this.waitingForCelebration = true;
+      this.showModal(
+        `../src/components/modals/answer-streak.html?streak=${streak}`,
+        () => {
+          this.waitingForCelebration = false;
+          if (onComplete) onComplete();
+        }
+      );
+    } else {
+      if (onComplete) onComplete();
+    }
   }
 
   showResultOverlay(qNum, isCorrect, explanationHTML, onComplete) {
@@ -390,7 +634,10 @@ class QuizEngine {
     }
     explanationDiv.innerHTML = explanationHTML;
     overlay.classList.add('visible');
-    continueBtn.onclick = () => { overlay.classList.remove('visible'); this.processAfterExplanation(onComplete); };
+    continueBtn.onclick = () => {
+      overlay.classList.remove('visible');
+      this.processAfterExplanation(onComplete);
+    };
   }
 
   moveToNextQuestion(skipIncrement = false) {
@@ -438,7 +685,7 @@ class QuizEngine {
     }
   }
 
-  finishQuiz() {
+  async finishQuiz() {
     if (this.quizCompleted) return;
     this.quizCompleted = true;
     const timeSeconds = Math.floor((Date.now() - this.quizStartTime) / 1000);
@@ -446,23 +693,312 @@ class QuizEngine {
     this.heartsAtCompletion = this.lives;
     localStorage.setItem('heartsAtCompletion', String(this.heartsAtCompletion));
 
-    this.showModal(`../src/components/modals/lesson-complete.html?correctAttempts=${this.totalCorrectAttempts}&totalAttempts=${this.totalAttempts}&time=${timeSeconds}`, () => {
-      if (this.isFirstLessonOfDay()) {
-        const streakData = this.buildStreakData();
-        const encodedData = encodeURIComponent(JSON.stringify(streakData));
-        const heartsValue = this.heartsAtCompletion;
-        this.showModal(`../src/components/modals/streak.html?data=${encodedData}&hearts=${heartsValue}`, () => {});
-      } else {
-        this.openDailyQuest();
+    this.lessonStats = this.computeLessonStats(timeSeconds);
+
+    const completeUrl =
+      `../src/components/modals/lesson-complete.html` +
+      `?correctAttempts=${this.totalCorrectAttempts}` +
+      `&totalAttempts=${this.totalAttempts}` +
+      `&time=${timeSeconds}` +
+      `&totalQuestions=${this.totalQuestions}` +
+      `&boost=${this.lessonStats.boost}`;
+
+    await this.showModalAsync(completeUrl);
+    await this.runPostLessonPipeline();
+  }
+
+  async runPostLessonPipeline() {
+    const stats = this.lessonStats;
+    let persistResult = { lessonProgress: null, quests: null, dailyGoal: null };
+
+    try {
+      persistResult = await this.persistLessonResults(stats);
+    } catch (e) {
+      console.error('pipeline: persistLessonResults failed', e);
+    }
+
+    if (persistResult.dailyGoal && persistResult.dailyGoal.should) {
+      try {
+        const marked = await questEngine.markDailyGoalClaimed();
+        if (marked) {
+          await this.showCoinReward(persistResult.dailyGoal.amount);
+        }
+      } catch (e) {
+        console.error('pipeline: daily-goal reward failed', e);
       }
+    }
+
+    try {
+      const streakResult = await this.showStreakFlow();
+      if (streakResult && streakResult.ran) {
+        try {
+          await this.showStreakReward(streakResult);
+        } catch (e) {
+          console.error('pipeline: showStreakReward failed', e);
+        }
+      }
+    } catch (e) {
+      console.error('pipeline: showStreakFlow failed', e);
+    }
+
+    try {
+      await this.showAchievements();
+    } catch (e) {
+      console.error('pipeline: showAchievements failed', e);
+    }
+
+    try {
+      await this.showRecords();
+    } catch (e) {
+      console.error('pipeline: showRecords failed', e);
+    }
+
+    try {
+      await this.showDailyQuestsFlow();
+    } catch (e) {
+      console.error('pipeline: showDailyQuestsFlow failed', e);
+    }
+
+    await this.redirectAfterLesson();
+  }
+
+  async persistLessonResults(stats) {
+    const out = { lessonProgress: null, quests: null, dailyGoal: null };
+
+    try {
+      await questEngine.initQuestEngine();
+    } catch (e) {
+      console.error('persistLessonResults: initQuestEngine failed', e);
+    }
+
+    try {
+      out.lessonProgress = await persistLessonProgressRow({
+        courseId: stats.courseId,
+        lessonId: stats.lessonId,
+        mastered: stats.isMastery,
+        sublessonIndex: null
+      });
+    } catch (e) {
+      console.error('persistLessonProgressRow failed:', e);
+    }
+
+    try {
+      await setHearts(stats.heartsAtCompletion);
+    } catch (e) {
+      console.error('setHearts failed:', e);
+    }
+
+    try {
+      out.quests = await questEngine.recordLessonCompletion({
+        courseId: stats.courseId,
+        lessonId: stats.lessonId,
+        timeSeconds: stats.timeSeconds,
+        xpEarned: stats.xpEarned,
+        accuracy: stats.accuracy,
+        perfectLesson: stats.perfectLesson,
+        hadAnswerStreak5: stats.hadAnswerStreak5,
+        isReview: stats.isReview,
+        isMastery: stats.isMastery,
+        isChapterReview: stats.isChapterReview
+      });
+      if (out.quests && out.quests.dailyGoal) {
+        out.dailyGoal = out.quests.dailyGoal;
+      }
+    } catch (e) {
+      console.error('questEngine.recordLessonCompletion failed:', e);
+    }
+
+    return out;
+  }
+
+  async showStreakFlow() {
+    const { shouldIncrement, streakData } = await this.buildStreakData();
+
+    if (!shouldIncrement) {
+      return { ran: false };
+    }
+
+    const encoded = encodeURIComponent(JSON.stringify(streakData));
+    const heartsValue = this.heartsAtCompletion;
+    const url =
+      `../src/components/modals/streak.html` +
+      `?data=${encoded}&hearts=${heartsValue}`;
+
+    await this.showModalAsync(url, {
+      streakClosed: (msg) => {
+        if (msg.streakDays) {
+          this.currentStreakDays = msg.streakDays;
+          this.saveStreakToStorage();
+        }
+        return 'close';
+      }
+    });
+
+    return {
+      ran: true,
+      streakDays: this.currentStreakDays,
+      heartsAtCompletion: this.heartsAtCompletion
+    };
+  }
+
+  async showStreakReward(streakResult) {
+    const streakDays = streakResult.streakDays;
+    const hearts = streakResult.heartsAtCompletion;
+
+    if (streakDays > 0 && streakDays % 5 === 0) {
+      let coins = 250;
+      if (streakDays > 360) coins = 1000;
+      else if (streakDays > 195) coins = 750;
+      else if (streakDays > 95) coins = 500;
+      await this.showCoinReward(coins);
+      return;
+    }
+
+    if (hearts >= 3 && hearts <= 5) {
+      const pick = this._pickRandomBoost();
+      await this.showBoostReward(pick.multiplier, pick.durationMinutes);
+      return;
+    }
+
+    if (hearts >= 1 && hearts <= 2) {
+      if (Math.random() < 0.5) {
+        await this.showHeartReward();
+      } else {
+        const pick = this._pickRandomBoost();
+        await this.showBoostReward(pick.multiplier, pick.durationMinutes);
+      }
+      return;
+    }
+  }
+
+  _pickRandomBoost() {
+    const options = [
+      { multiplier: 1.5, durationMinutes: 30 },
+      { multiplier: 2,   durationMinutes: 20 },
+      { multiplier: 3,   durationMinutes: 15 }
+    ];
+    return options[Math.floor(Math.random() * options.length)];
+  }
+
+  async showAchievements() {
+    // TODO: Once achievement counters land on user_stats,
+    // evaluate them here and open achievement.html sequentially.
+  }
+
+  async showRecords() {
+    if (!this.currentTotalAppDays || this.currentTotalAppDays < 2) return;
+    // TODO: Same pattern as showAchievements once record counters
+    // are being maintained.
+  }
+
+  // ============================================================
+  // DAILY QUESTS FLOW (close-and-reopen loop)
+  // ============================================================
+  //
+  // Contract with daily-quest.html:
+  //   - Chest tap → modal posts { type: 'requestClaim', tier }
+  //     then 'modalClose'.
+  //   - Continue tap → modal posts 'modalClose'.
+  //
+  // Pipeline per claim (spec §9):
+  //   1. mark chest as claimed in DB (claimQuestChest)
+  //   2. credit coins (incrementCoins)
+  //   3. open coins-reward.html (pure display)
+  //   4. reopen daily-quest.html if more ready chests exist
+  //
+  // The MAX_ITERATIONS cap prevents an infinite loop if the modal
+  // keeps requesting a claim that the DB keeps refusing.
+
+  async _openDailyQuestModalOnce() {
+    return new Promise((resolve) => {
+      let pendingTier = null;
+      const handler = (event) => {
+        if (event.data && event.data.type === 'requestClaim') {
+          pendingTier = event.data.tier;
+          return;
+        }
+        if (event.data === 'modalClose') {
+          window.removeEventListener('message', handler);
+          this.fullscreenOverlay.classList.remove('visible');
+          this.modalIframe.src = 'about:blank';
+          resolve(pendingTier
+            ? { action: 'claim', tier: pendingTier }
+            : { action: 'continue' });
+        } else if (event.data === 'modalQuit') {
+          window.removeEventListener('message', handler);
+          window.location.href = this.redirectUrl;
+          resolve({ action: 'quit' });
+        }
+      };
+      window.addEventListener('message', handler);
+      this.modalIframe.src = '../src/components/modals/daily-quest.html';
+      this.fullscreenOverlay.classList.add('visible');
     });
   }
 
-  showDailyQuest(correct, total) { this.openDailyQuest(); }
+  async showDailyQuestsFlow() {
+    try {
+      await questEngine.initQuestEngine();
+    } catch (e) {
+      console.error('pipeline: initQuestEngine failed', e);
+      return;
+    }
 
+    const MAX_ITERATIONS = 5;
+
+    for (let i = 0; i < MAX_ITERATIONS; i++) {
+      const result = await this._openDailyQuestModalOnce();
+
+      if (result.action === 'quit') return;
+      if (result.action !== 'claim') return;
+
+      // Spec §9: mark → credit → modal
+      const claim = await questEngine.claimQuestChest(result.tier);
+      if (!claim.ok) {
+        console.warn('pipeline: claimQuestChest refused:', claim.error);
+        // Loop reopens the modal, which will show the updated
+        // state. MAX_ITERATIONS caps the retry.
+        continue;
+      }
+
+      try {
+        await incrementCoins(claim.amount);
+      } catch (e) {
+        console.error('pipeline: incrementCoins failed', e);
+      }
+
+      if (Number.isFinite(claim.amount) && claim.amount > 0) {
+        await this.showModalAsync(
+          `../src/components/modals/coins-reward.html?amount=${claim.amount}`
+        );
+      }
+    }
+  }
+
+  async redirectAfterLesson() {
+    const loggedIn = await isLoggedIn();
+    if (loggedIn) {
+      window.location.href = this.redirectUrl;
+      return;
+    }
+    saveTempProgress(this.courseId, this.lessonId, {
+      correct: this.totalCorrectAttempts,
+      total: this.totalAttempts,
+      hearts: this.heartsAtCompletion,
+      streak: this.currentStreakDays,
+      xp: this.lessonStats ? this.lessonStats.xpEarned : 0
+    });
+    window.location.href = '/registration.html';
+  }
+
+  // ============================================================
+  // QUESTION RENDERERS
+  // ============================================================
   showQuestion(questionIndex) {
     this.questionSections.forEach(s => { if (s) s.style.display = 'none'; });
-    const actualIdx = this.inRetryMode ? this.retryQueue[this.currentQuestion] : this.currentQuestion;
+    const actualIdx = this.inRetryMode
+      ? this.retryQueue[this.currentQuestion]
+      : this.currentQuestion;
     const section = this.questionSections[actualIdx];
     if (!section) return;
     section.style.display = 'block';
@@ -479,15 +1015,14 @@ class QuizEngine {
     section.innerHTML = '';
 
     switch (qData.type) {
-      case 'multiple-choice': this.renderMultipleChoice(section, qData, actualIdx); break;
-      case 'complete-sentence': this.renderCompleteSentence(section, qData, actualIdx); break;
-      case 'fill-blank': this.renderFillBlank(section, qData, actualIdx); break;
-      case 'image-selection': this.renderImageSelection(section, qData, actualIdx); break;
-      case 'matching': this.renderMatching(section, qData, actualIdx); break;
+      case 'multiple-choice':    this.renderMultipleChoice(section, qData, actualIdx); break;
+      case 'complete-sentence':  this.renderCompleteSentence(section, qData, actualIdx); break;
+      case 'fill-blank':         this.renderFillBlank(section, qData, actualIdx); break;
+      case 'image-selection':    this.renderImageSelection(section, qData, actualIdx); break;
+      case 'matching':           this.renderMatching(section, qData, actualIdx); break;
     }
   }
 
-  // ==================== RENDER METHODS (fully preserved) ====================
   renderMultipleChoice(section, qData, actualIdx) {
     section.innerHTML = `
       <h2 class="quiz-title">Choose the correct option</h2>
@@ -501,11 +1036,16 @@ class QuizEngine {
     let selected = null;
 
     shuffledOpts.forEach(opt => {
-      const b = document.createElement('button'); b.className = 'option-button'; b.dataset.value = opt; b.textContent = opt;
+      const b = document.createElement('button');
+      b.className = 'option-button';
+      b.dataset.value = opt;
+      b.textContent = opt;
       b.addEventListener('click', () => {
         if (this.answered) return;
         container.querySelectorAll('.option-button').forEach(bb => bb.classList.remove('selected'));
-        b.classList.add('selected'); selected = b.dataset.value; btn.disabled = false;
+        b.classList.add('selected');
+        selected = b.dataset.value;
+        btn.disabled = false;
       });
       container.appendChild(b);
     });
@@ -515,7 +1055,8 @@ class QuizEngine {
       this.answered = true;
       const isCorrect = (selected === qData.correctAnswer);
       this.playSound(isCorrect);
-      const correctBtn = Array.from(container.querySelectorAll('.option-button')).find(b => b.dataset.value === qData.correctAnswer);
+      const correctBtn = Array.from(container.querySelectorAll('.option-button'))
+        .find(b => b.dataset.value === qData.correctAnswer);
       if (correctBtn) correctBtn.classList.add('correct');
 
       if (isCorrect) {
@@ -527,36 +1068,66 @@ class QuizEngine {
           this.retryQueue.splice(idx, 1);
           const skip = this.inRetryMode && idx === this.currentQuestion;
           this.handleCorrectAnswer();
-          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion(skip));
+          this.showResultOverlay(
+            actualIdx + 1, true,
+            `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,
+            () => this.moveToNextQuestion(skip)
+          );
         } else {
           this.handleCorrectAnswer();
-          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+          this.showResultOverlay(
+            actualIdx + 1, true,
+            `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,
+            () => this.moveToNextQuestion()
+          );
         }
       } else {
         this.totalAttempts++;
         this.handleIncorrectAnswer();
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
-        if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
-        const selBtn = Array.from(container.querySelectorAll('.option-button')).find(b => b.dataset.value === selected);
+        if (this.lives > 0) {
+          this.lives--;
+          this.livesCountSpan.textContent = String(this.lives);
+          this.updateHeartIcon();
+        }
+        const selBtn = Array.from(container.querySelectorAll('.option-button'))
+          .find(b => b.dataset.value === selected);
         if (selBtn) selBtn.classList.add('incorrect');
-        this.showResultOverlay(actualIdx + 1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${sanitiseHTML(qData.correctAnswer)}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`, () => {
-          if (this.lives === 0) {
-            const coins = parseInt(localStorage.getItem('coins') || '500', 10);
-            if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
-            else window.location.href = this.redirectUrl;
-          } else this.moveToNextQuestion();
-        });
+        this.showResultOverlay(
+          actualIdx + 1, false,
+          `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${sanitiseHTML(qData.correctAnswer)}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`,
+          () => {
+            if (this.lives === 0) {
+              const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+              if (coins >= 450) {
+                this.showModal('../src/components/modals/refill-hearts.html', () => {});
+              } else {
+                window.location.href = this.redirectUrl;
+              }
+            } else this.moveToNextQuestion();
+          }
+        );
       }
-      container.querySelectorAll('.option-button').forEach(b => { b.disabled = true; b.style.cursor = 'not-allowed'; });
+      container.querySelectorAll('.option-button').forEach(b => {
+        b.disabled = true;
+        b.style.cursor = 'not-allowed';
+      });
     });
   }
 
   renderCompleteSentence(section, qData, actualIdx) {
-    const blankIds = []; const re = /id="(blank-[^"]+)"/g; let match;
+    const blankIds = [];
+    const re = /id="(blank-[^"]+)"/g;
+    let match;
     while ((match = re.exec(qData.questionText)) !== null) blankIds.push(match[1]);
     const blanksHTML = blankIds.map(id => `<span id="${id}" class="blank" tabindex="0"></span>`);
     let displayText = qData.questionText;
-    blankIds.forEach((id, i) => { displayText = displayText.replace(new RegExp(`<span[^>]*id="${id}"[^>]*>.*?</span>`, 'g'), blanksHTML[i]); });
+    blankIds.forEach((id, i) => {
+      displayText = displayText.replace(
+        new RegExp(`<span[^>]*id="${id}"[^>]*>.*?</span>`, 'g'),
+        blanksHTML[i]
+      );
+    });
 
     section.innerHTML = `
       <h2 class="quiz-title">Select what is missing</h2>
@@ -577,14 +1148,22 @@ class QuizEngine {
     const shuffledOpts = this.shuffleArray([...qData.options]);
 
     shuffledOpts.forEach(opt => {
-      const button = document.createElement('button'); button.className = 'option-button'; button.dataset.value = opt.value;
-      button.innerHTML = `<span>${opt.label}</span>`; optionBtns.push(button);
+      const button = document.createElement('button');
+      button.className = 'option-button';
+      button.dataset.value = opt.value;
+      button.innerHTML = `<span>${opt.label}</span>`;
+      optionBtns.push(button);
       button.addEventListener('click', () => {
-        if (this.answered) return; if (filled.some(f => f && f.value === opt.value)) return;
-        const idx = filled.findIndex(f => f === null); if (idx === -1) return;
-        const target = blankElements[idx]; if (!target) return;
-        filled[idx] = { value: opt.value, label: opt.label }; target.textContent = opt.label;
-        target.classList.add('filled'); button.classList.add('used-option');
+        if (this.answered) return;
+        if (filled.some(f => f && f.value === opt.value)) return;
+        const idx = filled.findIndex(f => f === null);
+        if (idx === -1) return;
+        const target = blankElements[idx];
+        if (!target) return;
+        filled[idx] = { value: opt.value, label: opt.label };
+        target.textContent = opt.label;
+        target.classList.add('filled');
+        button.classList.add('used-option');
         btn.disabled = !filled.every(f => f !== null);
       });
       optsContainer.appendChild(button);
@@ -596,8 +1175,10 @@ class QuizEngine {
         if (this.answered) return;
         if (filled[idx]) {
           const b = optionBtns.find(ob => ob.dataset.value === filled[idx].value);
-          if (b) b.classList.remove('used-option'); blank.textContent = '';
-          blank.classList.remove('filled', 'correct', 'incorrect'); filled[idx] = null;
+          if (b) b.classList.remove('used-option');
+          blank.textContent = '';
+          blank.classList.remove('filled', 'correct', 'incorrect');
+          filled[idx] = null;
           btn.disabled = !filled.every(f => f !== null);
         }
       });
@@ -610,7 +1191,8 @@ class QuizEngine {
       const correctSet = [...qData.correctAnswers].sort().join(',');
       const userSet = [...userAnswers].sort().join(',');
       const isCorrect = (correctSet === userSet);
-      this.playSound(isCorrect); optionBtns.forEach(b => { b.disabled = true; });
+      this.playSound(isCorrect);
+      optionBtns.forEach(b => { b.disabled = true; });
 
       if (isCorrect) {
         this.totalCorrectAttempts++;
@@ -621,30 +1203,57 @@ class QuizEngine {
           this.retryQueue.splice(idx, 1);
           const skip = this.inRetryMode && idx === this.currentQuestion;
           blankElements.forEach(b => { if (b) b.classList.add('correct'); });
-          optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
+          optionBtns.forEach(b => {
+            if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct');
+          });
           this.handleCorrectAnswer();
-          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion(skip));
+          this.showResultOverlay(
+            actualIdx + 1, true,
+            `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,
+            () => this.moveToNextQuestion(skip)
+          );
         } else {
           blankElements.forEach(b => { if (b) b.classList.add('correct'); });
-          optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
+          optionBtns.forEach(b => {
+            if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct');
+          });
           this.handleCorrectAnswer();
-          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+          this.showResultOverlay(
+            actualIdx + 1, true,
+            `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,
+            () => this.moveToNextQuestion()
+          );
         }
       } else {
         this.totalAttempts++;
         blankElements.forEach(b => { if (b) b.classList.add('incorrect'); });
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
         this.handleIncorrectAnswer();
-        if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
-        optionBtns.forEach(b => { if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct'); });
-        const correctLabels = qData.correctAnswers.map(a => qData.options.find(o => o.value === a)?.label || a).join('</span> and <span class="underlined">');
-        this.showResultOverlay(actualIdx + 1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span><span class="underlined">${correctLabels}</span></span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`, () => {
-          if (this.lives === 0) {
-            const coins = parseInt(localStorage.getItem('coins') || '500', 10);
-            if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
-            else window.location.href = this.redirectUrl;
-          } else this.moveToNextQuestion();
+        if (this.lives > 0) {
+          this.lives--;
+          this.livesCountSpan.textContent = String(this.lives);
+          this.updateHeartIcon();
+        }
+        optionBtns.forEach(b => {
+          if (qData.correctAnswers.includes(b.dataset.value)) b.classList.add('correct');
         });
+        const correctLabels = qData.correctAnswers
+          .map(a => qData.options.find(o => o.value === a)?.label || a)
+          .join('</span> and <span class="underlined">');
+        this.showResultOverlay(
+          actualIdx + 1, false,
+          `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span><span class="underlined">${correctLabels}</span></span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`,
+          () => {
+            if (this.lives === 0) {
+              const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+              if (coins >= 450) {
+                this.showModal('../src/components/modals/refill-hearts.html', () => {});
+              } else {
+                window.location.href = this.redirectUrl;
+              }
+            } else this.moveToNextQuestion();
+          }
+        );
       }
     });
   }
@@ -664,13 +1273,25 @@ class QuizEngine {
     `;
     const input = document.getElementById(`fill-blank-input-${actualIdx}`);
     const btn = document.getElementById(`check-button-${actualIdx}`);
-    input.addEventListener('input', () => { btn.disabled = !input.value.trim(); if (this.answered) { input.classList.remove('correct', 'incorrect'); this.answered = false; } });
-    input.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !btn.disabled) btn.click(); });
+
+    input.addEventListener('input', () => {
+      btn.disabled = !input.value.trim();
+      if (this.answered) {
+        input.classList.remove('correct', 'incorrect');
+        this.answered = false;
+      }
+    });
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !btn.disabled) btn.click();
+    });
     btn.addEventListener('click', () => {
       this.answered = true;
       const userAnswer = this.normalizeAnswer(input.value.trim());
-      const isCorrect = qData.acceptableAnswers.some(a => userAnswer === this.normalizeAnswer(a));
+      const isCorrect = qData.acceptableAnswers.some(
+        a => userAnswer === this.normalizeAnswer(a)
+      );
       this.playSound(isCorrect);
+
       if (isCorrect) {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
@@ -681,24 +1302,44 @@ class QuizEngine {
           const skip = this.inRetryMode && idx === this.currentQuestion;
           input.classList.add('correct');
           this.handleCorrectAnswer();
-          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion(skip));
+          this.showResultOverlay(
+            actualIdx + 1, true,
+            `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,
+            () => this.moveToNextQuestion(skip)
+          );
         } else {
           input.classList.add('correct');
           this.handleCorrectAnswer();
-          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+          this.showResultOverlay(
+            actualIdx + 1, true,
+            `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,
+            () => this.moveToNextQuestion()
+          );
         }
       } else {
         this.totalAttempts++;
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
-        this.handleIncorrectAnswer(); input.classList.add('incorrect');
-        if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
-        this.showResultOverlay(actualIdx + 1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${sanitiseHTML(qData.correctAnswer)}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`, () => {
-          if (this.lives === 0) {
-            const coins = parseInt(localStorage.getItem('coins') || '500', 10);
-            if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
-            else window.location.href = this.redirectUrl;
-          } else this.moveToNextQuestion();
-        });
+        this.handleIncorrectAnswer();
+        input.classList.add('incorrect');
+        if (this.lives > 0) {
+          this.lives--;
+          this.livesCountSpan.textContent = String(this.lives);
+          this.updateHeartIcon();
+        }
+        this.showResultOverlay(
+          actualIdx + 1, false,
+          `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">${sanitiseHTML(qData.correctAnswer)}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`,
+          () => {
+            if (this.lives === 0) {
+              const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+              if (coins >= 450) {
+                this.showModal('../src/components/modals/refill-hearts.html', () => {});
+              } else {
+                window.location.href = this.redirectUrl;
+              }
+            } else this.moveToNextQuestion();
+          }
+        );
       }
       input.disabled = true;
     });
@@ -763,6 +1404,7 @@ class QuizEngine {
       });
       const isCorrect = (state.selected === qData.correctAnswer);
       this.playSound(isCorrect);
+
       if (isCorrect) {
         this.totalCorrectAttempts++;
         this.totalAttempts++;
@@ -772,23 +1414,42 @@ class QuizEngine {
           this.retryQueue.splice(idx, 1);
           const skip = this.inRetryMode && idx === this.currentQuestion;
           this.handleCorrectAnswer();
-          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion(skip));
+          this.showResultOverlay(
+            actualIdx + 1, true,
+            `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,
+            () => this.moveToNextQuestion(skip)
+          );
         } else {
           this.handleCorrectAnswer();
-          this.showResultOverlay(actualIdx + 1, true, `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`, () => this.moveToNextQuestion());
+          this.showResultOverlay(
+            actualIdx + 1, true,
+            `<div class="explanation-section"><span class="explanation-text">${qData.explanation}</span></div>`,
+            () => this.moveToNextQuestion()
+          );
         }
       } else {
         this.totalAttempts++;
         if (!this.retryQueue.includes(actualIdx)) this.retryQueue.push(actualIdx);
         this.handleIncorrectAnswer();
-        if (this.lives > 0) { this.lives--; this.livesCountSpan.textContent = String(this.lives); this.updateHeartIcon(); }
-        this.showResultOverlay(actualIdx + 1, false, `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Image ${qData.correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`, () => {
-          if (this.lives === 0) {
-            const coins = parseInt(localStorage.getItem('coins') || '500', 10);
-            if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
-            else window.location.href = this.redirectUrl;
-          } else this.moveToNextQuestion();
-        });
+        if (this.lives > 0) {
+          this.lives--;
+          this.livesCountSpan.textContent = String(this.lives);
+          this.updateHeartIcon();
+        }
+        this.showResultOverlay(
+          actualIdx + 1, false,
+          `<div class="correct-answer-section"><span class="correct-text">Correct answer:</span> <span class="underlined">Image ${qData.correctAnswer}</span></div><div class="explanation-section"><span class="explanation-label">Explanation:</span> <span class="explanation-text">${qData.explanation}</span></div>`,
+          () => {
+            if (this.lives === 0) {
+              const coins = parseInt(localStorage.getItem('coins') || '500', 10);
+              if (coins >= 450) {
+                this.showModal('../src/components/modals/refill-hearts.html', () => {});
+              } else {
+                window.location.href = this.redirectUrl;
+              }
+            } else this.moveToNextQuestion();
+          }
+        );
       }
     });
   }
@@ -822,8 +1483,10 @@ class QuizEngine {
     feedbackOverlay.style.display = 'none';
     matchingContinueBtn.style.display = 'none';
 
-    let selectedLeft = null, selectedRight = null, matched = 0, gameActive = true, lifeLostInThisGame = false, completed = false;
-    const pairs = qData.pairs || [], shuffledPairs = this.shuffleArray([...pairs]);
+    let selectedLeft = null, selectedRight = null;
+    let matched = 0, gameActive = true, lifeLostInThisGame = false, completed = false;
+    const pairs = qData.pairs || [];
+    const shuffledPairs = this.shuffleArray([...pairs]);
 
     leftCol.innerHTML = '';
     shuffledPairs.forEach((pair, idx) => {
@@ -863,8 +1526,12 @@ class QuizEngine {
     });
 
     const resetWrong = () => {
-      document.querySelectorAll(`#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`).forEach(c => c.classList.remove('wrong'));
-      document.querySelectorAll(`#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`).forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll(
+        `#leftColumn-${actualIdx} .card.wrong, #rightColumn-${actualIdx} .card.wrong`
+      ).forEach(c => c.classList.remove('wrong'));
+      document.querySelectorAll(
+        `#leftColumn-${actualIdx} .card.selected, #rightColumn-${actualIdx} .card.selected`
+      ).forEach(c => c.classList.remove('selected'));
       selectedLeft = null;
       selectedRight = null;
       feedbackOverlay.style.display = 'none';
@@ -876,7 +1543,9 @@ class QuizEngine {
         this.playSound(true);
         const leftCard = selectedLeft;
         const rightCard = selectedRight;
-        const wasAlreadyMatched = leftCard.classList.contains('matched') || rightCard.classList.contains('matched');
+        const wasAlreadyMatched =
+          leftCard.classList.contains('matched') ||
+          rightCard.classList.contains('matched');
 
         selectedLeft.classList.remove('selected');
         selectedRight.classList.remove('selected');
@@ -892,7 +1561,9 @@ class QuizEngine {
         }
 
         setTimeout(() => {
-          document.querySelectorAll(`#leftColumn-${actualIdx} .card.correct, #rightColumn-${actualIdx} .card.correct`).forEach(c => {
+          document.querySelectorAll(
+            `#leftColumn-${actualIdx} .card.correct, #rightColumn-${actualIdx} .card.correct`
+          ).forEach(c => {
             c.classList.remove('correct');
             c.classList.add('matched');
           });
@@ -907,11 +1578,8 @@ class QuizEngine {
             this.retryQueue.splice(idx, 1);
             this._skipNextIncrement = this.inRetryMode && idx === this.currentQuestion;
           }
-          this.currentStreak++;
-          this.updateStreakCounter();
-          if (this.currentStreak % 5 === 0 && this.currentStreak > 0) {
-            this.pendingCelebration = true;
-            this.pendingCelebrationStreak = this.currentStreak;
+          this.handleCorrectAnswer();
+          if (this.pendingCelebration) {
             this.processAfterExplanation(() => {
               matchingContinueBtn.style.display = 'block';
             });
@@ -924,6 +1592,7 @@ class QuizEngine {
         selectedLeft.classList.add('wrong');
         selectedRight.classList.add('wrong');
         this.totalAttempts++;
+        this.handleIncorrectAnswer();
 
         if (!lifeLostInThisGame) {
           if (this.lives > 0) {
@@ -937,13 +1606,15 @@ class QuizEngine {
               feedbackOverlay.style.display = 'flex';
               gameActive = false;
               const coins = parseInt(localStorage.getItem('coins') || '500', 10);
-              if (coins >= 450) this.showModal('../src/components/modals/refill-hearts.html', () => {});
-              else window.location.href = this.redirectUrl;
+              if (coins >= 450) {
+                this.showModal('../src/components/modals/refill-hearts.html', () => {});
+              } else {
+                window.location.href = this.redirectUrl;
+              }
               return;
             }
           }
         }
-        this.handleIncorrectAnswer();
         feedbackTitle.textContent = 'Incorrect';
         feedbackMessage.textContent = "Let's try that again";
         feedbackOverlay.style.display = 'flex';

@@ -1,5 +1,42 @@
 // src/js/layout.js
-import { supabase, isLoggedIn, getCurrentUserProfile } from './supabase.js';
+// ============================================================
+// VULANET LAYOUT — header, footer, panels, timezone upgrade
+// ============================================================
+//
+// Injected into every non-skip page. Responsibilities:
+//   • Load header.html and footer.html
+//   • Populate header stats from user_stats (coins, hearts, streak)
+//   • Wire the course switcher, hearts panel, shop panel,
+//     streak calendar, and share overlay
+//   • Silently upgrade legacy timezone values (offset strings and
+//     Etc/GMT±N) to the user's canonical IANA zone, both in
+//     Supabase and in localStorage
+//   • Clear quest-engine and daily-goal module caches so a fresh
+//     page load always reads canonical values from Supabase
+//   • Highlight the correct footer icon for the current route
+//
+// Design rules:
+//   • user_stats is the canonical source of coins / hearts /
+//     streak for logged-in users. localStorage is a write-through
+//     cache for fast paint.
+//   • The timezone upgrade is silent, runs on every layout-loaded
+//     page, and never blocks rendering.
+//   • Footer nav routes treasure → /quests.
+// ============================================================
+
+import {
+  supabase,
+  isLoggedIn,
+  getCurrentUserProfile,
+  getCoins,
+  getHearts,
+  getStreakState,
+  setCoins,
+  setHearts,
+  updateProfile
+} from './supabase.js';
+
+import { timezoneOffsetToIana } from './date-utils.js';
 
 let layoutLoaded = false;
 
@@ -48,20 +85,174 @@ window.updateHeaderStats = function(coins, hearts, streak) {
     }
 };
 
+// ─────────────────────────────────────────────────────────────
+// Timezone upgrade pass
+// ─────────────────────────────────────────────────────────────
+//
+// Legacy formats:
+//   "UTC+02:00"     — offset string from the old registration flow
+//   "UTC-05:00"
+//   "Etc/GMT-2"     — produced by migration 0006
+//   "Etc/GMT+5"
+//
+// Real IANA identifiers contain a "/" (Africa/Johannesburg) or are
+// exactly "UTC".
+//
+// Write rules (this is the critical bit):
+//   1. DB is legacy → upgrade BOTH DB and localStorage to the best
+//      target zone we can determine (browser zone preferred).
+//   2. DB is valid IANA → the DB is canonical. Propagate the DB
+//      value to localStorage if the local value is missing or
+//      legacy. NEVER overwrite the DB with the browser zone.
+//   3. No DB value (guest) → fill localStorage from the browser
+//      zone if local is missing or legacy.
+//
+// This runs on every layout-loaded page. It never blocks rendering.
+
+function isLegacyTimezone(tz) {
+    return typeof tz === 'string' && /^(UTC[+-]|Etc\/GMT)/.test(tz);
+}
+
+function getBrowserIanaZone() {
+    try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (typeof tz === 'string' && tz.length > 0 && tz.includes('/')) {
+            return tz;
+        }
+    } catch (e) { /* ignore */ }
+    return null;
+}
+
+async function upgradeTimezoneIfLegacy() {
+    const loggedIn = await isLoggedIn();
+
+    let dbTz = null;
+    if (loggedIn) {
+        try {
+            const result = await getCurrentUserProfile();
+            if (result && result.profile) {
+                dbTz = result.profile.timezone;
+            }
+        } catch (e) {
+            console.warn('upgradeTimezoneIfLegacy: profile read failed', e);
+        }
+    }
+
+    const localTz = localStorage.getItem('userTimezone');
+
+    const dbIsLegacy = isLegacyTimezone(dbTz);
+    const localIsLegacy = isLegacyTimezone(localTz);
+
+    // Nothing to upgrade: local value exists and is not legacy.
+    if (!dbIsLegacy && !localIsLegacy && localTz) {
+        return;
+    }
+
+    // Best-effort target for legacy upgrades. Browser zone is
+    // preferred; fall back to mapping the offset string.
+    let target = getBrowserIanaZone();
+    if (!target) {
+        const source = dbIsLegacy ? dbTz : (localIsLegacy ? localTz : null);
+        if (source) {
+            const mapped = timezoneOffsetToIana(source);
+            if (mapped && !isLegacyTimezone(mapped)) target = mapped;
+        }
+    }
+
+    // Case 1: DB is legacy — upgrade both sides with `target`.
+    if (dbIsLegacy && loggedIn) {
+        if (target) {
+            try {
+                await updateProfile({ timezone: target });
+            } catch (e) {
+                console.warn('upgradeTimezoneIfLegacy: DB write failed', e);
+            }
+            try {
+                localStorage.setItem('userTimezone', target);
+            } catch (e) { /* ignore */ }
+        }
+        return;
+    }
+
+    // Case 2: DB is valid IANA — the DB is canonical. Only fill
+    // local from the DB. Never write the browser zone to local
+    // when we have a better answer sitting in Supabase.
+    if (dbTz && !dbIsLegacy) {
+        if (localIsLegacy || !localTz) {
+            try {
+                localStorage.setItem('userTimezone', dbTz);
+            } catch (e) { /* ignore */ }
+        }
+        return;
+    }
+
+    // Case 3: No DB value (guest) — fill local from `target`.
+    if (target && (localIsLegacy || !localTz)) {
+        try {
+            localStorage.setItem('userTimezone', target);
+        } catch (e) { /* ignore */ }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// html2canvas loader
+// ─────────────────────────────────────────────────────────────
+//
+// The local file /src/lib/html2canvas.min.js is UMD, not ESM.
+// A dynamic import of a UMD module executes the script (which
+// assigns to globalThis.html2canvas) but has no default export.
+// So we import once and read from globalThis.
+
+async function loadHtml2Canvas() {
+    if (typeof globalThis.html2canvas === 'function') {
+        return globalThis.html2canvas;
+    }
+    try {
+        await import('/src/lib/html2canvas.min.js');
+    } catch (e) {
+        console.warn('loadHtml2Canvas: dynamic import failed', e);
+    }
+    return typeof globalThis.html2canvas === 'function' ? globalThis.html2canvas : null;
+}
+
+// ─────────────────────────────────────────────────────────────
+// loadLayout — entry point
+// ─────────────────────────────────────────────────────────────
+
 export async function loadLayout() {
     if (layoutLoaded) {
         console.log('Layout already loaded.');
         return;
     }
 
+    // Clear quest-engine and daily-goal module caches at the top of
+    // every page load so nothing reads a stale value from a
+    // previous page session. Dynamic imports keep layout.js light
+    // on pages that don't otherwise touch quests.
+    try {
+        const mod = await import('./quest-engine.js');
+        if (typeof mod.clearQuestEngineContext === 'function') {
+            mod.clearQuestEngineContext();
+        }
+    } catch (e) { /* quest-engine not loaded yet */ }
+
+    try {
+        const mod = await import('./daily-goal.js');
+        if (typeof mod.clearDailyGoalCache === 'function') {
+            mod.clearDailyGoalCache();
+        }
+    } catch (e) { /* daily-goal not loaded yet */ }
+
     const path = window.location.pathname;
-    // Do not load header/footer on quiz page, registration, onboarding, courses
+    // Do not load header/footer on quiz page, registration,
+    // onboarding, or courses.
     if (path.includes('/pages/lesson.html') || path.includes('/pages/practice.html') ||
         path.includes('/registration.html') || path.includes('/registration-completion.html') ||
         path.includes('/onboarding.html') || path.includes('/courses.html')) {
         return;
     }
 
+    // Load header
     try {
         const resp = await fetch('/src/components/header.html');
         if (!resp.ok) throw new Error('Header not found');
@@ -71,6 +262,7 @@ export async function loadLayout() {
         console.error('Failed to load header:', e);
     }
 
+    // Load footer
     try {
         const resp = await fetch('/src/components/footer.html');
         if (!resp.ok) throw new Error('Footer not found');
@@ -83,32 +275,58 @@ export async function loadLayout() {
     layoutLoaded = true;
     document.body.classList.add('has-header');
 
+    // Silent timezone upgrade — runs before initHeader reads
+    // anything timezone-dependent.
+    try {
+        await upgradeTimezoneIfLegacy();
+    } catch (e) {
+        console.warn('layout: timezone upgrade failed', e);
+    }
+
     await initHeader();
     initFooter();
     highlightFooterIcon();
 }
 
+// ─────────────────────────────────────────────────────────────
+// Header initialisation — reads user_stats (canonical)
+// ─────────────────────────────────────────────────────────────
+
 async function initHeader() {
-    let coins = parseInt(localStorage.getItem('coins') || '500');
-    let hearts = parseInt(localStorage.getItem('hearts') || '5');
-    let streak = parseInt(localStorage.getItem('userStreakDays') || '1');
+    let coins  = parseInt(localStorage.getItem('coins') || '500', 10);
+    let hearts = parseInt(localStorage.getItem('hearts') || '5', 10);
+    let streak = parseInt(localStorage.getItem('userStreakDays') || '1', 10);
 
     const loggedIn = await isLoggedIn();
     if (loggedIn) {
-        const profile = await getCurrentUserProfile();
-        if (profile && profile.profile) {
-            coins = profile.profile.coins ?? coins;
-            hearts = profile.profile.hearts ?? hearts;
-            streak = profile.profile.current_streak ?? streak;
+        try {
+            const [dbCoins, dbHearts, streakState] = await Promise.all([
+                getCoins(),
+                getHearts(),
+                getStreakState()
+            ]);
+            if (typeof dbCoins === 'number')   coins  = dbCoins;
+            if (typeof dbHearts === 'number')  hearts = dbHearts;
+            if (streakState && typeof streakState.currentStreak === 'number') {
+                streak = streakState.currentStreak;
+            }
+        } catch (e) {
+            console.error('initHeader: stats fetch failed', e);
         }
     }
 
-    const coinsSpan = document.querySelector('#coinsItem span');
+    const coinsSpan  = document.querySelector('#coinsItem span');
     const heartsSpan = document.querySelector('#heartsItem span');
     const streakSpan = document.getElementById('streakCount');
-    if (coinsSpan) coinsSpan.textContent = coins;
+    if (coinsSpan)  coinsSpan.textContent  = coins;
     if (heartsSpan) heartsSpan.textContent = hearts;
     if (streakSpan) streakSpan.textContent = streak;
+
+    try {
+        localStorage.setItem('coins', String(coins));
+        localStorage.setItem('hearts', String(hearts));
+        localStorage.setItem('userStreakDays', String(streak));
+    } catch (e) { /* ignore */ }
 
     const activeCourseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
     const courseImg = document.querySelector('#activeCourseIcon img');
@@ -140,6 +358,10 @@ async function initHeader() {
     initShareOverlay();
     updateCourseProgress(activeCourseId);
 }
+
+// ─────────────────────────────────────────────────────────────
+// Panels
+// ─────────────────────────────────────────────────────────────
 
 function initPanels() {
     const coursePanel = document.getElementById('coursePanelContainer');
@@ -274,6 +496,10 @@ function initPanels() {
     });
 }
 
+// ─────────────────────────────────────────────────────────────
+// Courses slider
+// ─────────────────────────────────────────────────────────────
+
 function renderCoursesSlider() {
     const slider = document.getElementById('coursesSlider');
     if (!slider) return;
@@ -336,6 +562,10 @@ function renderCoursesSlider() {
     });
 }
 
+// ─────────────────────────────────────────────────────────────
+// Course progress
+// ─────────────────────────────────────────────────────────────
+
 function updateCourseProgress(courseId) {
     const progress = getCourseProgress(courseId);
     const pct = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
@@ -354,6 +584,10 @@ function updateCourseProgress(courseId) {
         courseStatus.textContent = `You are on Level ${Math.min(level, 6)} of ${course?.name || 'this course'}`;
     }
 }
+
+// ─────────────────────────────────────────────────────────────
+// Hearts UI
+// ─────────────────────────────────────────────────────────────
 
 function updateHeartsUI() {
     const heartsSpan = document.querySelector('#heartsItem span');
@@ -398,7 +632,7 @@ function updateHeartsUI() {
     }
 }
 
-function handleRefillHearts() {
+async function handleRefillHearts() {
     const coinsSpan = document.querySelector('#coinsItem span');
     const heartsSpan = document.querySelector('#heartsItem span');
     if (!coinsSpan || !heartsSpan) return;
@@ -427,8 +661,13 @@ function handleRefillHearts() {
     const newCoins = currentCoins - price;
     coinsSpan.textContent = newCoins;
     heartsSpan.textContent = 5;
-    localStorage.setItem('coins', String(newCoins));
-    localStorage.setItem('hearts', '5');
+
+    try {
+        await setCoins(newCoins);
+        await setHearts(5);
+    } catch (e) {
+        console.error('handleRefillHearts: Supabase write failed', e);
+    }
 
     updateHeartsUI();
     const panel = document.getElementById('heartsPanelContainer');
@@ -441,12 +680,15 @@ function initHeartsTimer() {
     if (timerEl) timerEl.textContent = '30m';
 }
 
+// ─────────────────────────────────────────────────────────────
+// Streak calendar
+// ─────────────────────────────────────────────────────────────
+
 let streakNav = 0;
 
 function initStreakCalendar() {}
 
 function loadStreakCalendar() {
-    // (unchanged – uses real streak data)
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + streakNav;
@@ -556,14 +798,22 @@ document.addEventListener('click', (e) => {
     else if (nextBtn) { streakNav++; loadStreakCalendar(); }
 });
 
+// ─────────────────────────────────────────────────────────────
+// Share overlay
+// ─────────────────────────────────────────────────────────────
+
 function initShareOverlay() {
     const saveImageBtn = document.getElementById('saveImage');
     if (saveImageBtn) {
         saveImageBtn.addEventListener('click', async () => {
             const card = document.getElementById('streakCard');
             if (!card) return;
+            const html2canvas = await loadHtml2Canvas();
+            if (!html2canvas) {
+                alert('Could not load image library.');
+                return;
+            }
             try {
-                const html2canvas = (await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.esm.js')).default;
                 html2canvas(card, { scale: 2, backgroundColor: null, useCORS: true }).then(canvas => {
                     const link = document.createElement('a');
                     const date = new Date().toISOString().slice(0, 10);
@@ -628,15 +878,48 @@ function initShareOverlay() {
     if (smsBtn) smsBtn.addEventListener('click', () => shareTo('sms'));
 }
 
+// ─────────────────────────────────────────────────────────────
+// Footer navigation
+// ─────────────────────────────────────────────────────────────
+
+async function navigateToOwnProfile() {
+    try {
+        const loggedIn = await isLoggedIn();
+        if (!loggedIn) {
+            window.location.href = '/registration.html';
+            return;
+        }
+        const current = await getCurrentUserProfile();
+        if (!current || !current.user) {
+            window.location.href = '/registration.html';
+            return;
+        }
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('id', current.user.id)
+            .single();
+        if (profile && profile.username) {
+            window.location.href = `/profile/${profile.username}`;
+        } else {
+            window.location.href = '/settings/profile';
+        }
+    } catch (e) {
+        console.error('Profile navigation failed:', e);
+        window.location.href = '/registration.html';
+    }
+}
+
 function initFooter() {
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
-        item.addEventListener('click', (e) => {
+        item.addEventListener('click', async (e) => {
             e.preventDefault();
             navItems.forEach(n => n.classList.remove('active'));
             item.classList.add('active');
             const view = item.dataset.view;
             updateHeaderVisibility(view);
+
             if (view === 'home') {
                 const courseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
                 window.location.href = `/${courseId}.html`;
@@ -645,9 +928,9 @@ function initFooter() {
             } else if (view === 'ranking') {
                 alert('Ranking page coming soon!');
             } else if (view === 'treasure') {
-                alert('Treasure page coming soon!');
+                window.location.href = '/quests';
             } else if (view === 'user') {
-                alert('Profile page coming soon!');
+                await navigateToOwnProfile();
             } else if (view === 'bell') {
                 alert('Notifications coming soon!');
             }
@@ -665,7 +948,7 @@ function highlightFooterIcon() {
         view = 'book';
     } else if (path.includes('/ranking')) {
         view = 'ranking';
-    } else if (path.includes('/treasure')) {
+    } else if (path.startsWith('/quests') || path.includes('/treasure')) {
         view = 'treasure';
     } else if (path.includes('/profile')) {
         view = 'user';

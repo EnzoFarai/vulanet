@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Quests — Vulanet</title>
+
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/assets/icons/material-symbols/material-symbols.css">
+  <link rel="stylesheet" href="/src/styles/layout.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      background: #ffffff;
+      font-family: 'Atkinson Hyperlegible Next', system-ui, -apple-system, sans-serif;
+      color: #333;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .quests-page {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 0 16px 40px;
+    }
+
+    .app-header {
+      background: var(--theme-color, #FBBC05);
+      padding: 18px 18px 26px;
+      border-bottom-left-radius: 22px;
+      border-bottom-right-radius: 22px;
+      color: #fff;
+      margin-bottom: 24px;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+
+    .top-row-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .badge-month {
+      background: #fff8e1;
+      color: var(--theme-color, #FBBC05);
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .app-header h1 {
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      margin: 0 0 6px;
+      font-size: 26px;
+      line-height: 1.05;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .app-header .sub {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff8e1;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .app-header .sub img {
+      width: 16px;
+      height: 16px;
+      filter: brightness(0) saturate(100%) invert(100%);
+      opacity: 0.9;
+    }
+
+    .avatar {
+      width: 78px;
+      height: 78px;
+      border-radius: 999px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 6px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+    }
+
+    .avatar .material-symbols-outlined {
+      font-size: 40px;
+      color: var(--theme-color, #FBBC05);
+      animation: avatarPulse 2s infinite;
+    }
+
+    @keyframes avatarPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.1); }
+    }
+
+    .quest-track {
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 12px;
+      box-shadow: 0 6px 18px rgba(15, 15, 15, 0.06);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .progress-title {
+      font-weight: 700;
+      color: #333;
+      font-size: 15px;
+    }
+
+    .progress-count {
+      color: var(--theme-color, #FBBC05);
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .track-container { position: relative; }
+
+    .track-bg {
+      height: 22px;
+      background: #e6e6e6;
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .track-fill {
+      height: 100%;
+      background: var(--theme-color, #FBBC05);
+      width: 5%;
+      border-radius: 14px;
+      transition: width 0.4s ease;
+    }
+
+    .milestones {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .milestone {
+      position: absolute;
+      top: -8px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #e6e6e6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateX(-50%);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .milestone img {
+      width: 18px;
+      height: 18px;
+      filter: brightness(0) saturate(100%) invert(60%) sepia(0%) saturate(0%) hue-rotate(180deg) brightness(88%) contrast(85%);
+    }
+
+    .daily-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      font-size: 22px;
+      margin: 0;
+      color: #3b3b3b;
+      font-weight: 700;
+    }
+
+    .time-cta {
+      color: var(--theme-color, #FBBC05);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .time-cta img { width: 20px; height: 20px; }
+
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 0;
+      border: 1px solid #eee;
+      box-shadow: 0 6px 18px rgba(15, 15, 15, 0.06);
+      margin-bottom: 24px;
+    }
+
+    .quests {
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .quest-row {
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fff;
+    }
+
+    .quest-row:last-child { border-bottom: 0; }
+
+    .quest-info { flex: 1; min-width: 0; }
+
+    .quest-title {
+      font-weight: 700;
+      margin: 0 0 10px;
+      color: #444;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .progress-wrapper { position: relative; width: 100%; }
+
+    .progress-bar-row {
+      height: 28px;
+      background: #e6e6e6;
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .progress-inner {
+      height: 12px;
+      background: var(--theme-color, #FBBC05);
+      border-radius: 12px;
+      transition: width 0.4s ease;
+    }
+
+    .progress-count-text {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-size: 13px;
+      z-index: 2;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .progress-count-text.dark-text {
+      color: #666;
+      text-shadow: none;
+    }
+
+    .chest {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      flex: 0 0 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: default;
+      font-family: inherit;
+    }
+
+    .chest img {
+      width: 40px;
+      height: 40px;
+      display: block;
+      transition: filter 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+      pointer-events: none;
+    }
+
+    .chest.bronze img {
+      filter: brightness(0) saturate(100%) invert(62%) sepia(63%) saturate(535%)
+              hue-rotate(347deg) brightness(88%) contrast(84%);
+    }
+    .chest.silver img {
+      filter: brightness(0) saturate(100%) invert(79%) sepia(5%) saturate(20%)
+              hue-rotate(180deg) brightness(92%) contrast(87%);
+    }
+    .chest.gold img {
+      filter: brightness(0) saturate(100%) invert(86%) sepia(94%) saturate(1853%)
+              hue-rotate(323deg) brightness(101%) contrast(101%);
+    }
+
+    .chest.locked img { opacity: 0.35; }
+
+    .chest.ready { cursor: pointer; }
+    .chest.ready img { animation: chestPulse 1.6s ease-in-out infinite; }
+    .chest.ready:active img { transform: scale(0.94); }
+
+    @keyframes chestPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.08); }
+    }
+
+    .chest.claimed img { opacity: 0.7; }
+    .chest.claimed::after {
+      content: '✓';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      background: #58CC02;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .friends { margin-top: 8px; }
+
+    .friends h3 {
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      color: #333;
+      font-size: 22px;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .friends p {
+      color: #888;
+      font-size: 14px;
+      margin: 8px 0 16px;
+      line-height: 1.5;
+    }
+
+    .friend-list {
+      display: flex;
+      gap: 12px;
+      padding-top: 14px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+
+    .friend-list::-webkit-scrollbar { display: none; }
+
+    .friend-card {
+      min-width: 170px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px 16px 20px;
+      border: 1px solid #f0f0f0;
+      box-shadow: 0 6px 18px rgba(15, 15, 15, 0.06);
+      text-align: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 0.125rem solid #c7c7c7;
+      transition: all 0.2s ease;
+      color: #777;
+      line-height: 1;
+    }
+    .close-btn:hover {
+      background-color: #e5e5e5;
+      border-bottom-color: #b0b0b0;
+      transform: translateY(-0.0625rem);
+    }
+    .close-btn:active {
+      transform: translateY(0.0625rem);
+      border-bottom-width: 0.0625rem;
+    }
+
+    .friend-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #f6f6f6;
+      margin: 0 auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #555;
+      flex-shrink: 0;
+      font-size: 20px;
+    }
+
+    .friend-name {
+      font-weight: 700;
+      margin-top: 6px;
+      margin-bottom: 4px;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 4px;
+      font-size: 14px;
+      line-height: 1.3;
+      min-height: 18px;
+    }
+
+    .friend-status {
+      color: #b0b0b0;
+      font-size: 12px;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      padding: 0 4px;
+      min-height: 16px;
+    }
+
+    .button-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-top: auto;
+      padding-top: 8px;
+    }
+
+    .follow-btn {
+      width: 100%;
+      max-width: 120px;
+    }
+
+    .fullscreen-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: #ffffff;
+      z-index: 10000;
+      display: none;
+    }
+    .fullscreen-modal-overlay.visible { display: block; }
+    .fullscreen-modal-overlay iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .state-message {
+      padding: 40px 24px;
+      text-align: center;
+      color: #777777;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .state-message.error { color: #EA4335; }
+    .state-message strong {
+      display: block;
+      color: #444;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 480px) {
+      .friend-card { min-width: 150px; padding: 16px 12px 20px; }
+      .friend-name { font-size: 13px; }
+      .follow-btn { max-width: 110px; font-size: 12px; }
+      .app-header h1 { font-size: 22px; }
+      .avatar { width: 64px; height: 64px; border-width: 4px; }
+      .avatar .material-symbols-outlined { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="fullscreen-modal-overlay" id="fullscreenModalOverlay">
+    <iframe id="modalIframe" src="about:blank" title="Modal"></iframe>
+  </div>
+
+  <div class="quests-page">
+    <header class="app-header" id="appHeader">
+      <div class="top-row">
+        <div class="top-row-left">
+          <div class="badge-month" id="currentMonth"></div>
+          <div>
+            <h1 id="questTheme"></h1>
+            <div class="sub">
+              <img src="/assets/icons/phosphor/bold/clock-countdown.svg" alt="">
+              <span id="daysLeft">—</span>
+            </div>
+          </div>
+        </div>
+        <div class="avatar" aria-hidden="true">
+          <span class="material-symbols-outlined" id="themeIcon"></span>
+        </div>
+      </div>
+
+      <div class="quest-track">
+        <div class="progress-header">
+          <div class="progress-title">Earn 20 Quest Points</div>
+          <div class="progress-count" id="questPointsCount">0 / 20</div>
+        </div>
+        <div class="track-container">
+          <div class="track-bg">
+            <div class="track-fill" id="questTrackFill"></div>
+          </div>
+          <div class="milestones">
+            <div class="milestone" style="left:25%">
+              <img src="/assets/icons/phosphor/fill/lock-key.svg" alt="">
+            </div>
+            <div class="milestone" style="left:50%">
+              <img src="/assets/icons/phosphor/fill/lock-key.svg" alt="">
+            </div>
+            <div class="milestone" style="left:75%">
+              <img src="/assets/icons/phosphor/fill/lock-key.svg" alt="">
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="daily-header-row">
+      <div class="section-title">Daily Quests</div>
+      <div class="time-cta" id="timeCta">
+        <img src="/assets/icons/phosphor/bold/clock-countdown.svg" alt="" id="clockIcon">
+        <span id="dailyTimeText">—</span>
+      </div>
+    </div>
+
+    <div class="card quests" id="questsCard">
+      <div class="state-message">Loading quests…</div>
+    </div>
+
+    <section class="friends" id="friendsSection" hidden>
+      <h3>Friends Quest</h3>
+      <p id="friendsMessage"></p>
+      <div class="friend-list" id="friendList"></div>
+    </section>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { loadLayout } from '/src/js/layout.js';
+    import * as questEngine from '/src/js/quest-engine.js';
+    import {
+      isLoggedIn,
+      getFriendSuggestions,
+      followUser,
+      dismissSuggestion,
+      incrementCoins
+    } from '/src/js/supabase.js';
+    import { getPreference } from '/src/js/preferences.js';
+    import {
+      getLocalDateObject,
+      getLocalDateString
+    } from '/src/js/date-utils.js';
+
+    // ============================================================
+    // Month theme
+    // ============================================================
+    const MONTH_THEMES = {
+      0:  { name: 'January',   theme: 'New Horizons Quest',        icon: 'routine',        color: '#FBBC05' },
+      1:  { name: 'February',  theme: 'Heartstrings Quest',        icon: 'favorite',       color: '#EA4335' },
+      2:  { name: 'March',     theme: 'March of Momentum Quest',   icon: 'speed',          color: '#34A853' },
+      3:  { name: 'April',     theme: 'Double or Nothing Quest',   icon: 'casino',         color: '#FF6D01' },
+      4:  { name: 'May',       theme: 'The Gauntlet Quest',        icon: 'shield',         color: '#AA00FF' },
+      5:  { name: 'June',      theme: 'Up, Up and Away Quest',     icon: 'flight_takeoff', color: '#1CB0F6' },
+      6:  { name: 'July',      theme: 'The Halfway Line Quest',    icon: 'balance',        color: '#AA00FF' },
+      7:  { name: 'August',    theme: 'Conquest Quest',            icon: 'military_tech',  color: '#EA4335' },
+      8:  { name: 'September', theme: 'Starbound Quest',           icon: 'star',           color: '#FBBC05' },
+      9:  { name: 'October',   theme: 'Spellbound Quest',          icon: 'auto_awesome',   color: '#FF6D01' },
+      10: { name: 'November',  theme: 'Edge of Glory Quest',       icon: 'terrain',        color: '#1CB0F6' },
+      11: { name: 'December',  theme: 'Happy Holidays!',           icon: 'celebration',    color: '#34A853' }
+    };
+
+    const now = new Date();
+    const currentMonthIdx = now.getMonth();
+    const monthTheme = MONTH_THEMES[currentMonthIdx];
+
+    document.documentElement.style.setProperty('--theme-color', monthTheme.color);
+    document.getElementById('currentMonth').textContent = monthTheme.name.toUpperCase();
+    document.getElementById('questTheme').innerHTML = monthTheme.theme.replace('Quest', '<br/>Quest');
+    document.getElementById('themeIcon').textContent = monthTheme.icon;
+
+    // ------------------------------------------------------------
+    // Time helpers
+    // ------------------------------------------------------------
+    function getTimezone() {
+      return localStorage.getItem('userTimezone') || 'UTC';
+    }
+
+    function updateDaysLeft() {
+      const local = getLocalDateObject(getTimezone());
+      const daysInMonth = new Date(local.year, local.month, 0).getDate();
+      const daysLeft = Math.max(0, daysInMonth - local.day);
+      document.getElementById('daysLeft').textContent =
+        daysLeft === 1 ? '1 DAY' : `${daysLeft} DAYS`;
+    }
+
+    function updateDailyTimeLeft() {
+      const tz = getTimezone();
+      const now = new Date();
+      const local = getLocalDateObject(tz, now);
+      const secondsIntoDay = local.hour * 3600 + local.minute * 60 + local.second;
+      const secondsLeft = Math.max(0, 86400 - secondsIntoDay);
+      const hours = Math.floor(secondsLeft / 3600);
+      const minutes = Math.floor((secondsLeft % 3600) / 60);
+
+      const textEl = document.getElementById('dailyTimeText');
+      if (hours > 0) {
+        textEl.textContent = `${hours} ${hours === 1 ? 'HOUR' : 'HOURS'}`;
+      } else {
+        const m = Math.max(1, minutes);
+        textEl.textContent = `${m} ${m === 1 ? 'MINUTE' : 'MINUTES'}`;
+      }
+    }
+
+    updateDaysLeft();
+    updateDailyTimeLeft();
+    setInterval(updateDaysLeft, 60_000);
+    setInterval(updateDailyTimeLeft, 60_000);
+
+    // ------------------------------------------------------------
+    // Header coin refresh
+    // ------------------------------------------------------------
+    function refreshHeaderCoins(newBalance) {
+      if (typeof newBalance !== 'number') return;
+      if (typeof window.updateHeaderStats === 'function') {
+        try { window.updateHeaderStats(newBalance); } catch (e) { /* ignored */ }
+      }
+    }
+
+    // ------------------------------------------------------------
+    // Modal bridge
+    // ------------------------------------------------------------
+    const fullscreenOverlay = document.getElementById('fullscreenModalOverlay');
+    const modalIframe = document.getElementById('modalIframe');
+
+    function showCoinModal(amount) {
+      return new Promise((resolve) => {
+        const handler = (event) => {
+          if (event.data === 'modalClose') {
+            window.removeEventListener('message', handler);
+            fullscreenOverlay.classList.remove('visible');
+            modalIframe.src = 'about:blank';
+            resolve();
+          }
+        };
+        window.addEventListener('message', handler);
+        modalIframe.src = `/src/components/modals/coins-reward.html?amount=${amount}`;
+        fullscreenOverlay.classList.add('visible');
+      });
+    }
+
+    function showDailyQuestModal() {
+      return new Promise((resolve) => {
+        let pendingClaimTier = null;
+        const handler = (event) => {
+          if (event.data && event.data.type === 'requestClaim') {
+            pendingClaimTier = event.data.tier;
+            return;
+          }
+          if (event.data === 'modalClose') {
+            window.removeEventListener('message', handler);
+            fullscreenOverlay.classList.remove('visible');
+            modalIframe.src = 'about:blank';
+            if (pendingClaimTier) {
+              resolve({ action: 'claim', tier: pendingClaimTier });
+            } else {
+              resolve({ action: 'continue' });
+            }
+          }
+        };
+        window.addEventListener('message', handler);
+        modalIframe.src = '/src/components/modals/daily-quest.html';
+        fullscreenOverlay.classList.add('visible');
+      });
+    }
+
+    // ------------------------------------------------------------
+    // Auto-claim pending quests (on page load)
+    //
+    // Spec §9 ordering: mark → credit → modal.
+    // If credit fails after mark succeeded, unmark the affected
+    // rows so the reward is retried on the next load.
+    // ------------------------------------------------------------
+    async function autoOpenPendingQuests() {
+      const loggedIn = await isLoggedIn();
+      if (!loggedIn) return;
+
+      let pending = [];
+      try {
+        await questEngine.initQuestEngine();
+        pending = await questEngine.getPendingQuests();
+      } catch (e) {
+        console.error('quests: getPendingQuests failed', e);
+        return;
+      }
+
+      if (!pending.length) return;
+
+      // 1. Mark every pending chest as claimed BEFORE crediting.
+      let results = [];
+      try {
+        results = await questEngine.markPendingQuestsClaimed(pending);
+      } catch (e) {
+        console.error('quests: markPendingQuestsClaimed failed', e);
+        return;
+      }
+
+      // Successful subset + total.
+      const marked = pending.filter((p, i) => results[i] && results[i].ok);
+      const actualTotal = marked.reduce((sum, p) => sum + p.amount, 0);
+      if (actualTotal <= 0) return;
+
+      // 2. Credit coins.
+      let newBalance = null;
+      try {
+        newBalance = await incrementCoins(actualTotal);
+      } catch (e) {
+        console.error('quests: incrementCoins threw', e);
+      }
+
+      // 3. Gate on credit success.
+      if (newBalance === null) {
+        console.error(
+          'quests: credit failed after mark succeeded — unmarking for retry',
+          marked
+        );
+        try {
+          await questEngine.unmarkPendingQuestsClaimed(marked);
+        } catch (e) {
+          console.error('quests: unmark after failed credit threw', e);
+        }
+        return;
+      }
+
+      // 4. Show the display-only reward modal.
+      await showCoinModal(actualTotal);
+
+      // 5. Sync header coin count.
+      refreshHeaderCoins(newBalance);
+    }
+
+    // ------------------------------------------------------------
+    // Chest-tap loop (during session)
+    //
+    // Same ordering: mark → credit → modal. On credit failure,
+    // unmark the single tier and bail out of the loop.
+    // ------------------------------------------------------------
+    async function runChestTapFlow() {
+      const MAX_ITERATIONS = 5;
+      const today = getLocalDateString(getTimezone());
+
+      for (let i = 0; i < MAX_ITERATIONS; i++) {
+        const result = await showDailyQuestModal();
+
+        if (result.action !== 'claim') return;
+
+        const claim = await questEngine.claimQuestChest(result.tier);
+        if (!claim.ok) {
+          console.warn('quests: claimQuestChest refused:', claim.error);
+          continue;
+        }
+
+        let newBalance = null;
+        try {
+          newBalance = await incrementCoins(claim.amount);
+        } catch (e) {
+          console.error('quests: incrementCoins threw', e);
+        }
+
+        if (newBalance === null) {
+          console.error(
+            'quests: credit failed after mark succeeded — unmarking for retry',
+            { date: today, tier: result.tier }
+          );
+          try {
+            await questEngine.unmarkPendingQuestsClaimed([
+              { date: today, tier: result.tier }
+            ]);
+          } catch (e) {
+            console.error('quests: unmark after failed credit threw', e);
+          }
+          return;
+        }
+
+        await showCoinModal(claim.amount);
+        refreshHeaderCoins(newBalance);
+      }
+    }
+
+    // ------------------------------------------------------------
+    // Quest rendering
+    // ------------------------------------------------------------
+    const questsCard = document.getElementById('questsCard');
+
+    function renderQuestsStateMessage(strongText, weakText, isError = false) {
+      questsCard.innerHTML = '';
+      const msg = document.createElement('div');
+      msg.className = 'state-message' + (isError ? ' error' : '');
+      if (strongText) {
+        const strong = document.createElement('strong');
+        strong.textContent = strongText;
+        msg.appendChild(strong);
+      }
+      if (weakText) {
+        const span = document.createElement('span');
+        span.textContent = weakText;
+        msg.appendChild(span);
+      }
+      questsCard.appendChild(msg);
+    }
+
+    function buildQuestRow(tierInfo) {
+      const { tier, title, current, total, complete, claimed } = tierInfo;
+
+      const row = document.createElement('div');
+      row.className = 'quest-row';
+      row.dataset.tier = tier;
+
+      const info = document.createElement('div');
+      info.className = 'quest-info';
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'quest-title';
+      titleEl.textContent = title || 'Quest';
+      info.appendChild(titleEl);
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'progress-wrapper';
+
+      const bar = document.createElement('div');
+      bar.className = 'progress-bar-row';
+
+      const pct = total > 0 ? Math.min(100, (current / total) * 100) : 0;
+      const inner = document.createElement('div');
+      inner.className = 'progress-inner';
+      inner.style.width = `${pct}%`;
+      if (pct === 0) inner.style.background = '#d9d9d9';
+
+      const count = document.createElement('div');
+      count.className = 'progress-count-text' + (pct === 0 ? ' dark-text' : '');
+      count.textContent = `${current} / ${total}`;
+
+      bar.appendChild(inner);
+      bar.appendChild(count);
+      wrapper.appendChild(bar);
+      info.appendChild(wrapper);
+
+      const chest = document.createElement('button');
+      chest.type = 'button';
+      chest.className = `chest ${tier}`;
+      chest.setAttribute('aria-label',
+        `${tier} chest, ${current} of ${total}${claimed ? ', claimed' : ''}`);
+
+      const img = document.createElement('img');
+      img.src = '/assets/icons/phosphor/duotone/treasure-chest.svg';
+      img.alt = '';
+      img.setAttribute('aria-hidden', 'true');
+      chest.appendChild(img);
+
+      if (claimed) {
+        chest.classList.add('claimed');
+        chest.disabled = true;
+      } else if (complete) {
+        chest.classList.add('ready');
+        chest.disabled = false;
+        chest.addEventListener('click', () => { runChestTapFlow(); });
+      } else {
+        chest.classList.add('locked');
+        chest.disabled = true;
+      }
+
+      row.appendChild(info);
+      row.appendChild(chest);
+      return row;
+    }
+
+    async function renderQuests() {
+      const loggedIn = await isLoggedIn();
+      if (!loggedIn) {
+        renderQuestsStateMessage('Sign in to see your quests', 'Guests don\'t earn daily quests.');
+        return;
+      }
+
+      let view = null;
+      try {
+        view = await questEngine.getTodayQuests();
+      } catch (e) {
+        console.error('quests: getTodayQuests failed', e);
+      }
+
+      if (!view || !Array.isArray(view.tiers) || view.tiers.length === 0) {
+        renderQuestsStateMessage('No quests available', 'Come back tomorrow!');
+        return;
+      }
+
+      questsCard.innerHTML = '';
+      view.tiers.forEach(tierInfo => {
+        questsCard.appendChild(buildQuestRow(tierInfo));
+      });
+    }
+
+    // ------------------------------------------------------------
+    // Friends Quest section
+    // ------------------------------------------------------------
+    const friendsSection = document.getElementById('friendsSection');
+    const friendsMessage = document.getElementById('friendsMessage');
+    const friendList = document.getElementById('friendList');
+
+    function avatarInitial(displayName, username) {
+      const name = displayName || username || '?';
+      return name.charAt(0).toUpperCase();
+    }
+
+    function initialColor(id) {
+      let hash = 0;
+      const src = String(id || '');
+      for (let i = 0; i < src.length; i++) {
+        hash = src.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const palette = [
+        '#ff5722', '#3f51b5', '#009688', '#9c27b0', '#e91e63',
+        '#4caf50', '#00bcd4', '#ff9800', '#795548', '#607d8b',
+        '#8bc34a', '#ffc107'
+      ];
+      return palette[Math.abs(hash) % palette.length];
+    }
+
+    function buildFriendCard(suggestion) {
+      const card = document.createElement('div');
+      card.className = 'friend-card';
+
+      const close = document.createElement('button');
+      close.className = 'close-btn';
+      close.type = 'button';
+      close.setAttribute('aria-label', 'Dismiss suggestion');
+      close.textContent = '×';
+      close.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+          await dismissSuggestion(suggestion.id);
+          card.remove();
+        } catch (err) {
+          console.error('dismissSuggestion failed:', err);
+        }
+      });
+      card.appendChild(close);
+
+      const avatar = document.createElement('div');
+      avatar.className = 'friend-avatar';
+      avatar.style.background = initialColor(suggestion.id);
+      avatar.style.color = '#fff';
+      avatar.textContent = avatarInitial(suggestion.display_name, suggestion.username);
+      card.appendChild(avatar);
+
+      const name = document.createElement('div');
+      name.className = 'friend-name';
+      name.textContent = suggestion.display_name || suggestion.username || 'User';
+      card.appendChild(name);
+
+      const status = document.createElement('div');
+      status.className = 'friend-status';
+      status.textContent = suggestion.country
+        ? `From ${suggestion.country}`
+        : `@${suggestion.username || 'user'}`;
+      card.appendChild(status);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'button-wrapper';
+      const followBtn = document.createElement('button');
+      followBtn.className = 'btn btn-sm btn-gecko-solid follow-btn';
+      followBtn.type = 'button';
+      followBtn.textContent = 'FOLLOW';
+
+      followBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        followBtn.disabled = true;
+        followBtn.textContent = 'FOLLOWING';
+        try {
+          await followUser(suggestion.id);
+        } catch (err) {
+          console.error('followUser failed:', err);
+          followBtn.disabled = false;
+          followBtn.textContent = 'FOLLOW';
+        }
+      });
+      wrap.appendChild(followBtn);
+      card.appendChild(wrap);
+
+      card.addEventListener('click', () => {
+        if (suggestion.username) {
+          window.location.href = `/profile/${suggestion.username}`;
+        }
+      });
+
+      return card;
+    }
+
+    async function renderFriends() {
+      let enabled = true;
+      try {
+        const pref = await getPreference('friends_quest');
+        if (pref === false) enabled = false;
+      } catch (e) { /* default enabled */ }
+      if (!enabled) {
+        friendsSection.hidden = true;
+        return;
+      }
+
+      const loggedIn = await isLoggedIn();
+      if (!loggedIn) {
+        friendsSection.hidden = true;
+        return;
+      }
+
+      friendsSection.hidden = false;
+
+      let suggestions = [];
+      try {
+        suggestions = await getFriendSuggestions(5);
+      } catch (e) {
+        console.error('getFriendSuggestions failed:', e);
+      }
+
+      friendsMessage.textContent = suggestions.length
+        ? 'Follow someone to start a Friends Quest together!'
+        : 'No friends currently available. Follow a suggested partner below to get started!';
+
+      friendList.innerHTML = '';
+      suggestions.forEach(s => {
+        friendList.appendChild(buildFriendCard(s));
+      });
+    }
+
+    // ------------------------------------------------------------
+    // Boot
+    // ------------------------------------------------------------
+    (async function boot() {
+      try {
+        await loadLayout();
+      } catch (e) {
+        console.error('quests: loadLayout failed', e);
+      }
+
+      try {
+        await autoOpenPendingQuests();
+      } catch (e) {
+        console.error('quests: autoOpenPendingQuests failed', e);
+      }
+
+      try {
+        await renderQuests();
+      } catch (e) {
+        console.error('quests: renderQuests failed', e);
+      }
+
+      try {
+        await renderFriends();
+      } catch (e) {
+        console.error('quests: renderFriends failed', e);
+      }
+    })();
+  </script>
+</body>
+</html>

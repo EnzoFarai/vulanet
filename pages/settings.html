@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Settings — Vulanet</title>
+
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background-color: #FFFFFF;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 16px;
+    }
+
+    .canvas {
+      max-width: 390px;
+      width: 100%;
+      background: #FFFFFF;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ----- HEADER ----- */
+    .nav-bar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: #FFFFFF;
+      margin-bottom: 8px;
+    }
+    .nav-left {
+      width: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      padding: 6px;
+    }
+    .nav-left img { width: 22px; height: 22px; opacity: 0.7; }
+    .nav-left:hover img { opacity: 1; }
+    .nav-title {
+      font-weight: 700;
+      font-size: 18px;
+      color: #4B4B4B;
+      text-align: center;
+    }
+    .nav-right {
+      width: 60px;
+      text-align: right;
+      font-weight: 700;
+      font-size: 14px;
+      color: #1CB0F6;
+      text-transform: uppercase;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+    }
+    .nav-right:hover { text-decoration: underline; }
+
+    .section-header {
+      font-weight: 700;
+      font-size: 15px;
+      color: #777777;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-top: 24px;
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .card {
+      background: #FFFFFF;
+      border: 2px solid #E5E5E5;
+      border-radius: 14px;
+      width: 100%;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 54px;
+      padding: 0 16px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #E5E5E5;
+      font-weight: 700;
+      font-size: 16px;
+      color: #4B4B4B;
+      line-height: 1.2;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item:hover { background: #FAFAFA; }
+
+    .item-label { flex: 1; text-align: left; color: inherit; }
+    .chevron::after {
+      content: "›";
+      font-size: 32px;
+      font-weight: 400;
+      line-height: 1;
+      color: #AFAFAF;
+      margin-left: 12px;
+    }
+
+    .bottom-spacer {
+      margin-top: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* SIGN OUT — uses buttons.css base, red text variant */
+    .sign-out-btn {
+      width: 100%;
+      margin-bottom: 24px;
+      color: #EA4335 !important;
+    }
+
+    .legal-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-top: 4px;
+      margin-bottom: 24px;
+      width: 100%;
+    }
+    .legal-link {
+      font-weight: 700;
+      font-size: 14px;
+      color: #1CB0F6;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+    }
+    .legal-link:hover { text-decoration: underline; opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <header class="nav-bar">
+      <div class="nav-left" id="backBtn" role="button" aria-label="Back to profile">
+        <img src="/assets/icons/phosphor/regular/arrow-left.svg" alt="">
+      </div>
+      <span class="nav-title">Settings</span>
+      <span class="nav-right" id="doneBtn" role="button">DONE</span>
+    </header>
+
+    <div class="section-header">ACCOUNT</div>
+    <div class="card">
+      <a class="list-item" href="/settings/account">
+        <span class="item-label">Preferences</span><span class="chevron"></span>
+      </a>
+      <a class="list-item" href="/settings/profile">
+        <span class="item-label">Profile</span><span class="chevron"></span>
+      </a>
+      <a class="list-item" href="/settings/notifications">
+        <span class="item-label">Notifications</span><span class="chevron"></span>
+      </a>
+      <a class="list-item" href="/settings/courses">
+        <span class="item-label">Courses</span><span class="chevron"></span>
+      </a>
+      <a class="list-item" href="/settings/privacy">
+        <span class="item-label">Privacy settings</span><span class="chevron"></span>
+      </a>
+    </div>
+
+    <div class="section-header">SUPPORT</div>
+    <div class="card">
+      <a class="list-item" href="/help">
+        <span class="item-label">Help centre</span><span class="chevron"></span>
+      </a>
+      <a class="list-item" href="/help/support-request">
+        <span class="item-label">Feedback</span><span class="chevron"></span>
+      </a>
+      <a class="list-item" href="/help/support-request">
+        <span class="item-label">Report a problem</span><span class="chevron"></span>
+      </a>
+    </div>
+
+    <div class="bottom-spacer">
+      <button class="btn btn-md btn-cloud-outline sign-out-btn" id="signOutBtn">SIGN OUT</button>
+      <div class="legal-links">
+        <a href="/terms" class="legal-link">TERMS</a>
+        <a href="/privacy" class="legal-link">PRIVACY POLICY</a>
+        <a href="/attribution" class="legal-link">ACKNOWLEDGEMENTS</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { supabase, isLoggedIn, getCurrentUserProfile } from '/src/js/supabase.js';
+
+    // ── Resolve the current user's username for back/done navigation ──
+    let username = null;
+    try {
+      const loggedIn = await isLoggedIn();
+      if (loggedIn) {
+        const current = await getCurrentUserProfile();
+        if (current && current.profile && current.profile.username) {
+          username = current.profile.username;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch profile:', e);
+    }
+
+    const profileTarget = username ? `/profile/${username}` : '/registration.html';
+
+    document.getElementById('backBtn').addEventListener('click', () => {
+      window.location.href = profileTarget;
+    });
+
+    document.getElementById('doneBtn').addEventListener('click', () => {
+      window.location.href = profileTarget;
+    });
+
+    // ── Sign out ─────────────────────────────────────────────
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('signOutBtn');
+      btn.disabled = true;
+      btn.textContent = 'SIGNING OUT…';
+
+      // Clear local caches
+      try {
+        localStorage.removeItem('selectedCourseId');
+        localStorage.removeItem('userCourses');
+        localStorage.removeItem('onboardingAction');
+      } catch (e) { /* noop */ }
+
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+        btn.disabled = false;
+        btn.textContent = 'SIGN OUT';
+        return;
+      }
+      window.location.href = '/';
+    });
+  </script>
+</body>
+</html>
