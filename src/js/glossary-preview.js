@@ -4,6 +4,11 @@
  * Expects window.glossaryData to be defined (course-specific glossary).
  * Attaches to elements with class 'glossary-link'.
  * Tracks discovery when 'View in Glossary' is clicked.
+ *
+ * Loaded as a classic script (dynamically appended by reading pages),
+ * so it uses dynamic import() to reach supabase.js rather than a
+ * top-level import. The browser caches the module after the first
+ * resolution.
  */
 
 (function() {
@@ -169,10 +174,22 @@
         if (!discovered[term]) {
             discovered[term] = true;
             localStorage.setItem(key, JSON.stringify(discovered));
+
             window.dispatchEvent(new CustomEvent('glossaryDiscover', {
                 detail: { courseId, term }
             }));
+
             console.log(`Glossary discovery (from preview): ${courseId} → ${term}`);
+
+            // Server-side authoritative dedup. Fire-and-forget:
+            // a failure only delays the achievement, it never
+            // loses progress. The RPC (discover_glossary_term,
+            // migration 0009) is idempotent per (user, course,
+            // term) and bumps glossary_terms_discovered exactly
+            // once per unique term.
+            import('/src/js/supabase.js')
+                .then(m => m.discoverGlossaryTerm(courseId, term))
+                .catch(e => console.error('glossary discovery server call failed', e));
         }
     }
 })();

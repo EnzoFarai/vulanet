@@ -15,9 +15,12 @@ export const RECORD_DEFS = {
     title: 'Highest League',
     icon: 'medal',
     color: '#fbc02d',
-    message: (value) => `You finished ${value} in the league!`,
-    shareMessage: (value) => `I finished ${value} in the league!`,
-    unachievedMessage: 'Do a lesson to enter a league!',
+    // "value" here is a league tier name (Beginner, Amateur, ...,
+    // Ultimate). Templates are grammatically tuned for names, not
+    // numeric positions.
+    message: (value) => `You reached the ${value} League!`,
+    shareMessage: (value) => `I reached the ${value} League on Vulanet!`,
+    unachievedMessage: 'Get promoted to a higher league!',
     defaultNumber: '—'
   },
   perfectLessons: {

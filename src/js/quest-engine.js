@@ -21,7 +21,16 @@
 //   • Claim ordering (spec §9): mark → credit → modal.
 //     unmarkPendingQuestsClaimed reverses the mark if the credit
 //     step fails, so the reward is retried on the next load.
+//     unmarkDailyGoalClaimed is the same pattern for the
+//     daily-goal reward.
 //   • getPendingQuests() spans ALL dates, not just today.
+//   • Achievement counters (user_stats columns) are bumped here
+//     because this module is the single writer for lesson-scoped
+//     progress and quest chest claims. Bumps go through the
+//     increment_user_stat RPC added by migration 0008 so
+//     concurrent calls do not lose updates. A lost bump only
+//     delays the corresponding achievement — it never corrupts
+//     progress — so failures are logged and swallowed.
 //
 // ─────────────────────────────────────────────────────────────
 // CALLER CONTRACT
@@ -65,6 +74,7 @@
 //   getDailyGoalProgress(localDate?)
 //   checkDailyGoalReward(localDate?)
 //   markDailyGoalClaimed(localDate?)
+//   unmarkDailyGoalClaimed(localDate?)
 //   getDailyGoalValue()
 //
 // ============================================================
@@ -79,7 +89,8 @@ import {
   getOrCreateDailyQuests,
   updateQuestProgress,
   claimQuestReward,
-  unclaimQuestReward
+  unclaimQuestReward,
+  incrementAchievementCounter
 } from './supabase.js';
 
 import {
@@ -163,6 +174,68 @@ export async function initQuestEngine() {
 export function clearQuestEngineContext() {
   _context = null;
   _initPromise = null;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Achievement counter bumps
+// ─────────────────────────────────────────────────────────────
+//
+// Lifetime achievement counters live on user_stats. They are
+// distinct from the daily_progress counters (which reset each
+// local day). Each bump is best-effort: a failure logs but never
+// blocks the caller, because a lost increment only delays the
+// corresponding achievement.
+//
+// The increment_user_stat RPC performs the arithmetic atomically
+// on the DB side; we never read-modify-write the counter in JS.
+
+async function bumpLessonAchievementCounters(stats, localHour) {
+  const bumps = [];
+
+  const xpEarned = Math.max(0, Math.round(stats.xpEarned || 0));
+  if (xpEarned > 0) {
+    bumps.push(incrementAchievementCounter('total_xp', xpEarned));
+  }
+
+  if (stats.perfectLesson) {
+    bumps.push(incrementAchievementCounter('perfect_lessons', 1));
+  }
+
+  if (stats.isMastery) {
+    bumps.push(incrementAchievementCounter('master_challenges_completed', 1));
+  }
+
+  // Night Owl: 00:00 – 02:59 local. Early Bird: 06:00 – 08:59 local.
+  // The hour is the wall-clock hour in the user's timezone, already
+  // resolved upstream. If localHour is unavailable, skip both.
+  if (typeof localHour === 'number' && Number.isFinite(localHour)) {
+    if (localHour >= 0 && localHour < 3) {
+      bumps.push(incrementAchievementCounter('night_owl_lessons', 1));
+    } else if (localHour >= 6 && localHour < 9) {
+      bumps.push(incrementAchievementCounter('early_bird_lessons', 1));
+    }
+  }
+
+  if (bumps.length === 0) return;
+
+  try {
+    // Promise.all is safe here: incrementAchievementCounter never
+    // throws — it logs and returns null on failure. If the
+    // underlying RPC is missing (migration not applied) every bump
+    // resolves to null and we simply move on.
+    await Promise.all(bumps);
+  } catch (e) {
+    console.error('quest-engine: lesson counter batch failed', e);
+  }
+}
+
+async function bumpQuestsCompleted(delta) {
+  if (!Number.isFinite(delta) || delta === 0) return;
+  try {
+    await incrementAchievementCounter('quests_completed', delta);
+  } catch (e) {
+    console.error('quest-engine: quests_completed bump failed', e);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -325,7 +398,7 @@ export async function recordLessonCompletion(stats) {
     ? stats.localHour
     : getLocalHour(_context.timezone);
 
-  const deltas = computeDeltas(stats, localHour);
+  const deltas = computeDeltas(stats);
 
   const writeResult = await updateDailyProgress(localDate, deltas);
   if (!writeResult.ok) {
@@ -340,6 +413,15 @@ export async function recordLessonCompletion(stats) {
       quests: null,
       dailyGoal: null
     };
+  }
+
+  // Bump lifetime achievement counters. Failure here does not fail
+  // the overall lesson completion — those counters are decorative
+  // for the achievement system and will simply re-fire later.
+  try {
+    await bumpLessonAchievementCounters(stats, localHour);
+  } catch (e) {
+    console.error('quest-engine: bumpLessonAchievementCounters threw', e);
   }
 
   let quests = null;
@@ -365,7 +447,7 @@ export async function recordLessonCompletion(stats) {
   };
 }
 
-function computeDeltas(stats, localHour) {
+function computeDeltas(stats) {
   const deltas = {
     lessons_completed: 1,
     xp_earned: Math.max(0, Math.round(stats.xpEarned || 0)),
@@ -384,7 +466,6 @@ function computeDeltas(stats, localHour) {
   if (stats.isReview)           deltas.reviewed_lessons = 1;
   if (stats.isChapterReview)    deltas.chapter_reviews = 1;
 
-  void localHour;
   return deltas;
 }
 
@@ -463,6 +544,11 @@ export async function claimQuestChest(tier, localDate) {
     return { ok: false, amount: 0, tier, error: 'claim-failed' };
   }
 
+  // Bump the lifetime quests_completed counter. Symmetric with
+  // the unmark path in unmarkPendingQuestsClaimed, so a credit
+  // failure does not leave a phantom +1.
+  await bumpQuestsCompleted(1);
+
   return {
     ok: true,
     amount: CHEST_REWARD[tier],
@@ -478,6 +564,10 @@ export async function claimQuestChest(tier, localDate) {
 /**
  * Mark a batch of pending quests as claimed.
  * Returns an array of { date, tier, ok } describing each attempt.
+ *
+ * Also bumps the lifetime quests_completed counter by the number
+ * of successful marks in a single RPC call (rather than one call
+ * per chest).
  */
 export async function markPendingQuestsClaimed(pendingList) {
   ensureContext();
@@ -485,10 +575,17 @@ export async function markPendingQuestsClaimed(pendingList) {
   if (!Array.isArray(pendingList) || pendingList.length === 0) return [];
 
   const results = [];
+  let successCount = 0;
   for (const p of pendingList) {
     const ok = await claimQuestReward(p.date, p.tier);
     results.push({ date: p.date, tier: p.tier, ok: !!ok });
+    if (ok) successCount += 1;
   }
+
+  if (successCount > 0) {
+    await bumpQuestsCompleted(successCount);
+  }
+
   return results;
 }
 
@@ -499,6 +596,9 @@ export async function markPendingQuestsClaimed(pendingList) {
  *
  * Callers should pass only the rows that were successfully marked.
  * Returns an array of { date, tier, ok } describing each attempt.
+ *
+ * Symmetrically decrements quests_completed by the number of
+ * successful unmarks, so the counter mirrors the DB state.
  */
 export async function unmarkPendingQuestsClaimed(pendingList) {
   ensureContext();
@@ -506,10 +606,17 @@ export async function unmarkPendingQuestsClaimed(pendingList) {
   if (!Array.isArray(pendingList) || pendingList.length === 0) return [];
 
   const results = [];
+  let successCount = 0;
   for (const p of pendingList) {
     const ok = await unclaimQuestReward(p.date, p.tier);
     results.push({ date: p.date, tier: p.tier, ok: !!ok });
+    if (ok) successCount += 1;
   }
+
+  if (successCount > 0) {
+    await bumpQuestsCompleted(-successCount);
+  }
+
   return results;
 }
 
@@ -533,6 +640,44 @@ export async function markDailyGoalClaimed(localDate) {
   ensureContext();
   const date = localDate || getLocalDateString(_context.timezone);
   return await dgMarkClaimed(date);
+}
+
+/**
+ * Reverse the daily-goal claim flag. Companion to
+ * markDailyGoalClaimed, used by the quiz pipeline when the mark
+ * succeeded but the subsequent coin credit failed.
+ *
+ * Flips daily_progress.daily_goal_reward_claimed back to false for
+ * the given local date, so the reward is retried on the next
+ * lesson completion.
+ *
+ * Returns TRUE only when Supabase confirmed the flag is now false.
+ * Guests have no daily-goal reward, so this is a no-op that
+ * returns false.
+ *
+ * Mirrors the mark→credit→unmark-on-failure pattern used for
+ * quest chests (see unmarkPendingQuestsClaimed).
+ */
+export async function unmarkDailyGoalClaimed(localDate) {
+  ensureContext();
+  if (!_context.isLoggedIn) return false;
+
+  const date = localDate || getLocalDateString(_context.timezone);
+
+  const result = await updateDailyProgress(date, {
+    daily_goal_reward_claimed: false
+  });
+
+  if (!result || !result.ok) {
+    console.error(
+      'unmarkDailyGoalClaimed failed:',
+      result ? result.error : 'no result'
+    );
+    return false;
+  }
+
+  // Confirm the flag actually came back false.
+  return !!(result.row && result.row.daily_goal_reward_claimed === false);
 }
 
 export async function getDailyGoalValue() {

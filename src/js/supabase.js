@@ -163,12 +163,6 @@ export async function isUsernameTaken(username, excludeUserId = null) {
 // 3. COINS
 // ============================================================
 
-/**
- * Current coin balance.
- *
- *   Guest:      localStorage value (canonical for guests).
- *   Logged in:  user_stats.coins. Returns null on DB-read failure.
- */
 export async function getCoins() {
   if (!(await isLoggedIn())) {
     return readInt(LS_KEYS.coins, COIN_STARTING_BALANCE);
@@ -190,13 +184,6 @@ export async function getCoins() {
   return data.coins;
 }
 
-/**
- * Set the coin balance.
- *
- * Returns the new balance on success. Returns null when the write
- * to Supabase fails for a logged-in user, so callers can gate
- * reward modals on the actual credit having happened.
- */
 export async function setCoins(amount) {
   const next = Math.max(0, Math.round(Number(amount) || 0));
   writeInt(LS_KEYS.coins, next);
@@ -217,10 +204,6 @@ export async function setCoins(amount) {
   return next;
 }
 
-/**
- * Add (or subtract) coins. Returns the new balance, or null on
- * failure (read or write).
- */
 export async function incrementCoins(delta) {
   const current = await getCoins();
   if (current === null) {
@@ -252,10 +235,6 @@ export async function getHearts() {
   return data.hearts;
 }
 
-/**
- * Set hearts. Returns the new count, or null on DB write failure
- * for logged-in users.
- */
 export async function setHearts(amount) {
   const next = clampInt(amount, 0, HEART_MAX);
   writeInt(LS_KEYS.hearts, next);
@@ -295,16 +274,6 @@ export async function getNextHeartAt() {
   return ms;
 }
 
-/**
- * Set the next-heart timestamp. Pass null to clear.
- *
- * Returns:
- *   - null when clearing (that's the clear value, not a failure)
- *   - ms on success
- *   - null on DB write failure for a logged-in user (ambiguous
- *     with clear; callers who need to distinguish should re-read
- *     getNextHeartAt())
- */
 export async function setNextHeartAt(ms) {
   if (ms === null || ms === undefined) {
     try { localStorage.removeItem(LS_KEYS.nextHeartAt); } catch (e) { /* noop */ }
@@ -401,7 +370,10 @@ export async function setStreakState(updates) {
     })
     .eq('user_id', uid);
 
-  if (error) console.error('setStreakState failed:', error);
+  if (error) {
+    console.error('setStreakState failed:', error);
+    return null;
+  }
   return next;
 }
 
@@ -626,6 +598,31 @@ export async function getTodayCounters(localDate) {
   return await getDailyProgress(localDate || utcToday());
 }
 
+// ────────────────────────────────────────────────────────────
+// Daily progress range — for the profile "XP this week" chart
+// ────────────────────────────────────────────────────────────
+//
+// Returns rows for [startDate, endDate] inclusive (YYYY-MM-DD).
+// Rows are keyed by progress_date. Missing days are simply absent
+// from the array; callers fill gaps client-side.
+
+export async function getDailyProgressRange(startDate, endDate) {
+  if (!startDate || !endDate) return [];
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+
+  const { data, error } = await supabase
+    .from('daily_progress')
+    .select('progress_date, xp_earned')
+    .eq('user_id', uid)
+    .gte('progress_date', startDate)
+    .lte('progress_date', endDate)
+    .order('progress_date', { ascending: true });
+
+  if (error || !data) return [];
+  return data;
+}
+
 // ============================================================
 // 8. DAILY GOAL
 // ============================================================
@@ -674,7 +671,10 @@ export async function setDailyGoal(minutes) {
     .update({ daily_goal_minutes: safe })
     .eq('id', uid);
 
-  if (error) console.error('setDailyGoal failed:', error);
+  if (error) {
+    console.error('setDailyGoal failed:', error);
+    return null;
+  }
   return safe;
 }
 
@@ -776,6 +776,91 @@ export async function markAchievementClaimed(key) {
     return false;
   }
   return true;
+}
+
+export async function getAchievementCounters() {
+  if (!(await isLoggedIn())) return null;
+  const uid = await getCurrentUserId();
+  if (!uid) return null;
+
+  const { data, error } = await supabase
+    .from('user_stats')
+    .select(
+      'total_xp, perfect_lessons, perfect_week_count, ' +
+      'glossary_terms_discovered, timed_challenge_xp, ' +
+      'night_owl_lessons, early_bird_lessons, ' +
+      'master_challenges_completed, quests_completed, ' +
+      'congratulations_sent, corrections_made, ' +
+      'league_champion_count, ultimate_champion_count'
+    )
+    .eq('user_id', uid)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) console.error('getAchievementCounters: read failed', error);
+    return null;
+  }
+
+  let followingCount = 0;
+  try {
+    const { count, error: countErr } = await supabase
+      .from('follows')
+      .select('follower_id', { count: 'exact', head: true })
+      .eq('follower_id', uid);
+    if (!countErr && typeof count === 'number') {
+      followingCount = count;
+    }
+  } catch (e) {
+    console.error('getAchievementCounters: following count failed', e);
+  }
+
+  return {
+    total_xp: data.total_xp || 0,
+    perfect_lessons: data.perfect_lessons || 0,
+    perfect_week_count: data.perfect_week_count || 0,
+    glossary_terms_discovered: data.glossary_terms_discovered || 0,
+    timed_challenge_xp: data.timed_challenge_xp || 0,
+    night_owl_lessons: data.night_owl_lessons || 0,
+    early_bird_lessons: data.early_bird_lessons || 0,
+    master_challenges_completed: data.master_challenges_completed || 0,
+    quests_completed: data.quests_completed || 0,
+    congratulations_sent: data.congratulations_sent || 0,
+    corrections_made: data.corrections_made || 0,
+    league_champion_count: data.league_champion_count || 0,
+    ultimate_champion_count: data.ultimate_champion_count || 0,
+    following_count: followingCount
+  };
+}
+
+export async function incrementAchievementCounter(name, delta = 1) {
+  if (!(await isLoggedIn())) return null;
+
+  const { data, error } = await supabase.rpc('increment_user_stat', {
+    p_stat_name: name,
+    p_delta: delta
+  });
+
+  if (error) {
+    console.error('incrementAchievementCounter failed:', name, error);
+    return null;
+  }
+  return data;
+}
+
+export async function discoverGlossaryTerm(courseId, term) {
+  if (!(await isLoggedIn())) return null;
+  if (!courseId || !term) return null;
+
+  const { data, error } = await supabase.rpc('discover_glossary_term', {
+    p_course_id: courseId,
+    p_term: term
+  });
+
+  if (error) {
+    console.error('discoverGlossaryTerm failed:', error);
+    return null;
+  }
+  return !!data;
 }
 
 // ============================================================
@@ -955,14 +1040,6 @@ export async function claimQuestReward(date, chestId) {
   return true;
 }
 
-/**
- * Flip a previously-claimed chest back to unclaimed. Used when the
- * mark succeeded but the subsequent coin credit failed, so the
- * user gets another chance on the next load.
- *
- * Idempotent: no-op if the row doesn't exist or is already
- * unclaimed.
- */
 export async function unclaimQuestReward(date, chestId) {
   const valid = ['bronze', 'silver', 'gold'];
   if (!valid.includes(chestId)) return false;
@@ -1295,4 +1372,287 @@ export async function syncGuestDataToSupabase() {
   } catch (e) { /* noop */ }
 
   return { migrated, skipped };
+}
+
+// ============================================================
+// 16. LEAGUES
+// ============================================================
+//
+// Client-facing access layer for the weekly leagues system.
+// All writes go through SECURITY DEFINER RPCs — the client never
+// writes league_participants directly (no INSERT/UPDATE policy).
+//
+// The week boundary is UTC Monday 00:00. getCurrentLeagueWeekDate()
+// mirrors the SQL helper public.current_league_week() without a
+// round trip.
+
+// ── Week helpers ───────────────────────────────────────────
+
+/**
+ * Return the ISO date (YYYY-MM-DD) of the current competition
+ * week's Monday in UTC. Mirrors public.current_league_week().
+ */
+export function getCurrentLeagueWeekDate() {
+  const now = new Date();
+  const day = now.getUTCDay(); // 0 = Sun .. 6 = Sat
+  const diff = (day === 0) ? -6 : (1 - day); // shift to Monday
+  const monday = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() + diff
+  ));
+  return monday.toISOString().slice(0, 10);
+}
+
+/**
+ * Return the timestamp of the next UTC Monday 00:00.
+ * Used by the leaderboard countdown.
+ */
+export function getNextLeagueResetMs() {
+  const now = new Date();
+  const day = now.getUTCDay();
+  const daysUntilMonday = (day === 0) ? 1 : (8 - day);
+  const next = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() + daysUntilMonday,
+    0, 0, 0, 0
+  ));
+  return next.getTime();
+}
+
+// ── RPC wrappers ───────────────────────────────────────────
+
+export async function joinLeagueCompetition() {
+  if (!(await isLoggedIn())) return null;
+  const { data, error } = await supabase.rpc('join_league_competition');
+  if (error) { console.error('joinLeagueCompetition failed:', error); return null; }
+  return data;
+}
+
+/**
+ * No-argument sync of the caller's weekly league XP. Reads the
+ * caller's own daily_progress.xp_earned for the current week and
+ * writes the total to their league_participants row. Never trusts
+ * a client-supplied XP value.
+ */
+export async function syncLeagueWeeklyXp() {
+  if (!(await isLoggedIn())) return null;
+  const { data, error } = await supabase.rpc('sync_league_weekly_xp');
+  if (error) { console.error('syncLeagueWeeklyXp failed:', error); return null; }
+  return data;
+}
+
+export async function finalizeDueLeagueWeeks() {
+  if (!(await isLoggedIn())) return 0;
+  const { data, error } = await supabase.rpc('finalize_due_league_weeks');
+  if (error) { console.error('finalizeDueLeagueWeeks failed:', error); return 0; }
+  return typeof data === 'number' ? data : 0;
+}
+
+// ── Reads ──────────────────────────────────────────────────
+
+export async function getMyLeagueParticipant(weekStart) {
+  const uid = await getCurrentUserId();
+  if (!uid) return null;
+  const week = weekStart || getCurrentLeagueWeekDate();
+
+  const { data, error } = await supabase
+    .from('league_participants')
+    .select('*')
+    .eq('user_id', uid)
+    .eq('week_start', week)
+    .maybeSingle();
+
+  if (error) return null;
+  return data;
+}
+
+export async function getLeagueGroupParticipants(groupId) {
+  if (!groupId) return [];
+  const { data, error } = await supabase
+    .from('league_participants')
+    .select('*')
+    .eq('group_id', groupId)
+    .order('weekly_xp', { ascending: false });
+
+  if (error || !data) return [];
+  return data;
+}
+
+/**
+ * Fetch profile rows for a list of user_ids.
+ * Returns a map keyed by id: { [id]: profile }.
+ */
+export async function getProfilesByIds(userIds) {
+  if (!Array.isArray(userIds) || userIds.length === 0) return {};
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, username, display_name')
+    .in('id', userIds);
+  if (error || !data) return {};
+  const map = {};
+  data.forEach(p => { map[p.id] = p; });
+  return map;
+}
+
+/**
+ * Fetch each user's total_xp as a lightweight activity indicator
+ * for competitor display. Batched by user_id.
+ */
+export async function getUserStatsByIds(userIds) {
+  if (!Array.isArray(userIds) || userIds.length === 0) return {};
+  const { data, error } = await supabase
+    .from('user_stats')
+    .select('user_id, total_xp')
+    .in('user_id', userIds);
+  if (error || !data) return {};
+  const map = {};
+  data.forEach(s => { map[s.user_id] = s; });
+  return map;
+}
+
+/**
+ * Moods for every participant in a group for a given week.
+ * Returns map: { [user_id]: emoji }.
+ */
+export async function getLeagueMoodsForWeek(weekStart, userIds) {
+  if (!weekStart) return {};
+  let q = supabase
+    .from('league_moods')
+    .select('user_id, emoji')
+    .eq('week_start', weekStart);
+  if (Array.isArray(userIds) && userIds.length > 0) {
+    q = q.in('user_id', userIds);
+  }
+  const { data, error } = await q;
+  if (error || !data) return {};
+  const map = {};
+  data.forEach(m => { map[m.user_id] = m.emoji; });
+  return map;
+}
+
+export async function getMyLeagueMood(weekStart) {
+  const uid = await getCurrentUserId();
+  if (!uid) return null;
+  const { data, error } = await supabase
+    .from('league_moods')
+    .select('emoji')
+    .eq('user_id', uid)
+    .eq('week_start', weekStart)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data.emoji;
+}
+
+export async function setMyLeagueMood(weekStart, emoji) {
+  const uid = await getCurrentUserId();
+  if (!uid || !weekStart || !emoji) return false;
+  const { error } = await supabase
+    .from('league_moods')
+    .upsert(
+      { user_id: uid, week_start: weekStart, emoji, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id,week_start' }
+    );
+  if (error) { console.error('setMyLeagueMood failed:', error); return false; }
+  return true;
+}
+
+export async function clearMyLeagueMood(weekStart) {
+  const uid = await getCurrentUserId();
+  if (!uid || !weekStart) return false;
+  const { error } = await supabase
+    .from('league_moods')
+    .delete()
+    .eq('user_id', uid)
+    .eq('week_start', weekStart);
+  if (error) { console.error('clearMyLeagueMood failed:', error); return false; }
+  return true;
+}
+
+/**
+ * Every result row for the caller, most recent week first.
+ * Used by the missed-weeks flow.
+ */
+export async function getMyLeagueResults() {
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+  const { data, error } = await supabase
+    .from('league_results')
+    .select('*')
+    .eq('user_id', uid)
+    .order('week_start', { ascending: false });
+  if (error || !data) return [];
+  return data;
+}
+
+/**
+ * Unclaimed league coin entitlements for the caller, oldest first.
+ * Consolidation modal iterates this list.
+ */
+export async function getMyUnclaimedCoinEntitlements() {
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+  const { data, error } = await supabase
+    .from('league_coin_entitlements')
+    .select('*')
+    .eq('user_id', uid)
+    .is('claimed_at', null)
+    .order('week_start', { ascending: true });
+  if (error || !data) return [];
+  return data;
+}
+
+/**
+ * Unclaimed non-coin reward entitlements (heart_refill / xp_boost).
+ */
+export async function getMyUnclaimedOtherRewards() {
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+  const { data, error } = await supabase
+    .from('league_other_reward_entitlements')
+    .select('*')
+    .eq('user_id', uid)
+    .is('claimed_at', null)
+    .order('week_start', { ascending: true });
+  if (error || !data) return [];
+  return data;
+}
+
+// ── Claim markers ──────────────────────────────────────────
+
+export async function markCoinEntitlementsClaimed(weekStarts) {
+  if (!Array.isArray(weekStarts) || weekStarts.length === 0) return false;
+  const uid = await getCurrentUserId();
+  if (!uid) return false;
+  const { error } = await supabase
+    .from('league_coin_entitlements')
+    .update({ claimed_at: new Date().toISOString() })
+    .eq('user_id', uid)
+    .in('week_start', weekStarts);
+  if (error) { console.error('markCoinEntitlementsClaimed failed:', error); return false; }
+  return true;
+}
+
+export async function markOtherRewardClaimed(weekStart, rewardType) {
+  const uid = await getCurrentUserId();
+  if (!uid) return false;
+  const { error } = await supabase
+    .from('league_other_reward_entitlements')
+    .update({ claimed_at: new Date().toISOString() })
+    .eq('user_id', uid)
+    .eq('week_start', weekStart)
+    .eq('reward_type', rewardType);
+  if (error) { console.error('markOtherRewardClaimed failed:', error); return false; }
+  return true;
+}
+
+export async function markMultipleOtherRewardsClaimed(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) return false;
+  let allOk = true;
+  for (const r of rows) {
+    const ok = await markOtherRewardClaimed(r.week_start, r.reward_type);
+    if (!ok) allOk = false;
+  }
+  return allOk;
 }

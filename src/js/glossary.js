@@ -1,5 +1,22 @@
 // src/js/glossary.js
 // Vulanet glossary renderer – uses window.glossaryData
+//
+// Loaded as a classic script (dynamically appended by glossary
+// pages), so it uses dynamic import() to reach supabase.js rather
+// than a top-level import. The browser caches the module after
+// the first resolution.
+//
+// Discovery-source policy:
+//   • Manual accordion open (user clicks the term row) fires the
+//     server-side discovery RPC — first open only, per session.
+//   • The ?term= deep-link path calls expandTerm(), which
+//     programmatically clicks the accordion. That path does NOT
+//     fire the RPC — the glossary-preview card already fired when
+//     the user clicked "View in Glossary". Suppression is
+//     implemented via window.__glossary_suppress_discovery, which
+//     is set around the programmatic click. Because data-discovered
+//     is not set while suppressed, a later manual open of the same
+//     term still records the discovery.
 
 (function() {
     if (document.readyState === 'loading') {
@@ -170,6 +187,25 @@
                 const icon = this.querySelector('.accordion-icon');
                 if (this.classList.contains('active')) {
                     icon.src = '/assets/icons/phosphor/regular/eye.svg';
+
+                    // First-open only, per session. Skipped when the
+                    // open was triggered programmatically (via
+                    // expandTerm / ?term= URL param). When suppressed,
+                    // data-discovered is deliberately NOT set, so a
+                    // subsequent manual open of the same term still
+                    // records the discovery.
+                    if (!this.dataset.discovered && !window.__glossary_suppress_discovery) {
+                        this.dataset.discovered = '1';
+                        const term = this.parentElement && this.parentElement.dataset
+                            ? this.parentElement.dataset.term
+                            : null;
+                        const courseId = window.glossaryData && window.glossaryData.courseId;
+                        if (term && courseId) {
+                            import('/src/js/supabase.js')
+                                .then(m => m.discoverGlossaryTerm(courseId, term))
+                                .catch(err => console.error('glossary accordion discovery failed', err));
+                        }
+                    }
                 } else {
                     icon.src = '/assets/icons/phosphor/regular/eye-closed.svg';
                 }
@@ -285,7 +321,18 @@
                 const btn = item.querySelector('.accordion');
                 const panel = item.querySelector('.panel');
                 if (btn && panel && !btn.classList.contains('active')) {
-                    btn.click();
+                    // Programmatic click. Suppress the discovery RPC
+                    // for the duration — the preview card already
+                    // fired when the user clicked "View in Glossary".
+                    // The flag is cleared in `finally` so an exception
+                    // from the click handler cannot leave discovery
+                    // permanently suppressed for the session.
+                    window.__glossary_suppress_discovery = true;
+                    try {
+                        btn.click();
+                    } finally {
+                        window.__glossary_suppress_discovery = false;
+                    }
                 }
                 setTimeout(() => {
                     item.scrollIntoView({ behavior: 'smooth', block: 'center' });

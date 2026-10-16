@@ -21,7 +21,17 @@
 //     cache for fast paint.
 //   • The timezone upgrade is silent, runs on every layout-loaded
 //     page, and never blocks rendering.
-//   • Footer nav routes treasure → /quests.
+//   • Footer nav routes treasure → /quests and ranking →
+//     /leaderboard.html.
+//   • Pages that render their own in-page header (e.g.
+//     quests.html's orange "Quest" banner) can opt out of the
+//     universal header by setting
+//     `window.__vulanet_skip_header = true` BEFORE calling
+//     loadLayout(). The footer is still injected on those pages.
+//   • The streak calendar reads streakState.recentDays — NOT the
+//     legacy streakHistory key, which is not written anywhere in
+//     the current codebase. streakState is the canonical local
+//     cache maintained by quiz-engine's buildStreakData.
 // ============================================================
 
 import {
@@ -143,13 +153,10 @@ async function upgradeTimezoneIfLegacy() {
     const dbIsLegacy = isLegacyTimezone(dbTz);
     const localIsLegacy = isLegacyTimezone(localTz);
 
-    // Nothing to upgrade: local value exists and is not legacy.
     if (!dbIsLegacy && !localIsLegacy && localTz) {
         return;
     }
 
-    // Best-effort target for legacy upgrades. Browser zone is
-    // preferred; fall back to mapping the offset string.
     let target = getBrowserIanaZone();
     if (!target) {
         const source = dbIsLegacy ? dbTz : (localIsLegacy ? localTz : null);
@@ -159,7 +166,6 @@ async function upgradeTimezoneIfLegacy() {
         }
     }
 
-    // Case 1: DB is legacy — upgrade both sides with `target`.
     if (dbIsLegacy && loggedIn) {
         if (target) {
             try {
@@ -174,9 +180,6 @@ async function upgradeTimezoneIfLegacy() {
         return;
     }
 
-    // Case 2: DB is valid IANA — the DB is canonical. Only fill
-    // local from the DB. Never write the browser zone to local
-    // when we have a better answer sitting in Supabase.
     if (dbTz && !dbIsLegacy) {
         if (localIsLegacy || !localTz) {
             try {
@@ -186,7 +189,6 @@ async function upgradeTimezoneIfLegacy() {
         return;
     }
 
-    // Case 3: No DB value (guest) — fill local from `target`.
     if (target && (localIsLegacy || !localTz)) {
         try {
             localStorage.setItem('userTimezone', target);
@@ -225,10 +227,6 @@ export async function loadLayout() {
         return;
     }
 
-    // Clear quest-engine and daily-goal module caches at the top of
-    // every page load so nothing reads a stale value from a
-    // previous page session. Dynamic imports keep layout.js light
-    // on pages that don't otherwise touch quests.
     try {
         const mod = await import('./quest-engine.js');
         if (typeof mod.clearQuestEngineContext === 'function') {
@@ -244,25 +242,25 @@ export async function loadLayout() {
     } catch (e) { /* daily-goal not loaded yet */ }
 
     const path = window.location.pathname;
-    // Do not load header/footer on quiz page, registration,
-    // onboarding, or courses.
     if (path.includes('/pages/lesson.html') || path.includes('/pages/practice.html') ||
         path.includes('/registration.html') || path.includes('/registration-completion.html') ||
         path.includes('/onboarding.html') || path.includes('/courses.html')) {
         return;
     }
 
-    // Load header
-    try {
-        const resp = await fetch('/src/components/header.html');
-        if (!resp.ok) throw new Error('Header not found');
-        const html = await resp.text();
-        document.body.insertAdjacentHTML('afterbegin', html);
-    } catch (e) {
-        console.error('Failed to load header:', e);
+    const skipHeader = window.__vulanet_skip_header === true;
+
+    if (!skipHeader) {
+        try {
+            const resp = await fetch('/src/components/header.html');
+            if (!resp.ok) throw new Error('Header not found');
+            const html = await resp.text();
+            document.body.insertAdjacentHTML('afterbegin', html);
+        } catch (e) {
+            console.error('Failed to load header:', e);
+        }
     }
 
-    // Load footer
     try {
         const resp = await fetch('/src/components/footer.html');
         if (!resp.ok) throw new Error('Footer not found');
@@ -273,17 +271,20 @@ export async function loadLayout() {
     }
 
     layoutLoaded = true;
-    document.body.classList.add('has-header');
 
-    // Silent timezone upgrade — runs before initHeader reads
-    // anything timezone-dependent.
+    if (!skipHeader) {
+        document.body.classList.add('has-header');
+    }
+
     try {
         await upgradeTimezoneIfLegacy();
     } catch (e) {
         console.warn('layout: timezone upgrade failed', e);
     }
 
-    await initHeader();
+    if (!skipHeader) {
+        await initHeader();
+    }
     initFooter();
     highlightFooterIcon();
 }
@@ -708,9 +709,21 @@ function loadStreakCalendar() {
 
     let history = {};
     try {
-        const raw = localStorage.getItem('streakHistory');
-        if (raw) history = JSON.parse(raw);
-    } catch(e) {}
+        const raw = localStorage.getItem('streakState');
+        if (raw) {
+            const state = JSON.parse(raw);
+            if (state && Array.isArray(state.recentDays)) {
+                for (const entry of state.recentDays) {
+                    if (entry && typeof entry.date === 'string') {
+                        history[entry.date] = entry.status || 'completed';
+                    }
+                }
+            }
+        }
+    } catch(e) {
+        // Fall through with empty history — the calendar renders
+        // every day as unmarked, which is honest.
+    }
 
     let dayCount = 1 - firstDay;
     const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
@@ -926,7 +939,7 @@ function initFooter() {
             } else if (view === 'book') {
                 window.location.href = '/practice-hub.html';
             } else if (view === 'ranking') {
-                alert('Ranking page coming soon!');
+                window.location.href = '/leaderboard.html';
             } else if (view === 'treasure') {
                 window.location.href = '/quests';
             } else if (view === 'user') {
@@ -946,7 +959,7 @@ function highlightFooterIcon() {
     let view = 'home';
     if (path.includes('/practice-hub.html') || path.startsWith('/read/') || path.startsWith('/glossary/')) {
         view = 'book';
-    } else if (path.includes('/ranking')) {
+    } else if (path.includes('/ranking') || path.includes('/leaderboard')) {
         view = 'ranking';
     } else if (path.startsWith('/quests') || path.includes('/treasure')) {
         view = 'treasure';

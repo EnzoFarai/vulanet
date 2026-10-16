@@ -160,6 +160,21 @@
     width: 100%;
   }
 
+  /* Inline claim error — shown only when credit failed */
+  .claim-error {
+    margin-top: 4px;
+    padding: 10px 14px;
+    background: #FFDFE0;
+    border: 1px solid #EA4335;
+    border-radius: 8px;
+    color: #C5221F;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .claim-error.hidden { display: none; }
+
   /* Share overlay (same as other modals) */
   .share-overlay {
     position: fixed;
@@ -292,6 +307,7 @@
 
   <div class="buttons-container">
     <button class="btn btn-md btn-carpenter-blue" id="claimRewardBtn">CLAIM REWARD</button>
+    <div class="claim-error hidden" id="claimError"></div>
   </div>
 </div>
 
@@ -412,11 +428,55 @@
     document.getElementById('shareDate').textContent = dateStr;
     document.getElementById('shareMessageText').textContent = shareMsg;
 
-    // ---------- BUTTONS ----------
-    document.getElementById('claimRewardBtn').addEventListener('click', () => {
-      // Tell parent to award coins and close
-      window.parent.postMessage({ type: 'achievementClaimed', coins: coins }, '*');
-      window.parent.postMessage('modalClose', '*');
+    // ---------- CLAIM HANDSHAKE ----------
+    //
+    // Sequence with the parent (quiz-engine.js _openRewardModal):
+    //   1. User taps Claim → we post { type: 'achievementClaimed', coins }.
+    //   2. Parent awaits incrementCoins(coins).
+    //   3. Parent posts { type: 'achievementClaimResult', ok } into us.
+    //   4. On ok → post modalClose. On !ok → show inline error and
+    //      re-enable the button; do NOT close.
+    //
+    // The listener MUST be registered BEFORE the claim intent is
+    // posted, otherwise a fast parent response could arrive between
+    // post and addEventListener and be dropped.
+    const claimBtn = document.getElementById('claimRewardBtn');
+    const claimError = document.getElementById('claimError');
+    const DEFAULT_BTN_LABEL = 'CLAIM REWARD';
+
+    claimBtn.addEventListener('click', () => {
+      // Defensive: an achievement reward is always positive (50 *
+      // level, minimum 50), so this branch is not expected. If it
+      // ever fires, treat it as "nothing to credit, just close".
+      if (!Number.isFinite(coins) || coins <= 0) {
+        window.parent.postMessage('modalClose', '*');
+        return;
+      }
+
+      claimBtn.disabled = true;
+      claimBtn.textContent = 'CLAIMING…';
+      claimError.classList.add('hidden');
+      claimError.textContent = '';
+
+      const handler = (event) => {
+        if (!event.data || event.data.type !== 'achievementClaimResult') return;
+        window.removeEventListener('message', handler);
+
+        if (event.data.ok) {
+          window.parent.postMessage('modalClose', '*');
+        } else {
+          claimError.textContent = 'Could not credit your reward. Please try again.';
+          claimError.classList.remove('hidden');
+          claimBtn.disabled = false;
+          claimBtn.textContent = DEFAULT_BTN_LABEL;
+        }
+      };
+      window.addEventListener('message', handler);
+
+      window.parent.postMessage(
+        { type: 'achievementClaimed', coins: coins },
+        '*'
+      );
     });
 
     document.getElementById('exit-button').addEventListener('click', () => {

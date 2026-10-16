@@ -8,8 +8,9 @@
 //   2. Persists progress to Supabase (lesson_progress, user_stats,
 //      daily_progress via quest-engine)
 //   3. Runs the post-lesson reward pipeline sequentially:
-//        lesson-complete → daily-goal coins → streak modal →
-//        streak rewards → achievements → records → daily quests
+//        lesson-complete → league sync → corrections bump →
+//        daily-goal coins → streak modal → streak rewards →
+//        achievements → records → daily quests
 //   4. Redirects to the course page (or to /registration.html for
 //      guests, with temp progress saved to sessionStorage)
 //
@@ -22,6 +23,23 @@
 //     the DB stays canonical. coins-reward.html is a pure display
 //     modal that credits nothing.
 //
+//   • Credit-before-modal applies to display-only reward modals
+//     (coins-reward, boost-reward, heart-reward). For claim
+//     modals (achievement, record), the modal opens first and the
+//     credit is confirmed via a handshake before the modal closes:
+//       mark level/record (persist)
+//       → open modal
+//       → user taps Claim
+//       → modal posts { type: <claimedType>, coins }
+//       → parent awaits incrementCoins(coins)
+//       → parent posts { type: <resultType>, ok }
+//       → modal posts modalClose on ok, or shows inline error and
+//         stays open on !ok
+//       → parent calls markAchievementClaimed (achievements only)
+//     This guarantees a claim modal never closes before credit is
+//     confirmed. A credit failure leaves the modal open so the user
+//     can retry without a silent loss.
+//
 //   • NEVER call showCoinReward / showBoostReward / showHeartReward
 //     from inside a message handler that is already running inside
 //     an open modal. showModalAsync reuses the same iframe, so
@@ -32,6 +50,33 @@
 //     showDailyQuestsFlow uses the close-and-reopen pattern:
 //     daily-quest modal → requestClaim + close → mark + credit →
 //     coin modal → repeat if more ready chests.
+//
+//   • Daily-goal ordering (spec §4.4): mark → credit → modal.
+//     If credit fails after the mark succeeded, unmark via
+//     questEngine.unmarkDailyGoalClaimed(localDate) so the
+//     reward is retried on the next lesson.
+//
+//   • refillHearts gating (in-lesson): the debit AND the hearts
+//     write must BOTH succeed before the question advances. If
+//     the debit succeeds and the hearts write fails, best-effort
+//     refund the debit. Never advance the flow on a failed
+//     operation.
+//
+//   • Achievement counters bumped in this pipeline:
+//       corrections_made   — retry-queue resolutions this lesson
+//       perfect_week_count — 7-day boundary without revival
+//     Other achievement counters are bumped by quest-engine
+//     (lesson-scoped + chest claims) or by the finalisation
+//     transaction (league_champion_count, ultimate_champion_count).
+//
+//   • League XP sync. After persistLessonResults commits the new
+//     daily_progress.xp_earned, this pipeline calls
+//     syncLeagueWeeklyXp(). That RPC (migration 0010) recomputes
+//     the caller's weekly_xp from daily_progress for the current
+//     UTC week and refreshes bot XP in their group. A failure is
+//     logged and swallowed — the leaderboard itself also calls
+//     sync on page load, so a missed sync here only delays the
+//     update by one page visit.
 //
 //   • quest-engine must be initialised before any of its methods
 //     are called. initQuestEngine() is idempotent and cached.
@@ -51,7 +96,16 @@ import {
   getStreakState,
   getCurrentUserProfile,
   incrementCoins,
-  recordLessonCompletion as persistLessonProgressRow
+  recordLessonCompletion as persistLessonProgressRow,
+  getDailyProgress,
+  getUserRecords,
+  updateRecord,
+  getUserAchievements,
+  setAchievementLevel,
+  markAchievementClaimed,
+  getAchievementCounters,
+  incrementAchievementCounter,
+  syncLeagueWeeklyXp
 } from './supabase.js';
 
 import {
@@ -60,6 +114,33 @@ import {
 } from './date-utils.js';
 
 import * as questEngine from './quest-engine.js';
+
+import { ACHIEVEMENT_DEFS, getAchievementLevel } from './achievement-defs.js';
+import { RECORD_DEFS } from './record-defs.js';
+
+const ACHIEVEMENT_COUNTER_MAP = {
+  xppowerhouse:     'total_xp',
+  perfectweek:      'perfect_week_count',
+  wordsmith:        'glossary_terms_discovered',
+  sharpshooter:     'perfect_lessons',
+  speedfreak:       'timed_challenge_xp',
+  nightowl:         'night_owl_lessons',
+  earlybird:        'early_bird_lessons',
+  goldenhands:      'master_challenges_completed',
+  questhero:        'quests_completed',
+  cheerleader:      'congratulations_sent',
+  erroreraser:      'corrections_made',
+  firstflock:       'following_count',
+  leaguechampion:   'league_champion_count',
+  ultimatechampion: 'ultimate_champion_count'
+};
+
+const RECORD_KEY_TO_COLUMN = {
+  longestStreak:  'longest_streak',
+  highestLeague:  'highest_league',
+  perfectLessons: 'perfect_lessons_in_day',
+  mostXp:         'most_xp_in_day'
+};
 
 function sanitiseHTML(str) {
   const div = document.createElement('div');
@@ -82,6 +163,8 @@ class QuizEngine {
 
     this.maxStreakInLesson = 0;
     this.mistakesMade      = 0;
+
+    this._pendingCorrections = 0;
 
     this._resolvedTimezone = null;
 
@@ -182,6 +265,10 @@ class QuizEngine {
 
   saveStreakToStorage() {
     localStorage.setItem(this.streakKey, String(this.currentStreakDays));
+  }
+
+  _markCorrection() {
+    this._pendingCorrections += 1;
   }
 
   async resolveTimezone() {
@@ -313,7 +400,19 @@ class QuizEngine {
       }
     }
 
-    return { shouldIncrement, streakData: merged };
+    const isPerfectWeek =
+      shouldIncrement &&
+      merged.currentStreak > 0 &&
+      merged.currentStreak % 7 === 0 &&
+      Array.isArray(merged.recentDays) &&
+      merged.recentDays.length === 7 &&
+      merged.recentDays.every(d => d.status === 'completed');
+
+    return {
+      shouldIncrement,
+      streakData: merged,
+      perfectWeekReached: isPerfectWeek
+    };
   }
 
   _moreRecentDate(a, b) {
@@ -475,7 +574,7 @@ class QuizEngine {
   showModal(modalUrl, onClose) {
     this.modalIframe.src = modalUrl;
     this.fullscreenOverlay.classList.add('visible');
-    const handler = (event) => {
+    const handler = async (event) => {
       if (event.data === 'modalClose') {
         window.removeEventListener('message', handler);
         this.fullscreenOverlay.classList.remove('visible');
@@ -488,22 +587,60 @@ class QuizEngine {
         window.removeEventListener('message', handler);
         this.fullscreenOverlay.classList.remove('visible');
         this.modalIframe.src = 'about:blank';
-        const coins = parseInt(localStorage.getItem('coins') || '500', 10);
-        if (coins >= 450) {
-          incrementCoins(-450).catch(() => {});
-          this.lives = 5;
-          this.livesCountSpan.textContent = '5';
-          this.updateHeartIcon();
-          setHearts(5).catch(() => {});
-          const currentActualIdx = this.inRetryMode
-            ? this.retryQueue[this.currentQuestion]
-            : this.currentQuestion;
-          const idxInQueue = this.retryQueue.indexOf(currentActualIdx);
-          if (idxInQueue !== -1) this.retryQueue.splice(idxInQueue, 1);
-          this.moveToNextQuestion();
-        } else {
-          window.location.href = this.redirectUrl;
+
+        let newCoinBalance = null;
+        let newHearts = null;
+
+        try {
+          newCoinBalance = await incrementCoins(-450);
+        } catch (e) {
+          console.error('refillHearts: incrementCoins(-450) threw', e);
         }
+
+        if (typeof newCoinBalance === 'number') {
+          try {
+            newHearts = await setHearts(5);
+          } catch (e) {
+            console.error('refillHearts: setHearts(5) threw', e);
+          }
+        }
+
+        const bothSucceeded =
+          typeof newCoinBalance === 'number' &&
+          typeof newHearts === 'number';
+
+        if (!bothSucceeded) {
+          if (
+            typeof newCoinBalance === 'number' &&
+            typeof newHearts !== 'number'
+          ) {
+            try {
+              await incrementCoins(450);
+            } catch (e) {
+              console.error('refillHearts: refund attempt threw', e);
+            }
+          }
+
+          console.error(
+            'refillHearts: credit failed — not advancing',
+            { coinBalance: newCoinBalance, hearts: newHearts }
+          );
+          alert('Could not refill — try again');
+          if (onClose) onClose();
+          return;
+        }
+
+        this.lives = 5;
+        this.livesCountSpan.textContent = '5';
+        this.updateHeartIcon();
+
+        const currentActualIdx = this.inRetryMode
+          ? this.retryQueue[this.currentQuestion]
+          : this.currentQuestion;
+        const idxInQueue = this.retryQueue.indexOf(currentActualIdx);
+        if (idxInQueue !== -1) this.retryQueue.splice(idxInQueue, 1);
+        this.moveToNextQuestion();
+
         if (onClose) onClose();
       }
     };
@@ -543,16 +680,85 @@ class QuizEngine {
     });
   }
 
+  _openRewardModal(modalUrl, { claimedType, resultType, coins }) {
+    return new Promise((resolve) => {
+      let claimedEmitted = false;
+      let claimedAmount = 0;
+
+      const cleanup = () => {
+        window.removeEventListener('message', handler);
+        this.fullscreenOverlay.classList.remove('visible');
+        this.modalIframe.src = 'about:blank';
+      };
+
+      const handler = async (event) => {
+        if (event.data && event.data.type === claimedType) {
+          claimedEmitted = true;
+          claimedAmount = Number(event.data.coins) || 0;
+
+          let newBalance = null;
+          try {
+            newBalance = await incrementCoins(claimedAmount);
+          } catch (e) {
+            console.error('_openRewardModal: incrementCoins threw', e);
+          }
+
+          const ok = typeof newBalance === 'number';
+
+          try {
+            this.modalIframe.contentWindow.postMessage(
+              { type: resultType, ok },
+              '*'
+            );
+          } catch (e) {
+            console.error('_openRewardModal: postMessage to iframe failed', e);
+          }
+
+          if (!ok) {
+            console.error(
+              '_openRewardModal: credit failed — modal stays open for retry',
+              { claimedType, claimedAmount, newBalance }
+            );
+          }
+          return;
+        }
+
+        if (event.data === 'modalClose') {
+          cleanup();
+          resolve({
+            closed: true,
+            claimed: claimedEmitted && claimedAmount > 0
+          });
+        }
+      };
+
+      window.addEventListener('message', handler);
+      this.modalIframe.src = modalUrl;
+      this.fullscreenOverlay.classList.add('visible');
+    });
+  }
+
   async showCoinReward(amount) {
     if (!Number.isFinite(amount) || amount <= 0) return;
+
+    let newBalance = null;
+    try {
+      newBalance = await incrementCoins(amount);
+    } catch (e) {
+      console.error('showCoinReward: incrementCoins threw', e);
+    }
+
+    if (typeof newBalance !== 'number') {
+      console.error(
+        'showCoinReward: credit failed — skipping modal',
+        { amount, newBalance }
+      );
+      return;
+    }
+
     await this.showModalAsync(
       `../src/components/modals/coins-reward.html?amount=${amount}`
     );
-    try {
-      await incrementCoins(amount);
-    } catch (e) {
-      console.error('coin credit failed:', e);
-    }
   }
 
   async showBoostReward(multiplier, durationMinutes) {
@@ -717,14 +923,67 @@ class QuizEngine {
       console.error('pipeline: persistLessonResults failed', e);
     }
 
-    if (persistResult.dailyGoal && persistResult.dailyGoal.should) {
+    // League XP sync. persistLessonResults has just committed the
+    // fresh daily_progress.xp_earned row; syncLeagueWeeklyXp()
+    // recomputes the caller's weekly_xp from that and refreshes
+    // their group's bot XP. Failure is logged and swallowed — the
+    // leaderboard re-syncs on page load.
+    try {
+      await syncLeagueWeeklyXp();
+    } catch (e) {
+      console.error('pipeline: syncLeagueWeeklyXp failed', e);
+    }
+
+    if (this._pendingCorrections > 0) {
       try {
-        const marked = await questEngine.markDailyGoalClaimed();
-        if (marked) {
-          await this.showCoinReward(persistResult.dailyGoal.amount);
-        }
+        await incrementAchievementCounter(
+          'corrections_made',
+          this._pendingCorrections
+        );
       } catch (e) {
-        console.error('pipeline: daily-goal reward failed', e);
+        console.error('pipeline: corrections_made bump failed', e);
+      }
+    }
+
+    let localDate = null;
+    try {
+      const tz = await this.resolveTimezone();
+      localDate = getLocalDateString(tz);
+    } catch (e) {
+      console.error('pipeline: could not resolve local date', e);
+    }
+
+    if (persistResult.dailyGoal && persistResult.dailyGoal.should && localDate) {
+      let marked = false;
+      try {
+        marked = await questEngine.markDailyGoalClaimed(localDate);
+      } catch (e) {
+        console.error('pipeline: markDailyGoalClaimed threw', e);
+      }
+
+      if (marked) {
+        let credited = null;
+        try {
+          credited = await incrementCoins(persistResult.dailyGoal.amount);
+        } catch (e) {
+          console.error('pipeline: daily-goal incrementCoins threw', e);
+        }
+
+        if (typeof credited !== 'number') {
+          console.error(
+            'pipeline: daily-goal credit failed after mark — unmarking for retry',
+            { amount: persistResult.dailyGoal.amount, localDate }
+          );
+          try {
+            await questEngine.unmarkDailyGoalClaimed(localDate);
+          } catch (e) {
+            console.error('pipeline: unmarkDailyGoalClaimed threw', e);
+          }
+        } else {
+          await this.showModalAsync(
+            `../src/components/modals/coins-reward.html?amount=${persistResult.dailyGoal.amount}`
+          );
+        }
       }
     }
 
@@ -735,6 +994,14 @@ class QuizEngine {
           await this.showStreakReward(streakResult);
         } catch (e) {
           console.error('pipeline: showStreakReward failed', e);
+        }
+
+        if (streakResult.perfectWeekReached) {
+          try {
+            await incrementAchievementCounter('perfect_week_count', 1);
+          } catch (e) {
+            console.error('pipeline: perfect_week_count bump failed', e);
+          }
         }
       }
     } catch (e) {
@@ -812,7 +1079,8 @@ class QuizEngine {
   }
 
   async showStreakFlow() {
-    const { shouldIncrement, streakData } = await this.buildStreakData();
+    const { shouldIncrement, streakData, perfectWeekReached } =
+      await this.buildStreakData();
 
     if (!shouldIncrement) {
       return { ran: false };
@@ -837,7 +1105,8 @@ class QuizEngine {
     return {
       ran: true,
       streakDays: this.currentStreakDays,
-      heartsAtCompletion: this.heartsAtCompletion
+      heartsAtCompletion: this.heartsAtCompletion,
+      perfectWeekReached
     };
   }
 
@@ -880,34 +1149,208 @@ class QuizEngine {
     return options[Math.floor(Math.random() * options.length)];
   }
 
+  async _showOneAchievement(id, level) {
+    const def = ACHIEVEMENT_DEFS[id];
+    if (!def) return;
+
+    const number = def.levels[level - 1];
+    const coins = def.rewardCoins(level);
+    const message = def.messageTemplate(level);
+    const shareMsg = def.shareMessageTemplate(level);
+
+    const params = new URLSearchParams({
+      id,
+      level: String(level),
+      coins: String(coins),
+      color: def.color,
+      icon: def.icon,
+      number: String(number),
+      title: def.title,
+      message,
+      shareMsg
+    });
+
+    const url = `../src/components/modals/achievement.html?${params.toString()}`;
+
+    const result = await this._openRewardModal(url, {
+      claimedType: 'achievementClaimed',
+      resultType: 'achievementClaimResult',
+      coins
+    });
+
+    if (result && result.claimed) {
+      try {
+        await markAchievementClaimed(id);
+      } catch (e) {
+        console.error('pipeline: markAchievementClaimed failed', id, e);
+      }
+    }
+  }
+
   async showAchievements() {
-    // TODO: Once achievement counters land on user_stats,
-    // evaluate them here and open achievement.html sequentially.
+    let counters = null;
+    try {
+      counters = await getAchievementCounters();
+    } catch (e) {
+      console.error('pipeline: getAchievementCounters failed', e);
+    }
+    if (!counters) return;
+
+    let rows = [];
+    try {
+      rows = await getUserAchievements();
+    } catch (e) {
+      console.error('pipeline: getUserAchievements failed', e);
+    }
+
+    const rowMap = {};
+    rows.forEach(r => { rowMap[r.achievement_key] = r; });
+
+    const unclaimedIds = [];
+    for (const key of Object.keys(rowMap)) {
+      const r = rowMap[key];
+      if (r && Number(r.level) > 0 && !r.claimed) {
+        unclaimedIds.push(key);
+      }
+    }
+    for (const id of unclaimedIds) {
+      if (!ACHIEVEMENT_DEFS[id]) continue;
+      await this._showOneAchievement(id, Number(rowMap[id].level));
+    }
+
+    for (const id of Object.keys(ACHIEVEMENT_DEFS)) {
+      if (unclaimedIds.includes(id)) continue;
+
+      const counterName = ACHIEVEMENT_COUNTER_MAP[id];
+      if (!counterName) continue;
+
+      const value = Number(counters[counterName]) || 0;
+      const { level } = getAchievementLevel(id, value);
+      if (level <= 0) continue;
+
+      const existing = rowMap[id];
+      const existingLevel = existing ? (Number(existing.level) || 0) : 0;
+      if (level <= existingLevel) continue;
+
+      try {
+        await setAchievementLevel(id, level);
+      } catch (e) {
+        console.error('pipeline: setAchievementLevel failed', id, e);
+        continue;
+      }
+
+      await this._showOneAchievement(id, level);
+    }
+  }
+
+  async _showOneRecord(key, value) {
+    const def = RECORD_DEFS[key];
+    if (!def) return;
+
+    const coins = key === 'longestStreak' ? 0 : 200;
+
+    const message = def.message(value);
+    const shareMsg = def.shareMessage(value);
+
+    const params = new URLSearchParams({
+      type: key,
+      value: String(value),
+      coins: String(coins),
+      color: def.color,
+      icon: def.icon,
+      title: def.title,
+      message,
+      shareMsg
+    });
+
+    const url = `../src/components/modals/record.html?${params.toString()}`;
+
+    await this._openRewardModal(url, {
+      claimedType: 'recordClaimed',
+      resultType: 'recordClaimResult',
+      coins
+    });
   }
 
   async showRecords() {
     if (!this.currentTotalAppDays || this.currentTotalAppDays < 2) return;
-    // TODO: Same pattern as showAchievements once record counters
-    // are being maintained.
-  }
 
-  // ============================================================
-  // DAILY QUESTS FLOW (close-and-reopen loop)
-  // ============================================================
-  //
-  // Contract with daily-quest.html:
-  //   - Chest tap → modal posts { type: 'requestClaim', tier }
-  //     then 'modalClose'.
-  //   - Continue tap → modal posts 'modalClose'.
-  //
-  // Pipeline per claim (spec §9):
-  //   1. mark chest as claimed in DB (claimQuestChest)
-  //   2. credit coins (incrementCoins)
-  //   3. open coins-reward.html (pure display)
-  //   4. reopen daily-quest.html if more ready chests exist
-  //
-  // The MAX_ITERATIONS cap prevents an infinite loop if the modal
-  // keeps requesting a claim that the DB keeps refusing.
+    let records = null;
+    try {
+      records = await getUserRecords();
+    } catch (e) {
+      console.error('pipeline: getUserRecords failed', e);
+    }
+    if (!records) return;
+
+    let localDate = null;
+    try {
+      const tz = await this.resolveTimezone();
+      localDate = getLocalDateString(tz);
+    } catch (e) {
+      console.error('pipeline: records: resolve local date failed', e);
+      return;
+    }
+
+    let today = null;
+    try {
+      today = await getDailyProgress(localDate);
+    } catch (e) {
+      console.error('pipeline: getDailyProgress failed', e);
+    }
+
+    let streak = null;
+    try {
+      streak = await getStreakState();
+    } catch (e) {
+      console.error('pipeline: getStreakState failed', e);
+    }
+
+    const candidates = [];
+
+    const streakValue = Math.max(
+      Number(streak && streak.currentStreak) || 0,
+      Number(streak && streak.longestStreak) || 0
+    );
+    if (streakValue > 0) {
+      candidates.push({ key: 'longestStreak', value: streakValue });
+    }
+
+    const perfectToday = Number(today && today.perfect_lessons) || 0;
+    if (perfectToday > 0) {
+      candidates.push({ key: 'perfectLessons', value: perfectToday });
+    }
+
+    const xpToday = Number(today && today.xp_earned) || 0;
+    if (xpToday > 0) {
+      candidates.push({ key: 'mostXp', value: xpToday });
+    }
+
+    for (const c of candidates) {
+      const columnName = RECORD_KEY_TO_COLUMN[c.key];
+      if (!columnName) continue;
+
+      const currentStored = Number(records[columnName]) || 0;
+      if (c.value <= currentStored) continue;
+
+      let ok = false;
+      try {
+        ok = await updateRecord(columnName, c.value, 'max');
+      } catch (e) {
+        console.error('pipeline: updateRecord failed', columnName, e);
+        continue;
+      }
+      if (!ok) {
+        console.warn(
+          'pipeline: updateRecord returned false despite new value',
+          columnName
+        );
+        continue;
+      }
+
+      await this._showOneRecord(c.key, c.value);
+    }
+  }
 
   async _openDailyQuestModalOnce() {
     return new Promise((resolve) => {
@@ -944,6 +1387,14 @@ class QuizEngine {
       return;
     }
 
+    let today = null;
+    try {
+      const tz = await this.resolveTimezone();
+      today = getLocalDateString(tz);
+    } catch (e) {
+      console.error('pipeline: could not resolve local date', e);
+    }
+
     const MAX_ITERATIONS = 5;
 
     for (let i = 0; i < MAX_ITERATIONS; i++) {
@@ -952,19 +1403,34 @@ class QuizEngine {
       if (result.action === 'quit') return;
       if (result.action !== 'claim') return;
 
-      // Spec §9: mark → credit → modal
       const claim = await questEngine.claimQuestChest(result.tier);
       if (!claim.ok) {
         console.warn('pipeline: claimQuestChest refused:', claim.error);
-        // Loop reopens the modal, which will show the updated
-        // state. MAX_ITERATIONS caps the retry.
         continue;
       }
 
+      let credited = null;
       try {
-        await incrementCoins(claim.amount);
+        credited = await incrementCoins(claim.amount);
       } catch (e) {
         console.error('pipeline: incrementCoins failed', e);
+      }
+
+      if (typeof credited !== 'number') {
+        console.error(
+          'pipeline: quest chest credit failed after mark — unmarking for retry',
+          { tier: result.tier, amount: claim.amount, today }
+        );
+        if (today) {
+          try {
+            await questEngine.unmarkPendingQuestsClaimed([
+              { date: today, tier: result.tier }
+            ]);
+          } catch (e) {
+            console.error('pipeline: unmarkPendingQuestsClaimed threw', e);
+          }
+        }
+        return;
       }
 
       if (Number.isFinite(claim.amount) && claim.amount > 0) {
@@ -976,6 +1442,8 @@ class QuizEngine {
   }
 
   async redirectAfterLesson() {
+    this._pendingCorrections = 0;
+
     const loggedIn = await isLoggedIn();
     if (loggedIn) {
       window.location.href = this.redirectUrl;
@@ -1066,6 +1534,7 @@ class QuizEngine {
         const idx = this.retryQueue.indexOf(actualIdx);
         if (idx !== -1) {
           this.retryQueue.splice(idx, 1);
+          this._markCorrection();
           const skip = this.inRetryMode && idx === this.currentQuestion;
           this.handleCorrectAnswer();
           this.showResultOverlay(
@@ -1201,6 +1670,7 @@ class QuizEngine {
         const idx = this.retryQueue.indexOf(actualIdx);
         if (idx !== -1) {
           this.retryQueue.splice(idx, 1);
+          this._markCorrection();
           const skip = this.inRetryMode && idx === this.currentQuestion;
           blankElements.forEach(b => { if (b) b.classList.add('correct'); });
           optionBtns.forEach(b => {
@@ -1299,6 +1769,7 @@ class QuizEngine {
         const idx = this.retryQueue.indexOf(actualIdx);
         if (idx !== -1) {
           this.retryQueue.splice(idx, 1);
+          this._markCorrection();
           const skip = this.inRetryMode && idx === this.currentQuestion;
           input.classList.add('correct');
           this.handleCorrectAnswer();
@@ -1412,6 +1883,7 @@ class QuizEngine {
         const idx = this.retryQueue.indexOf(actualIdx);
         if (idx !== -1) {
           this.retryQueue.splice(idx, 1);
+          this._markCorrection();
           const skip = this.inRetryMode && idx === this.currentQuestion;
           this.handleCorrectAnswer();
           this.showResultOverlay(
@@ -1576,6 +2048,7 @@ class QuizEngine {
           const idx = this.retryQueue.indexOf(actualIdx);
           if (idx !== -1) {
             this.retryQueue.splice(idx, 1);
+            this._markCorrection();
             this._skipNextIncrement = this.inRetryMode && idx === this.currentQuestion;
           }
           this.handleCorrectAnswer();
