@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Profile | Vulanet</title>
 
-  <!-- Local Fonts (assumed already loaded via @font-face in global styles) -->
+  <!-- Local Fonts -->
   <link rel="stylesheet" href="/assets/fonts/fonts.css" />
 
   <!-- Local Phosphor Icons (CSS) -->
@@ -14,7 +14,7 @@
   <!-- Local Material Symbols -->
   <link rel="stylesheet" href="/assets/icons/material-symbols/material-symbols.css" />
 
-  <!-- Local html2canvas and QRCode (assumed placed in src/lib/) -->
+  <!-- Local html2canvas and QRCode -->
   <script src="/src/lib/html2canvas.min.js"></script>
   <script src="/src/lib/qrcode.min.js"></script>
 
@@ -286,6 +286,110 @@
       line-height:1.2;
     }
 
+    /* ===== XP this week ===== */
+    .xp-block {
+      background:var(--cloud);
+      border-radius:var(--border-radius);
+      box-shadow:var(--shadow-sm);
+      padding:20px;
+      margin-bottom:24px;
+    }
+    .xp-card {
+      background:var(--cloud);
+      border-radius:12px;
+    }
+    .xp-legend {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin: 0 2px 18px;
+    }
+    .xp-legend-row {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:15px;
+      font-weight:700;
+      line-height:1;
+      cursor:pointer;
+      transition: opacity 0.2s ease;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+      color: var(--carpenter-blue);
+    }
+    .xp-legend-row.is-peer { color: var(--koala); }
+    .xp-legend-row.is-muted { opacity:0.35; }
+    .xp-legend-dot {
+      width:11px;
+      height:11px;
+      border-radius:50%;
+      flex-shrink:0;
+      background: currentColor;
+    }
+    .xp-legend-row.is-peer .xp-legend-dot {
+      background: transparent;
+      border: 2.5px solid currentColor;
+      width:12px;
+      height:12px;
+    }
+    .xp-legend-name {
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .xp-legend-value {
+      margin-left:auto;
+      font-variant-numeric: tabular-nums;
+      font-weight:700;
+    }
+    .xp-chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 240px;
+    }
+    .xp-chart-wrapper canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: manipulation;
+    }
+    .xp-tooltip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: #202124;
+      color: #FFFFFF;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      line-height: 1.4;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      transform: translate(-50%, -100%);
+      white-space: nowrap;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .xp-tooltip.show { opacity: 1; }
+    .xp-tooltip-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    .xp-tooltip-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .xp-tooltip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: currentColor;
+    }
+
     /* ===== Personal Records ===== */
     .records-section {
       background:var(--cloud);
@@ -328,7 +432,7 @@
       border-radius:12px;
       display:flex; align-items:center; justify-content:center;
       margin-bottom:10px;
-      background-color:var(--koala); /* grey by default */
+      background-color:var(--koala);
     }
     .record-diamond-content {
       transform:rotate(-45deg);
@@ -344,7 +448,6 @@
     .record-title { font-weight:700; font-size:14px; margin-top:4px; color:var(--basalt); }
     .record-date { font-size:12px; color:var(--hippo); }
 
-    /* Record colours (applied when achieved) */
     .record-streak { background-color:#ff6336; }
     .record-medal { background-color:#fbc02d; }
     .record-target { background-color:#009d98; }
@@ -387,7 +490,7 @@
       border-radius:12px;
       display:flex; align-items:center; justify-content:center;
       margin-bottom:10px;
-      background-color:var(--koala); /* grey by default */
+      background-color:var(--koala);
     }
     .achievement-diamond-content {
       transform:rotate(-45deg);
@@ -403,7 +506,6 @@
     .achievement-title { font-weight:700; font-size:14px; margin-top:4px; color:var(--basalt); }
     .achievement-progress { font-size:12px; color:var(--hippo); }
 
-    /* Achievement colours (applied when achieved) */
     .award-1 { background-color:#db2777; }
     .award-2 { background-color:#2563eb; }
     .award-3 { background-color:#ea580c; }
@@ -967,6 +1069,10 @@
     .record-bottom-text { font-size:11px; color:var(--basalt); }
 
     /* ===== Responsive ===== */
+    @media (min-width: 768px) {
+      .xp-chart-wrapper { height: 300px; }
+    }
+
     @media (max-width: 768px) {
       body { padding:10px; }
       .profile-header { flex-direction:column; text-align:center; padding:20px; }
@@ -1010,6 +1116,10 @@
       .achievement-display-number, .record-display-number { font-size:16px; }
       .achievement-display-title, .record-display-title { font-size:16px; }
 
+      .xp-block { padding: 16px; }
+      .xp-legend-row { font-size: 14px; }
+      .xp-chart-wrapper { height: 220px; }
+
       .profile-share-avatar { width:130px; height:130px; font-size:52px; }
       .profile-share-display-name { font-size:24px; }
       .profile-share-username { font-size:17px; }
@@ -1022,6 +1132,7 @@
     }
 
     @media (max-width: 480px) {
+      .container { padding: 0 10px; }
       .profile-share-avatar { width:110px; height:110px; font-size:44px; }
       .profile-share-display-name { font-size:21px; }
       .profile-share-username { font-size:15px; }
@@ -1039,6 +1150,8 @@
       .profile-bottom-icon-circle .material-symbols-outlined { font-size:22px; }
       .profile-bottom-grid { gap:12px; padding:0 10px; }
       .profile-share-label, .profile-bottom-label { font-size:10px; }
+
+      .xp-chart-wrapper { height: 200px; }
     }
   </style>
 </head>
@@ -1196,9 +1309,7 @@
   </div>
 
   <!-- ===== MAIN CONTENT ===== -->
-  <main class="container" id="mainContent">
-    <!-- Profile header will be populated by JS -->
-  </main>
+  <main class="container" id="mainContent"></main>
 
   <script type="importmap">
     {
@@ -1209,9 +1320,49 @@
   </script>
 
   <script type="module">
-    // Import Supabase client and utilities
-    import { supabase, isLoggedIn, getCurrentUserProfile } from '/src/js/supabase.js';
-    import { formatDateOrdinal, formatNumberShort } from '/src/js/date-utils.js';
+    // ============================================================
+    // PROFILE PAGE
+    // ============================================================
+    //
+    // Renders the profile header, courses, overview stats,
+    // "XP this week" chart, personal records, and achievements.
+    //
+    // "XP this week" (new):
+    //   • Window: viewer's LOCAL Monday–Sunday, computed via
+    //     getLocalDateObject() from date-utils.js. Deliberately
+    //     NOT the UTC league week — divergence from the UTC
+    //     leaderboard is intentional and accepted (see §10.F).
+    //   • Own profile: single series (viewer) in Carpenter Blue.
+    //   • Other profile: two series — viewer (blue) and profile
+    //     owner in Koala #AFAFAF.
+    //   • Viewer data via getDailyProgressRange() from supabase.js.
+    //   • Peer data via direct supabase query.
+    //
+    // ⚠ KNOWN RLS LIMITATION — PEER SERIES
+    //   The daily_progress RLS policy restricts SELECT to the
+    //   authenticated user's own rows ("Users can view own daily
+    //   progress": USING (auth.uid() = user_id)). Consequently,
+    //   when viewing another user's profile, the direct peer query
+    //   returns an EMPTY array regardless of whether the peer has
+    //   any XP this week. The code detects this case and degrades
+    //   gracefully to single-series mode rather than rendering a
+    //   misleading flat zero line.
+    //
+    //   The peer query is still issued so that the moment a
+    //   follow-up migration adds either:
+    //     (a) an RPC such as get_user_weekly_xp(target_user_id,
+    //         week_start, week_end) returning aggregated
+    //         per-day XP, OR
+    //     (b) a scoped RLS policy permitting reads of aggregate
+    //         daily XP for other users,
+    //   the two-series view will activate automatically without
+    //   further code changes here.
+    //
+    //   This limitation is documented in the final report.
+    // ============================================================
+
+    import { supabase, isLoggedIn, getCurrentUserProfile, getDailyProgressRange } from '/src/js/supabase.js';
+    import { formatDateOrdinal, formatNumberShort, getLocalDateObject } from '/src/js/date-utils.js';
     import { getAvatarColor, getAvatarInitial } from '/src/js/profile-utils.js';
     import { ACHIEVEMENT_DEFS, getAchievementLevel } from '/src/js/achievement-defs.js';
     import { RECORD_DEFS } from '/src/js/record-defs.js';
@@ -1222,13 +1373,12 @@
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const username = pathParts[pathParts.length - 1] || '';
     if (!username) {
-      // Fallback: redirect to home or show error
       document.body.innerHTML = '<h1>User not specified</h1>';
       throw new Error('No username in URL');
     }
 
     // ============================================================
-    // 2. FETCH PROFILE DATA FROM SUPABASE
+    // 2. FETCH PROFILE DATA
     // ============================================================
     let profileData = null;
     let userStats = null;
@@ -1236,25 +1386,22 @@
     let userAchievements = [];
     let lessonProgress = [];
     let isOwnProfile = false;
+    let currentUserId = null;
 
     try {
-      // Fetch profile by username
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('username', username)
         .single();
 
-      if (profileError || !profile) {
-        throw new Error('Profile not found');
-      }
+      if (profileError || !profile) throw new Error('Profile not found');
       profileData = profile;
 
-      // Determine if this is the current user's profile
       const currentUser = await getCurrentUserProfile();
       isOwnProfile = currentUser && currentUser.user && currentUser.user.id === profile.id;
+      currentUserId = currentUser && currentUser.user ? currentUser.user.id : null;
 
-      // Fetch user stats
       const { data: stats, error: statsError } = await supabase
         .from('user_stats')
         .select('*')
@@ -1262,7 +1409,6 @@
         .single();
       if (!statsError && stats) userStats = stats;
 
-      // Fetch user records
       const { data: records, error: recordsError } = await supabase
         .from('user_records')
         .select('*')
@@ -1270,14 +1416,12 @@
         .single();
       if (!recordsError && records) userRecords = records;
 
-      // Fetch user achievements
       const { data: achievements, error: achError } = await supabase
         .from('user_achievements')
         .select('*')
         .eq('user_id', profile.id);
       if (!achError && achievements) userAchievements = achievements;
 
-      // Fetch lesson progress (to compute course levels and XP per course)
       const { data: progress, error: progError } = await supabase
         .from('lesson_progress')
         .select('*')
@@ -1291,41 +1435,32 @@
     }
 
     // ============================================================
-    // 3. BUILD ACHIEVEMENT MAP (keyed by achievement id)
+    // 3. ACHIEVEMENT MAP
     // ============================================================
     const achievementMap = {};
-    userAchievements.forEach(a => {
-      achievementMap[a.achievement_key] = a;
-    });
+    userAchievements.forEach(a => { achievementMap[a.achievement_key] = a; });
 
     // ============================================================
-    // 4. COMPUTE COURSES AND XP
+    // 4. COMPUTE COURSES
     // ============================================================
-    // Group lesson progress by course_id
     const courseMap = {};
     lessonProgress.forEach(lp => {
       if (!courseMap[lp.course_id]) {
         courseMap[lp.course_id] = { lessons: [], totalXp: 0, level: 1 };
       }
       courseMap[lp.course_id].lessons.push(lp);
-      // XP: we need to get XP per lesson; if not stored, we can estimate or fetch from lesson data.
-      // For now, we'll assume each completed lesson gives some XP; we can compute later.
-      // We'll simulate XP based on status: completed or mastered gives 10 XP each.
       if (lp.status === 'completed' || lp.mastered) {
         courseMap[lp.course_id].totalXp += 10;
       }
     });
 
-    // Sort courses by XP descending (most XP first)
     const courses = Object.keys(courseMap).map(id => ({
       id,
       totalXp: courseMap[id].totalXp,
       lessonCount: courseMap[id].lessons.length,
-      level: 1 // We'll compute level based on lesson count / total lessons per course later
+      level: 1
     })).sort((a, b) => b.totalXp - a.totalXp);
 
-    // For now, we only have course IDs; we need to fetch course names and icons from the app's course data.
-    // We'll import the course definitions from course-data.js
     import { getAllCourses } from '/src/js/course-data.js';
     const allCourses = getAllCourses();
     const courseDetails = courses.map(c => {
@@ -1340,11 +1475,6 @@
       };
     });
 
-    // Compute course level: 6 levels, based on percentage of lessons completed
-    // We'll need total lessons per course from the course data.
-    // For simplicity, we'll assume each course has 50 lessons total; level = floor((completedLessons / totalLessons) * 6) + 1
-    // But we don't have total lessons count per course here. We'll set level based on XP.
-    // We'll use XP thresholds: level 1: 0-50, level 2: 51-150, etc.
     courseDetails.forEach(c => {
       const xp = c.totalXp;
       let level = 1;
@@ -1357,16 +1487,132 @@
     });
 
     // ============================================================
-    // 5. RENDER THE PROFILE
+    // 5. FETCH XP THIS WEEK
+    // ============================================================
+    //
+    // We compute the viewer's LOCAL Monday–Sunday window and
+    // query both series' daily_progress rows filtered by the
+    // same progress_date range. The profile owner's rows are
+    // keyed by the OWNER's local date, so cross-user timezone
+    // mismatch is bounded and accepted (documented in §10.F).
+    //
+    // Which timezone anchors the week? The VIEWER's. Reasoning:
+    // one consistent frame regardless of whose profile is being
+    // viewed, matching the "this week" mental model.
+
+    function getViewerTimezone() {
+      let tz = null;
+      try { tz = localStorage.getItem('userTimezone'); } catch (e) { /* no-op */ }
+      if (!tz && profileData && profileData.timezone) tz = profileData.timezone;
+      return tz || 'UTC';
+    }
+
+    function computeWeekBounds(tz) {
+      const local = getLocalDateObject(tz);
+      // JS dayOfWeek: 0=Sun, 1=Mon, ... 6=Sat
+      const daysFromMonday = (local.dayOfWeek + 6) % 7;
+      const monday = new Date(local.year, local.month - 1, local.day - daysFromMonday);
+      const fmt = d =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        return fmt(d);
+      });
+      return {
+        mondayStr: days[0],
+        sundayStr: days[6],
+        days
+      };
+    }
+
+    const SHORT_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const FULL_LABELS  = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    const viewerTz = getViewerTimezone();
+    const weekBounds = computeWeekBounds(viewerTz);
+
+    let viewerXpRows = [];
+    let ownerXpRows  = [];
+
+    // Viewer series: uses the existing helper (relies on own-row RLS).
+    try {
+      viewerXpRows = await getDailyProgressRange(weekBounds.mondayStr, weekBounds.sundayStr) || [];
+    } catch (e) {
+      console.error('viewer xp range failed:', e);
+      viewerXpRows = [];
+    }
+
+    // Owner series (only when viewing another user).
+    // Direct query — will return [] while the RLS policy restricts
+    // cross-user reads (see file header). The code below detects
+    // empty results and degrades to single-series mode.
+    if (!isOwnProfile) {
+      try {
+        const { data, error } = await supabase
+          .from('daily_progress')
+          .select('progress_date, xp_earned')
+          .eq('user_id', profileData.id)
+          .gte('progress_date', weekBounds.mondayStr)
+          .lte('progress_date', weekBounds.sundayStr)
+          .order('progress_date', { ascending: true });
+        if (error) throw error;
+        ownerXpRows = data || [];
+      } catch (e) {
+        console.error('owner xp range failed:', e);
+        ownerXpRows = [];
+      }
+    }
+
+    function rowsToDailySeries(rows, days) {
+      const map = {};
+      rows.forEach(r => {
+        if (r && typeof r.progress_date === 'string') {
+          map[r.progress_date] = Number(r.xp_earned) || 0;
+        }
+      });
+      return days.map(d => map[d] || 0);
+    }
+
+    const viewerSeries = rowsToDailySeries(viewerXpRows, weekBounds.days);
+    let ownerSeries = null;
+    let peerSeriesAvailable = false;
+
+    if (!isOwnProfile) {
+      ownerSeries = rowsToDailySeries(ownerXpRows, weekBounds.days);
+      // RLS blocks the peer query → empty rows. We can't distinguish
+      // "peer has no XP this week" from "RLS is blocking"; the
+      // pragmatic choice is to fall back to single-series mode when
+      // the peer query returns nothing. A future migration that adds
+      // an RPC or RLS policy will make this branch succeed and the
+      // two-series view will activate automatically.
+      peerSeriesAvailable = ownerXpRows.length > 0;
+      if (!peerSeriesAvailable) {
+        console.warn(
+          'XP-this-week: peer series unavailable. daily_progress RLS ' +
+          'restricts SELECT to own rows. Add an RPC or RLS policy to ' +
+          'enable the two-series view on other profiles.'
+        );
+      }
+    }
+
+    const viewerDisplayName = (isOwnProfile && profileData.display_name)
+      ? 'You'
+      : 'You';
+    const ownerDisplayName = profileData.display_name
+      || profileData.username
+      || 'Learner';
+
+    // ============================================================
+    // 6. RENDER THE PROFILE
     // ============================================================
     const main = document.getElementById('mainContent');
 
-    // ---- Avatar & header ----
+    // ---- Header ----
     const avatarColor = getAvatarColor(profileData.id);
     const initial = getAvatarInitial(profileData.display_name, profileData.username);
     const joinedDate = new Date(profileData.created_at);
 
-    // Profile header HTML
     const headerHTML = `
       <div class="profile-header">
         <span class="material-symbols-outlined profile-share-icon" id="profileShareTrigger">upload</span>
@@ -1389,17 +1635,13 @@
     `;
     main.innerHTML = headerHTML;
 
-    // ---- Populate following/followers (placeholder, will be dynamic later) ----
-    // For now, we'll just show 0, but we can fetch from a follow table later.
     document.getElementById('followingLink').textContent = '0 Following';
     document.getElementById('followersLink').textContent = '0 Followers';
 
-    // ---- Settings click ----
     document.getElementById('profileSettingsTrigger').addEventListener('click', () => {
       window.location.href = '/settings';
     });
 
-    // ---- Avatar and edit click ----
     const avatarContainer = document.querySelector('.profile-pic-container');
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
@@ -1445,12 +1687,10 @@
     `;
     main.insertAdjacentHTML('beforeend', coursesHTML);
 
-    // Add course button
     document.getElementById('addCourseBtn').addEventListener('click', () => {
       window.location.href = '/courses.html?action=add-course';
     });
 
-    // Course click -> open modal
     document.querySelectorAll('.course-slider-item').forEach(el => {
       el.addEventListener('click', () => {
         openCoursesModal(profileData.display_name, courseDetails);
@@ -1487,6 +1727,81 @@
     `;
     main.insertAdjacentHTML('beforeend', statsHTML);
 
+    // ---- XP this week ----
+    const viewerTotal = viewerSeries.reduce((a, b) => a + b, 0);
+    const ownerTotal  = ownerSeries ? ownerSeries.reduce((a, b) => a + b, 0) : 0;
+
+    const legendRows = (() => {
+      const viewerRow = `
+        <div class="xp-legend-row" data-series="0">
+          <span class="xp-legend-dot"></span>
+          <span class="xp-legend-name">${escapeHtml(viewerDisplayName)}</span>
+          <span class="xp-legend-value" id="xpViewerTotal">${formatNumberShort(viewerTotal)} XP</span>
+        </div>
+      `;
+      if (!isOwnProfile && peerSeriesAvailable) {
+        return viewerRow + `
+          <div class="xp-legend-row is-peer" data-series="1">
+            <span class="xp-legend-dot"></span>
+            <span class="xp-legend-name">${escapeHtml(ownerDisplayName)}</span>
+            <span class="xp-legend-value" id="xpPeerTotal">${formatNumberShort(ownerTotal)} XP</span>
+          </div>
+        `;
+      }
+      return viewerRow;
+    })();
+
+    const xpHTML = `
+      <section class="xp-block">
+        <h2 class="section-title">XP this week</h2>
+        <div class="xp-card">
+          <div class="xp-legend" id="xpLegend">
+            ${legendRows}
+          </div>
+          <div class="xp-chart-wrapper" id="xpChartWrapper">
+            <canvas id="xpChartCanvas" aria-label="XP this week chart"></canvas>
+            <div class="xp-tooltip" id="xpTooltip"></div>
+          </div>
+        </div>
+      </section>
+    `;
+    main.insertAdjacentHTML('beforeend', xpHTML);
+
+    // Series config for the chart. The `color` matches the legend
+    // row colours exactly: viewer = Carpenter Blue, peer = Koala.
+    const chartSeries = [
+      { name: viewerDisplayName, color: '#4285F4', data: viewerSeries, visible: true }
+    ];
+    if (!isOwnProfile && peerSeriesAvailable) {
+      chartSeries.push({
+        name: ownerDisplayName,
+        color: '#AFAFAF',
+        data: ownerSeries,
+        visible: true
+      });
+    }
+
+    initXpChart({
+      canvasId: 'xpChartCanvas',
+      wrapperId: 'xpChartWrapper',
+      tooltipId: 'xpTooltip',
+      series: chartSeries,
+      shortLabels: SHORT_LABELS,
+      fullLabels: FULL_LABELS
+    });
+
+    // Legend toggle wiring.
+    document.querySelectorAll('#xpLegend .xp-legend-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const idx = Number(row.dataset.series);
+        const s = chartSeries[idx];
+        if (!s) return;
+        s.visible = !s.visible;
+        row.classList.toggle('is-muted', !s.visible);
+        window.dispatchEvent(new CustomEvent('xp-chart:redraw'));
+      });
+    });
+
     // ---- Personal Records ----
     const recordsHTML = `
       <section class="records-section">
@@ -1496,14 +1811,12 @@
     `;
     main.insertAdjacentHTML('beforeend', recordsHTML);
 
-    // Render records dynamically
     function renderRecords() {
       const container = document.getElementById('recordsList');
       container.innerHTML = '';
       const recordKeys = ['longestStreak', 'highestLeague', 'perfectLessons', 'mostXp'];
       recordKeys.forEach(key => {
         const def = RECORD_DEFS[key];
-        // Determine if achieved: check userRecords
         let achieved = false;
         let value = def.defaultNumber;
         let date = null;
@@ -1513,7 +1826,7 @@
               if (userRecords.longest_streak && userRecords.longest_streak > 0) {
                 achieved = true;
                 value = userRecords.longest_streak;
-                date = userRecords.updated_at; // placeholder, we need a separate date field
+                date = userRecords.updated_at;
               }
               break;
             case 'highestLeague':
@@ -1539,7 +1852,6 @@
               break;
           }
         }
-        // For unachieved, we show grey diamond
         const colorClass = achieved ? `record-${key === 'longestStreak' ? 'streak' : key === 'highestLeague' ? 'medal' : key === 'perfectLessons' ? 'target' : 'xp'}` : '';
         const diamondStyle = achieved ? '' : 'background-color: var(--koala);';
         const numberDisplay = achieved ? value : '—';
@@ -1580,17 +1892,11 @@
         const def = ACHIEVEMENT_DEFS[id];
         const userAch = achievementMap[id];
         let level = 0;
-        let progressValue = 0;
         let achieved = false;
         if (userAch) {
           level = userAch.level || 0;
-          // We need to get the actual progress value to determine which level the user is at.
-          // For demonstration, we'll use the achievement data to compute level.
-          // In a real implementation, we'd store the progress value in the table.
-          // For now, we'll assume level is stored.
           achieved = level >= def.maxLevel;
         }
-        // If not achieved, show grey diamond; if achieved, use the achievement's color class.
         const colorClass = achieved ? `award-${achievementIds.indexOf(id) + 1}` : '';
         const diamondStyle = achieved ? '' : 'background-color: var(--koala);';
         const numberDisplay = achieved ? def.levels[def.levels.length - 1] : (def.levels[0] || '0');
@@ -1615,10 +1921,8 @@
     renderAchievements();
 
     // ============================================================
-    // 6. MODAL LOGIC
+    // 7. MODAL LOGIC — COURSES
     // ============================================================
-
-    // ---- Courses Modal ----
     const coursesModal = document.getElementById('coursesModal');
     const closeModalBtn = document.getElementById('closeModal');
     const coursesList = document.getElementById('coursesList');
@@ -1643,23 +1947,22 @@
       coursesModal.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
-
     function closeCoursesModal() {
       coursesModal.classList.remove('active');
       document.body.style.overflow = '';
     }
-
     closeModalBtn.addEventListener('click', closeCoursesModal);
     coursesModal.addEventListener('click', (e) => { if (e.target === coursesModal) closeCoursesModal(); });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && coursesModal.classList.contains('active')) closeCoursesModal();
     });
 
-    // ---- Record Modal ----
+    // ============================================================
+    // 8. MODAL LOGIC — RECORD
+    // ============================================================
     const recordModal = document.getElementById('recordModal');
     const closeRecordModal = document.getElementById('closeRecordModal');
     const recordDisplayDiamond = document.getElementById('recordDisplayDiamond');
-    const recordDisplayIcon = document.getElementById('recordDisplayIcon');
     const recordDisplayNumber = document.getElementById('recordDisplayNumber');
     const recordDisplayTitle = document.getElementById('recordDisplayTitle');
     const recordDisplayDate = document.getElementById('recordDisplayDate');
@@ -1669,79 +1972,57 @@
     function openRecordModal(recordKey) {
       const def = RECORD_DEFS[recordKey];
       if (!def) return;
-      // Determine if achieved
       let achieved = false;
       let value = def.defaultNumber;
       let date = null;
       if (userRecords) {
         switch (recordKey) {
           case 'longestStreak':
-            if (userRecords.longest_streak && userRecords.longest_streak > 0) {
-              achieved = true;
-              value = userRecords.longest_streak;
-              date = userRecords.updated_at;
-            }
+            if (userRecords.longest_streak && userRecords.longest_streak > 0) { achieved = true; value = userRecords.longest_streak; date = userRecords.updated_at; }
             break;
           case 'highestLeague':
-            if (userRecords.highest_league && userRecords.highest_league !== 'Beginner') {
-              achieved = true;
-              value = userRecords.highest_league;
-              date = userRecords.updated_at;
-            }
+            if (userRecords.highest_league && userRecords.highest_league !== 'Beginner') { achieved = true; value = userRecords.highest_league; date = userRecords.updated_at; }
             break;
           case 'perfectLessons':
-            if (userRecords.perfect_lessons_in_day && userRecords.perfect_lessons_in_day > 0) {
-              achieved = true;
-              value = userRecords.perfect_lessons_in_day;
-              date = userRecords.updated_at;
-            }
+            if (userRecords.perfect_lessons_in_day && userRecords.perfect_lessons_in_day > 0) { achieved = true; value = userRecords.perfect_lessons_in_day; date = userRecords.updated_at; }
             break;
           case 'mostXp':
-            if (userRecords.most_xp_in_day && userRecords.most_xp_in_day > 0) {
-              achieved = true;
-              value = userRecords.most_xp_in_day;
-              date = userRecords.updated_at;
-            }
+            if (userRecords.most_xp_in_day && userRecords.most_xp_in_day > 0) { achieved = true; value = userRecords.most_xp_in_day; date = userRecords.updated_at; }
             break;
         }
       }
       const color = achieved ? def.color : '#AFAFAF';
       const iconSrc = `/assets/icons/phosphor/duotone/${def.icon}.svg`;
       recordDisplayDiamond.style.backgroundColor = color;
-      recordDisplayIcon.innerHTML = `<img src="${iconSrc}" alt="Icon">`;
+      recordDisplayDiamond.querySelector('.record-display-icon').innerHTML = `<img src="${iconSrc}" alt="Icon">`;
       recordDisplayNumber.textContent = achieved ? value : '—';
       recordDisplayTitle.textContent = def.title;
       recordDisplayDate.textContent = achieved && date ? formatDateOrdinal(new Date(date)) : '';
       recordMessage.textContent = achieved ? def.message(value) : def.unachievedMessage;
-      // Store current record key for share
       window._currentRecordId = recordKey;
       recordModal.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
-
     function closeRecordModalFn() {
       recordModal.classList.remove('active');
       document.body.style.overflow = '';
     }
-
     closeRecordModal.addEventListener('click', closeRecordModalFn);
     recordModal.addEventListener('click', (e) => { if (e.target === recordModal) closeRecordModalFn(); });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && recordModal.classList.contains('active')) closeRecordModalFn();
     });
-
-    // Share record button
     shareRecordButton.addEventListener('click', () => {
-      // Open record share overlay
       const recordKey = window._currentRecordId || 'longestStreak';
       openRecordShare(recordKey);
     });
 
-    // ---- Achievement Modal ----
+    // ============================================================
+    // 9. MODAL LOGIC — ACHIEVEMENT
+    // ============================================================
     const achievementModal = document.getElementById('achievementModal');
     const closeAchievementModal = document.getElementById('closeAchievementModal');
     const achievementDisplayDiamond = document.getElementById('achievementDisplayDiamond');
-    const achievementDisplayIcon = document.getElementById('achievementDisplayIcon');
     const achievementDisplayNumber = document.getElementById('achievementDisplayNumber');
     const achievementDisplayTitle = document.getElementById('achievementDisplayTitle');
     const achievementDisplayDate = document.getElementById('achievementDisplayDate');
@@ -1758,37 +2039,32 @@
       const numberDisplay = achieved ? def.levels[def.levels.length - 1] : (def.levels[0] || '0');
       const iconSrc = `/assets/icons/material-symbols/outline/${def.icon}.svg`;
       achievementDisplayDiamond.style.backgroundColor = color;
-      achievementDisplayIcon.innerHTML = `<img src="${iconSrc}" alt="Icon">`;
+      achievementDisplayDiamond.querySelector('.achievement-display-icon').innerHTML = `<img src="${iconSrc}" alt="Icon">`;
       achievementDisplayNumber.textContent = numberDisplay;
       achievementDisplayTitle.textContent = def.title;
       const now = new Date();
       achievementDisplayDate.textContent = achieved ? formatDateOrdinal(now) : '';
       achievementMessage.textContent = achieved ? def.messageTemplate(level) : 'Keep going to earn this achievement!';
-      // Store achievement id for share
       window._currentAchievementId = achievementId;
       achievementModal.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
-
     function closeAchievementModalFn() {
       achievementModal.classList.remove('active');
       document.body.style.overflow = '';
     }
-
     closeAchievementModal.addEventListener('click', closeAchievementModalFn);
     achievementModal.addEventListener('click', (e) => { if (e.target === achievementModal) closeAchievementModalFn(); });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && achievementModal.classList.contains('active')) closeAchievementModalFn();
     });
-
-    // Share achievement button
     shareAchievementButton.addEventListener('click', () => {
       const achievementId = window._currentAchievementId || 'xppowerhouse';
       openAchievementShare(achievementId);
     });
 
     // ============================================================
-    // 7. SHARE OVERLAYS
+    // 10. SHARE OVERLAYS
     // ============================================================
 
     // ---- Profile Share ----
@@ -1808,12 +2084,10 @@
       document.body.style.overflow = 'hidden';
       generateProfileQR(profileData.username);
     }
-
     function closeProfileShare() {
       profileShareOverlay.classList.remove('active');
       document.body.style.overflow = '';
     }
-
     profileShareTrigger.addEventListener('click', openProfileShare);
     profileShareOverlay.addEventListener('click', (e) => {
       if (e.target === profileShareOverlay) closeProfileShare();
@@ -1837,7 +2111,6 @@
       }
     }
 
-    // Profile share actions (simplified)
     function getProfileShareText() {
       return `Check out my progress learning on Vulanet!\n${window.location.origin}/profile/${profileData.username}`;
     }
@@ -1860,7 +2133,6 @@
       const card = document.getElementById('profileShareCard');
       const shared = await shareWithImage(card, text, 'vulanet-profile.png');
       if (shared) return;
-
       const encoded = encodeURIComponent(text);
       let url = '';
       if (platform === 'facebook') url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encoded}&hashtag=%23Vulanet`;
@@ -1894,9 +2166,8 @@
     document.getElementById('profileMoreOptions').addEventListener('click', async function() {
       const text = getProfileShareText();
       if (navigator.share) {
-        try {
-          await navigator.share({ title: 'My Vulanet Profile', text: text });
-        } catch (e) { if (e.name !== 'AbortError') fallbackCopy(text); }
+        try { await navigator.share({ title: 'My Vulanet Profile', text: text }); }
+        catch (e) { if (e.name !== 'AbortError') fallbackCopy(text); }
       } else { fallbackCopy(text); }
     });
 
@@ -1905,7 +2176,6 @@
         navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!')).catch(() => legacyCopy(text));
       } else { legacyCopy(text); }
     }
-
     function legacyCopy(text) {
       const ta = document.createElement('textarea');
       ta.value = text;
@@ -1927,7 +2197,7 @@
       const color = achieved ? def.color : '#AFAFAF';
       const numberDisplay = achieved ? def.levels[def.levels.length - 1] : (def.levels[0] || '0');
       document.getElementById('shareDisplayDiamond').style.backgroundColor = color;
-      document.getElementById('shareDisplayIcon').innerHTML = `<img src="/assets/icons/material-symbols/outline/${def.icon}.svg" alt="Icon">`;
+      document.getElementById('shareDisplayDiamond').querySelector('.achievement-display-icon').innerHTML = `<img src="/assets/icons/material-symbols/outline/${def.icon}.svg" alt="Icon">`;
       document.getElementById('shareDisplayNumber').textContent = numberDisplay;
       document.getElementById('shareDisplayTitle').textContent = def.title;
       const now = new Date();
@@ -1936,17 +2206,14 @@
       achievementShareOverlay.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
-
     function closeAchievementShare() {
       achievementShareOverlay.classList.remove('active');
       document.body.style.overflow = '';
     }
-
     achievementShareOverlay.addEventListener('click', (e) => {
       if (e.target === achievementShareOverlay) closeAchievementShare();
     });
 
-    // Achievement share actions (reuse similar logic)
     async function achievementShareAction(platform) {
       const text = document.getElementById('shareMessage').textContent;
       const card = document.getElementById('achievementShareCard');
@@ -1981,13 +2248,11 @@
         })
         .catch(() => alert('Could not save image.'));
     });
-
     document.getElementById('moreOptions').addEventListener('click', async function() {
       const text = document.getElementById('shareMessage').textContent;
       if (navigator.share) {
-        try {
-          await navigator.share({ title: 'My Vulanet Achievement', text: text });
-        } catch (e) { if (e.name !== 'AbortError') fallbackCopy(text); }
+        try { await navigator.share({ title: 'My Vulanet Achievement', text: text }); }
+        catch (e) { if (e.name !== 'AbortError') fallbackCopy(text); }
       } else { fallbackCopy(text); }
     });
 
@@ -2003,39 +2268,23 @@
       if (userRecords) {
         switch (recordKey) {
           case 'longestStreak':
-            if (userRecords.longest_streak && userRecords.longest_streak > 0) {
-              achieved = true;
-              value = userRecords.longest_streak;
-              date = userRecords.updated_at;
-            }
+            if (userRecords.longest_streak && userRecords.longest_streak > 0) { achieved = true; value = userRecords.longest_streak; date = userRecords.updated_at; }
             break;
           case 'highestLeague':
-            if (userRecords.highest_league && userRecords.highest_league !== 'Beginner') {
-              achieved = true;
-              value = userRecords.highest_league;
-              date = userRecords.updated_at;
-            }
+            if (userRecords.highest_league && userRecords.highest_league !== 'Beginner') { achieved = true; value = userRecords.highest_league; date = userRecords.updated_at; }
             break;
           case 'perfectLessons':
-            if (userRecords.perfect_lessons_in_day && userRecords.perfect_lessons_in_day > 0) {
-              achieved = true;
-              value = userRecords.perfect_lessons_in_day;
-              date = userRecords.updated_at;
-            }
+            if (userRecords.perfect_lessons_in_day && userRecords.perfect_lessons_in_day > 0) { achieved = true; value = userRecords.perfect_lessons_in_day; date = userRecords.updated_at; }
             break;
           case 'mostXp':
-            if (userRecords.most_xp_in_day && userRecords.most_xp_in_day > 0) {
-              achieved = true;
-              value = userRecords.most_xp_in_day;
-              date = userRecords.updated_at;
-            }
+            if (userRecords.most_xp_in_day && userRecords.most_xp_in_day > 0) { achieved = true; value = userRecords.most_xp_in_day; date = userRecords.updated_at; }
             break;
         }
       }
       const color = achieved ? def.color : '#AFAFAF';
       const iconSrc = `/assets/icons/phosphor/duotone/${def.icon}.svg`;
       document.getElementById('recordShareDiamond').style.backgroundColor = color;
-      document.getElementById('recordShareIcon').innerHTML = `<img src="${iconSrc}" alt="Icon">`;
+      document.getElementById('recordShareDiamond').querySelector('.record-display-icon').innerHTML = `<img src="${iconSrc}" alt="Icon">`;
       document.getElementById('recordShareNumber').textContent = achieved ? value : '—';
       document.getElementById('recordShareTitle').textContent = def.title;
       document.getElementById('recordShareDate').textContent = achieved && date ? formatDateOrdinal(new Date(date)) : '';
@@ -2043,17 +2292,14 @@
       recordShareOverlay.classList.add('active');
       document.body.style.overflow = 'hidden';
     }
-
     function closeRecordShare() {
       recordShareOverlay.classList.remove('active');
       document.body.style.overflow = '';
     }
-
     recordShareOverlay.addEventListener('click', (e) => {
       if (e.target === recordShareOverlay) closeRecordShare();
     });
 
-    // Record share actions
     async function recordShareAction(platform) {
       const text = document.getElementById('recordShareMessage').textContent;
       const card = document.getElementById('recordShareCard');
@@ -2088,18 +2334,16 @@
         })
         .catch(() => alert('Could not save image.'));
     });
-
     document.getElementById('recordMoreOptions').addEventListener('click', async function() {
       const text = document.getElementById('recordShareMessage').textContent;
       if (navigator.share) {
-        try {
-          await navigator.share({ title: 'My Vulanet Record', text: text });
-        } catch (e) { if (e.name !== 'AbortError') fallbackCopy(text); }
+        try { await navigator.share({ title: 'My Vulanet Record', text: text }); }
+        catch (e) { if (e.name !== 'AbortError') fallbackCopy(text); }
       } else { fallbackCopy(text); }
     });
 
     // ============================================================
-    // 8. EVENT LISTENERS FOR RECORD / ACHIEVEMENT CARDS
+    // 11. CARD CLICK DELEGATION
     // ============================================================
     document.addEventListener('click', (e) => {
       const recordCard = e.target.closest('.record-card');
@@ -2117,7 +2361,7 @@
     });
 
     // ============================================================
-    // 9. KEYBOARD SHORTCUTS
+    // 12. KEYBOARD SHORTCUTS
     // ============================================================
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -2129,6 +2373,259 @@
         if (achievementModal.classList.contains('active')) closeAchievementModalFn();
       }
     });
+
+    // ============================================================
+    // HELPERS
+    // ============================================================
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // ============================================================
+    // 13. XP CHART — hand-rolled canvas
+    // ============================================================
+    //
+    // Renders a 7-point line chart (Mon–Sun) with one or two
+    // series. Tapping anywhere along the x-axis shows a tooltip
+    // with the full weekday name and both series' XP for that day.
+    //
+    // The chart listens for a window-level 'xp-chart:redraw' event
+    // so the legend toggles can trigger a redraw without holding a
+    // direct reference to the drawing routine.
+
+    function initXpChart({ canvasId, wrapperId, tooltipId, series, shortLabels, fullLabels }) {
+      const canvas  = document.getElementById(canvasId);
+      const wrapper = document.getElementById(wrapperId);
+      const tooltip = document.getElementById(tooltipId);
+      if (!canvas || !wrapper || !tooltip) return;
+
+      const ctx = canvas.getContext('2d');
+      let tooltipIndex = -1;
+      let layout = null;
+
+      // Round a raw max up to a "nice" tick step (1, 2, 5, 10 × 10^n).
+      function niceStep(rawMax) {
+        if (rawMax <= 0) return 1;
+        const rawStep = rawMax / 4;
+        const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+        const norm = rawStep / mag;
+        let niceNorm;
+        if (norm <= 1) niceNorm = 1;
+        else if (norm <= 2) niceNorm = 2;
+        else if (norm <= 5) niceNorm = 5;
+        else niceNorm = 10;
+        return niceNorm * mag;
+      }
+
+      function draw() {
+        const dpr = window.devicePixelRatio || 1;
+        const cssW = wrapper.clientWidth;
+        const cssH = wrapper.clientHeight;
+        if (cssW <= 0 || cssH <= 0) return;
+
+        canvas.width  = Math.round(cssW * dpr);
+        canvas.height = Math.round(cssH * dpr);
+        canvas.style.width  = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, cssW, cssH);
+
+        const padTop    = 16;
+        const padRight  = 12;
+        const padBottom = 30;
+        const padLeft   = 40;
+        const chartW = cssW - padLeft - padRight;
+        const chartH = cssH - padTop - padBottom;
+        if (chartW <= 0 || chartH <= 0) return;
+
+        const visibleSeries = series.filter(s => s.visible);
+        let maxVal = 0;
+        visibleSeries.forEach(s => s.data.forEach(v => { if (v > maxVal) maxVal = v; }));
+        if (maxVal <= 0) maxVal = 1;
+        const step = niceStep(maxVal);
+        const niceMax = Math.max(step, Math.ceil(maxVal / step) * step);
+
+        // Grid + Y-axis tick labels
+        ctx.strokeStyle = '#ECEFF2';
+        ctx.fillStyle   = '#9AA0A6';
+        ctx.font        = '12px "Atkinson Hyperlegible Next", sans-serif';
+        ctx.textAlign    = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.lineWidth = 1;
+
+        const tickCount = Math.round(niceMax / step);
+        for (let i = 0; i <= tickCount; i++) {
+          const v = step * i;
+          const y = padTop + chartH - (v / niceMax) * chartH;
+          ctx.beginPath();
+          ctx.moveTo(padLeft, y + 0.5);
+          ctx.lineTo(padLeft + chartW, y + 0.5);
+          ctx.stroke();
+          ctx.fillText(String(v), padLeft - 6, y);
+        }
+
+        // X-axis short labels (M T W T F S S)
+        ctx.fillStyle = '#9AA0A6';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        shortLabels.forEach((label, i) => {
+          const x = padLeft + (i / 6) * chartW;
+          ctx.fillText(label, x, padTop + chartH + 8);
+        });
+
+        // Series lines + points
+        visibleSeries.forEach(s => {
+          ctx.strokeStyle = s.color;
+          ctx.lineWidth = 3;
+          ctx.lineJoin = 'round';
+          ctx.lineCap  = 'round';
+          ctx.beginPath();
+          s.data.forEach((v, i) => {
+            const x = padLeft + (i / 6) * chartW;
+            const y = padTop + chartH - (v / niceMax) * chartH;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+
+          ctx.fillStyle = s.color;
+          s.data.forEach((v, i) => {
+            const x = padLeft + (i / 6) * chartW;
+            const y = padTop + chartH - (v / niceMax) * chartH;
+            ctx.beginPath();
+            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        });
+
+        // Tapped-point vertical guide
+        if (tooltipIndex >= 0 && tooltipIndex <= 6) {
+          const x = padLeft + (tooltipIndex / 6) * chartW;
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(x, padTop);
+          ctx.lineTo(x, padTop + chartH);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        layout = { padTop, padLeft, chartW, chartH, niceMax };
+      }
+
+      function showTooltip(index) {
+        if (!layout || index < 0 || index > 6) return;
+        tooltipIndex = index;
+        draw();
+
+        const { padTop, padLeft, chartW, chartH, niceMax } = layout;
+        const x = padLeft + (index / 6) * chartW;
+
+        const visibleSeries = series.filter(s => s.visible);
+        let html = `<div class="xp-tooltip-title">${fullLabels[index]}</div>`;
+        visibleSeries.forEach(s => {
+          html += `
+            <div class="xp-tooltip-row">
+              <span class="xp-tooltip-dot" style="background:${s.color};"></span>
+              <span>${escapeHtml(s.name)}: ${s.data[index]} XP</span>
+            </div>
+          `;
+        });
+        tooltip.innerHTML = html;
+        tooltip.classList.add('show');
+
+        // Anchor above the highest visible point at this x-index.
+        let highestY = padTop + chartH;
+        visibleSeries.forEach(s => {
+          const v = s.data[index];
+          const y = padTop + chartH - (v / niceMax) * chartH;
+          if (y < highestY) highestY = y;
+        });
+
+        const tW = tooltip.offsetWidth;
+        const tH = tooltip.offsetHeight;
+        const minX = padLeft + tW / 2 - 8;
+        const maxX = padLeft + chartW - tW / 2 + 8;
+        const clampedX = Math.max(minX, Math.min(maxX, x));
+
+        tooltip.style.left = clampedX + 'px';
+        tooltip.style.top  = (highestY - 8) + 'px';
+      }
+
+      function hideTooltip() {
+        tooltipIndex = -1;
+        tooltip.classList.remove('show');
+        draw();
+      }
+
+      function onPointerDown(e) {
+        if (!layout) return;
+        const rect = canvas.getBoundingClientRect();
+        const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+        const x = clientX - rect.left;
+
+        const { padLeft, chartW } = layout;
+        const ratio = (x - padLeft) / chartW;
+        let index = Math.round(ratio * 6);
+        if (index < 0) index = 0;
+        if (index > 6) index = 6;
+
+        // Tapping far outside the plot area hides the tooltip.
+        if (x < padLeft - 24 || x > padLeft + chartW + 24) {
+          hideTooltip();
+          return;
+        }
+
+        if (tooltipIndex === index) hideTooltip();
+        else showTooltip(index);
+      }
+
+      canvas.addEventListener('pointerdown', onPointerDown);
+
+      // Redraw on layout changes.
+      if (window.ResizeObserver) {
+        const ro = new ResizeObserver(() => {
+          // Preserve current tooltip if any.
+          if (tooltipIndex >= 0) {
+            draw();
+            showTooltip(tooltipIndex);
+          } else {
+            draw();
+          }
+        });
+        ro.observe(wrapper);
+      } else {
+        window.addEventListener('resize', draw);
+      }
+
+      // Redraw on legend toggle (custom event fired by the page).
+      window.addEventListener('xp-chart:redraw', () => {
+        // If all series become hidden, reset tooltip.
+        if (!series.some(s => s.visible)) {
+          hideTooltip();
+          return;
+        }
+        if (tooltipIndex >= 0) {
+          draw();
+          showTooltip(tooltipIndex);
+        } else {
+          draw();
+        }
+      });
+
+      // Initial draw after layout has settled.
+      requestAnimationFrame(() => {
+        draw();
+      });
+    }
 
     console.log('✅ Profile page loaded for', profileData.username);
   </script>

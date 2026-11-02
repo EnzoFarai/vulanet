@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Leaderboard | Vulanet</title>
+  <link rel="stylesheet" href="/assets/fonts/fonts.css">
+  <link rel="stylesheet" href="/src/styles/layout.css">
+  <link rel="stylesheet" href="/src/styles/components/buttons.css">
+  <style>
+    /* ==========================================================
+       LEADERBOARD — page-scoped styles, aligned to §17 Code 1 / Code 5.
+       Universal header/footer come from layout.css via loadLayout().
+       ========================================================== */
+
+    .leaderboard-container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 20px 16px 100px;
+    }
+
+    /* ========== Banner (Code 1 / Code 5) ========== */
+    .leaderboard-section {
+      background: #4285F4;
+      border-radius: 16px;
+      color: #ffffff;
+      padding: 20px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .leaderboard-section h3 {
+      font-weight: 700;
+      font-size: 20px;
+      margin: 0 0 8px;
+      color: #ffffff;
+    }
+    .leaderboard-section p {
+      font-size: 16px;
+      opacity: 0.9;
+      max-width: 80%;
+      font-weight: 400;
+      margin: 0;
+      color: #ffffff;
+    }
+    .trophy-icon {
+      position: absolute;
+      right: 15px;
+      bottom: 15px;
+      width: 100px;
+      height: 100px;
+      background-color: #FFD700;
+      -webkit-mask: url('/assets/icons/phosphor/fill/trophy.svg') center / contain no-repeat;
+      mask: url('/assets/icons/phosphor/fill/trophy.svg') center / contain no-repeat;
+      opacity: 0.25;
+      transform: rotate(-15deg);
+      pointer-events: none;
+    }
+
+    /* ========== League info row ========== */
+    .league-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+    .league-name {
+      font-weight: 700;
+      color: #4285F4;
+      font-size: 16px;
+    }
+    .time-remaining {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #FF9800;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .clock-icon {
+      width: 18px;
+      height: 18px;
+      background-color: #FF9800;
+      -webkit-mask: url('/assets/icons/phosphor/bold/clock-countdown.svg') center / contain no-repeat;
+      mask: url('/assets/icons/phosphor/bold/clock-countdown.svg') center / contain no-repeat;
+      flex-shrink: 0;
+    }
+
+    /* ========== Medals strip ========== */
+    .medals-container {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .medals-container::-webkit-scrollbar { display: none; }
+
+    .medal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 66px;
+      flex-shrink: 0;
+      transition: opacity 0.3s ease;
+    }
+    .medal-icon {
+      width: 32px;
+      height: 32px;
+      background-color: var(--medal-color, #5F6368);
+      -webkit-mask: url('/assets/icons/phosphor/fill/medal.svg') center / contain no-repeat;
+      mask: url('/assets/icons/phosphor/fill/medal.svg') center / contain no-repeat;
+    }
+    .medal-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: #5F6368;
+      white-space: nowrap;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .medal.reached .medal-name {
+      color: var(--medal-color, #34A853);
+    }
+    .medal.locked .medal-icon { opacity: 0.8; }
+
+    /* ========== Participant list (Code 1) ========== */
+    .participants-list {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+
+    .participant-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      background: #ffffff;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s ease;
+    }
+    .participant-row:last-child { border-bottom: none; }
+    .participant-row:not(.me):not(.bot):hover { background: #FAFAFA; }
+    .participant-row.me {
+      background: #E8F0FE;
+      cursor: default;
+    }
+    .participant-row.me:hover { background: #E8F0FE; }
+    .participant-row.bot { cursor: default; }
+    .participant-row.bot:hover { background: #ffffff; }
+
+    .rank-number {
+      width: 28px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: #555;
+      flex-shrink: 0;
+    }
+    .rank-number.promotion { color: #34A853; }
+    .rank-number.relegation { color: #EA4335; }
+
+    .participant-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+      position: relative;
+      user-select: none;
+    }
+
+    .participant-mood {
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      line-height: 1;
+      padding: 0;
+      z-index: 5;
+      font-family: inherit;
+      cursor: default;
+      transition: transform 0.1s ease;
+    }
+    .participant-mood.me { cursor: pointer; }
+    .participant-mood.me:hover { transform: scale(1.08); }
+    .participant-mood.readonly { pointer-events: none; }
+
+    .participant-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .participant-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: #202124;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .participant-meta {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #888;
+    }
+    .bot-chip {
+      background: #AFAFAF;
+      color: #ffffff;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 9px;
+      line-height: 1.5;
+    }
+    .you-chip { color: #4285F4; }
+
+    .mood-bubble {
+      position: relative;
+      background: #ffffff;
+      color: #202124;
+      border: 1.5px solid #4285F4;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-right: 6px;
+      font-family: inherit;
+      line-height: 1.2;
+      animation: mood-bubble-pulse 2.4s ease-in-out infinite;
+    }
+    .mood-bubble::before,
+    .mood-bubble::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      border-style: solid;
+      border-color: transparent;
+    }
+    .mood-bubble::before {
+      right: 100%;
+      border-width: 6px 8px 6px 0;
+      border-right-color: #4285F4;
+    }
+    .mood-bubble::after {
+      right: calc(100% - 1.5px);
+      border-width: 5px 7px 5px 0;
+      border-right-color: #ffffff;
+    }
+    @keyframes mood-bubble-pulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.03); }
+    }
+
+    .participant-xp {
+      font-weight: 700;
+      font-size: 15px;
+      color: #4285F4;
+      flex-shrink: 0;
+      min-width: 50px;
+      text-align: right;
+    }
+
+    /* ========== Promotion / relegation banners (Code 1) ========== */
+    .promotion-zone,
+    .relegation-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 0;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .promotion-zone {
+      background-color: #E6F4EA;
+      color: #34A853;
+      border-top: 1px solid #C8E6C9;
+      border-bottom: 1px solid #C8E6C9;
+    }
+    .relegation-zone {
+      background-color: #FFEBEE;
+      color: #EA4335;
+      border-top: 1px solid #FFCDD2;
+      border-bottom: 1px solid #FFCDD2;
+    }
+    .zone-arrow {
+      width: 14px;
+      height: 14px;
+      background-color: currentColor;
+      -webkit-mask: url('/assets/icons/phosphor/regular/arrow-up.svg') center / contain no-repeat;
+      mask: url('/assets/icons/phosphor/regular/arrow-up.svg') center / contain no-repeat;
+      flex-shrink: 0;
+    }
+    .relegation-zone .zone-arrow {
+      -webkit-mask: url('/assets/icons/phosphor/regular/arrow-down.svg') center / contain no-repeat;
+      mask: url('/assets/icons/phosphor/regular/arrow-down.svg') center / contain no-repeat;
+    }
+
+    /* ========== Empty state (Code 5) ========== */
+    .empty-state-hero {
+      text-align: center;
+      padding: 30px 20px;
+      margin-bottom: 20px;
+    }
+    .empty-state-hero h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #4B4B4B;
+      margin: 0 0 8px;
+    }
+    .empty-state-hero p {
+      font-size: 16px;
+      color: #5F6368;
+      margin: 0 0 24px;
+    }
+
+    /* ========== Skeleton loaders (Code 5) ========== */
+    .skeleton-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .skeleton-row:last-child { border-bottom: none; }
+    .skeleton-box {
+      background: linear-gradient(110deg, #e0e0e0 8%, #f8f8f8 18%, #e0e0e0 33%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+      border-radius: 4px;
+    }
+    .skeleton-rank { width: 24px; height: 16px; flex-shrink: 0; }
+    .skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+    .skeleton-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .skeleton-name { width: 100px; height: 14px; }
+    .skeleton-meta { width: 60px; height: 10px; }
+    .skeleton-xp { width: 40px; height: 14px; flex-shrink: 0; }
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+
+    /* ========== Mood picker overlay ========== */
+    .mood-picker-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .mood-picker-overlay.active { display: flex; }
+
+    .mood-picker {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 22px 20px 20px;
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+    .mood-picker-title {
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 18px;
+      color: #333;
+      font-family: 'Bricolage Grotesque', 'Atkinson Hyperlegible Next', sans-serif;
+    }
+    .mood-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .mood-option {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 14px;
+      border: 2px solid #E5E5E5;
+      background: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      line-height: 1;
+      transition: all 0.15s ease;
+      font-family: inherit;
+      padding: 0;
+    }
+    .mood-option:hover {
+      background: #F0F7FF;
+      border-color: #4285F4;
+      transform: scale(1.05);
+    }
+    .mood-option.selected {
+      background: #E8F0FE;
+      border-color: #4285F4;
+    }
+    .mood-clear {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: 2px solid #E5E5E5;
+      background: #ffffff;
+      font-family: 'Atkinson Hyperlegible Next', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: #777;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.15s ease;
+    }
+    .mood-clear:hover {
+      background: #FFF5F5;
+      border-color: #EA4335;
+      color: #EA4335;
+    }
+
+    /* ========== Reward modal overlay ========== */
+    .fullscreen-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: #ffffff;
+      z-index: 10000;
+      display: none;
+    }
+    .fullscreen-modal-overlay.visible { display: block; }
+    .fullscreen-modal-overlay iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 480px) {
+      .leaderboard-container { padding: 16px 12px 100px; }
+      .leaderboard-section h3 { font-size: 18px; }
+      .leaderboard-section p { font-size: 14px; max-width: 75%; }
+      .trophy-icon { width: 80px; height: 80px; right: 10px; bottom: 10px; }
+      .medal { min-width: 58px; }
+      .medal-icon { width: 28px; height: 28px; }
+      .medal-name { font-size: 10px; }
+      .participant-name { font-size: 14px; }
+      .participant-xp { font-size: 14px; }
+      .mood-bubble { font-size: 11px; padding: 5px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="fullscreen-modal-overlay" id="modalOverlay">
+    <iframe id="modalIframe" src="about:blank" title="Modal"></iframe>
+  </div>
+
+  <div class="mood-picker-overlay" id="moodPickerOverlay" role="dialog" aria-modal="true" aria-label="Select a mood">
+    <div class="mood-picker">
+      <div class="mood-picker-title">What's on your mind?</div>
+      <div class="mood-grid" id="moodGrid"></div>
+      <button class="mood-clear" id="moodClearBtn" type="button">Clear mood</button>
+    </div>
+  </div>
+
+  <main class="leaderboard-container" id="leaderboardContainer"></main>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+      }
+    }
+  </script>
+
+  <script type="module">
+    // ============================================================
+    // VULANET LEADERBOARD
+    // ============================================================
+    //
+    // Boot order (MANDATORY): loadLayout → guest redirect →
+    // finalizeDueLeagueWeeks (log-and-continue) →
+    // syncLeagueWeeklyXp (log-and-continue) → reads → rewards flow
+    // → render (leaderboard OR zero-XP empty state).
+    //
+    // ── Results decision (A) ───────────────────────────────────
+    //
+    //   Show the league-results modal when the caller has ANY
+    //   unclaimed coin or non-coin entitlements. This is the
+    //   accepted decision-(A) rule; it is deliberately conservative
+    //   and its only cost is that a user in positions 11–20 who
+    //   never claims their heart refill will re-see their results
+    //   on every visit until they claim. Once migration 0011 is
+    //   applied the entitlements actually land when claimed, so
+    //   this annoyance is fully user-resolvable. Note: this
+    //   acceptance is DISTINCT from the pre-0011 RLS bug, where
+    //   the mark silently failed regardless of user action — that
+    //   was a schema bug, not the decision-(A) annoyance.
+    //
+    // ── Reward ordering — mark-first ───────────────────────────
+    //
+    //   Coin, heart, and boost rewards follow the mark-first
+    //   pattern used elsewhere in the codebase (quiz-engine.js's
+    //   claimQuestChest / unmarkPendingQuestsClaimed, and
+    //   markDailyGoalClaimed / unmarkDailyGoalClaimed):
+    //
+    //       1. mark the entitlement(s) (claimed_at = now())
+    //       2. perform the credit / effect
+    //       3. if the credit/effect fails, unmark (claimed_at = NULL)
+    //       4. only after successful credit does the modal open
+    //
+    //   Rationale: the mark-first window is a single round trip,
+    //   whereas the credit-first window (credit → modal → mark)
+    //   spans the entire modal interaction. A tab close in the
+    //   credit-first window re-credits on the next visit —
+    //   exploitable, unbounded coin inflation. A tab close in the
+    //   mark-first window under-delivers coins — a bounded,
+    //   non-exploitable loss. Under-delivery is the correct
+    //   tradeoff for a coin economy that must not silently inflate.
+    //
+    //   Requires migration 0011's UPDATE policies. Without them the
+    //   initial mark silently no-ops and the flow under-delivers
+    //   perpetually. 0011 and this file ship together.
+    //
+    // ── Timezone boundary (EXPECTED DIVERGENCE) ────────────────
+    //
+    //   The medals strip and rank colours are driven by the
+    //   server's UTC week (Monday 00:00 UTC via the DB function
+    //   current_league_week()). The profile page's "this week"
+    //   XP chart uses the user's LOCAL Monday–Sunday window.
+    //   Near the international date line these two windows
+    //   diverge by up to a few hours. This divergence is
+    //   ACCEPTED and permitted by design; the two views are
+    //   allowed to disagree. Do not reconcile them.
+    //
+    // ── Header opt-out ─────────────────────────────────────────
+    //
+    //   This page WANTS the universal header and footer. We do
+    //   NOT set window.__vulanet_skip_header. loadLayout()
+    //   injects both.
+    //
+    // ── Course / level on participant rows ─────────────────────
+    //
+    //   Deliberately omitted — league_participants has no per-row
+    //   course or level column. Documented in §12 of the master
+    //   spec as a known deviation from Code 1's course-flag chip.
+    //
+    // ── Mood emoji ─────────────────────────────────────────────
+    //
+    //   Own-row bubble appears only when no mood is set for the
+    //   current week. Other learners' rows show only their emoji
+    //   (never a bubble). Persistence via setMyLeagueMood /
+    //   clearMyLeagueMood keyed by the current UTC week.
+    //
+    // ── Bots ───────────────────────────────────────────────────
+    //
+    //   Bots render with a BOT chip; no profile navigation; no
+    //   fabricated online presence.
+    // ============================================================
+
+    import {
+      isLoggedIn,
+      incrementCoins,
+      setHearts,
+      getMyLeagueParticipant,
+      getLeagueGroupParticipants,
+      getProfilesByIds,
+      getLeagueMoodsForWeek,
+      getMyLeagueMood,
+      setMyLeagueMood,
+      clearMyLeagueMood,
+      getMyLeagueResults,
+      getMyUnclaimedCoinEntitlements,
+      getMyUnclaimedOtherRewards,
+      markCoinEntitlementsClaimed,
+      unmarkCoinEntitlementsClaimed,
+      markOtherRewardClaimed,
+      unmarkOtherRewardClaimed,
+      markMultipleOtherRewardsClaimed,
+      getCurrentLeagueWeekDate,
+      getNextLeagueResetMs,
+      finalizeDueLeagueWeeks,
+      syncLeagueWeeklyXp,
+      getUserAchievements,
+      getAchievementCounters,
+      setAchievementLevel,
+      markAchievementClaimed,
+      getUserRecords
+    } from '/src/js/supabase.js';
+
+    import { ACHIEVEMENT_DEFS, getAchievementLevel } from '/src/js/achievement-defs.js';
+    import { RECORD_DEFS } from '/src/js/record-defs.js';
+    import { getFirstLessonUrl } from '/src/js/course-data.js';
+    import { loadLayout } from '/src/js/layout.js';
+
+    // ============ CONSTANTS ============
+    const LEAGUES = [
+      { name: 'Beginner',     rank: 1, color: '#34A853' },
+      { name: 'Amateur',      rank: 2, color: '#EA4335' },
+      { name: 'Professional', rank: 3, color: '#4285F4' },
+      { name: 'Bronze',       rank: 4, color: '#957A34' },
+      { name: 'Silver',       rank: 5, color: '#C0C0C0' },
+      { name: 'Gold',         rank: 6, color: '#D4AF37' },
+      { name: 'Superstar',    rank: 7, color: '#E37400' },
+      { name: 'Legendary',    rank: 8, color: '#FFC0CB' },
+      { name: 'Ultimate',     rank: 9, color: '#4B0082' }
+    ];
+    const LEAGUE_RANK = Object.fromEntries(LEAGUES.map(l => [l.name, l.rank]));
+
+    const MOOD_EMOJIS = ['😀', '😎', '🥳', '🤔', '😴', '🔥', '💪'];
+
+    const ACHIEVEMENT_COUNTER_MAP = {
+      xppowerhouse:     'total_xp',
+      perfectweek:      'perfect_week_count',
+      wordsmith:        'glossary_terms_discovered',
+      sharpshooter:     'perfect_lessons',
+      speedfreak:       'timed_challenge_xp',
+      nightowl:         'night_owl_lessons',
+      earlybird:        'early_bird_lessons',
+      goldenhands:      'master_challenges_completed',
+      questhero:        'quests_completed',
+      cheerleader:      'congratulations_sent',
+      erroreraser:      'corrections_made',
+      firstflock:       'following_count',
+      leaguechampion:   'league_champion_count',
+      ultimatechampion: 'ultimate_champion_count'
+    };
+
+    const BOT_ADJ = ['Swift', 'Clever', 'Bright', 'Bold', 'Cheerful', 'Silent', 'Curious', 'Brave', 'Nimble', 'Steady'];
+    const BOT_ANI = ['Otter', 'Falcon', 'Panda', 'Fox', 'Koala', 'Dolphin', 'Lynx', 'Raven', 'Heron', 'Hawk'];
+
+    // ============ STATE ============
+    let currentWeek = null;
+    let myParticipant = null;
+    let meId = null;
+    let groupParticipants = [];
+    let profilesMap = {};
+    let moodsMap = {};
+    let myMood = null;
+    let currentLeague = 'Beginner';
+    let countdownTimer = null;
+
+    // ============ DOM REFS ============
+    const container    = document.getElementById('leaderboardContainer');
+    const moodOverlay  = document.getElementById('moodPickerOverlay');
+    const moodGrid     = document.getElementById('moodGrid');
+    const moodClearBtn = document.getElementById('moodClearBtn');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalIframe  = document.getElementById('modalIframe');
+
+    // ============ MODAL BRIDGE ============
+    function showModal(url) {
+      return new Promise((resolve) => {
+        const handler = (event) => {
+          if (event.data === 'modalClose') {
+            window.removeEventListener('message', handler);
+            modalOverlay.classList.remove('visible');
+            modalIframe.src = 'about:blank';
+            resolve({ closed: true });
+          } else if (event.data === 'modalQuit') {
+            window.removeEventListener('message', handler);
+            modalOverlay.classList.remove('visible');
+            modalIframe.src = 'about:blank';
+            resolve({ quit: true });
+          }
+        };
+        window.addEventListener('message', handler);
+        modalIframe.src = url;
+        modalOverlay.classList.add('visible');
+      });
+    }
+
+    function openRewardModal(url, { claimedType, resultType, coins }) {
+      return new Promise((resolve) => {
+        let claimedEmitted = false;
+        let claimedAmount  = 0;
+
+        const cleanup = () => {
+          window.removeEventListener('message', handler);
+          modalOverlay.classList.remove('visible');
+          modalIframe.src = 'about:blank';
+        };
+
+        const handler = async (event) => {
+          if (event.data && event.data.type === claimedType) {
+            claimedEmitted = true;
+            claimedAmount  = Number(event.data.coins) || 0;
+
+            let newBalance = null;
+            try {
+              newBalance = await incrementCoins(claimedAmount);
+            } catch (e) {
+              console.error('openRewardModal: incrementCoins threw', e);
+            }
+            const ok = typeof newBalance === 'number';
+            try {
+              modalIframe.contentWindow.postMessage(
+                { type: resultType, ok },
+                '*'
+              );
+            } catch (e) {
+              console.error('openRewardModal: postMessage to iframe failed', e);
+            }
+            return;
+          }
+          if (event.data === 'modalClose') {
+            cleanup();
+            resolve({ closed: true, claimed: claimedEmitted && claimedAmount > 0 });
+          }
+        };
+
+        window.addEventListener('message', handler);
+        modalIframe.src = url;
+        modalOverlay.classList.add('visible');
+      });
+    }
+
+    // ============ UTILITIES ============
+    function escapeHTML(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function avatarColor(id) {
+      if (!id) return '#AFAFAF';
+      let hash = 0;
+      for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const palette = [
+        '#ff5722', '#3f51b5', '#009688', '#9c27b0', '#e91e63',
+        '#4caf50', '#00bcd4', '#ff9800', '#795548', '#607d8b',
+        '#8bc34a', '#ffc107'
+      ];
+      return palette[Math.abs(hash) % palette.length];
+    }
+
+    function botName(slot) {
+      const s = Number(slot) || 0;
+      const a = BOT_ADJ[(s * 3) % BOT_ADJ.length];
+      const b = BOT_ANI[(s * 5) % BOT_ANI.length];
+      return `${a} ${b}`;
+    }
+
+    function rankClass(rank, league) {
+      const isBeginner = league === 'Beginner';
+      const isUltimate = league === 'Ultimate';
+      if (!isUltimate && rank >= 1 && rank <= 8) return 'promotion';
+      if (!isBeginner && !isUltimate && rank >= 18 && rank <= 20) return 'relegation';
+      return '';
+    }
+
+    function formatCountdown(ms) {
+      if (ms <= 0) return 'Rotating…';
+      const totalMin = Math.floor(ms / 60000);
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      if (h >= 24) {
+        const d = Math.floor(h / 24);
+        return `${d}d ${h % 24}h`;
+      }
+      if (h >= 1) return `${h}h ${m}m`;
+      return `${m}m`;
+    }
+
+    // pushActiveBoost intentionally propagates errors so the
+    // mark-first reward flow can unmark the boost entitlement when
+    // the persistence step fails. The version in quiz-engine.js
+    // swallows (its flow has no compensating unmark path); this one
+    // must not, because the caller needs to know when to compensate.
+    function pushActiveBoost(multiplier, durationMinutes) {
+      const raw = localStorage.getItem('activeBoosts');
+      const boosts = raw ? JSON.parse(raw) : [];
+      const now = Date.now();
+      const active = boosts.filter(b => b.expiresAt > now);
+      active.push({
+        multiplier,
+        durationMinutes,
+        expiresAt: now + durationMinutes * 60 * 1000
+      });
+      localStorage.setItem('activeBoosts', JSON.stringify(active));
+    }
+
+    // ============ RENDER — BANNER / LEAGUE-INFO / MEDALS ============
+
+    function renderBanner() {
+      return `
+        <section class="leaderboard-section">
+          <h3>Leaderboard</h3>
+          <p>Compete with learners worldwide. Rise through the ranks.</p>
+          <div class="trophy-icon" aria-hidden="true"></div>
+        </section>
+      `;
+    }
+
+    function renderLeagueInfo() {
+      const label = currentLeague ? `${escapeHTML(currentLeague)} League` : 'Loading league…';
+      return `
+        <div class="league-info">
+          <div class="league-name">${label}</div>
+          <div class="time-remaining">
+            <div class="clock-icon" aria-hidden="true"></div>
+            <span id="countdownText">—</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMedalsStrip(highlightRank = 0) {
+      const medalsHTML = LEAGUES.map(l => {
+        const reached   = l.rank <= highlightRank;
+        const isCurrent = l.rank === highlightRank;
+        const styleAttr = reached ? `style="--medal-color:${l.color};"` : '';
+        const cls = `medal ${reached ? 'reached' : 'locked'}${isCurrent ? ' current' : ''}`;
+        return `
+          <div class="${cls}" data-league="${escapeHTML(l.name)}" data-rank="${l.rank}" ${styleAttr}>
+            <div class="medal-icon" aria-hidden="true"></div>
+            <div class="medal-name">${escapeHTML(l.name)}</div>
+          </div>
+        `;
+      }).join('');
+      return `<div class="medals-container" id="medalsStrip">${medalsHTML}</div>`;
+    }
+
+    function centerCurrentMedal() {
+      const strip = document.getElementById('medalsStrip');
+      if (!strip) return;
+      const current = strip.querySelector('.medal.current');
+      if (!current) return;
+      const stripRect = strip.getBoundingClientRect();
+      const currentRect = current.getBoundingClientRect();
+      const offsetInStrip = (currentRect.left - stripRect.left) + strip.scrollLeft;
+      const target = offsetInStrip - (strip.clientWidth - current.clientWidth) / 2;
+      strip.scrollTo({ left: Math.max(0, target), behavior: 'auto' });
+    }
+
+    // ============ RENDER — COUNTDOWN ============
+
+    function updateCountdown() {
+      const el = document.getElementById('countdownText');
+      if (!el) return;
+      const ms = getNextLeagueResetMs() - Date.now();
+      el.textContent = formatCountdown(ms);
+    }
+
+    function startCountdown() {
+      updateCountdown();
+      if (countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(updateCountdown, 60_000);
+    }
+
+    // ============ RENDER — SKELETON ============
+
+    function renderSkeletonRow() {
+      return `
+        <div class="skeleton-row" aria-hidden="true">
+          <div class="skeleton-box skeleton-rank"></div>
+          <div class="skeleton-box skeleton-avatar"></div>
+          <div class="skeleton-info">
+            <div class="skeleton-box skeleton-name"></div>
+            <div class="skeleton-box skeleton-meta"></div>
+          </div>
+          <div class="skeleton-box skeleton-xp"></div>
+        </div>
+      `;
+    }
+
+    function renderSkeletons(count = 2) {
+      let html = '';
+      for (let i = 0; i < count; i++) html += renderSkeletonRow();
+      return `<div class="participants-list">${html}</div>`;
+    }
+
+    // ============ RENDER — LOADING ============
+
+    function renderLoading() {
+      container.innerHTML = `
+        ${renderBanner()}
+        ${renderLeagueInfo()}
+        ${renderMedalsStrip(0)}
+        ${renderSkeletons(3)}
+      `;
+      startCountdown();
+    }
+
+    // ============ RENDER — PARTICIPANT ROW ============
+
+    function renderParticipantRow(p, rank, league) {
+      const isMe  = p.user_id != null && p.user_id === meId;
+      const isBot = !!p.is_bot;
+
+      const profile = (!isBot && p.user_id) ? (profilesMap[p.user_id] || {}) : {};
+      const displayName = isBot
+        ? botName(p.bot_slot)
+        : (profile.display_name || profile.username || 'Learner');
+      const username = (!isBot && profile.username) ? profile.username : null;
+      const initial  = (displayName || '?').charAt(0).toUpperCase();
+      const color    = isBot ? '#AFAFAF' : avatarColor(p.user_id);
+      const mood     = (!isBot && p.user_id) ? (moodsMap[p.user_id] || null) : null;
+
+      const showBubble  = isMe && !myMood;
+      const showEmojiMe = isMe && myMood;
+      const showEmojiOt = !isMe && !isBot && mood;
+
+      const rClass = rankClass(rank, league);
+
+      const rowCls = [
+        'participant-row',
+        isMe  ? 'me'  : '',
+        isBot ? 'bot' : ''
+      ].filter(Boolean).join(' ');
+
+      let metaHTML = '';
+      if (isBot) {
+        metaHTML = `<span class="bot-chip">Bot</span>`;
+      } else if (isMe) {
+        metaHTML = `<span class="you-chip">You</span>`;
+      }
+
+      let avatarContent = escapeHTML(initial);
+      if (showEmojiMe) {
+        avatarContent += `<button class="participant-mood me" type="button" data-mood-open="1" aria-label="Change your mood">${escapeHTML(myMood)}</button>`;
+      } else if (showEmojiOt) {
+        avatarContent += `<span class="participant-mood readonly" aria-hidden="true">${escapeHTML(mood)}</span>`;
+      }
+
+      const bubbleHTML = showBubble
+        ? `<button class="mood-bubble" type="button" data-mood-open="1" aria-label="Set your mood">What's on your mind?</button>`
+        : '';
+
+      const xpText = `${Number(p.weekly_xp) || 0} XP`;
+
+      const dataUser = p.user_id ? escapeHTML(p.user_id) : '';
+      const dataUsername = username ? escapeHTML(username) : '';
+
+      return `
+        <div class="${rowCls}"
+             data-user-id="${dataUser}"
+             data-username="${dataUsername}"
+             data-is-bot="${isBot ? '1' : '0'}"
+             data-is-me="${isMe ? '1' : '0'}">
+          <div class="rank-number ${rClass}">${rank}</div>
+          <div class="participant-avatar" style="background:${color};">${avatarContent}</div>
+          <div class="participant-info">
+            <div class="participant-name">${escapeHTML(displayName)}</div>
+            ${metaHTML ? `<div class="participant-meta">${metaHTML}</div>` : ''}
+          </div>
+          ${bubbleHTML}
+          <div class="participant-xp">${xpText}</div>
+        </div>
+      `;
+    }
+
+    // ============ RENDER — LEADERBOARD ============
+
+    function renderLeaderboard() {
+      const league = currentLeague;
+
+      const sorted = [...groupParticipants].sort((a, b) => {
+        const ax = Number(a.weekly_xp) || 0;
+        const bx = Number(b.weekly_xp) || 0;
+        if (ax !== bx) return bx - ax;
+
+        const aT = a.last_xp_at ? new Date(a.last_xp_at).getTime() : Infinity;
+        const bT = b.last_xp_at ? new Date(b.last_xp_at).getTime() : Infinity;
+        return aT - bT;
+      });
+
+      let rank = 1;
+      for (let i = 0; i < sorted.length; i++) {
+        if (i > 0 && (Number(sorted[i].weekly_xp) || 0) < (Number(sorted[i - 1].weekly_xp) || 0)) {
+          rank = i + 1;
+        }
+        sorted[i]._rank = rank;
+      }
+
+      const rows = [];
+      for (let i = 0; i < sorted.length; i++) {
+        const p = sorted[i];
+        const r = p._rank;
+
+        rows.push(renderParticipantRow(p, r, league));
+
+        if (league !== 'Ultimate' && r === 8 && i < sorted.length - 1 && sorted[i + 1]._rank > 8) {
+          rows.push(`
+            <div class="promotion-zone">
+              <div class="zone-arrow" aria-hidden="true"></div>
+              <span>Promotion Zone</span>
+              <div class="zone-arrow" aria-hidden="true"></div>
+            </div>
+          `);
+        }
+        if (league !== 'Beginner' && r === 17 && i < sorted.length - 1 && sorted[i + 1]._rank > 17) {
+          rows.push(`
+            <div class="relegation-zone">
+              <div class="zone-arrow" aria-hidden="true"></div>
+              <span>Relegation Zone</span>
+              <div class="zone-arrow" aria-hidden="true"></div>
+            </div>
+          `);
+        }
+      }
+
+      const currentRank = LEAGUE_RANK[currentLeague] || 1;
+
+      container.innerHTML = `
+        ${renderBanner()}
+        ${renderLeagueInfo()}
+        ${renderMedalsStrip(currentRank)}
+        <div class="participants-list">${rows.join('')}</div>
+      `;
+
+      attachRowListeners();
+      startCountdown();
+      requestAnimationFrame(() => centerCurrentMedal());
+    }
+
+    function attachRowListeners() {
+      container.querySelectorAll('.participant-row').forEach(row => {
+        const isMe     = row.dataset.isMe === '1';
+        const isBot    = row.dataset.isBot === '1';
+        const username = row.dataset.username;
+
+        const moodBtn = row.querySelector('[data-mood-open]');
+        if (moodBtn) {
+          moodBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openMoodPicker();
+          });
+        }
+
+        if (!isMe && !isBot && username) {
+          row.addEventListener('click', () => {
+            window.location.href = `/profile/${encodeURIComponent(username)}`;
+          });
+        }
+      });
+    }
+
+    // ============ RENDER — ZERO-XP EMPTY STATE ============
+
+    function renderEmptyState() {
+      const courseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
+      const lessonUrl = getFirstLessonUrl(courseId, 'game')
+        || `/${encodeURIComponent(courseId)}.html`;
+      const currentRank = LEAGUE_RANK[currentLeague] || 1;
+
+      container.innerHTML = `
+        ${renderBanner()}
+        ${renderLeagueInfo()}
+        ${renderMedalsStrip(currentRank)}
+        <div class="empty-state-hero">
+          <h2>${escapeHTML(currentLeague)} League</h2>
+          <p>Complete a lesson to join this week's leaderboard</p>
+          <button class="btn btn-md btn-cloud-outline" id="startLessonBtn" type="button">START A LESSON</button>
+        </div>
+        ${renderSkeletons(2)}
+      `;
+
+      const btn = document.getElementById('startLessonBtn');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          window.location.href = lessonUrl;
+        });
+      }
+
+      startCountdown();
+      requestAnimationFrame(() => centerCurrentMedal());
+    }
+
+    // ============ MOOD PICKER ============
+
+    function buildMoodGrid() {
+      moodGrid.innerHTML = MOOD_EMOJIS.map(e =>
+        `<button class="mood-option" type="button" data-emoji="${e}">${e}</button>`
+      ).join('');
+
+      moodGrid.querySelectorAll('.mood-option').forEach(btn => {
+        btn.addEventListener('click', () => applyMood(btn.dataset.emoji));
+      });
+    }
+
+    async function applyMood(emoji) {
+      try {
+        const ok = await setMyLeagueMood(currentWeek, emoji);
+        if (!ok) {
+          console.warn('applyMood: setMyLeagueMood returned false');
+          return;
+        }
+        myMood = emoji;
+        if (meId) moodsMap[meId] = emoji;
+        closeMoodPicker();
+        if (myParticipant && (Number(myParticipant.weekly_xp) || 0) > 0) {
+          renderLeaderboard();
+        } else {
+          renderEmptyState();
+        }
+      } catch (e) {
+        console.error('applyMood failed', e);
+      }
+    }
+
+    async function clearMood() {
+      try {
+        const ok = await clearMyLeagueMood(currentWeek);
+        if (!ok) {
+          console.warn('clearMood: clearMyLeagueMood returned false');
+          return;
+        }
+        myMood = null;
+        if (meId) delete moodsMap[meId];
+        closeMoodPicker();
+        if (myParticipant && (Number(myParticipant.weekly_xp) || 0) > 0) {
+          renderLeaderboard();
+        } else {
+          renderEmptyState();
+        }
+      } catch (e) {
+        console.error('clearMood failed', e);
+      }
+    }
+
+    function openMoodPicker() {
+      moodGrid.querySelectorAll('.mood-option').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.emoji === myMood);
+      });
+      moodOverlay.classList.add('active');
+    }
+
+    function closeMoodPicker() {
+      moodOverlay.classList.remove('active');
+    }
+
+    moodOverlay.addEventListener('click', (e) => {
+      if (e.target === moodOverlay) closeMoodPicker();
+    });
+
+    moodClearBtn.addEventListener('click', clearMood);
+
+    // ============ DATA LOADING ============
+
+    async function loadLeaderboardData() {
+      if (!myParticipant || !myParticipant.group_id) return;
+
+      try {
+        groupParticipants = await getLeagueGroupParticipants(myParticipant.group_id);
+      } catch (e) {
+        console.error('getLeagueGroupParticipants failed', e);
+        groupParticipants = [];
+      }
+
+      const realIds = groupParticipants
+        .filter(p => !p.is_bot && p.user_id)
+        .map(p => p.user_id);
+
+      if (realIds.length > 0) {
+        try {
+          profilesMap = await getProfilesByIds(realIds);
+        } catch (e) {
+          console.error('getProfilesByIds failed', e);
+          profilesMap = {};
+        }
+        try {
+          moodsMap = await getLeagueMoodsForWeek(currentWeek, realIds);
+        } catch (e) {
+          console.error('getLeagueMoodsForWeek failed', e);
+          moodsMap = {};
+        }
+      }
+
+      try {
+        myMood = await getMyLeagueMood(currentWeek);
+      } catch (e) {
+        console.error('getMyLeagueMood failed', e);
+        myMood = null;
+      }
+    }
+
+    // ============ REWARDS FLOW — SUB-STEPS ============
+
+    async function showLeagueResultsModal(result) {
+      const params = new URLSearchParams({
+        outcome:     String(result.outcome || 'retained'),
+        rank:        String(result.final_rank || 0),
+        from_league: String(result.league || 'Beginner'),
+        to_league:   String(result.next_league || result.league || 'Beginner')
+      });
+      await showModal(`/src/components/modals/league-results.html?${params.toString()}`);
+    }
+
+    async function showOneAchievement(id, level) {
+      const def = ACHIEVEMENT_DEFS[id];
+      if (!def) return;
+
+      const number   = def.levels[level - 1];
+      const coins    = def.rewardCoins(level);
+      const message  = def.messageTemplate(level);
+      const shareMsg = def.shareMessageTemplate(level);
+
+      const params = new URLSearchParams({
+        id,
+        level:   String(level),
+        coins:   String(coins),
+        color:   def.color,
+        icon:    def.icon,
+        number:  String(number),
+        title:   def.title,
+        message,
+        shareMsg
+      });
+
+      const url = `/src/components/modals/achievement.html?${params.toString()}`;
+
+      const result = await openRewardModal(url, {
+        claimedType: 'achievementClaimed',
+        resultType:  'achievementClaimResult',
+        coins
+      });
+
+      if (result && result.claimed) {
+        try {
+          await markAchievementClaimed(id);
+        } catch (e) {
+          console.error('markAchievementClaimed failed', id, e);
+        }
+      }
+    }
+
+    async function runAchievementsFlow() {
+      let counters = null;
+      try {
+        counters = await getAchievementCounters();
+      } catch (e) {
+        console.error('getAchievementCounters failed', e);
+      }
+      if (!counters) return;
+
+      let rows = [];
+      try {
+        rows = await getUserAchievements();
+      } catch (e) {
+        console.error('getUserAchievements failed', e);
+      }
+
+      const rowMap = {};
+      rows.forEach(r => { rowMap[r.achievement_key] = r; });
+
+      const unclaimed = [];
+      for (const key of Object.keys(rowMap)) {
+        const r = rowMap[key];
+        if (r && Number(r.level) > 0 && !r.claimed && ACHIEVEMENT_DEFS[key]) {
+          unclaimed.push(key);
+        }
+      }
+      for (const id of unclaimed) {
+        await showOneAchievement(id, Number(rowMap[id].level));
+      }
+
+      for (const id of Object.keys(ACHIEVEMENT_DEFS)) {
+        if (unclaimed.includes(id)) continue;
+        const counterName = ACHIEVEMENT_COUNTER_MAP[id];
+        if (!counterName) continue;
+
+        const value = Number(counters[counterName]) || 0;
+        const { level } = getAchievementLevel(id, value);
+        if (level <= 0) continue;
+
+        const existing = rowMap[id];
+        const existingLevel = existing ? (Number(existing.level) || 0) : 0;
+        if (level <= existingLevel) continue;
+
+        try {
+          await setAchievementLevel(id, level);
+        } catch (e) {
+          console.error('setAchievementLevel failed', id, e);
+          continue;
+        }
+
+        await showOneAchievement(id, level);
+      }
+    }
+
+    async function runRecordsFlow() {
+      let records = null;
+      try {
+        records = await getUserRecords();
+      } catch (e) {
+        console.error('getUserRecords failed', e);
+      }
+      if (!records) return;
+
+      const currentHighest = records.highest_league || 'Beginner';
+      let cached = 'Beginner';
+      try {
+        cached = localStorage.getItem('lastShownHighestLeague') || 'Beginner';
+      } catch (e) { /* no-op */ }
+
+      const curRank    = LEAGUE_RANK[currentHighest] || 1;
+      const cachedRank = LEAGUE_RANK[cached]         || 1;
+
+      if (curRank <= cachedRank) return;
+
+      const def = RECORD_DEFS.highestLeague;
+      if (!def) return;
+
+      const coins = 200;
+
+      const params = new URLSearchParams({
+        type:     'highestLeague',
+        value:    currentHighest,
+        coins:    String(coins),
+        color:    def.color,
+        icon:     def.icon,
+        title:    def.title,
+        message:  def.message(currentHighest),
+        shareMsg: def.shareMessage(currentHighest)
+      });
+
+      const url = `/src/components/modals/record.html?${params.toString()}`;
+
+      const result = await openRewardModal(url, {
+        claimedType: 'recordClaimed',
+        resultType:  'recordClaimResult',
+        coins
+      });
+
+      if (result) {
+        try {
+          localStorage.setItem('lastShownHighestLeague', currentHighest);
+        } catch (e) { /* no-op */ }
+      }
+    }
+
+    // ============ REWARDS FLOW — MARK-FIRST ORCHESTRATION ============
+
+    async function runRewardsFlow({ coinClaims, otherClaims, allResults }) {
+      // 1. League results modal — latest completed week only.
+      const claimWeeks = [
+        ...coinClaims.map(c => c.week_start),
+        ...otherClaims.map(o => o.week_start)
+      ];
+      if (claimWeeks.length > 0) {
+        const latestWeek = claimWeeks.sort().pop();
+        const result = allResults.find(r => r.week_start === latestWeek);
+        if (result) {
+          try {
+            await showLeagueResultsModal(result);
+          } catch (e) {
+            console.error('showLeagueResultsModal failed', e);
+          }
+        }
+      }
+
+      // 2. Achievements.
+      try {
+        await runAchievementsFlow();
+      } catch (e) {
+        console.error('runAchievementsFlow failed', e);
+      }
+
+      // 3. Records.
+      try {
+        await runRecordsFlow();
+      } catch (e) {
+        console.error('runRecordsFlow failed', e);
+      }
+
+      // 4. Consolidated coin modal — MARK-FIRST.
+      const totalCoins = coinClaims.reduce(
+        (sum, c) => sum + (Number(c.amount) || 0),
+        0
+      );
+      if (totalCoins > 0) {
+        const weekStarts = coinClaims.map(c => c.week_start);
+
+        let marked = false;
+        try {
+          marked = await markCoinEntitlementsClaimed(weekStarts);
+        } catch (e) {
+          console.error('runRewardsFlow: markCoinEntitlementsClaimed threw', e);
+        }
+
+        if (!marked) {
+          console.error(
+            'runRewardsFlow: coin mark failed — skipping credit to avoid double-credit'
+          );
+        } else {
+          let credited = null;
+          try {
+            credited = await incrementCoins(totalCoins);
+          } catch (e) {
+            console.error('runRewardsFlow: incrementCoins threw', e);
+          }
+
+          if (typeof credited !== 'number') {
+            console.error(
+              'runRewardsFlow: coin credit failed after mark — unmarking for retry'
+            );
+            try {
+              await unmarkCoinEntitlementsClaimed(weekStarts);
+            } catch (e) {
+              console.error('runRewardsFlow: unmarkCoinEntitlementsClaimed threw', e);
+            }
+          } else {
+            await showModal(
+              `/src/components/modals/coins-reward.html?amount=${totalCoins}`
+            );
+          }
+        }
+      }
+
+      // 5. Heart refill — MARK-FIRST.
+      const heartClaims = otherClaims.filter(o => o.reward_type === 'heart_refill');
+      if (heartClaims.length > 0) {
+        const heartRows = heartClaims.map(h => ({
+          week_start: h.week_start,
+          reward_type: 'heart_refill'
+        }));
+
+        let marked = false;
+        try {
+          marked = await markMultipleOtherRewardsClaimed(heartRows);
+        } catch (e) {
+          console.error('runRewardsFlow: heart mark threw', e);
+        }
+
+        if (!marked) {
+          console.error(
+            'runRewardsFlow: heart mark failed — skipping to avoid double-credit'
+          );
+        } else {
+          let newHearts = null;
+          try {
+            newHearts = await setHearts(5);
+          } catch (e) {
+            console.error('runRewardsFlow: setHearts(5) threw', e);
+          }
+
+          if (typeof newHearts !== 'number') {
+            console.error(
+              'runRewardsFlow: heart refill failed after mark — unmarking for retry'
+            );
+            for (const h of heartClaims) {
+              try {
+                await unmarkOtherRewardClaimed(h.week_start, 'heart_refill');
+              } catch (e) {
+                console.error(
+                  'runRewardsFlow: unmarkOtherRewardClaimed(heart) threw',
+                  e
+                );
+              }
+            }
+          } else {
+            await showModal('/src/components/modals/heart-reward.html?hearts=full');
+          }
+        }
+      }
+
+      // 6. XP boost — MARK-FIRST.
+      const boostClaims = otherClaims.filter(o => o.reward_type === 'xp_boost');
+      if (boostClaims.length > 0) {
+        const boostRows = boostClaims.map(b => ({
+          week_start: b.week_start,
+          reward_type: 'xp_boost'
+        }));
+
+        let marked = false;
+        try {
+          marked = await markMultipleOtherRewardsClaimed(boostRows);
+        } catch (e) {
+          console.error('runRewardsFlow: boost mark threw', e);
+        }
+
+        if (!marked) {
+          console.error(
+            'runRewardsFlow: boost mark failed — skipping to avoid double-credit'
+          );
+        } else {
+          // §6: "If multiple eligible XP boosts are owed, award
+          // only the highest multiplier. Preserve the existing
+          // duration associated with that multiplier."
+          // getMyUnclaimedOtherRewards returns rows oldest-first,
+          // so boostClaims[0] is the OLDEST, not the highest.
+          // Pick by multiplier to honour the spec.
+          const b = boostClaims.reduce(
+            (best, cur) =>
+              (Number(cur.multiplier) || 0) > (Number(best.multiplier) || 0) ? cur : best,
+            boostClaims[0]
+          );
+          const mult = Number(b.multiplier) || 2;
+          const dur  = Number(b.duration_min) || 30;
+
+          let boostOk = true;
+          try {
+            pushActiveBoost(mult, dur);
+          } catch (e) {
+            console.error('runRewardsFlow: pushActiveBoost threw', e);
+            boostOk = false;
+          }
+
+          if (!boostOk) {
+            console.error(
+              'runRewardsFlow: boost push failed after mark — unmarking for retry'
+            );
+            for (const bb of boostClaims) {
+              try {
+                await unmarkOtherRewardClaimed(bb.week_start, 'xp_boost');
+              } catch (e) {
+                console.error(
+                  'runRewardsFlow: unmarkOtherRewardClaimed(boost) threw',
+                  e
+                );
+              }
+            }
+          } else {
+            await showModal(
+              `/src/components/modals/boost-reward.html?multiplier=${mult}&duration=${dur}`
+            );
+          }
+        }
+      }
+    }
+
+    // ============ BOOT ============
+
+    (async function boot() {
+      renderLoading();
+
+      try {
+        await loadLayout();
+      } catch (e) {
+        console.error('loadLayout failed', e);
+      }
+
+      let loggedIn = false;
+      try {
+        loggedIn = await isLoggedIn();
+      } catch (e) {
+        console.error('isLoggedIn failed', e);
+      }
+      if (!loggedIn) {
+        window.location.href = '/registration.html';
+        return;
+      }
+
+      try {
+        await finalizeDueLeagueWeeks();
+      } catch (e) {
+        console.error('finalizeDueLeagueWeeks failed', e);
+      }
+
+      try {
+        await syncLeagueWeeklyXp();
+      } catch (e) {
+        console.error('syncLeagueWeeklyXp failed', e);
+      }
+
+      currentWeek = getCurrentLeagueWeekDate();
+      try {
+        myParticipant = await getMyLeagueParticipant(currentWeek);
+      } catch (e) {
+        console.error('getMyLeagueParticipant failed', e);
+        myParticipant = null;
+      }
+      if (myParticipant) {
+        meId = myParticipant.user_id || null;
+        currentLeague = myParticipant.league || 'Beginner';
+      }
+
+      let coinClaims  = [];
+      let otherClaims = [];
+      let allResults  = [];
+      try { coinClaims  = await getMyUnclaimedCoinEntitlements(); } catch (e) { console.error(e); }
+      try { otherClaims = await getMyUnclaimedOtherRewards();     } catch (e) { console.error(e); }
+      try { allResults  = await getMyLeagueResults();             } catch (e) { console.error(e); }
+
+      const hasPendingRewards = coinClaims.length > 0 || otherClaims.length > 0;
+
+      if (hasPendingRewards) {
+        try {
+          await runRewardsFlow({ coinClaims, otherClaims, allResults });
+        } catch (e) {
+          console.error('runRewardsFlow failed', e);
+        }
+
+        try {
+          myParticipant = await getMyLeagueParticipant(currentWeek);
+        } catch (e) {
+          console.error('re-read participant failed', e);
+        }
+        if (myParticipant) {
+          meId = myParticipant.user_id || null;
+          currentLeague = myParticipant.league || currentLeague;
+        }
+      }
+
+      buildMoodGrid();
+
+      const zeroXP = !myParticipant || (Number(myParticipant.weekly_xp) || 0) === 0;
+
+      if (zeroXP) {
+        renderEmptyState();
+      } else {
+        try {
+          await loadLeaderboardData();
+        } catch (e) {
+          console.error('loadLeaderboardData failed', e);
+        }
+        renderLeaderboard();
+      }
+    })();
+  </script>
+</body>
+</html>

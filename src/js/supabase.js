@@ -1379,8 +1379,15 @@ export async function syncGuestDataToSupabase() {
 // ============================================================
 //
 // Client-facing access layer for the weekly leagues system.
-// All writes go through SECURITY DEFINER RPCs — the client never
-// writes league_participants directly (no INSERT/UPDATE policy).
+// All writes to league_participants go through SECURITY DEFINER
+// RPCs — the client never writes to that table directly (no
+// INSERT/UPDATE policy).
+//
+// Entitlement claim markers (mark / unmark on
+// league_coin_entitlements and league_other_reward_entitlements)
+// ARE client-written, via the UPDATE-only RLS policies added by
+// migration 0011. Both mark and unmark go through those policies
+// directly — matching the moods-table precedent.
 //
 // The week boundary is UTC Monday 00:00. getCurrentLeagueWeekDate()
 // mirrors the SQL helper public.current_league_week() without a
@@ -1468,13 +1475,30 @@ export async function getMyLeagueParticipant(weekStart) {
   return data;
 }
 
+/**
+ * Fetch every participant row for a group, ordered to match the
+ * server's competition ranking.
+ *
+ * ORDERING MUST MIRROR finalize_league_week()'s tie-break in
+ * migration 0010:
+ *
+ *     ORDER BY weekly_xp DESC, last_xp_at ASC NULLS LAST
+ *
+ * The Supabase JS client emits NULLS LAST for
+ * { ascending: true, nullsFirst: false } — which matches
+ * PostgreSQL's ASC NULLS LAST used in the server-side window
+ * function. If the server-side ORDER BY ever changes, update
+ * this pair in lockstep or client and server will disagree on
+ * tied rows.
+ */
 export async function getLeagueGroupParticipants(groupId) {
   if (!groupId) return [];
   const { data, error } = await supabase
     .from('league_participants')
     .select('*')
     .eq('group_id', groupId)
-    .order('weekly_xp', { ascending: false });
+    .order('weekly_xp', { ascending: false })
+    .order('last_xp_at', { ascending: true, nullsFirst: false });
 
   if (error || !data) return [];
   return data;
@@ -1493,22 +1517,6 @@ export async function getProfilesByIds(userIds) {
   if (error || !data) return {};
   const map = {};
   data.forEach(p => { map[p.id] = p; });
-  return map;
-}
-
-/**
- * Fetch each user's total_xp as a lightweight activity indicator
- * for competitor display. Batched by user_id.
- */
-export async function getUserStatsByIds(userIds) {
-  if (!Array.isArray(userIds) || userIds.length === 0) return {};
-  const { data, error } = await supabase
-    .from('user_stats')
-    .select('user_id, total_xp')
-    .in('user_id', userIds);
-  if (error || !data) return {};
-  const map = {};
-  data.forEach(s => { map[s.user_id] = s; });
   return map;
 }
 
@@ -1620,6 +1628,25 @@ export async function getMyUnclaimedOtherRewards() {
 }
 
 // ── Claim markers ──────────────────────────────────────────
+//
+// Mark / unmark pairs on the two entitlement tables. Both pairs
+// are consumed by leaderboard.html's runRewardsFlow, which uses
+// the mark-first pattern:
+//
+//     mark → credit → (on credit failure) unmark
+//
+// Rationale (mirrors quiz-engine.js's claimQuestChest /
+// unmarkPendingQuestsClaimed): the window between mark and
+// credit is a single round trip, whereas the window between
+// credit and mark would be the entire modal interaction. Mark-
+// first trades an exploitable over-delivery for a non-
+// exploitable, bounded under-delivery — the correct tradeoff
+// for a coin economy that must not silently inflate.
+//
+// Both mark and unmark require the UPDATE-only RLS policies
+// added by migration 0011 (lce_update / lother_update). Without
+// them the client-side .update() calls succeed with 0 rows
+// affected and this whole mechanism silently no-ops.
 
 export async function markCoinEntitlementsClaimed(weekStarts) {
   if (!Array.isArray(weekStarts) || weekStarts.length === 0) return false;
@@ -1634,6 +1661,25 @@ export async function markCoinEntitlementsClaimed(weekStarts) {
   return true;
 }
 
+/**
+ * Reverse a coin-entitlement mark. Called only when the mark
+ * succeeded but the subsequent incrementCoins() returned null.
+ * Setting claimed_at back to NULL is a no-op on already-NULL
+ * rows, so this is safe to call multiple times.
+ */
+export async function unmarkCoinEntitlementsClaimed(weekStarts) {
+  if (!Array.isArray(weekStarts) || weekStarts.length === 0) return false;
+  const uid = await getCurrentUserId();
+  if (!uid) return false;
+  const { error } = await supabase
+    .from('league_coin_entitlements')
+    .update({ claimed_at: null })
+    .eq('user_id', uid)
+    .in('week_start', weekStarts);
+  if (error) { console.error('unmarkCoinEntitlementsClaimed failed:', error); return false; }
+  return true;
+}
+
 export async function markOtherRewardClaimed(weekStart, rewardType) {
   const uid = await getCurrentUserId();
   if (!uid) return false;
@@ -1644,6 +1690,25 @@ export async function markOtherRewardClaimed(weekStart, rewardType) {
     .eq('week_start', weekStart)
     .eq('reward_type', rewardType);
   if (error) { console.error('markOtherRewardClaimed failed:', error); return false; }
+  return true;
+}
+
+/**
+ * Reverse a non-coin-reward mark. Called only when the mark
+ * succeeded but the subsequent effect (setHearts for a heart
+ * refill, pushActiveBoost for an XP boost) failed. Setting
+ * claimed_at back to NULL is a no-op on already-NULL rows.
+ */
+export async function unmarkOtherRewardClaimed(weekStart, rewardType) {
+  const uid = await getCurrentUserId();
+  if (!uid) return false;
+  const { error } = await supabase
+    .from('league_other_reward_entitlements')
+    .update({ claimed_at: null })
+    .eq('user_id', uid)
+    .eq('week_start', weekStart)
+    .eq('reward_type', rewardType);
+  if (error) { console.error('unmarkOtherRewardClaimed failed:', error); return false; }
   return true;
 }
 
