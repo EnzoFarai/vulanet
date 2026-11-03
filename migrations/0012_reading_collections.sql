@@ -1,24 +1,25 @@
 -- ============================================================
--- 0012_reading_collections.sql
--- Reading bookmarks, annotations, personalised views,
--- collections and per-user manual ordering.
+-- migrations/0012_reading_collections.sql
+--
+-- Reading bookmarks, per-user annotations, personalised
+-- annotated-lesson sharing, and username-keyed collections.
 --
 -- SAFETY CONTRACT
---   • Additive-only. Does not alter, drop or rename any existing
+--   • Additive only. Does not alter, drop or rename any existing
 --     table, column, function, policy or trigger.
---   • Fails loudly if any target object already exists. No
---     CREATE TABLE IF NOT EXISTS, no CREATE OR REPLACE.
---   • Atomic: wrapped in BEGIN/COMMIT. A mid-file failure rolls
---     back cleanly. Run the file as a single batch. (Supabase’s
---     SQL editor already wraps submissions in a transaction, so
---     its implicit BEGIN/COMMIT plus these explicit ones will
---     emit harmless “already in transaction” warnings — the
---     resulting behaviour is still atomic.)
---   • All SECURITY DEFINER functions use SET search_path = ''
---     and fully schema-qualify every reference (pg_catalog.*,
---     public.*, extensions.*, auth.uid()).
+--   • Fail-loud. No CREATE TABLE IF NOT EXISTS, no CREATE OR REPLACE,
+--     no DROP ... IF EXISTS. If any target object already exists, this
+--     file aborts with a specific error naming the conflict.
+--   • Atomic. Wrapped in BEGIN/COMMIT. A mid-file failure rolls back
+--     cleanly; the database is left unchanged.
+--   • Every SECURITY DEFINER function uses SET search_path = '' and
+--     fully schema-qualifies every reference (pg_catalog.*, public.*,
+--     extensions.*, auth.uid()).
+--   • No dynamic SQL.
 --   • pgcrypto schema is verified, not assumed.
---   • No dynamic SQL anywhere.
+--
+-- Run this file's entire contents as a single submission in the
+-- Supabase SQL Editor.
 -- ============================================================
 
 BEGIN;
@@ -42,8 +43,7 @@ BEGIN
 
   IF v_schema <> 'extensions' THEN
     RAISE EXCEPTION
-      'pgcrypto is installed in schema "%" but this migration expects "extensions". Adjust the schema name inside _random_token() before running.',
-      v_schema;
+      'pgcrypto is installed in schema "%" but this migration expects "extensions". Adjust the schema reference inside _random_token() before running.', v_schema;
   END IF;
 END;
 $$;
@@ -55,10 +55,11 @@ DO $$
 DECLARE
   v_conflict text;
 BEGIN
-  SELECT string_agg(name, ', ') INTO v_conflict FROM (
+  SELECT pg_catalog.string_agg(name, ', ') INTO v_conflict FROM (
     SELECT table_name AS name
       FROM information_schema.tables
-     WHERE table_schema = 'public' AND table_name LIKE 'reading_%'
+     WHERE table_schema = 'public'
+       AND table_name LIKE 'reading\_%' ESCAPE '\'
     UNION ALL
     SELECT proname
       FROM pg_catalog.pg_proc p
@@ -66,31 +67,33 @@ BEGIN
      WHERE n.nspname = 'public'
        AND proname IN (
          '_random_token',
-         'share_collection',
-         'get_collection_by_username',
          'get_shared_reading_lesson',
-         '_reading_annotation_links_cleanup'
+         'get_collection_by_username',
+         'share_collection',
+         '_reading_annotation_links_cleanup',
+         '_reading_annotations_ensure_link',
+         '_reading_annotations_identity_guard',
+         'revoke_annotation_link',
+         'reshare_annotation_link'
        )
   ) t;
 
   IF v_conflict IS NOT NULL THEN
     RAISE EXCEPTION
-      'Cannot run 0012: the following objects already exist in public schema: %. Refusing to proceed.',
-      v_conflict;
+      'Cannot run 0012: the following objects already exist in public schema: %. Refusing to proceed.', v_conflict;
   END IF;
 END;
 $$;
 
 -- ============================================================
 -- HELPER: cryptographic 128-bit Base64URL token generator
+-- Returns exactly 22 characters matching ^[A-Za-z0-9_-]{22}$
 -- ============================================================
--- Plain CREATE FUNCTION. If a future migration needs to change
--- the encoding, that migration must DROP FUNCTION explicitly
--- first — consistent with the fail-loud philosophy above.
 CREATE FUNCTION public._random_token()
 RETURNS text
 LANGUAGE sql
 VOLATILE
+SECURITY DEFINER
 SET search_path = ''
 AS $$
   SELECT pg_catalog.replace(
@@ -107,7 +110,7 @@ $$;
 
 REVOKE ALL ON FUNCTION public._random_token() FROM PUBLIC;
 REVOKE ALL ON FUNCTION public._random_token() FROM anon;
-GRANT EXECUTE ON FUNCTION public._random_token() TO authenticated;
+REVOKE ALL ON FUNCTION public._random_token() FROM authenticated;
 GRANT EXECUTE ON FUNCTION public._random_token() TO service_role;
 
 -- ============================================================
@@ -135,10 +138,6 @@ CREATE POLICY reading_bookmarks_owner ON public.reading_bookmarks
   USING (auth.uid() = owner_id)
   WITH CHECK (auth.uid() = owner_id);
 
--- Depends on public.update_updated_at_column(), which already exists
--- in the live database (verified by the audit: it backs 5 existing
--- BEFORE UPDATE triggers). If it were ever missing, this CREATE TRIGGER
--- would fail loudly and the whole transaction would roll back.
 CREATE TRIGGER update_reading_bookmarks_updated_at
   BEFORE UPDATE ON public.reading_bookmarks
   FOR EACH ROW
@@ -204,14 +203,8 @@ GRANT ALL ON public.reading_annotations TO service_role;
 
 -- ============================================================
 -- TABLE 3: reading_annotation_links
+-- No FK to reading_annotations. Lifecycle managed by trigger.
 -- ============================================================
--- No FK to reading_annotations. The lifecycle is managed by
--- _reading_annotation_links_cleanup (created below) so that the
--- last annotation’s deletion removes this row and forces a fresh
--- token on the next annotation.
---
--- No separate index on token: the UNIQUE constraint already
--- creates one.
 CREATE TABLE public.reading_annotation_links (
   owner_id    uuid        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   course_id   text        NOT NULL,
@@ -235,7 +228,9 @@ CREATE POLICY reading_annotation_links_owner ON public.reading_annotation_links
 
 REVOKE ALL ON TABLE public.reading_annotation_links FROM PUBLIC;
 REVOKE ALL ON TABLE public.reading_annotation_links FROM anon;
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.reading_annotation_links TO authenticated;
+-- Clients may read their own links; writes go through SECURITY DEFINER
+-- triggers and lifecycle RPCs. SELECT-only is the design intent.
+GRANT SELECT ON public.reading_annotation_links TO authenticated;
 GRANT ALL ON public.reading_annotation_links TO service_role;
 
 -- ============================================================
@@ -298,15 +293,12 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.reading_collection_order TO authe
 GRANT ALL ON public.reading_collection_order TO service_role;
 
 -- ============================================================
--- LIFECYCLE TRIGGER: delete link row when last annotation deleted
+-- TRIGGER FUNCTION 1: _reading_annotation_links_cleanup
+-- AFTER DELETE on reading_annotations. Removes the link row when
+-- the last annotation for that lesson is deleted. Preserves a
+-- revoked-but-still-annotated link, since cleanup only fires when
+-- count = 0.
 -- ============================================================
--- SECURITY DEFINER: the cleanup must run regardless of the caller’s
--- role context. It only operates on OLD.owner_id / OLD.course_id /
--- OLD.lesson_id — values from the row being deleted — and cannot be
--- exploited to touch any other user’s records.
---
--- Trigger-function invocation does not check EXECUTE privilege at
--- fire time, so REVOKE below does not affect firing.
 CREATE FUNCTION public._reading_annotation_links_cleanup()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -333,18 +325,84 @@ REVOKE ALL ON FUNCTION public._reading_annotation_links_cleanup() FROM PUBLIC;
 REVOKE ALL ON FUNCTION public._reading_annotation_links_cleanup() FROM anon;
 REVOKE ALL ON FUNCTION public._reading_annotation_links_cleanup() FROM authenticated;
 
+-- ============================================================
+-- TRIGGER FUNCTION 2: _reading_annotations_ensure_link
+-- AFTER INSERT on reading_annotations. Ensures a link row exists
+-- with a valid token. Does not clear revoked_at (revocation is
+-- sticky until reshare_annotation_link).
+-- ============================================================
+CREATE FUNCTION public._reading_annotations_ensure_link()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  INSERT INTO public.reading_annotation_links (owner_id, course_id, lesson_id)
+  VALUES (NEW.owner_id, NEW.course_id, NEW.lesson_id)
+  ON CONFLICT (owner_id, course_id, lesson_id) DO NOTHING;
+  RETURN NULL;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public._reading_annotations_ensure_link() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public._reading_annotations_ensure_link() FROM anon;
+REVOKE ALL ON FUNCTION public._reading_annotations_ensure_link() FROM authenticated;
+
+-- ============================================================
+-- TRIGGER FUNCTION 3: _reading_annotations_identity_guard
+-- BEFORE UPDATE on reading_annotations. Prevents modification of
+-- identity and range fields. Body and color remain mutable.
+-- ============================================================
+CREATE FUNCTION public._reading_annotations_identity_guard()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  IF OLD.owner_id     IS DISTINCT FROM NEW.owner_id
+  OR OLD.course_id    IS DISTINCT FROM NEW.course_id
+  OR OLD.lesson_id    IS DISTINCT FROM NEW.lesson_id
+  OR OLD.kind         IS DISTINCT FROM NEW.kind
+  OR OLD.start_offset IS DISTINCT FROM NEW.start_offset
+  OR OLD.end_offset   IS DISTINCT FROM NEW.end_offset
+  OR OLD.quote        IS DISTINCT FROM NEW.quote
+  THEN
+    RAISE EXCEPTION
+      'Cannot modify identity fields (owner_id, course_id, lesson_id, kind, start_offset, end_offset, quote) of an existing annotation.';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public._reading_annotations_identity_guard() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public._reading_annotations_identity_guard() FROM anon;
+REVOKE ALL ON FUNCTION public._reading_annotations_identity_guard() FROM authenticated;
+
+-- Attach triggers
 CREATE TRIGGER reading_annotations_cleanup_link
   AFTER DELETE ON public.reading_annotations
   FOR EACH ROW
   EXECUTE FUNCTION public._reading_annotation_links_cleanup();
 
+CREATE TRIGGER reading_annotations_ensure_link
+  AFTER INSERT ON public.reading_annotations
+  FOR EACH ROW
+  EXECUTE FUNCTION public._reading_annotations_ensure_link();
+
+CREATE TRIGGER reading_annotations_identity_guard
+  BEFORE UPDATE ON public.reading_annotations
+  FOR EACH ROW
+  EXECUTE FUNCTION public._reading_annotations_identity_guard();
+
 -- ============================================================
 -- RPC 1: get_shared_reading_lesson(p_token text)
--- ============================================================
 -- Returns:
---   NULL                       → no row, OR row exists but zero annotations
---   {"status":"revoked"}       → row exists with revoked_at set
---   {"status":"ok","data":{…}} → row exists, not revoked, has annotations
+--   NULL                       → invalid token, or zero annotations
+--   {"status":"revoked"}       → revoked link
+--   {"status":"ok","data":{…}} → active link with annotations
+-- ============================================================
 CREATE FUNCTION public.get_shared_reading_lesson(p_token text)
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -371,7 +429,7 @@ BEGIN
   END IF;
 
   IF v_row.revoked_at IS NOT NULL THEN
-    RETURN jsonb_build_object('status', 'revoked');
+    RETURN pg_catalog.jsonb_build_object('status', 'revoked');
   END IF;
 
   SELECT coalesce(
@@ -408,9 +466,9 @@ BEGIN
     RETURN NULL;
   END IF;
 
-  RETURN jsonb_build_object(
+  RETURN pg_catalog.jsonb_build_object(
     'status', 'ok',
-    'data',   jsonb_build_object(
+    'data',   pg_catalog.jsonb_build_object(
       'course_id',   v_row.course_id,
       'lesson_id',   v_row.lesson_id,
       'owner_name',  v_owner_name,
@@ -427,9 +485,10 @@ GRANT EXECUTE ON FUNCTION public.get_shared_reading_lesson(text) TO service_role
 
 -- ============================================================
 -- RPC 2: get_collection_by_username(p_username text, p_kind text)
+-- Uniform {"status":"denied"} for every deny reason.
+-- Honours sort_index from reading_bookmarks and
+-- reading_collection_order.
 -- ============================================================
--- Uniform {"status":"denied"} for every deny reason. Honours
--- sort_index from reading_bookmarks and reading_collection_order.
 CREATE FUNCTION public.get_collection_by_username(p_username text, p_kind text)
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -450,12 +509,12 @@ BEGIN
   IF p_username IS NULL
      OR p_kind IS NULL
      OR p_kind NOT IN ('bookmarks','highlights','notes') THEN
-    RETURN jsonb_build_object('status', 'denied');
+    RETURN pg_catalog.jsonb_build_object('status', 'denied');
   END IF;
 
   SELECT id INTO v_owner FROM public.profiles WHERE username = p_username;
   IF NOT FOUND THEN
-    RETURN jsonb_build_object('status', 'denied');
+    RETURN pg_catalog.jsonb_build_object('status', 'denied');
   END IF;
 
   IF v_uid IS NOT NULL AND v_uid = v_owner THEN
@@ -473,7 +532,7 @@ BEGIN
     IF NOT FOUND
        OR v_link.visibility <> 'public'
        OR v_link.revoked_at IS NOT NULL THEN
-      RETURN jsonb_build_object('status', 'denied');
+      RETURN pg_catalog.jsonb_build_object('status', 'denied');
     END IF;
     v_shared := true;
   END IF;
@@ -529,9 +588,9 @@ BEGIN
        AND co.lesson_id = x.lesson_id;
   END IF;
 
-  RETURN jsonb_build_object(
+  RETURN pg_catalog.jsonb_build_object(
     'status', 'ok',
-    'data',   jsonb_build_object(
+    'data',   pg_catalog.jsonb_build_object(
       'kind',       p_kind,
       'owner_name', v_owner_name,
       'is_owner',   v_is_owner,
@@ -548,11 +607,9 @@ GRANT EXECUTE ON FUNCTION public.get_collection_by_username(text, text) TO authe
 GRANT EXECUTE ON FUNCTION public.get_collection_by_username(text, text) TO service_role;
 
 -- ============================================================
--- RPC 3: share_collection(p_kind text)
+-- RPC 3: share_collection(p_kind text) — SECURITY INVOKER
+-- Requires auth.uid(). Relies on RLS + grants for authorization.
 -- ============================================================
--- SECURITY INVOKER: relies on RLS + auth.uid() check. Requires
--- caller to hold INSERT and UPDATE on reading_collection_links,
--- which are granted to authenticated above.
 CREATE FUNCTION public.share_collection(p_kind text)
 RETURNS void
 LANGUAGE plpgsql
@@ -583,5 +640,75 @@ REVOKE ALL ON FUNCTION public.share_collection(text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.share_collection(text) FROM anon;
 GRANT EXECUTE ON FUNCTION public.share_collection(text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.share_collection(text) TO service_role;
+
+-- ============================================================
+-- RPC 4: revoke_annotation_link(course, lesson) — SECURITY DEFINER
+-- Sets revoked_at = now(). Scoped to auth.uid() via WHERE clause.
+-- ============================================================
+CREATE FUNCTION public.revoke_annotation_link(p_course_id text, p_lesson_id text)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  v_uid uuid := auth.uid();
+BEGIN
+  IF v_uid IS NULL THEN
+    RAISE EXCEPTION 'revoke_annotation_link: not authenticated';
+  END IF;
+
+  UPDATE public.reading_annotation_links
+     SET revoked_at = pg_catalog.now()
+   WHERE owner_id  = v_uid
+     AND course_id = p_course_id
+     AND lesson_id = p_lesson_id;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.revoke_annotation_link(text, text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.revoke_annotation_link(text, text) FROM anon;
+GRANT EXECUTE ON FUNCTION public.revoke_annotation_link(text, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.revoke_annotation_link(text, text) TO service_role;
+
+-- ============================================================
+-- RPC 5: reshare_annotation_link(course, lesson) — SECURITY DEFINER
+-- Generates a new token, clears revoked_at, returns the token.
+-- Raises if no link exists. Scoped to auth.uid() via WHERE clause.
+-- ============================================================
+CREATE FUNCTION public.reshare_annotation_link(p_course_id text, p_lesson_id text)
+RETURNS text
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  v_uid   uuid := auth.uid();
+  v_token text;
+BEGIN
+  IF v_uid IS NULL THEN
+    RAISE EXCEPTION 'reshare_annotation_link: not authenticated';
+  END IF;
+
+  UPDATE public.reading_annotation_links
+     SET token      = public._random_token(),
+         revoked_at = NULL
+   WHERE owner_id  = v_uid
+     AND course_id = p_course_id
+     AND lesson_id = p_lesson_id
+   RETURNING token INTO v_token;
+
+  IF v_token IS NULL THEN
+    RAISE EXCEPTION 'reshare_annotation_link: no link exists for that lesson';
+  END IF;
+
+  RETURN v_token;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.reshare_annotation_link(text, text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.reshare_annotation_link(text, text) FROM anon;
+GRANT EXECUTE ON FUNCTION public.reshare_annotation_link(text, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.reshare_annotation_link(text, text) TO service_role;
 
 COMMIT;
