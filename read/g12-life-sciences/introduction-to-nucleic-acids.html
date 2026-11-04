@@ -412,6 +412,10 @@
             white-space: nowrap;
             min-width: 100px;
         }
+
+        /* New shared annotation toolbar (loaded via /src/js/reading-annotations.js)
+           replaces the legacy in-page demo toolbar. */
+        #selectionToolbar { display: none !important; }
     </style>
 </head>
 <body>
@@ -574,44 +578,6 @@
         </div>
     </div>
 
-    <!-- Selection Toolbar -->
-    <div class="selection-toolbar" id="selectionToolbar">
-        <button id="removeHighlightBtn" style="display:none;">
-            <div class="remove-highlight-container" id="removeHighlightContainer">
-                <img src="/assets/icons/phosphor/regular/x.svg" alt="Remove" style="width:18px;height:18px;">
-            </div>
-            <span class="button-text">Remove</span>
-        </button>
-        <button id="highlightBtn">
-            <div class="highlighter-icon-container">
-                <img src="/assets/icons/phosphor/fill/highlighter.svg" alt="Highlight" style="width:20px;height:20px;">
-            </div>
-            <span class="button-text">Highlight</span>
-        </button>
-        <div class="color-picker" id="colorPicker">
-            <div class="color-picker-grid">
-                <div class="color-option yellow" onclick="highlightSelection('yellow')" title="Yellow"></div>
-                <div class="color-option green" onclick="highlightSelection('green')" title="Green"></div>
-                <div class="color-option blue" onclick="highlightSelection('blue')" title="Blue"></div>
-                <div class="color-option red" onclick="highlightSelection('red')" title="Red"></div>
-                <div class="color-option orange" onclick="highlightSelection('orange')" title="Orange"></div>
-                <div class="color-option violet" onclick="highlightSelection('violet')" title="Violet"></div>
-            </div>
-        </div>
-        <button onclick="noteSelection()">
-            <img src="/assets/icons/phosphor/duotone/note-pencil.svg" alt="Note" style="width:20px;height:20px;">
-            <span class="button-text">Note</span>
-        </button>
-        <button onclick="copySelection()">
-            <img src="/assets/icons/phosphor/regular/copy.svg" alt="Copy" style="width:20px;height:20px;">
-            <span class="button-text">Copy</span>
-        </button>
-        <button onclick="shareSelection()">
-            <img src="/assets/icons/phosphor/fill/share-network.svg" alt="Share" style="width:20px;height:20px;">
-            <span class="button-text">Share</span>
-        </button>
-    </div>
-
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
@@ -660,142 +626,8 @@
             console.warn('Error loading glossary data:', e);
         }
 
-        // ---- TOC Data (embedded directly) ----
-        const tocData = {
-            startingColorIndex: 0,
-            units: [
-                {
-                    title: 'Unit 1',
-                    chapters: [
-                        {
-                            title: 'Chapter 1: DNA: The Code of Life',
-                            colorClass: 'unit-1-chapters',
-                            lessons: [
-                                { number: 1, title: 'Introduction', link: '/read/g12-life-sciences/introduction-to-nucleic-acids.html' },
-                                { number: 2, title: 'DNA: location, structure and functions', link: '#' },
-                                { number: 3, title: 'DNA replication', link: '#' },
-                                { number: 4, title: 'DNA profiling', link: '#' },
-                                { number: 5, title: 'RNA: location, structure and function', link: '#' },
-                                { number: 6, title: 'Protein synthesis', link: '#' }
-                            ]
-                        },
-                        {
-                            title: 'Chapter 2: Meiosis',
-                            colorClass: 'unit-1-chapters',
-                            lessons: [
-                                { number: 1, title: 'Introduction', link: '#' },
-                                { number: 2, title: 'Meiosis – The process', link: '#' },
-                                { number: 3, title: 'Importance of meiosis', link: '#' },
-                                { number: 4, title: 'Abnormal meiosis', link: '#' },
-                                { number: 5, title: 'Comparison of mitosis and meiosis', link: '#' }
-                            ]
-                        },
-                        {
-                            title: 'Chapter 3: Reproduction in Vertebrates',
-                            colorClass: 'unit-1-chapters',
-                            lessons: [
-                                { number: 1, title: 'Diversity of reproductive strategies', link: '#' }
-                            ]
-                        },
-                        {
-                            title: 'Chapter 4: Human Reproduction',
-                            colorClass: 'unit-1-chapters',
-                            lessons: [
-                                { number: 1, title: 'Introduction', link: '#' },
-                                { number: 2, title: 'Structure of the male reproductive system', link: '#' },
-                                { number: 3, title: 'Structure of the female reproductive system', link: '#' },
-                                { number: 4, title: 'Puberty', link: '#' },
-                                { number: 5, title: 'Gametogenesis (spermatogenesis, oogenesis)', link: '#' },
-                                { number: 6, title: 'Menstrual cycle', link: '#' },
-                                { number: 7, title: 'Fertilisation and development of zygote to blastocyst', link: '#' },
-                                { number: 8, title: 'Implantation, gestation and the role of the placenta', link: '#' }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    title: 'Unit 2',
-                    chapters: [
-                        {
-                            title: 'Chapter 1: Genetics and Inheritance',
-                            colorClass: 'unit-2-chapters',
-                            lessons: [
-                                { number: 1, title: 'Introduction', link: '#' },
-                                { number: 2, title: 'Concepts in inheritance', link: '#' },
-                                { number: 3, title: 'Monohybrid crosses', link: '#' },
-                                { number: 4, title: 'Sex determination', link: '#' },
-                                { number: 5, title: 'Sex‑linked inheritance', link: '#' },
-                                { number: 6, title: 'Blood grouping', link: '#' },
-                                { number: 7, title: 'Dihybrid crosses', link: '#' },
-                                { number: 8, title: 'Genetic lineages/pedigrees', link: '#' },
-                                { number: 9, title: 'Mutations', link: '#' },
-                                { number: 10, title: 'Genetic engineering', link: '#' },
-                                { number: 11, title: 'Paternity testing', link: '#' },
-                                { number: 12, title: 'Genetic links', link: '#' }
-                            ]
-                        },
-                        {
-                            title: 'Chapter 2: Responding to the Environment (Humans)',
-                            colorClass: 'unit-2-chapters',
-                            lessons: [
-                                { number: 1, title: 'Introduction', link: '#' },
-                                { number: 2, title: 'Human nervous system', link: '#' },
-                                { number: 3, title: 'Central nervous system', link: '#' },
-                                { number: 4, title: 'Peripheral nervous system', link: '#' },
-                                { number: 5, title: 'Autonomic nervous system', link: '#' },
-                                { number: 6, title: 'Structure and functioning of a nerve', link: '#' },
-                                { number: 7, title: 'The simple reflex arc', link: '#' },
-                                { number: 8, title: 'Disorders of the CNS', link: '#' },
-                                { number: 9, title: 'Receptors', link: '#' },
-                                { number: 10, title: 'Human eye', link: '#' },
-                                { number: 11, title: 'Human ear', link: '#' }
-                            ]
-                        },
-                        {
-                            title: 'Chapter 3: Endocrine System and Homeostasis',
-                            colorClass: 'unit-2-chapters',
-                            lessons: [
-                                { number: 1, title: 'Endocrine system', link: '#' },
-                                { number: 2, title: 'Introduction – Homeostasis', link: '#' },
-                                { number: 3, title: 'Homeostasis: Negative feedback mechanisms', link: '#' }
-                            ]
-                        },
-                        {
-                            title: 'Chapter 4: Responding to the Environment (Plants)',
-                            colorClass: 'unit-2-chapters',
-                            lessons: [
-                                { number: 1, title: 'Plant hormones', link: '#' },
-                                { number: 2, title: 'Plant defence mechanisms', link: '#' }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    title: 'Unit 3',
-                    chapters: [
-                        {
-                            title: 'Chapter 1: Evolution',
-                            colorClass: 'unit-3-chapters',
-                            lessons: [
-                                { number: 1, title: 'Introduction', link: '#' },
-                                { number: 2, title: 'Evidence for evolution', link: '#' },
-                                { number: 3, title: 'Variation', link: '#' },
-                                { number: 4, title: 'Origin of an idea about origins', link: '#' },
-                                { number: 5, title: 'Lamarckism', link: '#' },
-                                { number: 6, title: 'Darwinism', link: '#' },
-                                { number: 7, title: 'Punctuated Equilibrium', link: '#' },
-                                { number: 8, title: 'Artificial selection', link: '#' },
-                                { number: 9, title: 'Formation of new species', link: '#' },
-                                { number: 10, title: 'Mechanisms of reproductive isolation', link: '#' },
-                                { number: 11, title: 'Evolution in present times', link: '#' },
-                                { number: 12, title: 'Evidence of common ancestors', link: '#' },
-                                { number: 13, title: 'Out‑of‑Africa hypothesis', link: '#' }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        };
+        // ---- TOC Data ----
+        const tocData = await (await fetch('/data/toc/g12-life-sciences.json')).json();
 
         // ---- Render TOC ----
         function renderTOC(data, containerId, currentPath) {
@@ -803,7 +635,6 @@
             if (!container) return;
 
             const { units } = data;
-
             let html = '<ul class="menu">';
 
             units.forEach((unit, unitIndex) => {
@@ -885,7 +716,7 @@
                 });
             });
 
-            // --- Auto‑expand to the current lesson ---
+            // --- Auto-expand to the current lesson ---
             const activeLink = container.querySelector('.sub-sub-menu a.active');
             if (activeLink) {
                 const subSubMenu = activeLink.closest('.sub-sub-menu');
@@ -937,48 +768,11 @@
             if (e.key === 'Escape' && overlay.classList.contains('open')) closeSidebar();
         });
 
-        // Course icon in sidebar opens course switcher
         document.getElementById('tocCourseIcon').addEventListener('click', function() {
             const headerCourseIcon = document.querySelector('#activeCourseIcon');
             if (headerCourseIcon) headerCourseIcon.click();
             closeSidebar();
         });
-
-        // ---- Bookmark toggle ----
-        const bookmarkBtn = document.getElementById('bookmarkBtn');
-        bookmarkBtn.addEventListener('click', function() {
-            const isBookmarked = this.classList.toggle('bookmarked');
-            const img = this.querySelector('img');
-            if (isBookmarked) {
-                img.src = '/assets/icons/phosphor/fill/bookmarks.svg';
-                showToast('Bookmarked!');
-                const articlePath = window.location.pathname;
-                let bookmarks = JSON.parse(localStorage.getItem('readingBookmarks') || '[]');
-                if (!bookmarks.includes(articlePath)) {
-                    bookmarks.push(articlePath);
-                    localStorage.setItem('readingBookmarks', JSON.stringify(bookmarks));
-                }
-            } else {
-                img.src = '/assets/icons/phosphor/regular/bookmarks.svg';
-                showToast('Bookmark removed');
-                const articlePath = window.location.pathname;
-                let bookmarks = JSON.parse(localStorage.getItem('readingBookmarks') || '[]');
-                bookmarks = bookmarks.filter(p => p !== articlePath);
-                localStorage.setItem('readingBookmarks', JSON.stringify(bookmarks));
-            }
-        });
-
-        // Restore bookmark state
-        (function() {
-            const articlePath = window.location.pathname;
-            const bookmarks = JSON.parse(localStorage.getItem('readingBookmarks') || '[]');
-            if (bookmarks.includes(articlePath)) {
-                const btn = document.getElementById('bookmarkBtn');
-                btn.classList.add('bookmarked');
-                const img = btn.querySelector('img');
-                img.src = '/assets/icons/phosphor/fill/bookmarks.svg';
-            }
-        })();
 
         // ---- Font size ----
         (function() {
@@ -1192,130 +986,8 @@
             finderFooter.style.display = 'none';
         })();
 
-        // ---- Toast ----
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        }
-
-        // ---- Highlight, Note, Copy, Share ----
-        window.highlightSelection = function(color) {
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-            const range = selection.getRangeAt(0);
-            if (range.collapsed) return;
-            const span = document.createElement('span');
-            span.className = `highlighted-${color}`;
-            try {
-                span.appendChild(range.extractContents());
-                range.insertNode(span);
-            } catch(e) { /* ignore */ }
-            selection.removeAllRanges();
-            document.getElementById('selectionToolbar').classList.remove('show');
-            showToast('Highlighted!');
-        };
-
-        window.noteSelection = function() {
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-            const text = selection.toString().trim();
-            if (!text) return;
-            const note = prompt(`Add a note for:\n"${text}"`);
-            if (note) {
-                const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-                notes.push({ text, note, timestamp: new Date().toISOString() });
-                localStorage.setItem('notes', JSON.stringify(notes));
-                showToast('Note saved!');
-            }
-            document.getElementById('selectionToolbar').classList.remove('show');
-            selection.removeAllRanges();
-        };
-
-        window.copySelection = async function() {
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-            const text = selection.toString().trim();
-            if (!text) return;
-            try {
-                await navigator.clipboard.writeText(text);
-                showToast('Copied to clipboard!');
-            } catch(e) {
-                const ta = document.createElement('textarea');
-                ta.value = text;
-                ta.style.position = 'fixed'; ta.style.opacity = '0';
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                showToast('Copied to clipboard!');
-            }
-            document.getElementById('selectionToolbar').classList.remove('show');
-            selection.removeAllRanges();
-        };
-
-        window.shareSelection = async function() {
-            const selection = window.getSelection();
-            if (!selection.rangeCount) return;
-            const text = selection.toString().trim();
-            if (!text) return;
-            const title = document.querySelector('h1')?.textContent || 'Vulanet';
-            const url = window.location.href;
-            const shareText = `${text}\n\nFrom: ${title}\n${url}`;
-            if (navigator.share) {
-                try {
-                    await navigator.share({ title, text: shareText, url });
-                    showToast('Shared!');
-                } catch(e) { /* user cancelled */ }
-            } else {
-                try {
-                    await navigator.clipboard.writeText(shareText);
-                    showToast('Copied to clipboard for sharing!');
-                } catch(e) {
-                    const ta = document.createElement('textarea');
-                    ta.value = shareText;
-                    ta.style.position = 'fixed'; ta.style.opacity = '0';
-                    document.body.appendChild(ta);
-                    ta.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(ta);
-                    showToast('Copied to clipboard for sharing!');
-                }
-            }
-            document.getElementById('selectionToolbar').classList.remove('show');
-            selection.removeAllRanges();
-        };
-
-        // Selection toolbar visibility
-        document.addEventListener('selectionchange', () => {
-            const selection = window.getSelection();
-            const toolbar = document.getElementById('selectionToolbar');
-            if (!selection.isCollapsed && selection.toString().trim().length > 0) {
-                const range = selection.getRangeAt(0);
-                const rect = range.getBoundingClientRect();
-                toolbar.style.left = `${rect.left + window.scrollX}px`;
-                toolbar.style.top = `${rect.bottom + window.scrollY + 10}px`;
-                toolbar.classList.add('show');
-            } else {
-                toolbar.classList.remove('show');
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            const picker = document.getElementById('colorPicker');
-            const btn = document.getElementById('highlightBtn');
-            if (!picker.contains(e.target) && e.target !== btn) {
-                picker.classList.remove('show');
-            }
-        });
-
-        document.getElementById('highlightBtn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.getElementById('colorPicker').classList.toggle('show');
-        });
-
         console.log('G12 reading article loaded.');
     </script>
+    <script type="module" src="/src/js/reading-annotations.js" data-course="g12-life-sciences" data-lesson="introduction-to-nucleic-acids"></script>
 </body>
 </html>

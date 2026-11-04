@@ -343,7 +343,7 @@
       .sub-sub-menu a { padding-left: 38px; height: 36px; font-size: 13px; }
     }
 
-    /* ===== SEARCH ICON STATES (same as demo) ===== */
+    /* ===== SEARCH ICON STATES ===== */
     .search-box .clear-btn { display: none; }
     .search-box .search-icon { display: flex; }
     .search-box .active-search-icon { display: none; }
@@ -366,7 +366,7 @@
       padding-bottom: 80px;
     }
 
-    /* --- Use a unique ID and custom classes to avoid global conflicts --- */
+    /* --- Unique ID to avoid global conflicts --- */
     #searchFooterInner {
       background: #fff;
       border-radius: 12px;
@@ -423,6 +423,10 @@
       white-space: nowrap;
       min-width: 100px;
     }
+
+    /* New shared annotation toolbar (loaded via /src/js/reading-annotations.js)
+       replaces the legacy in-page demo toolbar. */
+    #selectionToolbar { display: none !important; }
   </style>
 </head>
 <body>
@@ -462,11 +466,8 @@
       <div class="search-box" id="searchBox">
         <input id="searchInput" type="text" placeholder="Find in page...">
         <div class="search-icons">
-          <!-- X (clear) -->
           <img src="/assets/icons/phosphor/regular/x.svg" class="clear-btn" id="clearSearchBtn" alt="Clear" style="width:18px;height:18px;cursor:pointer;">
-          <!-- list-magnifying-glass (thin combo) – default -->
           <img src="/assets/icons/phosphor/regular/list-magnifying-glass.svg" class="search-icon" id="defaultSearchIcon" alt="Search" style="width:18px;height:18px;cursor:pointer;">
-          <!-- magnifying-glass (bold) – active -->
           <img src="/assets/icons/phosphor/bold/magnifying-glass.svg" class="active-search-icon" id="activeSearchIcon" alt="Search" style="width:18px;height:18px;cursor:pointer;">
         </div>
       </div>
@@ -669,47 +670,6 @@
     </div>
   </div>
 
-  <!-- Selection Toolbar (highlight, note, copy, share) -->
-  <div class="selection-toolbar" id="selectionToolbar">
-    <button id="removeHighlightBtn" style="display:none;">
-      <div class="remove-highlight-container" id="removeHighlightContainer">
-        <img src="/assets/icons/phosphor/regular/x.svg" alt="Remove" style="width:18px;height:18px;">
-      </div>
-      <span class="button-text">Remove</span>
-    </button>
-    <button id="highlightBtn">
-      <div class="highlighter-icon-container">
-        <img src="/assets/icons/phosphor/fill/highlighter.svg" alt="Highlight" style="width:20px;height:20px;">
-      </div>
-      <span class="button-text">Highlight</span>
-    </button>
-    <div class="color-picker" id="colorPicker">
-      <div class="color-picker-grid">
-        <div class="color-option yellow" onclick="highlightSelection('yellow')" title="Yellow"></div>
-        <div class="color-option green" onclick="highlightSelection('green')" title="Green"></div>
-        <div class="color-option blue" onclick="highlightSelection('blue')" title="Blue"></div>
-        <div class="color-option red" onclick="highlightSelection('red')" title="Red"></div>
-        <div class="color-option orange" onclick="highlightSelection('orange')" title="Orange"></div>
-        <div class="color-option violet" onclick="highlightSelection('violet')" title="Violet"></div>
-      </div>
-    </div>
-    <button onclick="noteSelection()">
-      <img src="/assets/icons/phosphor/duotone/note-pencil.svg" alt="Note" style="width:20px;height:20px;">
-      <span class="button-text">Note</span>
-    </button>
-    <button onclick="copySelection()">
-      <img src="/assets/icons/phosphor/regular/copy.svg" alt="Copy" style="width:20px;height:20px;">
-      <span class="button-text">Copy</span>
-    </button>
-    <button onclick="shareSelection()">
-      <img src="/assets/icons/phosphor/fill/share-network.svg" alt="Share" style="width:20px;height:20px;">
-      <span class="button-text">Share</span>
-    </button>
-  </div>
-
-  <!-- Toast -->
-  <div class="toast" id="toast"></div>
-
   <!-- TOC Sidebar Overlay -->
   <div class="toc-overlay" id="tocOverlay">
     <div class="toc-sidebar">
@@ -739,41 +699,8 @@
 
     await loadLayout();
 
-    // ---- TOC Data (embedded directly) ----
-    const tocData = {
-      startingColorIndex: 3, // Ladybug (#EA4335) for Chapter 1
-      units: [
-        {
-          title: 'Unit 1',
-          chapters: [
-            {
-              title: 'Chapter 1: Anticoagulants',
-              colorClass: 'unit-1-chapters',
-              lessons: [
-                { number: 1, title: 'Introduction', link: '/read/pharmacology-ii/introduction-to-anticoagulants.html' },
-                { number: 2, title: 'Advanced Parenteral Anticoagulants', link: '#' },
-                { number: 3, title: 'Oral Anticoagulants', link: '#' },
-                { number: 4, title: 'DOACs and Therapeutic Uses', link: '#' }
-              ]
-            },
-            {
-              title: 'Chapter 2: Thrombolytics And Antiplatelet Agents',
-              colorClass: 'unit-1-chapters',
-              lessons: [
-                { number: 1, title: 'Fibrinolysis', link: '#' },
-                { number: 2, title: 'Thrombolytic Drugs', link: '#' },
-                { number: 3, title: 'Uses and Contraindications', link: '#' },
-                { number: 4, title: 'Individual Thrombolytic Agents', link: '#' },
-                { number: 5, title: 'Antifibrinolytic Drugs', link: '#' },
-                { number: 6, title: 'Overview of Antiplatelet Drugs', link: '#' },
-                { number: 7, title: 'Classes of Antiplatelet Drugs', link: '#' },
-                { number: 8, title: 'Clinical Use of Antiplatelet Drugs', link: '#' }
-              ]
-            }
-          ]
-        }
-      ]
-    };
+    // ---- TOC Data (fetched from course TOC JSON) ----
+    const tocData = await (await fetch('/data/toc/pharmacology-ii.json')).json();
 
     // ---- Render TOC ----
     function renderTOC(data, containerId, currentPath) {
@@ -924,42 +851,6 @@
       if (headerCourseIcon) headerCourseIcon.click();
       closeSidebar();
     });
-
-    // ---- Bookmark toggle (bookmarks.svg plural) ----
-    const bookmarkBtn = document.getElementById('bookmarkBtn');
-    bookmarkBtn.addEventListener('click', function() {
-      const isBookmarked = this.classList.toggle('bookmarked');
-      const img = this.querySelector('img');
-      if (isBookmarked) {
-        img.src = '/assets/icons/phosphor/fill/bookmarks.svg';
-        showToast('Bookmarked!');
-        const articlePath = window.location.pathname;
-        let bookmarks = JSON.parse(localStorage.getItem('readingBookmarks') || '[]');
-        if (!bookmarks.includes(articlePath)) {
-          bookmarks.push(articlePath);
-          localStorage.setItem('readingBookmarks', JSON.stringify(bookmarks));
-        }
-      } else {
-        img.src = '/assets/icons/phosphor/regular/bookmarks.svg';
-        showToast('Bookmark removed');
-        const articlePath = window.location.pathname;
-        let bookmarks = JSON.parse(localStorage.getItem('readingBookmarks') || '[]');
-        bookmarks = bookmarks.filter(p => p !== articlePath);
-        localStorage.setItem('readingBookmarks', JSON.stringify(bookmarks));
-      }
-    });
-
-    // Restore bookmark state
-    (function() {
-      const articlePath = window.location.pathname;
-      const bookmarks = JSON.parse(localStorage.getItem('readingBookmarks') || '[]');
-      if (bookmarks.includes(articlePath)) {
-        const btn = document.getElementById('bookmarkBtn');
-        btn.classList.add('bookmarked');
-        const img = btn.querySelector('img');
-        img.src = '/assets/icons/phosphor/fill/bookmarks.svg';
-      }
-    })();
 
     // ---- Font size ----
     (function() {
@@ -1132,7 +1023,6 @@
         }
       });
 
-      // Click on search icons -> next match
       defaultSearchIcon.addEventListener('click', (e) => {
         e.preventDefault();
         if (searchInput.value.trim() !== '') goToNext();
@@ -1142,7 +1032,6 @@
         if (searchInput.value.trim() !== '') goToNext();
       });
 
-      // Clear buttons
       clearSearchBtn.addEventListener('click', function() {
         searchInput.value = '';
         clearHighlights();
@@ -1158,11 +1047,9 @@
         searchInput.focus();
       });
 
-      // Arrow navigation
       nextMatchBtn.addEventListener('click', goToNext);
       prevMatchBtn.addEventListener('click', goToPrev);
 
-      // Click on a highlight to jump to it
       article.addEventListener('click', function(e) {
         const mark = e.target.closest('mark.search-hit');
         if (mark) {
@@ -1174,135 +1061,12 @@
         }
       });
 
-      // Init
       updateSearchBoxState();
       finderFooter.style.display = 'none';
     })();
 
-    // ---- Toast ----
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
-    }
-
-    // ---- Highlight, Note, Copy, Share ----
-    window.highlightSelection = function(color) {
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return;
-      const range = selection.getRangeAt(0);
-      if (range.collapsed) return;
-      const span = document.createElement('span');
-      span.className = `highlighted-${color}`;
-      try {
-        span.appendChild(range.extractContents());
-        range.insertNode(span);
-      } catch(e) { /* ignore */ }
-      selection.removeAllRanges();
-      document.getElementById('selectionToolbar').classList.remove('show');
-      showToast('Highlighted!');
-    };
-
-    window.noteSelection = function() {
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return;
-      const text = selection.toString().trim();
-      if (!text) return;
-      const note = prompt(`Add a note for:\n"${text}"`);
-      if (note) {
-        const notes = JSON.parse(localStorage.getItem('notes') || '[]');
-        notes.push({ text, note, timestamp: new Date().toISOString() });
-        localStorage.setItem('notes', JSON.stringify(notes));
-        showToast('Note saved!');
-      }
-      document.getElementById('selectionToolbar').classList.remove('show');
-      selection.removeAllRanges();
-    };
-
-    window.copySelection = async function() {
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return;
-      const text = selection.toString().trim();
-      if (!text) return;
-      try {
-        await navigator.clipboard.writeText(text);
-        showToast('Copied to clipboard!');
-      } catch(e) {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed'; ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        showToast('Copied to clipboard!');
-      }
-      document.getElementById('selectionToolbar').classList.remove('show');
-      selection.removeAllRanges();
-    };
-
-    window.shareSelection = async function() {
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return;
-      const text = selection.toString().trim();
-      if (!text) return;
-      const title = document.querySelector('h1')?.textContent || 'Vulanet';
-      const url = window.location.href;
-      const shareText = `${text}\n\nFrom: ${title}\n${url}`;
-      if (navigator.share) {
-        try {
-          await navigator.share({ title, text: shareText, url });
-          showToast('Shared!');
-        } catch(e) { /* user cancelled */ }
-      } else {
-        try {
-          await navigator.clipboard.writeText(shareText);
-          showToast('Copied to clipboard for sharing!');
-        } catch(e) {
-          const ta = document.createElement('textarea');
-          ta.value = shareText;
-          ta.style.position = 'fixed'; ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-          showToast('Copied to clipboard for sharing!');
-        }
-      }
-      document.getElementById('selectionToolbar').classList.remove('show');
-      selection.removeAllRanges();
-    };
-
-    // Selection toolbar visibility
-    document.addEventListener('selectionchange', () => {
-      const selection = window.getSelection();
-      const toolbar = document.getElementById('selectionToolbar');
-      if (!selection.isCollapsed && selection.toString().trim().length > 0) {
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        toolbar.style.left = `${rect.left + window.scrollX}px`;
-        toolbar.style.top = `${rect.bottom + window.scrollY + 10}px`;
-        toolbar.classList.add('show');
-      } else {
-        toolbar.classList.remove('show');
-      }
-    });
-
-    document.addEventListener('click', (e) => {
-      const picker = document.getElementById('colorPicker');
-      const btn = document.getElementById('highlightBtn');
-      if (!picker.contains(e.target) && e.target !== btn) {
-        picker.classList.remove('show');
-      }
-    });
-
-    document.getElementById('highlightBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      document.getElementById('colorPicker').classList.toggle('show');
-    });
-
     console.log('Pharmacology reading article loaded.');
   </script>
+  <script type="module" src="/src/js/reading-annotations.js" data-course="pharmacology-ii" data-lesson="introduction-to-anticoagulants"></script>
 </body>
 </html>

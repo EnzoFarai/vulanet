@@ -7,7 +7,18 @@
     {
       "source": "/lesson/:course",
       "destination": "/:course.html"
+    },
+    {
+      "source": "/bookmarks/:username",
+      "destination": "/bookmarks.html"
+    },
+    {
+      "source": "/highlights/:username",
+      "destination": "/highlights.html"
+    },
+    {
+      "source": "/notes/:username",
+      "destination": "/notes.html"
     }
   ]
 }
-

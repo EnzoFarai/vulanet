@@ -177,7 +177,7 @@
           </div>
           <ul class="lessons-list">
             <li class="lesson-item"><a href="/read/g12-life-sciences/introduction-to-nucleic-acids.html" class="lesson-link"><span class="lesson-number">1.</span>Introduction</a></li>
-            <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">2.</span>DNA: location, structure and functions</a></li>
+            <li class="lesson-item"><a href="/read/g12-life-sciences/dna-location-structure-and-functions.html" class="lesson-link"><span class="lesson-number">2.</span>DNA: Location, Structure and Functions</a></li>
             <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">3.</span>DNA replication</a></li>
             <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">4.</span>DNA profiling</a></li>
             <li class="lesson-item"><a href="#" class="lesson-link"><span class="lesson-number">5.</span>RNA: location, structure and function</a></li>
@@ -350,6 +350,33 @@
       const list = card.querySelector('.lessons-list');
       list.classList.toggle('expanded');
       card.classList.toggle('expanded');
+    }
+
+    // Open the precise chapter requested by the saved-reading collections.
+    // reading-collections.js uses /read/{course}.html?unit={unitIndex}&chapter={chapterIndex}
+    // for the "Go to chapter" action. Without this block, that action would
+    // open the TOC page but not expand anything, so the user would not see
+    // the lesson they came from.
+    const locationParams = new URLSearchParams(location.search);
+    if (locationParams.has('unit') && locationParams.has('chapter')) {
+      const unitIndex = Number(locationParams.get('unit'));
+      const chapterIndex = Number(locationParams.get('chapter'));
+      if (
+        Number.isInteger(unitIndex) && unitIndex >= 0 &&
+        Number.isInteger(chapterIndex) && chapterIndex >= 0
+      ) {
+        const content = document.getElementById('unit' + (unitIndex + 1));
+        const chapter = content ? content.querySelectorAll('.chapter-card')[chapterIndex] : null;
+        if (content && chapter) {
+          content.classList.add('expanded');
+          const unitHeader = content.parentElement.querySelector('.unit-header');
+          if (unitHeader) unitHeader.classList.add('expanded');
+          chapter.classList.add('expanded');
+          const lessonsList = chapter.querySelector('.lessons-list');
+          if (lessonsList) lessonsList.classList.add('expanded');
+          setTimeout(() => chapter.scrollIntoView({ block: 'center', behavior: 'smooth' }), 200);
+        }
+      }
     }
 
     // Load header/footer (only course icon visible)

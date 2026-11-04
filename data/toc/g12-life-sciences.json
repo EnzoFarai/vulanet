@@ -8,7 +8,7 @@
           "title": "DNA: The Code of Life",
           "lessons": [
             { "number": 1, "title": "Introduction", "link": "/read/g12-life-sciences/introduction-to-nucleic-acids.html" },
-            { "number": 2, "title": "DNA: location, structure and functions", "link": "#" },
+            { "number": 2, "title": "DNA: Location, Structure and Functions", "link": "/read/g12-life-sciences/dna-location-structure-and-functions.html" },
             { "number": 3, "title": "DNA replication", "link": "#" },
             { "number": 4, "title": "DNA profiling", "link": "#" },
             { "number": 5, "title": "RNA: location, structure and function", "link": "#" },

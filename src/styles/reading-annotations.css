@@ -1,0 +1,570 @@
+/* src/styles/reading-annotations.css
+ * ============================================================
+ * Styling for the shared reading-annotation surface.
+ *
+ * Loaded automatically by src/js/reading-annotations.js on any
+ * reading page. Also loaded defensively by the annotation module
+ * if the HTML does not include it explicitly.
+ *
+ * Additive only. Does not override any existing selector in
+ * reading.css, layout.css, buttons.css, or any course stylesheet.
+ *
+ * Sections:
+ *   1. Legacy in-page toolbar suppression (HTML still carries the
+ *      old toolbar; we hide it so only the new UI is visible).
+ *   2. Highlight rendering via CSS Custom Highlight API.
+ *   3. Selection toolbar (Highlight | Note | Copy | Share).
+ *   4. Colour swatches inside the toolbar.
+ *   5. Note folder editor.
+ *   6. Colour-swap picker for existing highlights.
+ *   7. Asterisk marker.
+ *   8. Viewer banner (read-only visitor) and revoked banner.
+ *   9. Lesson share button (below the article).
+ *  10. Toast.
+ *  11. Share fallback modal.
+ *  12. Responsive adjustments.
+ * ============================================================ */
+
+/* ── 1. Legacy toolbar suppression ──────────────────────────
+ * The reading HTML still ships the old in-page annotation
+ * toolbar (#selectionToolbar) and its colour picker. The new
+ * module owns annotation UI now, so hide the legacy surface
+ * everywhere without touching the HTML.
+ */
+#selectionToolbar {
+  display: none !important;
+}
+
+/* ── 2. Highlight rendering ─────────────────────────────────
+ * Six colours plus the dashed underline for notes. The CSS
+ * Custom Highlight API applies these without any DOM mutation,
+ * so overlapping highlights and notes never rewrite article
+ * markup.
+ */
+::highlight(vr-bee)     { background-color: #FBBC05; }
+::highlight(vr-boa)     { background-color: #34A853; }
+::highlight(vr-gecko)   { background-color: #1CB0F6; }
+::highlight(vr-ladybug) { background-color: #EA4335; }
+::highlight(vr-tiger)   { background-color: #FF6D01; }
+::highlight(vr-beetle)  { background-color: #AA00FF; }
+
+::highlight(vr-notes) {
+  text-decoration: underline dashed #4285F4 2px;
+  text-underline-offset: 4px;
+}
+
+/* ── 3. Selection toolbar ───────────────────────────────────
+ * Floats above the selection. Positioned by reading-annotations.js
+ * via absolute coordinates.
+ */
+.vr-selection-toolbar {
+  position: absolute;
+  z-index: 2500;
+  display: none;
+  gap: 4px;
+  align-items: center;
+  padding: 7px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.13);
+  border-radius: 13px;
+  max-width: calc(100vw - 20px);
+  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+}
+
+.vr-selection-toolbar.visible {
+  display: flex;
+}
+
+.vr-selection-toolbar button {
+  border: 0;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 8px 9px;
+  cursor: pointer;
+  font: 600 12px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.vr-selection-toolbar button:hover {
+  background: #f3f5f9;
+}
+
+.vr-selection-toolbar button:focus-visible {
+  outline: 2px solid #4285F4;
+  outline-offset: 2px;
+}
+
+.vr-selection-toolbar img {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── 4. Colour swatches ─────────────────────────────────────
+ * Hidden until the Highlight button is clicked. Opens above
+ * the toolbar.
+ */
+.vr-colors {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 8px;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13);
+  border-radius: 12px;
+  padding: 9px;
+  gap: 5px;
+}
+
+.vr-colors.open {
+  display: flex;
+}
+
+.vr-colors button {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px #ccc;
+  padding: 0;
+  display: inline-block;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.vr-colors button:hover {
+  transform: scale(1.12);
+}
+
+/* ── 5. Note folder editor ──────────────────────────────────
+ * Folder-tab shape via ::before on the container. Positioned by
+ * reading-annotations.js next to the selected passage.
+ */
+.vr-folder {
+  position: fixed;
+  z-index: 2600;
+  display: none;
+  width: min(340px, calc(100vw - 25px));
+  background: #ffffff;
+  border: 1px solid #dbe2ed;
+  border-radius: 0 14px 14px 14px;
+  box-shadow: 0 10px 38px rgba(0, 0, 0, 0.19);
+  padding: 20px;
+  left: 12px;
+  top: 90px;
+  color: #334155;
+  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+}
+
+.vr-folder.open {
+  display: block;
+}
+
+/* Folder tab */
+.vr-folder::before {
+  content: 'Notes';
+  position: absolute;
+  bottom: 100%;
+  left: -1px;
+  height: 27px;
+  width: 125px;
+  background: #ffffff;
+  border: 1px solid #dbe2ed;
+  border-bottom: 0;
+  border-radius: 12px 14px 0 0;
+  padding: 4px 14px;
+  font: 600 13px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  color: #334155;
+  box-sizing: border-box;
+  line-height: 19px;
+}
+
+.vr-folder blockquote {
+  font-style: italic;
+  font-size: 13px;
+  color: #667085;
+  max-height: 68px;
+  overflow: hidden;
+  white-space: pre-wrap;
+  border-left: 3px solid #4285F4;
+  padding-left: 9px;
+  margin: 6px 0 10px;
+  line-height: 1.5;
+}
+
+.vr-folder blockquote.expanded {
+  max-height: none;
+}
+
+.vr-folder #vr-expand {
+  border: 0;
+  background: none;
+  color: #4285F4;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin: 0 0 10px;
+}
+
+.vr-folder textarea {
+  width: 100%;
+  min-height: 95px;
+  border: 0;
+  border-bottom: 1px solid #e3e6eb;
+  resize: vertical;
+  outline: 0;
+  font: 14px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  line-height: 1.5;
+  color: #334155;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.vr-folder textarea:focus {
+  border-bottom-color: #4285F4;
+}
+
+.vr-folder textarea:disabled {
+  background: #f7f8fa;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.vr-folder .vr-actions {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.vr-folder button {
+  background: #f1f5f9;
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 11px;
+  cursor: pointer;
+  font: 600 12px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  color: #334155;
+}
+
+.vr-folder button:hover {
+  background: #e2e8f0;
+}
+
+.vr-folder button:focus-visible {
+  outline: 2px solid #4285F4;
+  outline-offset: 2px;
+}
+
+.vr-folder button.primary {
+  background: #4285F4;
+  color: #ffffff;
+}
+
+.vr-folder button.primary:hover {
+  background: #3367D6;
+}
+
+.vr-folder button[hidden] {
+  display: none;
+}
+
+.vr-folder .vr-counter {
+  margin-right: auto;
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+/* ── 6. Colour-swap picker ──────────────────────────────────
+ * Appears when the user clicks inside an existing highlight.
+ * The class names below are File 9's equivalents of the v6
+ * §11 ".vr-color-swap" concept — same interaction, one surface.
+ */
+.vr-swap-picker {
+  position: absolute;
+  z-index: 2550;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+  border-radius: 12px;
+  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+}
+
+.vr-swap-picker.open {
+  display: flex;
+}
+
+.vr-swap-swatches {
+  display: flex;
+  gap: 6px;
+}
+
+.vr-swap-swatches button {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px #d1d5db;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.vr-swap-swatches button:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.vr-swap-swatches button.active {
+  box-shadow: 0 0 0 2px #202124;
+}
+
+.vr-swap-swatches button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vr-swap-remove {
+  border: 1px solid #fecaca;
+  background: #fff5f5;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: 600 12px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  cursor: pointer;
+  text-align: center;
+}
+
+.vr-swap-remove:hover {
+  background: #fee2e2;
+}
+
+.vr-swap-remove[hidden] {
+  display: none;
+}
+
+/* ── 7. Asterisk marker ─────────────────────────────────────
+ * Inserted as a real inline element before the first character
+ * of noted text. Takes up horizontal space; sits as a superscript.
+ */
+.vr-note-asterisk {
+  display: inline-flex;
+  vertical-align: super;
+  width: 11px;
+  height: 11px;
+  margin-right: 3px;
+  margin-left: 1px;
+  line-height: 1;
+  cursor: pointer;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
+.vr-note-asterisk img {
+  width: 10px;
+  height: 10px;
+  /* Tint to Vulanet blue via filter */
+  filter: invert(43%) sepia(97%) saturate(2173%) hue-rotate(203deg);
+}
+
+.vr-note-asterisk:focus-visible {
+  outline: 2px solid #4285F4;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── 8. Viewer banner and revoked banner ────────────────────
+ * Shown when a visitor opens someone else's ?view= URL, or when
+ * the owner has revoked the link.
+ */
+.vr-viewer {
+  padding: 12px;
+  border: 1px solid #cbd9fa;
+  background: #f4f8ff;
+  color: #334b7c;
+  font-size: 13px;
+  text-align: center;
+  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+}
+
+.vr-viewer-revoked {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.vr-viewer-revoked a {
+  color: #991b1b;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* ── 9. Lesson share button ─────────────────────────────────
+ * Sits beneath the article; opens the annotated-view share
+ * flow when the owner has annotations, otherwise the clean URL.
+ */
+.vr-lesson-share {
+  display: inline-block;
+  border: 1px solid #b6c7ec;
+  color: #4285F4;
+  padding: 8px 14px;
+  border-radius: 30px;
+  background: #ffffff;
+  cursor: pointer;
+  margin: 12px 0 40px;
+  font: 600 13px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+}
+
+.vr-lesson-share:hover {
+  background: #f0f7ff;
+}
+
+.vr-lesson-share:focus-visible {
+  outline: 2px solid #4285F4;
+  outline-offset: 2px;
+}
+
+/* ── 10. Toast ──────────────────────────────────────────────
+ * Non-blocking acknowledgement for copy, share, save, delete.
+ */
+.vr-toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  background: #202124;
+  color: #ffffff;
+  padding: 11px 19px;
+  border-radius: 9px;
+  max-width: 90vw;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  font: 500 13px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  pointer-events: none;
+}
+
+/* ── 11. Share fallback modal ───────────────────────────────
+ * Only shown when native Web Share is unavailable or errors.
+ * Native dismissal (AbortError) never opens this.
+ */
+.vr-share-menu {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 2700;
+  background: rgba(0, 0, 0, 0.35);
+  place-items: center;
+}
+
+.vr-share-menu.open {
+  display: grid;
+}
+
+.vr-share-menu > div {
+  width: min(370px, 92vw);
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+  font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+}
+
+.vr-share-menu h3 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  color: #202124;
+}
+
+.vr-share-menu p {
+  color: #64748b;
+  font-size: 13px;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+
+.vr-share-menu a {
+  display: inline-block;
+  margin: 10px 12px 0 0;
+  color: #4285F4;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.vr-share-menu a:hover {
+  text-decoration: underline;
+}
+
+.vr-share-menu button {
+  border: 1px solid #ccc;
+  background: #ffffff;
+  padding: 9px 14px;
+  border-radius: 8px;
+  margin: 10px 8px 0 0;
+  cursor: pointer;
+  font: 600 12px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  color: #334155;
+}
+
+.vr-share-menu button:hover {
+  background: #f1f5f9;
+}
+
+/* ── 12. Responsive ─────────────────────────────────────────
+ * On small screens the toolbar hugs the viewport, the folder
+ * becomes nearly full width, and the swap picker sits above the
+ * touch target rather than overlapping it.
+ */
+@media (max-width: 480px) {
+  .vr-selection-toolbar button {
+    font-size: 11px;
+    padding: 8px 6px;
+  }
+
+  .vr-selection-toolbar img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .vr-folder {
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-width: calc(100vw - 20px);
+    top: 100px;
+  }
+
+  .vr-swap-picker {
+    left: 50% !important;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 20px);
+  }
+}
+
+/* ── Reduced-motion preference ──────────────────────────────
+ * Remove scale transitions for users who have requested them.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .vr-colors button,
+  .vr-swap-swatches button {
+    transition: none;
+  }
+}
