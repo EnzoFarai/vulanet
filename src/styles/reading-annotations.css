@@ -8,21 +8,6 @@
  *
  * Additive only. Does not override any existing selector in
  * reading.css, layout.css, buttons.css, or any course stylesheet.
- *
- * Sections:
- *   1. Legacy in-page toolbar suppression (HTML still carries the
- *      old toolbar; we hide it so only the new UI is visible).
- *   2. Highlight rendering via CSS Custom Highlight API.
- *   3. Selection toolbar (Highlight | Note | Copy | Share).
- *   4. Colour swatches inside the toolbar.
- *   5. Note folder editor.
- *   6. Colour-swap picker for existing highlights.
- *   7. Asterisk marker.
- *   8. Viewer banner (read-only visitor) and revoked banner.
- *   9. Lesson share button (below the article).
- *  10. Toast.
- *  11. Share fallback modal.
- *  12. Responsive adjustments.
  * ============================================================ */
 
 /* ── 1. Legacy toolbar suppression ──────────────────────────
@@ -143,22 +128,17 @@
 }
 
 /* ── 5. Note folder editor ──────────────────────────────────
- * Folder-tab shape via ::before on the container. Positioned by
- * reading-annotations.js next to the selected passage.
+ * Replicates the folder-tab shape from the reference demo. 
+ * Positioned by reading-annotations.js next to the selected passage.
  */
 .vr-folder {
   position: fixed;
   z-index: 2600;
   display: none;
-  width: min(340px, calc(100vw - 25px));
-  background: #ffffff;
-  border: 1px solid #dbe2ed;
-  border-radius: 0 14px 14px 14px;
-  box-shadow: 0 10px 38px rgba(0, 0, 0, 0.19);
-  padding: 20px;
-  left: 12px;
-  top: 90px;
-  color: #334155;
+  width: 340px;
+  margin-top: 32px;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
+  max-width: calc(100vw - 40px);
   font-family: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
 }
 
@@ -166,129 +146,199 @@
   display: block;
 }
 
-/* Folder tab */
-.vr-folder::before {
-  content: 'Notes';
-  position: absolute;
-  bottom: 100%;
-  left: -1px;
-  height: 27px;
-  width: 125px;
-  background: #ffffff;
-  border: 1px solid #dbe2ed;
-  border-bottom: 0;
-  border-radius: 12px 14px 0 0;
-  padding: 4px 14px;
-  font: 600 13px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  color: #334155;
+.vr-folder-body {
+  background-color: #ffffff;
+  position: relative;
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+  border-bottom-left-radius: 14px;
+  padding: 20px;
   box-sizing: border-box;
-  line-height: 19px;
+  z-index: 1;
+  color: #1e293b;
 }
 
-.vr-folder blockquote {
-  font-style: italic;
-  font-size: 13px;
-  color: #667085;
-  max-height: 68px;
-  overflow: hidden;
+/* One continuous folder silhouette: no internal vertical seam or triangle bleed. */
+.vr-folder-tab {
+  position: absolute;
+  left: -1px;
+  bottom: 100%;
+  height: 32px;
+  width: 45%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 16px;
+  color: #1e293b;
+  font-size: .85rem;
+  font-weight: 600;
+  isolation: isolate;
+  z-index: 2;
+}
+
+.vr-folder-tab::before {
+  content: '';
+  position: absolute;
+  inset: 0 -18px 0 0;
+  z-index: -1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 172 32' preserveAspectRatio='none'%3E%3Cpath d='M0.5 32 V14 Q0.5 0.5 14 0.5 H154 L171.5 31.5 Z' fill='white' stroke='%23e2e8f0' stroke-width='1'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+
+.vr-status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #4285F4;
+  border-radius: 50%;
+}
+
+.vr-note-source {
+  display: none;
+  margin: 1px 0 15px;
+  padding: 0 0 0 10px;
+  border-left: 3px solid #cbd5e1;
+  color: #8795a7;
+  font-size: .79rem;
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+.vr-note-source.show {
+  display: block;
+}
+
+.vr-note-source-text {
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
-  border-left: 3px solid #4285F4;
-  padding-left: 9px;
-  margin: 6px 0 10px;
-  line-height: 1.5;
 }
 
-.vr-folder blockquote.expanded {
-  max-height: none;
+.vr-note-source:not(.expanded) .vr-note-source-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
-.vr-folder #vr-expand {
+.vr-source-toggle {
+  display: none;
   border: 0;
   background: none;
   color: #4285F4;
-  font-size: 12px;
+  font-size: .78rem;
   font-weight: 600;
+  font-family: inherit;
+  margin-top: 5px;
+  padding: 1px 0;
   cursor: pointer;
-  padding: 0;
-  margin: 0 0 10px;
 }
 
-.vr-folder textarea {
+.vr-folder-body textarea {
   width: 100%;
-  min-height: 95px;
-  border: 0;
-  border-bottom: 1px solid #e3e6eb;
-  resize: vertical;
-  outline: 0;
-  font: 14px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  min-height: 100px;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #475569;
+  padding: 0;
+  margin-top: 5px;
+  margin-bottom: 15px;
   line-height: 1.5;
-  color: #334155;
   background: transparent;
-  box-sizing: border-box;
 }
 
-.vr-folder textarea:focus {
-  border-bottom-color: #4285F4;
-}
-
-.vr-folder textarea:disabled {
-  background: #f7f8fa;
+.vr-folder-body textarea::placeholder {
   color: #94a3b8;
-  cursor: not-allowed;
 }
 
-.vr-folder .vr-actions {
+.vr-folder-footer {
   display: flex;
-  gap: 9px;
+  justify-content: space-between;
   align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
 }
 
-.vr-folder button {
-  background: #f1f5f9;
-  border: 0;
-  border-radius: 8px;
-  padding: 7px 11px;
+.vr-footer-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.vr-action-btn {
+  background: none;
+  border: none;
   cursor: pointer;
-  font: 600 12px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-  color: #334155;
-}
-
-.vr-folder button:hover {
-  background: #e2e8f0;
-}
-
-.vr-folder button:focus-visible {
-  outline: 2px solid #4285F4;
-  outline-offset: 2px;
-}
-
-.vr-folder button.primary {
-  background: #4285F4;
-  color: #ffffff;
-}
-
-.vr-folder button.primary:hover {
-  background: #3367D6;
-}
-
-.vr-folder button[hidden] {
-  display: none;
-}
-
-.vr-folder .vr-counter {
-  margin-right: auto;
-  font-size: 12px;
   color: #64748b;
-  white-space: nowrap;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.vr-action-btn:hover {
+  color: #1e293b;
+  background: #f1f5f9;
+}
+
+.vr-action-btn.vr-save-btn {
+  color: #4285F4;
+  font-size: 1.4rem;
+}
+
+.vr-action-btn.vr-save-btn:hover {
+  background: #eff6ff;
+}
+
+.vr-action-btn.vr-trash-btn:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+.vr-action-btn img {
+  display: block;
+}
+
+.vr-note-overlap-nav {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: .78rem;
+  color: #64748b;
+}
+
+.vr-note-overlap-nav.show {
+  display: flex;
+}
+
+.vr-note-overlap-nav button {
+  background: transparent;
+  border: 0;
+  color: #4285F4;
+  padding: 3px 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.1rem;
+}
+
+.vr-note-overlap-nav button:focus-visible,
+.vr-source-toggle:focus-visible {
+  outline: 2px solid #4285F4;
 }
 
 /* ── 6. Colour-swap picker ──────────────────────────────────
  * Appears when the user clicks inside an existing highlight.
- * The class names below are File 9's equivalents of the v6
- * §11 ".vr-color-swap" concept — same interaction, one surface.
  */
 .vr-swap-picker {
   position: absolute;
@@ -377,7 +427,6 @@
 .vr-note-asterisk img {
   width: 10px;
   height: 10px;
-  /* Tint to Vulanet blue via filter */
   filter: invert(43%) sepia(97%) saturate(2173%) hue-rotate(203deg);
 }
 
@@ -418,32 +467,7 @@
   text-decoration: underline;
 }
 
-/* ── 9. Lesson share button ─────────────────────────────────
- * Sits beneath the article; opens the annotated-view share
- * flow when the owner has annotations, otherwise the clean URL.
- */
-.vr-lesson-share {
-  display: inline-block;
-  border: 1px solid #b6c7ec;
-  color: #4285F4;
-  padding: 8px 14px;
-  border-radius: 30px;
-  background: #ffffff;
-  cursor: pointer;
-  margin: 12px 0 40px;
-  font: 600 13px 'Atkinson Hyperlegible Next', system-ui, sans-serif;
-}
-
-.vr-lesson-share:hover {
-  background: #f0f7ff;
-}
-
-.vr-lesson-share:focus-visible {
-  outline: 2px solid #4285F4;
-  outline-offset: 2px;
-}
-
-/* ── 10. Toast ──────────────────────────────────────────────
+/* ── 9. Toast ──────────────────────────────────────────────
  * Non-blocking acknowledgement for copy, share, save, delete.
  */
 .vr-toast {
@@ -462,9 +486,8 @@
   pointer-events: none;
 }
 
-/* ── 11. Share fallback modal ───────────────────────────────
+/* ── 10. Share fallback modal ───────────────────────────────
  * Only shown when native Web Share is unavailable or errors.
- * Native dismissal (AbortError) never opens this.
  */
 .vr-share-menu {
   position: fixed;
@@ -528,7 +551,7 @@
   background: #f1f5f9;
 }
 
-/* ── 12. Responsive ─────────────────────────────────────────
+/* ── 11. Responsive ─────────────────────────────────────────
  * On small screens the toolbar hugs the viewport, the folder
  * becomes nearly full width, and the swap picker sits above the
  * touch target rather than overlapping it.
@@ -549,7 +572,6 @@
     right: 10px;
     width: auto;
     max-width: calc(100vw - 20px);
-    top: 100px;
   }
 
   .vr-swap-picker {

@@ -50,6 +50,16 @@ const COLORS = {
 const COLOR_NAMES = Object.keys(COLORS);
 const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
 
+// CSS filters to tint the black highlighter SVG to the target hex color.
+const COLOR_FILTERS = {
+  bee:     'invert(78%) sepia(89%) saturate(831%) hue-rotate(321deg) brightness(103%) contrast(97%)',
+  boa:     'invert(38%) sepia(67%) saturate(1217%) hue-rotate(80deg) brightness(97%) contrast(93%)',
+  gecko:   'invert(53%) sepia(78%) saturate(2739%) hue-rotate(176deg) brightness(100%) contrast(97%)',
+  ladybug: 'invert(33%) sepia(98%) saturate(1748%) hue-rotate(330deg) brightness(97%) contrast(94%)',
+  tiger:   'invert(35%) sepia(96%) saturate(2208%) hue-rotate(344deg) brightness(102%) contrast(104%)',
+  beetle:  'invert(24%) sepia(89%) saturate(4621%) hue-rotate(267deg) brightness(97%) contrast(100%)'
+};
+
 (async function main() {
   const info = lessonFromPath();
   const root = document.getElementById('articleContent');
@@ -64,7 +74,7 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
   toolbar.className = 'vr-selection-toolbar';
   toolbar.innerHTML = `
     <button data-action="highlight" type="button">
-      <img src="/assets/icons/phosphor/fill/highlighter.svg" alt="">Highlight
+      <img src="/assets/icons/phosphor/fill/highlighter.svg" alt="" style="transition: filter 0.2s;">Highlight
     </button>
     <button data-action="note" type="button">
       <img src="/assets/icons/phosphor/regular/note-pencil.svg" alt="">Note
@@ -88,20 +98,49 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
   const folder = document.createElement('div');
   folder.className = 'vr-folder';
   folder.innerHTML = `
-    <blockquote id="vr-quote" aria-label="Quoted source"></blockquote>
-    <button type="button" id="vr-expand" hidden>Show entire quote</button>
-    <textarea id="vr-note-body" placeholder="Write your note…" aria-label="Note content"></textarea>
-    <div class="vr-actions">
-      <span class="vr-counter" id="vr-counter"></span>
-      <button type="button" id="vr-prev" aria-label="Previous overlapping note" hidden>◀</button>
-      <button type="button" id="vr-next" aria-label="Next overlapping note" hidden>▶</button>
-      <button type="button" id="vr-undo">Undo</button>
-      <button type="button" id="vr-delete">Delete</button>
-      <button type="button" id="vr-close">Close</button>
-      <button type="button" class="primary" id="vr-save">Save</button>
+    <div class="vr-folder-tab">
+      <span class="vr-status-dot"></span>
+      Note
+    </div>
+    <div class="vr-folder-body">
+      <div id="vr-quote-wrapper" class="vr-note-source">
+        <div id="vr-quote" class="vr-note-source-text"></div>
+        <button type="button" id="vr-expand" class="vr-source-toggle">Show full quote</button>
+      </div>
+      <textarea id="vr-note-body" placeholder="Type your note here…" aria-label="Note content"></textarea>
+      <div class="vr-note-overlap-nav" id="vr-overlap-nav" aria-label="Overlapping notes" style="display:none;">
+        <button type="button" id="vr-prev" aria-label="Previous overlapping note">◀</button>
+        <span id="vr-counter" aria-live="polite"></span>
+        <button type="button" id="vr-next" aria-label="Next overlapping note">▶</button>
+      </div>
+      <div class="vr-folder-footer">
+        <div class="vr-footer-actions">
+          <button class="vr-action-btn vr-trash-btn" id="vr-delete" title="Delete Note">
+            <img src="/assets/icons/phosphor/regular/trash.svg" alt="Delete" style="width:20px;height:20px;">
+          </button>
+          <button class="vr-action-btn" id="vr-undo" title="Undo Changes" style="display: none;">
+            <img src="/assets/icons/phosphor/regular/arrow-u-up-left.svg" alt="Undo" style="width:20px;height:20px;">
+          </button>
+        </div>
+        <span id="vr-date"></span>
+        <button class="vr-action-btn vr-save-btn" id="vr-save" title="Save Note">
+          <img src="/assets/icons/phosphor/regular/plus-circle.svg" alt="Save" style="width:22px;height:22px;">
+        </button>
+      </div>
     </div>
   `;
   document.body.append(folder);
+
+  // Set folder date dynamically (e.g., "6th November")
+  const now = new Date();
+  const day = now.getDate();
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const month = monthNames[now.getMonth()];
+  let suffix = 'th';
+  if (day === 1 || day === 21 || day === 31) suffix = 'st';
+  else if (day === 2 || day === 22) suffix = 'nd';
+  else if (day === 3 || day === 23) suffix = 'rd';
+  folder.querySelector('#vr-date').textContent = `${day}${suffix} ${month}`;
 
   // ── DOM: colour-swap picker (click on existing highlight) ─
   const swap = document.createElement('div');
@@ -115,13 +154,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
     <button type="button" class="vr-swap-remove">Remove highlight</button>
   `;
   document.body.append(swap);
-
-  // ── DOM: page-level share button ─────────────────────────
-  const pageShareBtn = document.createElement('button');
-  pageShareBtn.type = 'button';
-  pageShareBtn.className = 'vr-lesson-share';
-  pageShareBtn.textContent = 'Share this reading page';
-  root.after(pageShareBtn);
 
   // ── state ────────────────────────────────────────────────
   let rows = [];                 // all annotations for this (course, lesson)
@@ -179,7 +211,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
           return;
         }
         if (!shared || shared.status !== 'ok' || !shared.data) {
-          // Invalid token or zero annotations — redirect to clean page
           redirectToClean();
           return;
         }
@@ -194,8 +225,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
         return;
       }
       // Case A2 — the owner opened their own ?view= URL: fall through
-      // to normal owner mode. The token is validated by syncURL()
-      // after rows load.
     }
 
     // Branch B — owner mode (no ?view= or own ?view=)
@@ -219,7 +248,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
     const current = new URL(location.href);
     const urlToken = current.searchParams.get('view');
 
-    // No annotations → ensure no ?view=
     if (rows.length === 0) {
       if (urlToken) {
         current.searchParams.delete('view');
@@ -228,13 +256,12 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
       return;
     }
 
-    // Annotations exist → link row exists (created by trigger). Sync the token.
     let link = null;
     try { link = await getAnnotationLink(course, lesson); }
     catch { return; }
 
-    if (!link || !link.token) return;      // trigger has not yet created the row (transient)
-    if (link.revoked_at) return;           // revocation is a deliberate state; do not put a dead token in the URL
+    if (!link || !link.token) return;
+    if (link.revoked_at) return;
 
     if (urlToken !== link.token) {
       current.searchParams.set('view', link.token);
@@ -272,7 +299,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
   // Rendering — CSS Custom Highlight API + asterisk markers
   // ─────────────────────────────────────────────────────────
   function render() {
-    // Remove existing asterisks before we recompute offsets
     root.querySelectorAll('.vr-note-asterisk').forEach(m => m.remove());
 
     const apiReady = 'highlights' in CSS && typeof Highlight === 'function';
@@ -281,7 +307,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
       return;
     }
 
-    // Highlights — one CSS Highlight per colour
     for (const color of COLOR_NAMES) {
       const ranges = rows
         .filter(r => r.kind === 'highlight' && r.color === color)
@@ -291,7 +316,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
       else CSS.highlights.set('vr-' + color, new Highlight(...ranges));
     }
 
-    // Notes — dashed underline via ::highlight(vr-notes)
     const noteRanges = rows
       .filter(r => r.kind === 'note')
       .map(r => offsetRange(r.start_offset, r.end_offset))
@@ -299,10 +323,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
     if (noteRanges.length === 0) CSS.highlights.delete('vr-notes');
     else CSS.highlights.set('vr-notes', new Highlight(...noteRanges));
 
-    // Asterisks — insert before the first character of each note.
-    // Right-to-left so previously inserted markers do not disturb
-    // later position calculations (they contribute 0 text length,
-    // but this also keeps the DOM tangle-order stable for readers).
     const noteRows = rows
       .filter(r => r.kind === 'note')
       .sort((a, b) => (b.start_offset - a.start_offset) || (b.created_at || '').localeCompare(a.created_at || ''));
@@ -383,7 +403,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
     const raw = range.toString();
     if (!raw.trim()) return null;
 
-    // Locate start and end in the flat text offset space.
     const nodes = textNodes();
     let pos = 0, start = -1, end = -1;
     for (const node of nodes) {
@@ -449,7 +468,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
     toolbar.style.top  = `${window.scrollY + rect.bottom + 12}px`;
     toolbar.classList.add('visible');
 
-    // Read-only visitors keep Copy / Share
     toolbar.querySelector('[data-action="highlight"]').hidden = readonly;
     toolbar.querySelector('[data-action="note"]').hidden = readonly;
   }
@@ -462,6 +480,13 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
   function hideSwapPicker() {
     swap.classList.remove('open');
     activeSwapId = null;
+  }
+
+  function updateHighlighterTint() {
+    const img = toolbar.querySelector('[data-action="highlight"] img');
+    if (img) {
+      img.style.filter = COLOR_FILTERS[latestColor] || COLOR_FILTERS.bee;
+    }
   }
 
   // ─────────────────────────────────────────────────────────
@@ -481,30 +506,51 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
     overlaps = overlapping.length ? overlapping : [noteRow];
     overlapIndex = Math.max(0, overlaps.findIndex(r => (isNew ? false : r.id === noteRow.id)));
 
-    folder.querySelector('#vr-quote').textContent = noteRow.quote || '';
-    folder.querySelector('#vr-quote').classList.remove('expanded');
-    folder.querySelector('#vr-expand').hidden = (noteRow.quote || '').length < 140;
-    folder.querySelector('#vr-note-body').value = noteRow.body || '';
-    folder.querySelector('#vr-note-body').disabled = readonly;
+    const quoteWrap = folder.querySelector('#vr-quote-wrapper');
+    const quoteText = folder.querySelector('#vr-quote');
+    const expandBtn = folder.querySelector('#vr-expand');
+    const textarea = folder.querySelector('#vr-note-body');
 
-    const saveBtn   = folder.querySelector('#vr-save');
+    quoteText.textContent = noteRow.quote || '';
+    quoteWrap.classList.add('show');
+    quoteWrap.classList.remove('expanded');
+    expandBtn.textContent = 'Show full quote';
+    expandBtn.style.display = 'none';
+
+    textarea.value = noteRow.body || '';
+    textarea.disabled = readonly;
+
+    const isBlank = !noteRow.body;
     const deleteBtn = folder.querySelector('#vr-delete');
-    const undoBtn   = folder.querySelector('#vr-undo');
-    saveBtn.hidden   = readonly;
-    deleteBtn.hidden = readonly || isNew;
-    undoBtn.hidden   = readonly || isNew;
+    const undoBtn = folder.querySelector('#vr-undo');
+    const saveBtn = folder.querySelector('#vr-save');
 
-    folder.querySelector('#vr-counter').textContent = overlaps.length > 1
-      ? `Note ${overlapIndex + 1} of ${overlaps.length}`
-      : '';
-    folder.querySelector('#vr-prev').hidden = overlaps.length < 2;
-    folder.querySelector('#vr-next').hidden = overlaps.length < 2;
+    deleteBtn.style.display = (!isNew || !isBlank) && !readonly ? 'flex' : 'none';
+    undoBtn.style.display = 'none';
+    saveBtn.style.display = readonly ? 'none' : 'flex';
+    saveBtn.innerHTML = '<img src="/assets/icons/phosphor/regular/plus-circle.svg" alt="Save" style="width:22px;height:22px;">';
+
+    const nav = folder.querySelector('#vr-overlap-nav');
+    if (overlaps.length > 1) {
+      nav.style.display = 'flex';
+      folder.querySelector('#vr-counter').textContent = `Note ${overlapIndex + 1} of ${overlaps.length}`;
+    } else {
+      nav.style.display = 'none';
+      folder.querySelector('#vr-counter').textContent = '';
+    }
 
     const r = offsetRange(noteRow.start_offset, noteRow.end_offset);
     const rect = r ? r.getBoundingClientRect() : null;
     folder.style.left = `${Math.max(10, Math.min((rect ? rect.left : 15), innerWidth - 360))}px`;
-    folder.style.top  = `${Math.max(60, Math.min((rect ? rect.bottom : 90) + 12, innerHeight - 240))}px`;
+    folder.style.top  = `${Math.max(60, Math.min((rect ? rect.bottom : 90) + 8, innerHeight - 300))}px`;
+    
     folder.classList.add('open');
+
+    // Check clipping after rendering
+    requestAnimationFrame(() => {
+      const isClipped = quoteText.scrollHeight > quoteText.clientHeight + 2;
+      expandBtn.style.display = isClipped ? 'inline-block' : 'none';
+    });
   }
 
   function closeNotePanel() {
@@ -588,12 +634,11 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
   // Event wiring
   // ─────────────────────────────────────────────────────────
   function installListeners() {
+    updateHighlighterTint();
+
     // ── Selection change ─────────────────────────────────────
     document.addEventListener('selectionchange', () => {
       requestAnimationFrame(() => {
-        if (readonly && !getSelection()?.isCollapsed) {
-          // Visitors can still copy / share selected text
-        }
         const offsets = selectionOffsets();
         if (!offsets) {
           if (!colorsEl.matches(':hover') && !toolbar.matches(':hover')) hideToolbar();
@@ -617,6 +662,8 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
         const color = colorBtn.dataset.color;
         latestColor = color;
         try { localStorage.setItem('vr_recent_color', color); } catch { /* ignore */ }
+        updateHighlighterTint();
+        
         try {
           const saved = await putAnnotation(
             course, lesson, 'highlight',
@@ -679,13 +726,10 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
 
     // ── Folder actions ───────────────────────────────────────
     folder.querySelector('#vr-expand').addEventListener('click', () => {
-      const q = folder.querySelector('#vr-quote');
-      q.classList.toggle('expanded');
-      folder.querySelector('#vr-expand').textContent =
-        q.classList.contains('expanded') ? 'Collapse quote' : 'Show entire quote';
+      const wrap = folder.querySelector('#vr-quote-wrapper');
+      const isExpanded = wrap.classList.toggle('expanded');
+      folder.querySelector('#vr-expand').textContent = isExpanded ? 'Show less' : 'Show full quote';
     });
-
-    folder.querySelector('#vr-close').addEventListener('click', closeNotePanel);
 
     folder.querySelector('#vr-prev').addEventListener('click', () => {
       if (overlaps.length < 2) return;
@@ -699,13 +743,45 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
     });
 
     folder.querySelector('#vr-undo').addEventListener('click', () => {
-      if (activeNote) folder.querySelector('#vr-note-body').value = activeNote.body || '';
+      if (activeNote) {
+        folder.querySelector('#vr-note-body').value = activeNote.body || '';
+        folder.querySelector('#vr-note-body').dispatchEvent(new Event('input'));
+      }
+    });
+
+    folder.querySelector('#vr-note-body').addEventListener('input', () => {
+      const val = folder.querySelector('#vr-note-body').value;
+      const hasChanges = val !== (activeNote.body || '');
+      const saveBtn = folder.querySelector('#vr-save');
+      const undoBtn = folder.querySelector('#vr-undo');
+      
+      if (hasChanges) {
+        saveBtn.innerHTML = '<img src="/assets/icons/phosphor/regular/check-circle.svg" alt="Save" style="width:22px;height:22px;">';
+        undoBtn.style.display = 'flex';
+      } else {
+        saveBtn.innerHTML = '<img src="/assets/icons/phosphor/regular/plus-circle.svg" alt="Save" style="width:22px;height:22px;">';
+        undoBtn.style.display = 'none';
+      }
+      
+      const isNew = !activeNote.id;
+      const isBlank = val.trim() === '';
+      const trashBtn = folder.querySelector('#vr-delete');
+      if (trashBtn) trashBtn.style.display = (isNew && isBlank) ? 'none' : 'flex';
     });
 
     folder.querySelector('#vr-save').addEventListener('click', async () => {
       if (!activeNote) return;
       const body = folder.querySelector('#vr-note-body').value.trim();
-      if (!body) { toast('Write a note before saving.'); return; }
+      
+      if (!body) {
+        if (!activeNote.id) {
+          closeNotePanel();
+          return;
+        }
+        folder.querySelector('#vr-delete').click();
+        return;
+      }
+      
       try {
         if (activeNote.id) {
           const updated = await updateAnnotation(activeNote.id, { body });
@@ -728,7 +804,10 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
     });
 
     folder.querySelector('#vr-delete').addEventListener('click', async () => {
-      if (!activeNote || !activeNote.id) return;
+      if (!activeNote || !activeNote.id) {
+        closeNotePanel();
+        return;
+      }
       if (!confirm('Delete this note?')) return;
       try {
         await deleteAnnotation(activeNote.id);
@@ -739,6 +818,14 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
         toast('Note deleted.');
       } catch (e) {
         toast('Delete failed: ' + e.message);
+      }
+    });
+
+    // Clicking outside closes and saves the folder
+    document.addEventListener('mousedown', (e) => {
+      if (folder.classList.contains('open') && !folder.contains(e.target) && !e.target.closest('.vr-note-asterisk')) {
+        const saveBtn = folder.querySelector('#vr-save');
+        if (saveBtn && !saveBtn.disabled) saveBtn.click();
       }
     });
 
@@ -762,7 +849,6 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
       const hits = highlightsAtOffset(offset);
       if (hits.length === 0) return;
 
-      // Latest wins
       const target = hits
         .slice()
         .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))[0];
@@ -850,37 +936,48 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
       });
     }
 
-    // ── Page-level share button ──────────────────────────────
-    pageShareBtn.addEventListener('click', async () => {
-      const url = new URL(location.href);
-      const viewToken = url.searchParams.get('view');
-
-      // Visitor of someone else's shared view → share that
-      if (viewToken && !owned) {
-        await doShare(document.title, url.href);
-        return;
+    // ── Status Bar Share Button ──────────────────────────────
+    const statusRight = document.querySelector('.status-right');
+    if (statusRight) {
+      const shareBtn = document.createElement('button');
+      shareBtn.className = 'bookmark-btn';
+      shareBtn.setAttribute('aria-label', 'Share page');
+      shareBtn.innerHTML = '<img src="/assets/icons/phosphor/regular/share.svg" style="width:20px;height:20px;filter:brightness(0) saturate(100%) invert(100%);">';
+      
+      if (bookmarkBtn) {
+        statusRight.insertBefore(shareBtn, bookmarkBtn);
+      } else {
+        statusRight.appendChild(shareBtn);
       }
 
-      // Anonymous, no ?view= → clean lesson
-      if (!owned) {
-        await doShare(document.title, lessonURL(course, lesson));
-        return;
-      }
+      shareBtn.addEventListener('click', async () => {
+        const url = new URL(location.href);
+        const viewToken = url.searchParams.get('view');
 
-      // Owner → prefer annotated URL when it is active
-      try {
-        const link = await getAnnotationLink(course, lesson);
-        if (link && link.revoked_at) {
+        if (viewToken && !owned) {
+          await doShare(document.title, url.href);
+          return;
+        }
+
+        if (!owned) {
           await doShare(document.title, lessonURL(course, lesson));
           return;
         }
-        if (link && link.token && rows.length > 0) {
-          await doShare(document.title, annotationLink(course, lesson, link.token));
-          return;
-        }
-      } catch { /* fall through to clean */ }
-      await doShare(document.title, lessonURL(course, lesson));
-    });
+
+        try {
+          const link = await getAnnotationLink(course, lesson);
+          if (link && link.revoked_at) {
+            await doShare(document.title, lessonURL(course, lesson));
+            return;
+          }
+          if (link && link.token && rows.length > 0) {
+            await doShare(document.title, annotationLink(course, lesson, link.token));
+            return;
+          }
+        } catch { /* fall through to clean */ }
+        await doShare(document.title, lessonURL(course, lesson));
+      });
+    }
 
     // ── Escape closes transient UI ───────────────────────────
     document.addEventListener('keydown', e => {
@@ -915,8 +1012,5 @@ const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
     };
   }
 
-  // Expose `reshareAnnotationLink` for a future "reshare" UI. In v6 the
-  // function exists and is proven; the corresponding button is out of scope
-  // per the plan's stated deferral.
   void reshareAnnotationLink;
 })();
