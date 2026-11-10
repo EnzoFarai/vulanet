@@ -8,18 +8,11 @@
   <link rel="stylesheet" href="/src/styles/layout.css">
   <link rel="stylesheet" href="/src/styles/components/buttons.css">
   <style>
-    /* ==========================================================
-       LEADERBOARD — page-scoped styles, aligned to §17 Code 1 / Code 5.
-       Universal header/footer come from layout.css via loadLayout().
-       ========================================================== */
-
     .leaderboard-container {
       max-width: 640px;
       margin: 0 auto;
       padding: 20px 16px 100px;
     }
-
-    /* ========== Banner (Code 1 / Code 5) ========== */
     .leaderboard-section {
       background: #4285F4;
       border-radius: 16px;
@@ -57,8 +50,6 @@
       transform: rotate(-15deg);
       pointer-events: none;
     }
-
-    /* ========== League info row ========== */
     .league-info {
       display: flex;
       justify-content: space-between;
@@ -87,8 +78,6 @@
       mask: url('/assets/icons/phosphor/bold/clock-countdown.svg') center / contain no-repeat;
       flex-shrink: 0;
     }
-
-    /* ========== Medals strip ========== */
     .medals-container {
       display: flex;
       gap: 12px;
@@ -99,7 +88,6 @@
       -webkit-overflow-scrolling: touch;
     }
     .medals-container::-webkit-scrollbar { display: none; }
-
     .medal {
       display: flex;
       flex-direction: column;
@@ -128,15 +116,12 @@
       color: var(--medal-color, #34A853);
     }
     .medal.locked .medal-icon { opacity: 0.8; }
-
-    /* ========== Participant list (Code 1) ========== */
     .participants-list {
       background: #ffffff;
       border-radius: 16px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
       overflow: hidden;
     }
-
     .participant-row {
       display: flex;
       align-items: center;
@@ -150,336 +135,60 @@
     }
     .participant-row:last-child { border-bottom: none; }
     .participant-row:not(.me):not(.bot):hover { background: #FAFAFA; }
-    .participant-row.me {
-      background: #E8F0FE;
-      cursor: default;
-    }
+    .participant-row.me { background: #E8F0FE; cursor: default; }
     .participant-row.me:hover { background: #E8F0FE; }
     .participant-row.bot { cursor: default; }
     .participant-row.bot:hover { background: #ffffff; }
-
-    .rank-number {
-      width: 28px;
-      text-align: center;
-      font-weight: 800;
-      font-size: 14px;
-      color: #555;
-      flex-shrink: 0;
-    }
+    .rank-number { width: 28px; text-align: center; font-weight: 800; font-size: 14px; color: #555; flex-shrink: 0; }
     .rank-number.promotion { color: #34A853; }
     .rank-number.relegation { color: #EA4335; }
-
-    .participant-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 16px;
-      flex-shrink: 0;
-      position: relative;
-      user-select: none;
-    }
-
-    .participant-mood {
-      position: absolute;
-      top: -5px;
-      left: -5px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 2px solid #ffffff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      line-height: 1;
-      padding: 0;
-      z-index: 5;
-      font-family: inherit;
-      cursor: default;
-      transition: transform 0.1s ease;
-    }
+    .participant-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: 700; font-size: 16px; flex-shrink: 0; position: relative; user-select: none; }
+    .participant-mood { position: absolute; top: -5px; left: -5px; width: 22px; height: 22px; border-radius: 50%; background: #ffffff; border: 2px solid #ffffff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; font-size: 12px; line-height: 1; padding: 0; z-index: 5; font-family: inherit; cursor: default; transition: transform 0.1s ease; }
     .participant-mood.me { cursor: pointer; }
     .participant-mood.me:hover { transform: scale(1.08); }
     .participant-mood.readonly { pointer-events: none; }
-
-    .participant-info {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .participant-name {
-      font-weight: 700;
-      font-size: 15px;
-      color: #202124;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .participant-meta {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #888;
-    }
-    .bot-chip {
-      background: #AFAFAF;
-      color: #ffffff;
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-size: 9px;
-      line-height: 1.5;
-    }
+    .participant-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .participant-name { font-weight: 700; font-size: 15px; color: #202124; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .participant-meta { display: flex; gap: 6px; align-items: center; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #888; }
+    .bot-chip { background: #AFAFAF; color: #ffffff; padding: 1px 6px; border-radius: 4px; font-size: 9px; line-height: 1.5; }
     .you-chip { color: #4285F4; }
-
-    .mood-bubble {
-      position: relative;
-      background: #ffffff;
-      color: #202124;
-      border: 1.5px solid #4285F4;
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-      margin-right: 6px;
-      font-family: inherit;
-      line-height: 1.2;
-      animation: mood-bubble-pulse 2.4s ease-in-out infinite;
-    }
-    .mood-bubble::before,
-    .mood-bubble::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      border-style: solid;
-      border-color: transparent;
-    }
-    .mood-bubble::before {
-      right: 100%;
-      border-width: 6px 8px 6px 0;
-      border-right-color: #4285F4;
-    }
-    .mood-bubble::after {
-      right: calc(100% - 1.5px);
-      border-width: 5px 7px 5px 0;
-      border-right-color: #ffffff;
-    }
-    @keyframes mood-bubble-pulse {
-      0%, 100% { transform: scale(1); }
-      50%      { transform: scale(1.03); }
-    }
-
-    .participant-xp {
-      font-weight: 700;
-      font-size: 15px;
-      color: #4285F4;
-      flex-shrink: 0;
-      min-width: 50px;
-      text-align: right;
-    }
-
-    /* ========== Promotion / relegation banners (Code 1) ========== */
-    .promotion-zone,
-    .relegation-zone {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 0;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .promotion-zone {
-      background-color: #E6F4EA;
-      color: #34A853;
-      border-top: 1px solid #C8E6C9;
-      border-bottom: 1px solid #C8E6C9;
-    }
-    .relegation-zone {
-      background-color: #FFEBEE;
-      color: #EA4335;
-      border-top: 1px solid #FFCDD2;
-      border-bottom: 1px solid #FFCDD2;
-    }
-    .zone-arrow {
-      width: 14px;
-      height: 14px;
-      background-color: currentColor;
-      -webkit-mask: url('/assets/icons/phosphor/regular/arrow-up.svg') center / contain no-repeat;
-      mask: url('/assets/icons/phosphor/regular/arrow-up.svg') center / contain no-repeat;
-      flex-shrink: 0;
-    }
-    .relegation-zone .zone-arrow {
-      -webkit-mask: url('/assets/icons/phosphor/regular/arrow-down.svg') center / contain no-repeat;
-      mask: url('/assets/icons/phosphor/regular/arrow-down.svg') center / contain no-repeat;
-    }
-
-    /* ========== Empty state (Code 5) ========== */
-    .empty-state-hero {
-      text-align: center;
-      padding: 30px 20px;
-      margin-bottom: 20px;
-    }
-    .empty-state-hero h2 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #4B4B4B;
-      margin: 0 0 8px;
-    }
-    .empty-state-hero p {
-      font-size: 16px;
-      color: #5F6368;
-      margin: 0 0 24px;
-    }
-
-    /* ========== Skeleton loaders (Code 5) ========== */
-    .skeleton-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 12px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
+    .mood-bubble { position: relative; background: #ffffff; color: #202124; border: 1.5px solid #4285F4; border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0; margin-right: 6px; font-family: inherit; line-height: 1.2; animation: mood-bubble-pulse 2.4s ease-in-out infinite; }
+    .mood-bubble::before, .mood-bubble::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); border-style: solid; border-color: transparent; }
+    .mood-bubble::before { right: 100%; border-width: 6px 8px 6px 0; border-right-color: #4285F4; }
+    .mood-bubble::after { right: calc(100% - 1.5px); border-width: 5px 7px 5px 0; border-right-color: #ffffff; }
+    @keyframes mood-bubble-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+    .participant-xp { font-weight: 700; font-size: 15px; color: #4285F4; flex-shrink: 0; min-width: 50px; text-align: right; }
+    .promotion-zone, .relegation-zone { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 0; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+    .promotion-zone { background-color: #E6F4EA; color: #34A853; border-top: 1px solid #C8E6C9; border-bottom: 1px solid #C8E6C9; }
+    .relegation-zone { background-color: #FFEBEE; color: #EA4335; border-top: 1px solid #FFCDD2; border-bottom: 1px solid #FFCDD2; }
+    .zone-arrow { width: 14px; height: 14px; background-color: currentColor; -webkit-mask: url('/assets/icons/phosphor/regular/arrow-up.svg') center / contain no-repeat; mask: url('/assets/icons/phosphor/regular/arrow-up.svg') center / contain no-repeat; flex-shrink: 0; }
+    .relegation-zone .zone-arrow { -webkit-mask: url('/assets/icons/phosphor/regular/arrow-down.svg') center / contain no-repeat; mask: url('/assets/icons/phosphor/regular/arrow-down.svg') center / contain no-repeat; }
+    .empty-state-hero { text-align: center; padding: 30px 20px; margin-bottom: 20px; }
+    .empty-state-hero h2 { font-size: 24px; font-weight: 700; color: #4B4B4B; margin: 0 0 8px; }
+    .empty-state-hero p { font-size: 16px; color: #5F6368; margin: 0 0 24px; }
+    .skeleton-row { display: flex; align-items: center; gap: 12px; padding: 14px 12px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
     .skeleton-row:last-child { border-bottom: none; }
-    .skeleton-box {
-      background: linear-gradient(110deg, #e0e0e0 8%, #f8f8f8 18%, #e0e0e0 33%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite linear;
-      border-radius: 4px;
-    }
+    .skeleton-box { background: linear-gradient(110deg, #e0e0e0 8%, #f8f8f8 18%, #e0e0e0 33%); background-size: 200% 100%; animation: shimmer 1.5s infinite linear; border-radius: 4px; }
     .skeleton-rank { width: 24px; height: 16px; flex-shrink: 0; }
     .skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
-    .skeleton-info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 0;
-    }
+    .skeleton-info { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
     .skeleton-name { width: 100px; height: 14px; }
     .skeleton-meta { width: 60px; height: 10px; }
     .skeleton-xp { width: 40px; height: 14px; flex-shrink: 0; }
-    @keyframes shimmer {
-      0%   { background-position: -200% 0; }
-      100% { background-position:  200% 0; }
-    }
-
-    /* ========== Mood picker overlay ========== */
-    .mood-picker-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-      padding: 20px;
-    }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .mood-picker-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
     .mood-picker-overlay.active { display: flex; }
-
-    .mood-picker {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 22px 20px 20px;
-      max-width: 340px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    }
-    .mood-picker-title {
-      font-weight: 700;
-      font-size: 18px;
-      margin-bottom: 18px;
-      color: #333;
-      font-family: 'Bricolage Grotesque', 'Atkinson Hyperlegible Next', sans-serif;
-    }
-    .mood-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .mood-option {
-      width: 100%;
-      aspect-ratio: 1;
-      border-radius: 14px;
-      border: 2px solid #E5E5E5;
-      background: #ffffff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      line-height: 1;
-      transition: all 0.15s ease;
-      font-family: inherit;
-      padding: 0;
-    }
-    .mood-option:hover {
-      background: #F0F7FF;
-      border-color: #4285F4;
-      transform: scale(1.05);
-    }
-    .mood-option.selected {
-      background: #E8F0FE;
-      border-color: #4285F4;
-    }
-    .mood-clear {
-      width: 100%;
-      padding: 10px;
-      border-radius: 12px;
-      border: 2px solid #E5E5E5;
-      background: #ffffff;
-      font-family: 'Atkinson Hyperlegible Next', sans-serif;
-      font-weight: 700;
-      font-size: 13px;
-      color: #777;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      transition: all 0.15s ease;
-    }
-    .mood-clear:hover {
-      background: #FFF5F5;
-      border-color: #EA4335;
-      color: #EA4335;
-    }
-
-    /* ========== Reward modal overlay ========== */
-    .fullscreen-modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: #ffffff;
-      z-index: 10000;
-      display: none;
-    }
+    .mood-picker { background: #ffffff; border-radius: 20px; padding: 22px 20px 20px; max-width: 340px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
+    .mood-picker-title { font-weight: 700; font-size: 18px; margin-bottom: 18px; color: #333; font-family: 'Bricolage Grotesque', 'Atkinson Hyperlegible Next', sans-serif; }
+    .mood-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+    .mood-option { width: 100%; aspect-ratio: 1; border-radius: 14px; border: 2px solid #E5E5E5; background: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 26px; line-height: 1; transition: all 0.15s ease; font-family: inherit; padding: 0; }
+    .mood-option:hover { background: #F0F7FF; border-color: #4285F4; transform: scale(1.05); }
+    .mood-option.selected { background: #E8F0FE; border-color: #4285F4; }
+    .mood-clear { width: 100%; padding: 10px; border-radius: 12px; border: 2px solid #E5E5E5; background: #ffffff; font-family: 'Atkinson Hyperlegible Next', sans-serif; font-weight: 700; font-size: 13px; color: #777; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.15s ease; }
+    .mood-clear:hover { background: #FFF5F5; border-color: #EA4335; color: #EA4335; }
+    .fullscreen-modal-overlay { position: fixed; inset: 0; background: #ffffff; z-index: 10000; display: none; }
     .fullscreen-modal-overlay.visible { display: block; }
-    .fullscreen-modal-overlay iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-    }
-
-    /* ========== Responsive ========== */
+    .fullscreen-modal-overlay iframe { width: 100%; height: 100%; border: none; display: block; }
     @media (max-width: 480px) {
       .leaderboard-container { padding: 16px 12px 100px; }
       .leaderboard-section h3 { font-size: 18px; }
@@ -518,90 +227,6 @@
   </script>
 
   <script type="module">
-    // ============================================================
-    // VULANET LEADERBOARD
-    // ============================================================
-    //
-    // Boot order (MANDATORY): loadLayout → guest redirect →
-    // finalizeDueLeagueWeeks (log-and-continue) →
-    // syncLeagueWeeklyXp (log-and-continue) → reads → rewards flow
-    // → render (leaderboard OR zero-XP empty state).
-    //
-    // ── Results decision (A) ───────────────────────────────────
-    //
-    //   Show the league-results modal when the caller has ANY
-    //   unclaimed coin or non-coin entitlements. This is the
-    //   accepted decision-(A) rule; it is deliberately conservative
-    //   and its only cost is that a user in positions 11–20 who
-    //   never claims their heart refill will re-see their results
-    //   on every visit until they claim. Once migration 0011 is
-    //   applied the entitlements actually land when claimed, so
-    //   this annoyance is fully user-resolvable. Note: this
-    //   acceptance is DISTINCT from the pre-0011 RLS bug, where
-    //   the mark silently failed regardless of user action — that
-    //   was a schema bug, not the decision-(A) annoyance.
-    //
-    // ── Reward ordering — mark-first ───────────────────────────
-    //
-    //   Coin, heart, and boost rewards follow the mark-first
-    //   pattern used elsewhere in the codebase (quiz-engine.js's
-    //   claimQuestChest / unmarkPendingQuestsClaimed, and
-    //   markDailyGoalClaimed / unmarkDailyGoalClaimed):
-    //
-    //       1. mark the entitlement(s) (claimed_at = now())
-    //       2. perform the credit / effect
-    //       3. if the credit/effect fails, unmark (claimed_at = NULL)
-    //       4. only after successful credit does the modal open
-    //
-    //   Rationale: the mark-first window is a single round trip,
-    //   whereas the credit-first window (credit → modal → mark)
-    //   spans the entire modal interaction. A tab close in the
-    //   credit-first window re-credits on the next visit —
-    //   exploitable, unbounded coin inflation. A tab close in the
-    //   mark-first window under-delivers coins — a bounded,
-    //   non-exploitable loss. Under-delivery is the correct
-    //   tradeoff for a coin economy that must not silently inflate.
-    //
-    //   Requires migration 0011's UPDATE policies. Without them the
-    //   initial mark silently no-ops and the flow under-delivers
-    //   perpetually. 0011 and this file ship together.
-    //
-    // ── Timezone boundary (EXPECTED DIVERGENCE) ────────────────
-    //
-    //   The medals strip and rank colours are driven by the
-    //   server's UTC week (Monday 00:00 UTC via the DB function
-    //   current_league_week()). The profile page's "this week"
-    //   XP chart uses the user's LOCAL Monday–Sunday window.
-    //   Near the international date line these two windows
-    //   diverge by up to a few hours. This divergence is
-    //   ACCEPTED and permitted by design; the two views are
-    //   allowed to disagree. Do not reconcile them.
-    //
-    // ── Header opt-out ─────────────────────────────────────────
-    //
-    //   This page WANTS the universal header and footer. We do
-    //   NOT set window.__vulanet_skip_header. loadLayout()
-    //   injects both.
-    //
-    // ── Course / level on participant rows ─────────────────────
-    //
-    //   Deliberately omitted — league_participants has no per-row
-    //   course or level column. Documented in §12 of the master
-    //   spec as a known deviation from Code 1's course-flag chip.
-    //
-    // ── Mood emoji ─────────────────────────────────────────────
-    //
-    //   Own-row bubble appears only when no mood is set for the
-    //   current week. Other learners' rows show only their emoji
-    //   (never a bubble). Persistence via setMyLeagueMood /
-    //   clearMyLeagueMood keyed by the current UTC week.
-    //
-    // ── Bots ───────────────────────────────────────────────────
-    //
-    //   Bots render with a BOT chip; no profile navigation; no
-    //   fabricated online presence.
-    // ============================================================
-
     import {
       isLoggedIn,
       incrementCoins,
@@ -637,7 +262,6 @@
     import { getFirstLessonUrl } from '/src/js/course-data.js';
     import { loadLayout } from '/src/js/layout.js';
 
-    // ============ CONSTANTS ============
     const LEAGUES = [
       { name: 'Beginner',     rank: 1, color: '#34A853' },
       { name: 'Amateur',      rank: 2, color: '#EA4335' },
@@ -673,7 +297,6 @@
     const BOT_ADJ = ['Swift', 'Clever', 'Bright', 'Bold', 'Cheerful', 'Silent', 'Curious', 'Brave', 'Nimble', 'Steady'];
     const BOT_ANI = ['Otter', 'Falcon', 'Panda', 'Fox', 'Koala', 'Dolphin', 'Lynx', 'Raven', 'Heron', 'Hawk'];
 
-    // ============ STATE ============
     let currentWeek = null;
     let myParticipant = null;
     let meId = null;
@@ -684,7 +307,6 @@
     let currentLeague = 'Beginner';
     let countdownTimer = null;
 
-    // ============ DOM REFS ============
     const container    = document.getElementById('leaderboardContainer');
     const moodOverlay  = document.getElementById('moodPickerOverlay');
     const moodGrid     = document.getElementById('moodGrid');
@@ -692,7 +314,6 @@
     const modalOverlay = document.getElementById('modalOverlay');
     const modalIframe  = document.getElementById('modalIframe');
 
-    // ============ MODAL BRIDGE ============
     function showModal(url) {
       return new Promise((resolve) => {
         const handler = (event) => {
@@ -759,7 +380,6 @@
       });
     }
 
-    // ============ UTILITIES ============
     function escapeHTML(str) {
       if (str == null) return '';
       return String(str)
@@ -799,24 +419,23 @@
       return '';
     }
 
+    // FIX 6: Show only one unit of time.
     function formatCountdown(ms) {
       if (ms <= 0) return 'Rotating…';
       const totalMin = Math.floor(ms / 60000);
       const h = Math.floor(totalMin / 60);
       const m = totalMin % 60;
+
       if (h >= 24) {
         const d = Math.floor(h / 24);
-        return `${d}d ${h % 24}h`;
+        return `${d} ${d === 1 ? 'day' : 'days'}`;
       }
-      if (h >= 1) return `${h}h ${m}m`;
-      return `${m}m`;
+      if (h >= 1) {
+        return `${h} ${h === 1 ? 'hour' : 'hours'}`;
+      }
+      return `${m} ${m === 1 ? 'minute' : 'minutes'}`;
     }
 
-    // pushActiveBoost intentionally propagates errors so the
-    // mark-first reward flow can unmark the boost entitlement when
-    // the persistence step fails. The version in quiz-engine.js
-    // swallows (its flow has no compensating unmark path); this one
-    // must not, because the caller needs to know when to compensate.
     function pushActiveBoost(multiplier, durationMinutes) {
       const raw = localStorage.getItem('activeBoosts');
       const boosts = raw ? JSON.parse(raw) : [];
@@ -829,8 +448,6 @@
       });
       localStorage.setItem('activeBoosts', JSON.stringify(active));
     }
-
-    // ============ RENDER — BANNER / LEAGUE-INFO / MEDALS ============
 
     function renderBanner() {
       return `
@@ -883,8 +500,6 @@
       strip.scrollTo({ left: Math.max(0, target), behavior: 'auto' });
     }
 
-    // ============ RENDER — COUNTDOWN ============
-
     function updateCountdown() {
       const el = document.getElementById('countdownText');
       if (!el) return;
@@ -897,8 +512,6 @@
       if (countdownTimer) clearInterval(countdownTimer);
       countdownTimer = setInterval(updateCountdown, 60_000);
     }
-
-    // ============ RENDER — SKELETON ============
 
     function renderSkeletonRow() {
       return `
@@ -920,8 +533,6 @@
       return `<div class="participants-list">${html}</div>`;
     }
 
-    // ============ RENDER — LOADING ============
-
     function renderLoading() {
       container.innerHTML = `
         ${renderBanner()}
@@ -931,8 +542,6 @@
       `;
       startCountdown();
     }
-
-    // ============ RENDER — PARTICIPANT ROW ============
 
     function renderParticipantRow(p, rank, league) {
       const isMe  = p.user_id != null && p.user_id === meId;
@@ -999,8 +608,6 @@
         </div>
       `;
     }
-
-    // ============ RENDER — LEADERBOARD ============
 
     function renderLeaderboard() {
       const league = currentLeague;
@@ -1087,8 +694,6 @@
       });
     }
 
-    // ============ RENDER — ZERO-XP EMPTY STATE ============
-
     function renderEmptyState() {
       const courseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
       const lessonUrl = getFirstLessonUrl(courseId, 'game')
@@ -1117,8 +722,6 @@
       startCountdown();
       requestAnimationFrame(() => centerCurrentMedal());
     }
-
-    // ============ MOOD PICKER ============
 
     function buildMoodGrid() {
       moodGrid.innerHTML = MOOD_EMOJIS.map(e =>
@@ -1187,8 +790,6 @@
 
     moodClearBtn.addEventListener('click', clearMood);
 
-    // ============ DATA LOADING ============
-
     async function loadLeaderboardData() {
       if (!myParticipant || !myParticipant.group_id) return;
 
@@ -1225,8 +826,6 @@
         myMood = null;
       }
     }
-
-    // ============ REWARDS FLOW — SUB-STEPS ============
 
     async function showLeagueResultsModal(result) {
       const params = new URLSearchParams({
@@ -1381,10 +980,7 @@
       }
     }
 
-    // ============ REWARDS FLOW — MARK-FIRST ORCHESTRATION ============
-
     async function runRewardsFlow({ coinClaims, otherClaims, allResults }) {
-      // 1. League results modal — latest completed week only.
       const claimWeeks = [
         ...coinClaims.map(c => c.week_start),
         ...otherClaims.map(o => o.week_start)
@@ -1401,21 +997,18 @@
         }
       }
 
-      // 2. Achievements.
       try {
         await runAchievementsFlow();
       } catch (e) {
         console.error('runAchievementsFlow failed', e);
       }
 
-      // 3. Records.
       try {
         await runRecordsFlow();
       } catch (e) {
         console.error('runRecordsFlow failed', e);
       }
 
-      // 4. Consolidated coin modal — MARK-FIRST.
       const totalCoins = coinClaims.reduce(
         (sum, c) => sum + (Number(c.amount) || 0),
         0
@@ -1431,9 +1024,7 @@
         }
 
         if (!marked) {
-          console.error(
-            'runRewardsFlow: coin mark failed — skipping credit to avoid double-credit'
-          );
+          console.error('runRewardsFlow: coin mark failed — skipping credit to avoid double-credit');
         } else {
           let credited = null;
           try {
@@ -1443,9 +1034,7 @@
           }
 
           if (typeof credited !== 'number') {
-            console.error(
-              'runRewardsFlow: coin credit failed after mark — unmarking for retry'
-            );
+            console.error('runRewardsFlow: coin credit failed after mark — unmarking for retry');
             try {
               await unmarkCoinEntitlementsClaimed(weekStarts);
             } catch (e) {
@@ -1459,7 +1048,6 @@
         }
       }
 
-      // 5. Heart refill — MARK-FIRST.
       const heartClaims = otherClaims.filter(o => o.reward_type === 'heart_refill');
       if (heartClaims.length > 0) {
         const heartRows = heartClaims.map(h => ({
@@ -1475,9 +1063,7 @@
         }
 
         if (!marked) {
-          console.error(
-            'runRewardsFlow: heart mark failed — skipping to avoid double-credit'
-          );
+          console.error('runRewardsFlow: heart mark failed — skipping to avoid double-credit');
         } else {
           let newHearts = null;
           try {
@@ -1487,17 +1073,12 @@
           }
 
           if (typeof newHearts !== 'number') {
-            console.error(
-              'runRewardsFlow: heart refill failed after mark — unmarking for retry'
-            );
+            console.error('runRewardsFlow: heart refill failed after mark — unmarking for retry');
             for (const h of heartClaims) {
               try {
                 await unmarkOtherRewardClaimed(h.week_start, 'heart_refill');
               } catch (e) {
-                console.error(
-                  'runRewardsFlow: unmarkOtherRewardClaimed(heart) threw',
-                  e
-                );
+                console.error('runRewardsFlow: unmarkOtherRewardClaimed(heart) threw', e);
               }
             }
           } else {
@@ -1506,7 +1087,6 @@
         }
       }
 
-      // 6. XP boost — MARK-FIRST.
       const boostClaims = otherClaims.filter(o => o.reward_type === 'xp_boost');
       if (boostClaims.length > 0) {
         const boostRows = boostClaims.map(b => ({
@@ -1522,16 +1102,8 @@
         }
 
         if (!marked) {
-          console.error(
-            'runRewardsFlow: boost mark failed — skipping to avoid double-credit'
-          );
+          console.error('runRewardsFlow: boost mark failed — skipping to avoid double-credit');
         } else {
-          // §6: "If multiple eligible XP boosts are owed, award
-          // only the highest multiplier. Preserve the existing
-          // duration associated with that multiplier."
-          // getMyUnclaimedOtherRewards returns rows oldest-first,
-          // so boostClaims[0] is the OLDEST, not the highest.
-          // Pick by multiplier to honour the spec.
           const b = boostClaims.reduce(
             (best, cur) =>
               (Number(cur.multiplier) || 0) > (Number(best.multiplier) || 0) ? cur : best,
@@ -1549,17 +1121,12 @@
           }
 
           if (!boostOk) {
-            console.error(
-              'runRewardsFlow: boost push failed after mark — unmarking for retry'
-            );
+            console.error('runRewardsFlow: boost push failed after mark — unmarking for retry');
             for (const bb of boostClaims) {
               try {
                 await unmarkOtherRewardClaimed(bb.week_start, 'xp_boost');
               } catch (e) {
-                console.error(
-                  'runRewardsFlow: unmarkOtherRewardClaimed(boost) threw',
-                  e
-                );
+                console.error('runRewardsFlow: unmarkOtherRewardClaimed(boost) threw', e);
               }
             }
           } else {
@@ -1570,8 +1137,6 @@
         }
       }
     }
-
-    // ============ BOOT ============
 
     (async function boot() {
       renderLoading();

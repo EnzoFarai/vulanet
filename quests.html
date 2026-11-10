@@ -20,13 +20,6 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* =====================================================
-       HEADER — rendered as <div role="banner">, NOT <header>.
-       The global `header {}` rule in layout.css targets the
-       universal fixed header and would otherwise clobber this
-       element into a 76px fixed bar. Div avoids that tag
-       selector; role="banner" preserves the ARIA landmark.
-       ===================================================== */
     .app-header {
       background: var(--theme-color, #FBBC05);
       padding: 22px 20px 30px;
@@ -71,6 +64,7 @@
       color: #fff;
       font-weight: 700;
       letter-spacing: -0.01em;
+      white-space: nowrap;
     }
 
     .app-header .sub {
@@ -188,9 +182,6 @@
       filter: brightness(0) saturate(100%) invert(60%) sepia(0%) saturate(0%) hue-rotate(180deg) brightness(88%) contrast(85%);
     }
 
-    /* =====================================================
-       QUESTS PAGE — Daily Quests + Friends only.
-       ===================================================== */
     .quests-page {
       max-width: 500px;
       margin: 0 auto;
@@ -536,11 +527,6 @@
     <iframe id="modalIframe" src="about:blank" title="Modal"></iframe>
   </div>
 
-  <!-- =====================================================
-       FULL-WIDTH HEADER — rendered as <div role="banner">
-       to avoid the global `header {}` rule in layout.css
-       that forces any <header> element into a fixed 76px bar.
-       ===================================================== -->
   <div class="app-header" id="appHeader" role="banner">
     <div class="top-row">
       <div class="top-row-left">
@@ -582,9 +568,6 @@
     </div>
   </div>
 
-  <!-- =====================================================
-       QUESTS PAGE — Daily Quests + Friends section only.
-       ===================================================== -->
   <div class="quests-page">
     <div class="daily-header-row">
       <div class="section-title">Daily Quests</div>
@@ -629,16 +612,8 @@
       getLocalDateString
     } from '/src/js/date-utils.js';
 
-    // ============================================================
-    // Opt out of the universal header injection. quests.html
-    // renders its own banner as the page header. The footer is
-    // still injected by loadLayout().
-    // ============================================================
     window.__vulanet_skip_header = true;
 
-    // ============================================================
-    // Month theme
-    // ============================================================
     const MONTH_THEMES = {
       0:  {
         name: 'January',   theme: 'New Horizons Quest',      icon: 'routine',        color: '#FBBC05',
@@ -697,15 +672,18 @@
     document.documentElement.style.setProperty('--theme-color', monthTheme.color);
     document.documentElement.style.setProperty('--theme-icon-filter', monthTheme.filter);
     document.getElementById('currentMonth').textContent = monthTheme.name.toUpperCase();
-    document.getElementById('questTheme').innerHTML = monthTheme.theme.replace('Quest', '<br/>Quest');
+    
+    // FIX 3: Remove the line break injection so it wraps naturally
+    document.getElementById('questTheme').textContent = monthTheme.theme;
 
     const themeIconEl = document.getElementById('themeIcon');
     themeIconEl.src = `/assets/icons/material-symbols/outline/${monthTheme.icon}.svg`;
     themeIconEl.alt = `${monthTheme.name} theme icon`;
 
-    // ------------------------------------------------------------
-    // Time helpers
-    // ------------------------------------------------------------
+    // FIX 3: Ensure clock icon filter is applied properly
+    const clockIcon = document.getElementById('clockIcon');
+    if (clockIcon) clockIcon.style.filter = monthTheme.filter;
+
     function getTimezone() {
       return localStorage.getItem('userTimezone') || 'UTC';
     }
@@ -741,9 +719,6 @@
     setInterval(updateDaysLeft, 60_000);
     setInterval(updateDailyTimeLeft, 60_000);
 
-    // ------------------------------------------------------------
-    // Header coin refresh
-    // ------------------------------------------------------------
     function refreshHeaderCoins(newBalance) {
       if (typeof newBalance !== 'number') return;
       if (typeof window.updateHeaderStats === 'function') {
@@ -751,9 +726,6 @@
       }
     }
 
-    // ------------------------------------------------------------
-    // Modal bridge
-    // ------------------------------------------------------------
     const fullscreenOverlay = document.getElementById('fullscreenModalOverlay');
     const modalIframe = document.getElementById('modalIframe');
 
@@ -798,9 +770,6 @@
       });
     }
 
-    // ------------------------------------------------------------
-    // Auto-claim pending quests (on page load)
-    // ------------------------------------------------------------
     async function autoOpenPendingQuests() {
       const loggedIn = await isLoggedIn();
       if (!loggedIn) return;
@@ -836,10 +805,7 @@
       }
 
       if (newBalance === null) {
-        console.error(
-          'quests: credit failed after mark succeeded — unmarking for retry',
-          marked
-        );
+        console.error('quests: credit failed after mark succeeded — unmarking for retry', marked);
         try {
           await questEngine.unmarkPendingQuestsClaimed(marked);
         } catch (e) {
@@ -852,16 +818,12 @@
       refreshHeaderCoins(newBalance);
     }
 
-    // ------------------------------------------------------------
-    // Chest-tap loop (during session)
-    // ------------------------------------------------------------
     async function runChestTapFlow() {
       const MAX_ITERATIONS = 5;
       const today = getLocalDateString(getTimezone());
 
       for (let i = 0; i < MAX_ITERATIONS; i++) {
         const result = await showDailyQuestModal();
-
         if (result.action !== 'claim') return;
 
         const claim = await questEngine.claimQuestChest(result.tier);
@@ -878,14 +840,9 @@
         }
 
         if (newBalance === null) {
-          console.error(
-            'quests: credit failed after mark succeeded — unmarking for retry',
-            { date: today, tier: result.tier }
-          );
+          console.error('quests: credit failed after mark succeeded — unmarking for retry', { date: today, tier: result.tier });
           try {
-            await questEngine.unmarkPendingQuestsClaimed([
-              { date: today, tier: result.tier }
-            ]);
+            await questEngine.unmarkPendingQuestsClaimed([{ date: today, tier: result.tier }]);
           } catch (e) {
             console.error('quests: unmark after failed credit threw', e);
           }
@@ -897,9 +854,6 @@
       }
     }
 
-    // ------------------------------------------------------------
-    // Quest rendering
-    // ------------------------------------------------------------
     const questsCard = document.getElementById('questsCard');
 
     function renderQuestsStateMessage(strongText, weakText, isError = false) {
@@ -958,8 +912,7 @@
       const chest = document.createElement('button');
       chest.type = 'button';
       chest.className = `chest ${tier}`;
-      chest.setAttribute('aria-label',
-        `${tier} chest, ${current} of ${total}${claimed ? ', claimed' : ''}`);
+      chest.setAttribute('aria-label', `${tier} chest, ${current} of ${total}${claimed ? ', claimed' : ''}`);
 
       const img = document.createElement('img');
       img.src = '/assets/icons/phosphor/duotone/treasure-chest.svg';
@@ -1009,9 +962,6 @@
       });
     }
 
-    // ------------------------------------------------------------
-    // Friends Quest section
-    // ------------------------------------------------------------
     const friendsSection = document.getElementById('friendsSection');
     const friendsMessage = document.getElementById('friendsMessage');
     const friendList = document.getElementById('friendList');
@@ -1069,9 +1019,7 @@
 
       const status = document.createElement('div');
       status.className = 'friend-status';
-      status.textContent = suggestion.country
-        ? `From ${suggestion.country}`
-        : `@${suggestion.username || 'user'}`;
+      status.textContent = suggestion.country ? `From ${suggestion.country}` : `@${suggestion.username || 'user'}`;
       card.appendChild(status);
 
       const wrap = document.createElement('div');
@@ -1141,9 +1089,6 @@
       });
     }
 
-    // ------------------------------------------------------------
-    // Boot
-    // ------------------------------------------------------------
     (async function boot() {
       try {
         await loadLayout();
@@ -1172,4 +1117,3 @@
   </script>
 </body>
 </html>
-

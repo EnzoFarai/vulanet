@@ -1,24 +1,6 @@
 // src/js/reading-annotations.js
 // ============================================================
 // Reading-page annotation interface.
-//
-// Responsibilities:
-//   • Text selection toolbar (Highlight | Note | Copy | Share).
-//   • Six-colour highlight creation + colour swap on click.
-//   • Folder-style note editor with quoted source.
-//   • Asterisk markers before the first word of noted text.
-//   • Dashed note underlines via CSS Custom Highlight API.
-//   • ?view= personalisation: own view syncs the URL; a visitor's
-//     view renders read-only.
-//   • Revoked-link banner (never silently redirected).
-//   • Four sharing actions: selected text, lesson, annotated view,
-//     collection (collection handled by reading-collections.js).
-//
-// What this module does NOT do:
-//   • It does not write to reading_annotation_links — the DB
-//     AFTER INSERT / AFTER DELETE triggers own that lifecycle.
-//   • It does not create or delete collection link rows.
-//   • It does not manage bookmarks for other users.
 // ============================================================
 
 import {
@@ -50,7 +32,6 @@ const COLORS = {
 const COLOR_NAMES = Object.keys(COLORS);
 const ASTERISK_SVG = '/assets/icons/phosphor/regular/asterisk.svg';
 
-// CSS filters to tint the black highlighter SVG to the target hex color.
 const COLOR_FILTERS = {
   bee:     'invert(78%) sepia(89%) saturate(831%) hue-rotate(321deg) brightness(103%) contrast(97%)',
   boa:     'invert(38%) sepia(67%) saturate(1217%) hue-rotate(80deg) brightness(97%) contrast(93%)',
@@ -63,13 +44,12 @@ const COLOR_FILTERS = {
 (async function main() {
   const info = lessonFromPath();
   const root = document.getElementById('articleContent');
-  if (!info || !root) return;   // not a reading page — nothing to do
+  if (!info || !root) return;
 
   const { course, lesson } = info;
 
   ensureStylesheet();
 
-  // ── DOM: toolbar ─────────────────────────────────────────
   const toolbar = document.createElement('div');
   toolbar.className = 'vr-selection-toolbar';
   toolbar.innerHTML = `
@@ -94,7 +74,6 @@ const COLOR_FILTERS = {
   document.body.append(toolbar);
   const colorsEl = toolbar.querySelector('.vr-colors');
 
-  // ── DOM: folder editor ───────────────────────────────────
   const folder = document.createElement('div');
   folder.className = 'vr-folder';
   folder.innerHTML = `
@@ -131,7 +110,6 @@ const COLOR_FILTERS = {
   `;
   document.body.append(folder);
 
-  // Set folder date dynamically (e.g., "6th November")
   const now = new Date();
   const day = now.getDate();
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -142,7 +120,6 @@ const COLOR_FILTERS = {
   else if (day === 3 || day === 23) suffix = 'rd';
   folder.querySelector('#vr-date').textContent = `${day}${suffix} ${month}`;
 
-  // ── DOM: colour-swap picker (click on existing highlight) ─
   const swap = document.createElement('div');
   swap.className = 'vr-swap-picker';
   swap.innerHTML = `
@@ -155,37 +132,29 @@ const COLOR_FILTERS = {
   `;
   document.body.append(swap);
 
-  // ── state ────────────────────────────────────────────────
-  let rows = [];                 // all annotations for this (course, lesson)
-  let owned = false;             // viewer is the annotation owner
-  let readonly = false;          // viewer is a visitor of someone else's ?view=
-  let ownerLabel = '';           // display name of the shared owner (visitor mode)
-  let currentOffsets = null;     // { start, end, quote }
-  let activeNote = null;         // the note row currently being edited
+  let rows = [];
+  let owned = false;
+  let readonly = false;
+  let ownerLabel = '';
+  let currentOffsets = null;
+  let activeNote = null;
   let overlaps = [];
   let overlapIndex = 0;
-  let activeSwapId = null;       // highlight id currently in swap mode
+  let activeSwapId = null;
   let latestColor = localStorage.getItem('vr_recent_color') || 'bee';
   if (!COLOR_NAMES.includes(latestColor)) latestColor = 'bee';
 
   const toast = makeToast();
 
-  // ─────────────────────────────────────────────────────────
-  // Boot
-  // ─────────────────────────────────────────────────────────
   await initialize();
   render();
   await syncURL();
   installListeners();
 
-  // ─────────────────────────────────────────────────────────
-  // Initialization
-  // ─────────────────────────────────────────────────────────
   async function initialize() {
     const url = new URL(location.href);
     const viewToken = url.searchParams.get('view');
 
-    // Try to establish owner identity (independent of ?view=)
     let ownToken = null;
     try {
       await owner();
@@ -193,14 +162,12 @@ const COLOR_FILTERS = {
       try {
         const link = await getAnnotationLink(course, lesson);
         ownToken = link && link.token;
-      } catch { /* link does not exist yet */ }
+      } catch {}
     } catch {
       owned = false;
     }
 
-    // Branch A — a ?view= is present
     if (viewToken) {
-      // Case A1 — visitor or non-owning viewer
       if (!owned || viewToken !== ownToken) {
         let shared = null;
         try { shared = await sharedLesson(viewToken); }
@@ -224,27 +191,18 @@ const COLOR_FILTERS = {
         showViewerBanner(ownerLabel);
         return;
       }
-      // Case A2 — the owner opened their own ?view= URL: fall through
     }
 
-    // Branch B — owner mode (no ?view= or own ?view=)
     if (owned) {
       try { rows = await myAnnotations(course, lesson); }
       catch (e) { toast('Could not load your annotations: ' + e.message); }
       await reflectBookmarkState();
       return;
     }
-
-    // Branch C — anonymous, no ?view=
-    // Reading pages render clean. Bookmark remains disabled until sign-in.
   }
 
-  // ─────────────────────────────────────────────────────────
-  // URL sync — keep ?view= in step with owner state
-  // ─────────────────────────────────────────────────────────
   async function syncURL() {
     if (!owned || readonly) return;
-
     const current = new URL(location.href);
     const urlToken = current.searchParams.get('view');
 
@@ -274,9 +232,6 @@ const COLOR_FILTERS = {
     if (clean && clean !== '#') location.replace(clean);
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Banners
-  // ─────────────────────────────────────────────────────────
   function showRevokedBanner() {
     const banner = document.createElement('div');
     banner.className = 'vr-viewer vr-viewer-revoked';
@@ -295,9 +250,6 @@ const COLOR_FILTERS = {
     root.before(banner);
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Rendering — CSS Custom Highlight API + asterisk markers
-  // ─────────────────────────────────────────────────────────
   function render() {
     root.querySelectorAll('.vr-note-asterisk').forEach(m => m.remove());
 
@@ -344,9 +296,6 @@ const COLOR_FILTERS = {
     }
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Offset ↔ Range helpers
-  // ─────────────────────────────────────────────────────────
   function textNodes() {
     const walker = document.createTreeWalker(
       root, NodeFilter.SHOW_TEXT, {
@@ -459,9 +408,6 @@ const COLOR_FILTERS = {
     );
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Selection toolbar
-  // ─────────────────────────────────────────────────────────
   function showToolbarAt(range) {
     const rect = range.getBoundingClientRect();
     toolbar.style.left = `${Math.max(10, Math.min(window.scrollX + rect.left, window.scrollX + innerWidth - 320))}px`;
@@ -489,9 +435,6 @@ const COLOR_FILTERS = {
     }
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Note folder
-  // ─────────────────────────────────────────────────────────
   function openNotePanel(noteRow, { isNew = false } = {}) {
     activeNote = noteRow;
 
@@ -546,7 +489,6 @@ const COLOR_FILTERS = {
     
     folder.classList.add('open');
 
-    // Check clipping after rendering
     requestAnimationFrame(() => {
       const isClipped = quoteText.scrollHeight > quoteText.clientHeight + 2;
       expandBtn.style.display = isClipped ? 'inline-block' : 'none';
@@ -560,9 +502,6 @@ const COLOR_FILTERS = {
     overlapIndex = 0;
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Share helpers
-  // ─────────────────────────────────────────────────────────
   async function doShare(title, url, passage) {
     const outcome = await shareText(title, url, passage || '');
     if (outcome === 'shared' || outcome === 'cancelled') return;
@@ -615,9 +554,6 @@ const COLOR_FILTERS = {
     document.body.append(modal);
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Bookmark state
-  // ─────────────────────────────────────────────────────────
   async function reflectBookmarkState() {
     const btn = document.querySelector('#bookmarkBtn');
     if (!btn || !owned) return;
@@ -630,13 +566,9 @@ const COLOR_FILTERS = {
     } catch { /* ignore */ }
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Event wiring
-  // ─────────────────────────────────────────────────────────
   function installListeners() {
     updateHighlighterTint();
 
-    // ── Selection change ─────────────────────────────────────
     document.addEventListener('selectionchange', () => {
       requestAnimationFrame(() => {
         const offsets = selectionOffsets();
@@ -652,10 +584,15 @@ const COLOR_FILTERS = {
       });
     });
 
-    // ── Toolbar buttons ──────────────────────────────────────
     toolbar.addEventListener('pointerdown', e => e.preventDefault());
 
     toolbar.addEventListener('click', async e => {
+      // FIX 1: If unauthenticated, immediately redirect to registration.
+      if (!owned) {
+        window.location.href = '/registration.html';
+        return;
+      }
+
       const colorBtn = e.target.closest('[data-color]');
       if (colorBtn) {
         if (readonly || !currentOffsets) return;
@@ -724,7 +661,6 @@ const COLOR_FILTERS = {
       }
     });
 
-    // ── Folder actions ───────────────────────────────────────
     folder.querySelector('#vr-expand').addEventListener('click', () => {
       const wrap = folder.querySelector('#vr-quote-wrapper');
       const isExpanded = wrap.classList.toggle('expanded');
@@ -821,7 +757,6 @@ const COLOR_FILTERS = {
       }
     });
 
-    // Clicking outside closes and saves the folder
     document.addEventListener('mousedown', (e) => {
       if (folder.classList.contains('open') && !folder.contains(e.target) && !e.target.closest('.vr-note-asterisk')) {
         const saveBtn = folder.querySelector('#vr-save');
@@ -829,9 +764,7 @@ const COLOR_FILTERS = {
       }
     });
 
-    // ── Click handling: asterisks, highlight swap ────────────
     root.addEventListener('click', async e => {
-      // Asterisk marker
       const marker = e.target.closest('.vr-note-asterisk');
       if (marker) {
         e.preventDefault();
@@ -840,7 +773,6 @@ const COLOR_FILTERS = {
         return;
       }
 
-      // Highlight click (no active selection) → swap picker
       const sel = getSelection();
       if (sel && !sel.isCollapsed) return;
 
@@ -868,7 +800,6 @@ const COLOR_FILTERS = {
       }
     });
 
-    // Keyboard open for asterisk
     root.addEventListener('keydown', e => {
       if (e.target.matches('.vr-note-asterisk') && (e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault();
@@ -876,7 +807,6 @@ const COLOR_FILTERS = {
       }
     });
 
-    // ── Swap picker actions ──────────────────────────────────
     swap.addEventListener('click', async e => {
       const colorBtn = e.target.closest('[data-swap-color]');
       if (colorBtn && activeSwapId) {
@@ -907,7 +837,6 @@ const COLOR_FILTERS = {
       }
     });
 
-    // Close swap on outside click
     document.addEventListener('click', e => {
       if (!swap.classList.contains('open')) return;
       if (e.target.closest('.vr-swap-picker')) return;
@@ -915,12 +844,12 @@ const COLOR_FILTERS = {
       hideSwapPicker();
     });
 
-    // ── Bookmark button ──────────────────────────────────────
     const bookmarkBtn = document.querySelector('#bookmarkBtn');
     if (bookmarkBtn) {
       bookmarkBtn.addEventListener('click', async () => {
+        // FIX 1: Immediate redirect on unauthenticated bookmark
         if (!owned) {
-          toast('Sign in to bookmark lessons.');
+          window.location.href = '/registration.html';
           return;
         }
         const next = !bookmarkBtn.classList.contains('bookmarked');
@@ -936,7 +865,6 @@ const COLOR_FILTERS = {
       });
     }
 
-    // ── Status Bar Share Button ──────────────────────────────
     const statusRight = document.querySelector('.status-right');
     if (statusRight) {
       const shareBtn = document.createElement('button');
@@ -979,7 +907,6 @@ const COLOR_FILTERS = {
       });
     }
 
-    // ── Escape closes transient UI ───────────────────────────
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
         hideToolbar();
@@ -989,9 +916,6 @@ const COLOR_FILTERS = {
     });
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Utilities
-  // ─────────────────────────────────────────────────────────
   function ensureStylesheet() {
     if (document.querySelector('link[href="/src/styles/reading-annotations.css"]')) return;
     const link = document.createElement('link');

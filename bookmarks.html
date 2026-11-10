@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#4285f4">
+  <title>Bookmarks | Vulanet</title>
+  <link rel="stylesheet" href="/src/styles/reading-collections.css">
+  <style>
+    :root { --accent: #4285f4; --accent-tint: #e8f0fe; }
+  </style>
+</head>
+<body data-collection="bookmarks">
+  <main class="shell">
+    <a class="crumb" href="/practice-hub.html">← Practice Hub</a>
+    <div class="heading">
+      <div class="big-icon">
+        <img src="/assets/icons/phosphor/regular/bookmarks-simple.svg" alt="">
+        <button id="share" class="private-only" aria-label="Share this Bookmarks collection">
+          <img src="/assets/icons/phosphor/regular/share.svg" alt="">
+        </button>
+      </div>
+      <div>
+        <h1>Bookmarks</h1>
+        <p id="byline">Your saved lessons</p>
+        <div class="actions private-only" id="actions">
+          <button class="pill" id="add">Add Topics</button>
+          <button class="pill" id="download">Download collection</button>
+          <button class="pill" id="sort">Sort: Recent</button>
+        </div>
+        <span id="viewer" class="read-only-label" hidden>Read-only shared collection</span>
+      </div>
+    </div>
+    <p class="notice" id="description">Bookmark lessons for quick access.</p>
+    <p id="status" class="status" role="status">Loading your collection…</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Topic</th>
+            <th>Course</th>
+            <th>Chapter</th>
+            <th>Last activity</th>
+            <th>Order</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+  
+  <div id="dialog" class="dialog" role="dialog" aria-modal="true" aria-label="Collection actions">
+    <div class="card">
+      <div class="top">
+        <h2 id="dialog-title">Choose a lesson</h2>
+        <button class="close" id="close-dialog">Close ✕</button>
+      </div>
+      <div id="dialog-body"></div>
+    </div>
+  </div>
+  
+  <script type="module" src="/src/js/reading-collections.js"></script>
+</body>
+</html>

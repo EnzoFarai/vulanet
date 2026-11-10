@@ -108,7 +108,6 @@
             transform: rotate(0deg) scale(1.1);
         }
 
-        /* Icon colour filters */
         .icon-read { filter: brightness(0) saturate(100%) invert(77%) sepia(89%) saturate(1234%) hue-rotate(358deg) brightness(103%) contrast(101%); }
         .icon-mistakes { filter: brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(7236%) hue-rotate(1deg) brightness(93%) contrast(118%); }
         .icon-bookmarks { filter: brightness(0) saturate(100%) invert(25%) sepia(67%) saturate(3032%) hue-rotate(234deg) brightness(93%) contrast(96%); }
@@ -124,8 +123,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Header injected by layout.js -->
 
     <div class="container">
         <section class="practice-section">
@@ -180,34 +177,32 @@
     <script type="module">
         import { loadLayout } from './src/js/layout.js';
 
-        // Load header/footer
         await loadLayout();
 
-        // Get the active course from localStorage
         const activeCourseId = localStorage.getItem('selectedCourseId') || 'g12-life-sciences';
 
-        // Redirect "Read" to the course's TOC
         document.getElementById('readCard').addEventListener('click', () => {
             window.location.href = `/read/${activeCourseId}.html`;
         });
 
-        // Redirect "Glossary" to the course's glossary
         document.getElementById('glossaryCard').addEventListener('click', () => {
             window.location.href = `/glossary/${activeCourseId}.html`;
         });
 
-        // Other cards – placeholders
         document.getElementById('mistakesCard').addEventListener('click', () => {
             alert('Mistakes review – coming soon!');
         });
+        
         document.getElementById('bookmarksCard').addEventListener('click', () => {
-            alert('Bookmarks – coming soon!');
+            window.location.href = '/bookmarks.html';
         });
+        
         document.getElementById('highlightsCard').addEventListener('click', () => {
-            alert('Highlights – coming soon!');
+            window.location.href = '/highlights.html';
         });
+        
         document.getElementById('notesCard').addEventListener('click', () => {
-            alert('Notes – coming soon!');
+            window.location.href = '/notes.html';
         });
     </script>
 </body>

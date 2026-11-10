@@ -8,14 +8,13 @@
     <link rel="stylesheet" href="/src/styles/layout.css">
     <link rel="stylesheet" href="/src/styles/reading.css">
     <link rel="stylesheet" href="/src/styles/glossary-preview.css">
+    <link rel="stylesheet" href="/src/styles/toc.css">
     <style>
-        /* Status bar blue */
         .statusbar { background: #4285F4; }
         .search-box:focus-within { border-color: #4285F4; box-shadow: 0 0 0 2px rgba(66,133,244,0.1); }
         .no-match-modal { background: #4285F4; }
         main ::selection { background-color: rgba(66,133,244,0.3); }
         .fontsize-panel input[type=range]::-webkit-slider-thumb { background: #4285F4; }
-
         .revision-section {
             background-color: #f0f7ff;
             border-left: 4px solid #4285F4;
@@ -33,8 +32,6 @@
         .revision-section p { color: #444; }
         .revision-section ul { margin: 16px 0; padding-left: 24px; }
         .revision-section li { margin: 8px 0; color: #444; }
-
-        /* Lesson Node */
         .lesson-section {
             max-width: 700px;
             width: 100%;
@@ -138,211 +135,15 @@
             .node-circle img { width: 28px; height: 28px; }
             .promo-heading { font-size: 1.4rem; }
         }
-
         .lesson-item:hover {
             text-decoration: none;
         }
-
-        /* TOC SIDEBAR */
-        .toc-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.4);
-            z-index: 2000;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            display: none;
-        }
-        .toc-overlay.open {
-            visibility: visible;
-            opacity: 1;
-            display: block;
-        }
-        .toc-sidebar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 480px;
-            max-width: 90vw;
-            height: 100%;
-            background: #ffffff;
-            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
-            padding: 24px 20px 30px;
-            overflow-y: auto;
-            transform: translateX(-100%);
-            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-            border-radius: 0 28px 28px 0;
-        }
-        .toc-overlay.open .toc-sidebar { transform: translateX(0); }
-
-        .toc-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f0f2f5;
-        }
-        .toc-course-icon {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-        .toc-course-icon img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
-        .toc-course-icon span { font-weight: 700; font-size: 16px; color: #1f3348; }
-        .toc-close-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 50%;
-        }
-        .toc-close-btn img { width: 24px; height: 24px; filter: brightness(0) saturate(100%) invert(63%) sepia(0%) hue-rotate(180deg) brightness(88%) contrast(85%); }
-
-        .menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
-        .menu li { border-top: 1px solid #edf0f3; }
-        .menu li:first-child { border-top: none; }
-        .menu a {
-            height: 58px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            text-decoration: none;
-            color: #1f3348;
-            font-size: 17px;
-            font-weight: 700;
-            padding: 0 6px 0 4px;
-            border-radius: 12px;
-            transition: background 0.15s, color 0.15s;
-            cursor: pointer;
-        }
-        .menu a:hover { background: #f4f7fc; color: #4285F4; }
-        .item-left { display: flex; align-items: center; gap: 14px; }
-        .chevron-right {
-            width: 20px;
-            height: 20px;
-            transition: transform 0.3s ease, filter 0.2s;
-            flex-shrink: 0;
-            filter: brightness(0) saturate(100%) invert(63%) sepia(0%) hue-rotate(180deg) brightness(88%) contrast(85%);
-        }
-        .chevron-right.open { transform: rotate(90deg); filter: brightness(0) saturate(100%) invert(31%) sepia(94%) saturate(1722%) hue-rotate(197deg) brightness(99%) contrast(95%); }
-
-        .sub-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 4px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-            overflow: hidden;
-            max-height: 0;
-            opacity: 0;
-            transition: max-height 0.4s ease, opacity 0.3s ease;
-        }
-        .sub-menu.open { max-height: 2000px; opacity: 1; }
-        .sub-menu li { border-top: none !important; }
-        .sub-menu a {
-            height: 46px;
-            padding-left: 20px;
-            font-weight: 600;
-            font-size: 15px;
-            color: #4a5f74;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            text-decoration: none;
-            transition: background 0.15s, color 0.15s;
-            cursor: pointer;
-            padding-right: 6px;
-            border-left: 4px solid transparent;
-            padding-left: 16px;
-            border-radius: 0;
-        }
-        .sub-menu a:hover { background: #f4f7fc; color: #4285F4; }
-
-        .unit-1-chapters li:nth-child(1) > a { border-left-color: #4285F4; }
-        .unit-1-chapters li:nth-child(2) > a { border-left-color: #1CB0F6; }
-        .unit-1-chapters li:nth-child(3) > a { border-left-color: #AA00FF; }
-        .unit-1-chapters li:nth-child(4) > a { border-left-color: #EA4335; }
-        .unit-2-chapters li:nth-child(1) > a { border-left-color: #FF6D01; }
-        .unit-2-chapters li:nth-child(2) > a { border-left-color: #FBBC05; }
-        .unit-2-chapters li:nth-child(3) > a { border-left-color: #34A853; }
-        .unit-2-chapters li:nth-child(4) > a { border-left-color: #4285F4; }
-        .unit-3-chapters li:nth-child(1) > a { border-left-color: #1CB0F6; }
-
-        .sub-sub-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 4px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-            overflow: hidden;
-            max-height: 0;
-            opacity: 0;
-            transition: max-height 0.35s ease, opacity 0.3s ease;
-        }
-        .sub-sub-menu.open { max-height: 1500px; opacity: 1; }
-        .sub-sub-menu li { border-top: none !important; }
-        .sub-sub-menu a {
-            height: 38px;
-            padding-left: 52px;
-            font-weight: 400;
-            font-size: 14px;
-            color: #5a6f84;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            text-decoration: none;
-            transition: background 0.15s, color 0.15s;
-            cursor: pointer;
-            padding-right: 6px;
-            border-left: none;
-            border-radius: 8px;
-        }
-        .sub-sub-menu a:hover { background: #f4f7fc; color: #4285F4; }
-        .sub-sub-menu a .lesson-number {
-            display: inline-block;
-            color: #6a7f94;
-            font-weight: 500;
-            font-size: 13px;
-            min-width: 22px;
-            height: 22px;
-            line-height: 22px;
-            text-align: center;
-            background: #f2f5f9;
-            border-radius: 30px;
-            flex-shrink: 0;
-            padding: 0 6px;
-            transition: background 0.2s, color 0.2s;
-        }
-        .sub-sub-menu a:hover .lesson-number { background: #e1e8f2; color: #4285F4; }
-        .sub-sub-menu a .chevron-right { display: none; }
-
-        .menu a.active { color: #4285F4 !important; background: #ecf2fe; border-radius: 12px; }
-        .sub-menu a.active { color: #4285F4 !important; background: #ecf2fe; border-radius: 0; }
-        .sub-sub-menu a.active { color: #4285F4 !important; background: #ecf2fe; border-radius: 8px; }
-        .sub-sub-menu a.active .lesson-number { background: #d4e0fa; color: #4285F4; font-weight: 600; }
-
-        @media (max-width: 480px) {
-            .toc-sidebar { width: 100vw; max-width: 100vw; border-radius: 0; padding: 20px 16px; }
-            .menu a { height: 52px; font-size: 16px; }
-            .sub-menu a { padding-left: 16px; height: 42px; font-size: 14px; }
-            .sub-sub-menu a { padding-left: 38px; height: 36px; font-size: 13px; }
-        }
-
         .search-box .clear-btn { display: none; }
         .search-box .search-icon { display: flex; }
         .search-box .active-search-icon { display: none; }
         .search-box.has-text .clear-btn { display: flex; }
         .search-box.has-text .search-icon { display: none; }
         .search-box.has-text .active-search-icon { display: flex; }
-
         .finder-footer {
             position: fixed;
             left: 0;
@@ -412,17 +213,10 @@
             white-space: nowrap;
             min-width: 100px;
         }
-
-        /* New shared annotation toolbar (loaded via /src/js/reading-annotations.js)
-           replaces the legacy in-page demo toolbar. */
         #selectionToolbar { display: none !important; }
     </style>
 </head>
 <body>
-
-    <!-- Global Header injected by layout.js -->
-
-    <!-- Custom Status Bar -->
     <div class="statusbar" role="banner">
         <div class="navrow">
             <div class="back" onclick="window.location.href='/read/g12-life-sciences.html'">
@@ -441,8 +235,6 @@
             </button>
         </div>
     </div>
-
-    <!-- Toolbar -->
     <div class="toolbar" role="toolbar">
         <div class="left icon-row">
             <button class="icon-btn" id="menuBtn" aria-label="Menu">
@@ -482,40 +274,25 @@
             </div>
         </div>
     </div>
-
-    <!-- No match modal -->
     <div id="noMatchModal" class="no-match-modal">No matches found</div>
-
-    <!-- Main content -->
     <main id="mainContent" role="main">
         <article id="articleContent">
             <h1>Introduction to Nucleic Acids</h1>
-
             <p>All living organisms contain both <strong>DNA (deoxyribonucleic acid)</strong> and <strong>RNA (ribonucleic acid)</strong>. This chapter focuses on their location, structure and function.</p>
-
             <div class="revision-section">
                 <h2>Revision of Cellular Structure</h2>
                 <p>Before going further with DNA and RNA, it is important to know the location and functions of certain organelles, illustrated in <em>Figure 1</em> below.</p>
-
                 <div class="figure-container">
                     <img src="/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/cell-structure.png" alt="Structure of a cell" class="figure-image">
                     <div class="figure-caption">Figure 1: Structure of a cell</div>
                 </div>
-
                 <p>The <strong>cytoplasm</strong> is a watery substance in which the organelles of the cell are suspended. It is the site where most metabolic reactions take place.</p>
-
-                <p>
-                    <a href="#" class="glossary-link" data-term="Ribosome">Ribosomes</a> are small organelles found either free in the cytoplasm or attached to the endoplasmic reticulum.
-                    They are the site of <a href="#" class="glossary-link" data-term="Protein synthesis">protein synthesis</a>.
-                </p>
-
+                <p><a href="#" class="glossary-link" data-term="Ribosome">Ribosomes</a> are small organelles found either free in the cytoplasm or attached to the endoplasmic reticulum. They are the site of <a href="#" class="glossary-link" data-term="Protein synthesis">protein synthesis</a>.</p>
                 <p>The <strong>nucleus</strong> is the control centre of the cell and contains most of the cell's DNA.</p>
-
                 <div class="figure-container">
                     <img src="/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/cell-nucleus-parts.jpg" alt="Parts of the nucleus" class="figure-image">
                     <div class="figure-caption">Figure 2: Parts of the nucleus</div>
                 </div>
-
                 <p>The nucleus consists of the following main parts:</p>
                 <ul>
                     <li>The <strong>double nuclear membrane</strong>, which encloses the nucleus and contains pores that allow substances to move in and out</li>
@@ -524,31 +301,23 @@
                     <li>The <strong>chromatin network</strong>, which contains DNA that carries genetic information.</li>
                 </ul>
             </div>
-
             <h2>The Structure of Nucleic Acids</h2>
-
             <p>Within the nucleus, the chromatin network contains DNA, which carries the genetic information of the cell. This information determines the characteristics and functioning of an organism, and RNA plays a role in how it is used within the cell. Both DNA and RNA are essential for life and belong to a group of organic compounds known as <strong>nucleic acids</strong>.</p>
-
             <div class="figure-container">
                 <img src="/assets/images/lessons/g12-life-sciences/introduction-to-nucleic-acids/basic-nucleotide.png" alt="A nucleotide" class="figure-image">
                 <div class="figure-caption">Figure 3: A nucleotide</div>
             </div>
-
             <p>Both DNA and RNA are built from repeating <strong>monomers</strong> called <a href="#" class="glossary-link" data-term="nucleotide">nucleotides</a> linked together in long chains. Each nucleotide consists of <strong>three basic components</strong>:</p>
             <ul>
                 <li>a <strong>phosphate group</strong></li>
                 <li>a <strong>sugar molecule</strong></li>
                 <li>a <strong>nitrogenous base</strong></li>
             </ul>
-
             <p>In DNA, the sugar present is <strong>deoxyribose</strong>, while in RNA the sugar is <strong>ribose</strong>. The type of nitrogenous base present, as we will cover, also helps differentiate DNA from RNA.</p>
-
-            <!-- Lesson Node -->
             <div class="lesson-section">
                 <h2 class="promo-heading">Ready to test your knowledge?</h2>
                 <p class="promo-sub">Put what you've just learned into practice with a lesson:</p>
                 <div class="divider-light"></div>
-
                 <div class="lesson-grid">
                     <a class="lesson-item" href="/pages/lesson.html?course=g12-life-sciences&lesson=introduction-to-nucleic-acids">
                         <div class="node-circle">
@@ -563,8 +332,6 @@
             </div>
         </article>
     </main>
-
-    <!-- Finder footer -->
     <div class="finder-footer" id="finderFooter" style="display:none;">
         <div id="searchFooterInner">
             <button class="finder-clear-btn" id="clearFind">Clear</button>
@@ -577,26 +344,7 @@
             </button>
         </div>
     </div>
-
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
-
-    <!-- TOC Sidebar Overlay -->
-    <div class="toc-overlay" id="tocOverlay">
-        <div class="toc-sidebar">
-            <div class="toc-header">
-                <div class="toc-course-icon" id="tocCourseIcon">
-                    <img src="/assets/courses/g12-life-sciences.png" alt="Course" id="tocCourseImg">
-                    <span id="tocCourseName">G12 Life Sciences</span>
-                </div>
-                <button class="toc-close-btn" id="tocCloseBtn">
-                    <img src="/assets/icons/phosphor/regular/x.svg" alt="Close">
-                </button>
-            </div>
-            <div id="tocTreeContainer"></div>
-        </div>
-    </div>
-
     <script type="importmap">
         {
             "imports": {
@@ -604,13 +352,10 @@
             }
         }
     </script>
-
     <script type="module">
         import { loadLayout } from '/src/js/layout.js';
-
+        import { initTOC } from '/src/js/toc.js';
         await loadLayout();
-
-        // ---- Load glossary data for preview ----
         const courseId = 'g12-life-sciences';
         try {
             const resp = await fetch(`/data/glossary/${courseId}.json`);
@@ -619,162 +364,9 @@
                 const previewScript = document.createElement('script');
                 previewScript.src = '/src/js/glossary-preview.js';
                 document.body.appendChild(previewScript);
-            } else {
-                console.warn('Glossary data not loaded for preview.');
             }
-        } catch (e) {
-            console.warn('Error loading glossary data:', e);
-        }
-
-        // ---- TOC Data ----
-        const tocData = await (await fetch('/data/toc/g12-life-sciences.json')).json();
-
-        // ---- Render TOC ----
-        function renderTOC(data, containerId, currentPath) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-
-            const { units } = data;
-            let html = '<ul class="menu">';
-
-            units.forEach((unit, unitIndex) => {
-                const unitId = `unit-${unitIndex}`;
-                html += `
-                    <li>
-                        <a href="#" class="parent-toggle" data-target="${unitId}">
-                            <span class="item-left"><span class="unit-label">${unit.title}</span></span>
-                            <img src="/assets/icons/phosphor/regular/caret-right.svg" class="chevron-right" alt="Expand">
-                        </a>
-                        <ul class="sub-menu ${unit.chapters[0]?.colorClass || ''}" id="${unitId}">
-                `;
-
-                unit.chapters.forEach((chapter, chapterIndex) => {
-                    const chapterId = `${unitId}-chapter-${chapterIndex}`;
-                    html += `
-                        <li>
-                            <a href="#" class="chapter-toggle" data-target="${chapterId}">
-                                <span class="item-left">${chapter.title}</span>
-                                <img src="/assets/icons/phosphor/regular/caret-right.svg" class="chevron-right" alt="Expand">
-                            </a>
-                            <ul class="sub-sub-menu" id="${chapterId}">
-                    `;
-
-                    chapter.lessons.forEach((lesson) => {
-                        const isActive = lesson.link === currentPath;
-                        html += `
-                            <li>
-                                <a href="${lesson.link}" class="${isActive ? 'active' : ''}">
-                                    <span class="item-left">
-                                        <span class="lesson-number">${lesson.number}</span>
-                                        ${lesson.title}
-                                    </span>
-                                </a>
-                            </li>
-                        `;
-                    });
-
-                    html += `
-                            </ul>
-                        </li>
-                    `;
-                });
-
-                html += `
-                        </ul>
-                    </li>
-                `;
-            });
-
-            html += '</ul>';
-            container.innerHTML = html;
-
-            // --- Event listeners for toggling ---
-            container.querySelectorAll('.parent-toggle').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.dataset.target;
-                    const subMenu = document.getElementById(targetId);
-                    if (subMenu) {
-                        subMenu.classList.toggle('open');
-                        const chevron = this.querySelector('.chevron-right');
-                        if (chevron) chevron.classList.toggle('open');
-                    }
-                });
-            });
-
-            container.querySelectorAll('.chapter-toggle').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const targetId = this.dataset.target;
-                    const subSubMenu = document.getElementById(targetId);
-                    if (subSubMenu) {
-                        subSubMenu.classList.toggle('open');
-                        const chevron = this.querySelector('.chevron-right');
-                        if (chevron) chevron.classList.toggle('open');
-                    }
-                });
-            });
-
-            // --- Auto-expand to the current lesson ---
-            const activeLink = container.querySelector('.sub-sub-menu a.active');
-            if (activeLink) {
-                const subSubMenu = activeLink.closest('.sub-sub-menu');
-                if (subSubMenu) {
-                    subSubMenu.classList.add('open');
-                    const chapterToggle = subSubMenu.closest('li').querySelector('.chapter-toggle .chevron-right');
-                    if (chapterToggle) chapterToggle.classList.add('open');
-                    const subMenu = subSubMenu.closest('.sub-menu');
-                    if (subMenu) {
-                        subMenu.classList.add('open');
-                        const parentToggle = subMenu.closest('li').querySelector('.parent-toggle .chevron-right');
-                        if (parentToggle) parentToggle.classList.add('open');
-                    }
-                }
-                setTimeout(() => {
-                    activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                }, 100);
-            }
-        }
-
-        // ---- Initialize TOC ----
-        const currentPath = window.location.pathname;
-        document.getElementById('tocCourseImg').src = `/assets/courses/${courseId}.png`;
-        document.getElementById('tocCourseName').textContent = 'G12 Life Sciences';
-        renderTOC(tocData, 'tocTreeContainer', currentPath);
-
-        // ---- TOC Sidebar open/close ----
-        const overlay = document.getElementById('tocOverlay');
-        const closeBtn = document.getElementById('tocCloseBtn');
-        const menuBtn = document.getElementById('menuBtn');
-
-        function openSidebar() {
-            overlay.style.display = 'block';
-            requestAnimationFrame(() => overlay.classList.add('open'));
-            document.body.style.overflow = 'hidden';
-        }
-        function closeSidebar() {
-            overlay.classList.remove('open');
-            setTimeout(() => { overlay.style.display = 'none'; }, 350);
-            document.body.style.overflow = '';
-        }
-
-        menuBtn.addEventListener('click', openSidebar);
-        closeBtn.addEventListener('click', closeSidebar);
-        overlay.addEventListener('click', function(e) {
-            if (e.target === overlay) closeSidebar();
-        });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && overlay.classList.contains('open')) closeSidebar();
-        });
-
-        document.getElementById('tocCourseIcon').addEventListener('click', function() {
-            const headerCourseIcon = document.querySelector('#activeCourseIcon');
-            if (headerCourseIcon) headerCourseIcon.click();
-            closeSidebar();
-        });
-
-        // ---- Font size ----
+        } catch (e) {}
+        await initTOC();
         (function() {
             const panel = document.getElementById('fontPanel');
             const toggle = document.getElementById('fontToggle');
@@ -783,7 +375,6 @@
             const inc = document.getElementById('incBtn');
             const label = document.getElementById('sizeLabel');
             const closeBtn = document.getElementById('fontCloseBtn');
-
             function applySize(px) {
                 document.documentElement.style.setProperty('--content-size', px + 'px');
                 label.textContent = px + 'px';
@@ -794,24 +385,15 @@
                 if (largeA) largeA.style.fontSize = (18 * ratio) + 'px';
             }
             applySize(parseInt(range.value, 10));
-
             toggle.addEventListener('click', (e) => { panel.classList.toggle('show'); e.stopPropagation(); });
             closeBtn.addEventListener('click', () => panel.classList.remove('show'));
             document.addEventListener('click', (e) => {
                 if (!panel.contains(e.target) && e.target !== toggle) panel.classList.remove('show');
             });
             range.addEventListener('input', (e) => applySize(parseInt(e.target.value, 10)));
-            dec.addEventListener('click', () => {
-                let v = Math.max(parseInt(range.min), parseInt(range.value) - 1);
-                range.value = v; applySize(v);
-            });
-            inc.addEventListener('click', () => {
-                let v = Math.min(parseInt(range.max), parseInt(range.value) + 1);
-                range.value = v; applySize(v);
-            });
+            dec.addEventListener('click', () => { let v = Math.max(parseInt(range.min), parseInt(range.value) - 1); range.value = v; applySize(v); });
+            inc.addEventListener('click', () => { let v = Math.min(parseInt(range.max), parseInt(range.value) + 1); range.value = v; applySize(v); });
         })();
-
-        // ---- Search ----
         (function() {
             const searchInput = document.getElementById('searchInput');
             const searchBox = document.getElementById('searchBox');
@@ -824,49 +406,30 @@
             const foundInfo = document.getElementById('foundInfo');
             const prevMatchBtn = document.getElementById('prevMatchBtn');
             const nextMatchBtn = document.getElementById('nextMatchBtn');
-
             let hits = [];
             let currentIndex = -1;
-
-            function escapeRegExp(str) {
-                return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            }
-
+            function escapeRegExp(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
             function updateSearchBoxState() {
                 const hasText = searchInput.value.trim().length > 0;
                 searchBox.classList.toggle('has-text', hasText);
-                if (!hasText) {
-                    finderFooter.style.display = 'none';
-                } else {
-                    finderFooter.style.display = 'flex';
-                }
+                finderFooter.style.display = hasText ? 'flex' : 'none';
             }
-
             function clearHighlights() {
                 article.querySelectorAll('mark.search-hit').forEach(m => {
                     const parent = m.parentNode;
                     parent.replaceChild(document.createTextNode(m.textContent), m);
                     parent.normalize();
                 });
-                hits = [];
-                currentIndex = -1;
-                updateCounter();
-                updateSearchBoxState();
+                hits = []; currentIndex = -1; updateCounter(); updateSearchBoxState();
             }
-
             function performSearch() {
                 const term = searchInput.value.trim();
                 clearHighlights();
-                if (!term) {
-                    updateSearchBoxState();
-                    return;
-                }
-
+                if (!term) { updateSearchBoxState(); return; }
                 const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, null, false);
                 const textNodes = [];
                 let node;
                 while ((node = walker.nextNode())) textNodes.push(node);
-
                 const re = new RegExp(escapeRegExp(term), 'ig');
                 textNodes.forEach(textNode => {
                     const parent = textNode.parentNode;
@@ -874,38 +437,26 @@
                     const text = textNode.textContent;
                     if (re.test(text)) {
                         const frag = document.createDocumentFragment();
-                        let last = 0;
-                        let match;
-                        re.lastIndex = 0;
+                        let last = 0; let match; re.lastIndex = 0;
                         while ((match = re.exec(text)) !== null) {
                             const offset = match.index;
                             if (offset > last) frag.appendChild(document.createTextNode(text.slice(last, offset)));
                             const mark = document.createElement('mark');
-                            mark.className = 'search-hit';
-                            mark.textContent = match[0];
-                            frag.appendChild(mark);
-                            last = offset + match[0].length;
+                            mark.className = 'search-hit'; mark.textContent = match[0];
+                            frag.appendChild(mark); last = offset + match[0].length;
                         }
                         if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
                         parent.replaceChild(frag, textNode);
                     }
                 });
-
                 hits = Array.from(article.querySelectorAll('mark.search-hit'));
                 currentIndex = hits.length > 0 ? 0 : -1;
                 if (currentIndex !== -1) scrollToHit(currentIndex);
-                updateCounter();
-                updateSearchBoxState();
+                updateCounter(); updateSearchBoxState();
             }
-
             function updateCounter() {
-                if (hits.length === 0) {
-                    foundInfo.textContent = 'No matches found';
-                } else {
-                    foundInfo.textContent = `${currentIndex+1}/${hits.length} of matches`;
-                }
+                foundInfo.textContent = hits.length === 0 ? 'No matches found' : `${currentIndex+1}/${hits.length} of matches`;
             }
-
             function scrollToHit(index) {
                 if (hits.length === 0 || index < 0 || index >= hits.length) return;
                 hits.forEach(h => h.style.outline = 'none');
@@ -915,78 +466,25 @@
                 setTimeout(() => el.style.outline = 'none', 1200);
                 updateCounter();
             }
-
-            function goToNext() {
-                if (hits.length === 0) return;
-                currentIndex = (currentIndex + 1) % hits.length;
-                scrollToHit(currentIndex);
-            }
-
-            function goToPrev() {
-                if (hits.length === 0) return;
-                currentIndex = (currentIndex - 1 + hits.length) % hits.length;
-                scrollToHit(currentIndex);
-            }
-
-            searchInput.addEventListener('input', function() {
-                performSearch();
-                if (this.value.trim() === '') {
-                    clearHighlights();
-                    finderFooter.style.display = 'none';
-                }
-                updateSearchBoxState();
-            });
-
-            searchInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    goToNext();
-                }
-            });
-
-            defaultSearchIcon.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (searchInput.value.trim() !== '') goToNext();
-            });
-            activeSearchIcon.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (searchInput.value.trim() !== '') goToNext();
-            });
-
-            clearSearchBtn.addEventListener('click', function() {
-                searchInput.value = '';
-                clearHighlights();
-                finderFooter.style.display = 'none';
-                updateSearchBoxState();
-                searchInput.focus();
-            });
-            clearFind.addEventListener('click', function() {
-                searchInput.value = '';
-                clearHighlights();
-                finderFooter.style.display = 'none';
-                updateSearchBoxState();
-                searchInput.focus();
-            });
-
+            function goToNext() { if (hits.length === 0) return; currentIndex = (currentIndex + 1) % hits.length; scrollToHit(currentIndex); }
+            function goToPrev() { if (hits.length === 0) return; currentIndex = (currentIndex - 1 + hits.length) % hits.length; scrollToHit(currentIndex); }
+            searchInput.addEventListener('input', function() { performSearch(); if (this.value.trim() === '') { clearHighlights(); finderFooter.style.display = 'none'; } updateSearchBoxState(); });
+            searchInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); goToNext(); } });
+            defaultSearchIcon.addEventListener('click', (e) => { e.preventDefault(); if (searchInput.value.trim() !== '') goToNext(); });
+            activeSearchIcon.addEventListener('click', (e) => { e.preventDefault(); if (searchInput.value.trim() !== '') goToNext(); });
+            clearSearchBtn.addEventListener('click', function() { searchInput.value = ''; clearHighlights(); finderFooter.style.display = 'none'; updateSearchBoxState(); searchInput.focus(); });
+            clearFind.addEventListener('click', function() { searchInput.value = ''; clearHighlights(); finderFooter.style.display = 'none'; updateSearchBoxState(); searchInput.focus(); });
             nextMatchBtn.addEventListener('click', goToNext);
             prevMatchBtn.addEventListener('click', goToPrev);
-
             article.addEventListener('click', function(e) {
                 const mark = e.target.closest('mark.search-hit');
                 if (mark) {
                     const idx = hits.indexOf(mark);
-                    if (idx !== -1) {
-                        currentIndex = idx;
-                        scrollToHit(currentIndex);
-                    }
+                    if (idx !== -1) { currentIndex = idx; scrollToHit(currentIndex); }
                 }
             });
-
-            updateSearchBoxState();
-            finderFooter.style.display = 'none';
+            updateSearchBoxState(); finderFooter.style.display = 'none';
         })();
-
-        console.log('G12 reading article loaded.');
     </script>
     <script type="module" src="/src/js/reading-annotations.js" data-course="g12-life-sciences" data-lesson="introduction-to-nucleic-acids"></script>
 </body>

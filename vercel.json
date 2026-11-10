@@ -19,6 +19,38 @@
     {
       "source": "/notes/:username",
       "destination": "/notes.html"
+    },
+    {
+      "source": "/profile/:username",
+      "destination": "/pages/profile.html"
+    },
+    {
+      "source": "/settings",
+      "destination": "/pages/settings.html"
+    },
+    {
+      "source": "/settings/:page",
+      "destination": "/pages/settings/:page.html"
+    },
+    {
+      "source": "/help",
+      "destination": "/pages/help.html"
+    },
+    {
+      "source": "/help/support-request",
+      "destination": "/pages/help/support-request.html"
+    },
+    {
+      "source": "/policy",
+      "destination": "/pages/policies.html"
+    },
+    {
+      "source": "/policies",
+      "destination": "/pages/policies.html"
+    },
+    {
+      "source": "/acknowledgements",
+      "destination": "/pages/acknowledgements.html"
     }
   ]
 }

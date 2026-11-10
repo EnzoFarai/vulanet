@@ -82,7 +82,7 @@
     By signing in to Vulanet, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.<br><br>
     This site is protected by reCAPTCHA Enterprise and the Google <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a> apply.
   </div>
-  <div class="login">Have an account? <a href="#" id="login-link">LOG IN</a></div>
+  <div class="login">Have an account? <a href="/login.html" id="login-link">LOG IN</a></div>
 </div>
 
 <script type="importmap">
@@ -95,7 +95,6 @@
 <script type="module">
   import { supabase } from './src/js/supabase.js';
   
-  // DOM elements
   const displayNameInput = document.getElementById('display-name-input');
   const emailInput = document.getElementById('email-input');
   const passwordInput = document.getElementById('password-input');
@@ -111,7 +110,6 @@
   const EYE_OPEN_SRC = '/assets/icons/phosphor/regular/eye.svg';
   const EYE_CLOSED_SRC = '/assets/icons/phosphor/regular/eye-closed.svg';
   
-  // Password toggle
   togglePassword.addEventListener('click', () => {
     if (passwordInput.type === 'password') {
       passwordInput.type = 'text';
@@ -135,7 +133,6 @@
     return name && name.trim().length > 0;
   }
   
-  // Real-time validation
   displayNameInput.addEventListener('input', () => {
     if (validateDisplayName(displayNameInput.value)) displayNameError.classList.add('hidden');
   });
@@ -203,11 +200,6 @@
   
   createBtn.addEventListener('click', signUpWithEmail);
   googleBtn.addEventListener('click', signInWithGoogle);
-  
-  document.getElementById('login-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    alert('Login page coming soon.');
-  });
 </script>
 </body>
 </html>

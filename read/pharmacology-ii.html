@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="/assets/fonts/fonts.css">
   <link rel="stylesheet" href="/src/styles/layout.css">
   <style>
-    /* Same TOC styles as G12 – copy exactly */
     :root {
       --primary-blue: #4285F4;
       --light-blue: #1CB0F6;
@@ -35,6 +34,18 @@
       margin: 0 auto;
       padding-top: 80px;
     }
+
+    .back-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .back-arrow:hover { text-decoration: underline; }
 
     h1 { font-weight: 700; color: var(--primary-blue); margin-bottom: 30px; font-size: 32px; }
 
@@ -162,6 +173,11 @@
 
   <!-- Header injected by layout.js -->
 
+  <a href="/practice-hub.html" class="back-arrow">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Practice Hub
+  </a>
+
   <h1>Pharmacology-II</h1>
 
   <div class="reading-list-container">
@@ -227,7 +243,28 @@
       card.classList.toggle('expanded');
     }
 
-    // Load header/footer (only course icon visible)
+    const locationParams = new URLSearchParams(location.search);
+    if (locationParams.has('unit') && locationParams.has('chapter')) {
+      const unitIndex = Number(locationParams.get('unit'));
+      const chapterIndex = Number(locationParams.get('chapter'));
+      if (
+        Number.isInteger(unitIndex) && unitIndex >= 0 &&
+        Number.isInteger(chapterIndex) && chapterIndex >= 0
+      ) {
+        const content = document.getElementById('unit' + (unitIndex + 1));
+        const chapter = content ? content.querySelectorAll('.chapter-card')[chapterIndex] : null;
+        if (content && chapter) {
+          content.classList.add('expanded');
+          const unitHeader = content.parentElement.querySelector('.unit-header');
+          if (unitHeader) unitHeader.classList.add('expanded');
+          chapter.classList.add('expanded');
+          const lessonsList = chapter.querySelector('.lessons-list');
+          if (lessonsList) lessonsList.classList.add('expanded');
+          setTimeout(() => chapter.scrollIntoView({ block: 'center', behavior: 'smooth' }), 200);
+        }
+      }
+    }
+
     import('/src/js/layout.js').then(({ loadLayout }) => loadLayout());
   </script>
 </body>

@@ -35,6 +35,18 @@
       padding-top: 80px; /* space for fixed header */
     }
 
+    .back-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .back-arrow:hover { text-decoration: underline; }
+
     h1 { font-weight: 700; color: var(--primary-blue); margin-bottom: 30px; font-size: 32px; }
 
     .reading-list-container { margin-top: 20px; }
@@ -160,6 +172,11 @@
 <body>
 
   <!-- Header injected by layout.js -->
+
+  <a href="/practice-hub.html" class="back-arrow">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Practice Hub
+  </a>
 
   <h1>G12 Life Sciences</h1>
 
@@ -352,11 +369,6 @@
       card.classList.toggle('expanded');
     }
 
-    // Open the precise chapter requested by the saved-reading collections.
-    // reading-collections.js uses /read/{course}.html?unit={unitIndex}&chapter={chapterIndex}
-    // for the "Go to chapter" action. Without this block, that action would
-    // open the TOC page but not expand anything, so the user would not see
-    // the lesson they came from.
     const locationParams = new URLSearchParams(location.search);
     if (locationParams.has('unit') && locationParams.has('chapter')) {
       const unitIndex = Number(locationParams.get('unit'));
@@ -379,7 +391,6 @@
       }
     }
 
-    // Load header/footer (only course icon visible)
     import('/src/js/layout.js').then(({ loadLayout }) => loadLayout());
   </script>
 </body>

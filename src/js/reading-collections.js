@@ -1,23 +1,5 @@
 // src/js/reading-collections.js
 // ============================================================
-// Controller for /bookmarks.html, /highlights.html, /notes.html.
-//
-// Two access modes:
-//   OWNER   — arrives via /bookmarks.html (no path username) or
-//             /bookmarks/{own-username}. Full UI: Share, Download,
-//             Add, Sort, three-dot actions.
-//   VISITOR — arrives via /bookmarks/{someone-else}. Read-only
-//             snapshot of that collection. No mutating controls.
-//
-// Denial is uniform {status:'denied'} from the RPC; the client
-// does not reveal whether a private collection exists.
-//
-// Sharing:
-//   • shareCollection(kind)  → server-side visibility='public'
-//   • collectionURL(kind, username) → /bookmarks/{username} etc.
-//   • Per-lesson share uses annotationLink(...) when the lesson
-//     has saved annotations, clean lessonURL otherwise.
-// ============================================================
 
 import {
   supabase,
@@ -45,10 +27,6 @@ import {
   shareText
 } from './reading-store.js';
 
-// ─────────────────────────────────────────────────────────────
-// Optional dependency: offline-export.js
-// Wired defensively so the module still loads when absent.
-// ─────────────────────────────────────────────────────────────
 let offlineExport = null;
 (async () => {
   try {
@@ -59,9 +37,6 @@ let offlineExport = null;
   }
 })();
 
-// ─────────────────────────────────────────────────────────────
-// Page wiring
-// ─────────────────────────────────────────────────────────────
 const KIND = document.body.dataset.collection;
 if (!['bookmarks', 'highlights', 'notes'].includes(KIND)) {
   console.error('reading-collections: invalid body[data-collection]');
@@ -72,20 +47,14 @@ if (!['bookmarks', 'highlights', 'notes'].includes(KIND)) {
   });
 }
 
-// ─────────────────────────────────────────────────────────────
-// Module state
-// ─────────────────────────────────────────────────────────────
 let ownerUsername = null;
 let isOwner = false;
-let items = [];             // [{ course_id, lesson_id, updated_at, meta }]
-let allRows = [];           // owner only — annotations across all lessons
-let sortMode = 'recent';    // 'recent' | 'custom'
+let items = [];
+let allRows = [];
+let sortMode = 'recent';
 let openMenu = null;
 let activeDotTrigger = null;
 
-// ─────────────────────────────────────────────────────────────
-// Entry point
-// ─────────────────────────────────────────────────────────────
 async function main() {
   const pathInfo = collectionFromPath();
   let requestedUsername = null;
@@ -96,14 +65,23 @@ async function main() {
     requestedUsername = new URL(location.href).searchParams.get('u');
   }
 
-  // Determine ownership & username of the collection we are loading.
   let authUid = null;
   try { authUid = await owner(); } catch { authUid = null; }
+
+  // FIX 1: Unauthenticated user tracking and popup logic
+  if (!authUid) {
+    const attempts = parseInt(sessionStorage.getItem('collection_attempts') || '0', 10);
+    if (attempts >= 2) {
+      window.location.href = '/registration.html';
+      return;
+    }
+    sessionStorage.setItem('collection_attempts', (attempts + 1).toString());
+    showLoginPromptModal();
+  }
 
   let targetUsername = requestedUsername;
 
   if (!targetUsername) {
-    // No username in URL → owner viewing own collection
     if (!authUid) {
       renderDenied();
       return;
@@ -113,7 +91,6 @@ async function main() {
     if (ownerUsername) targetUsername = ownerUsername;
   }
 
-  // Load data
   let data = null;
   if (targetUsername) {
     const result = await getCollectionByUsername(targetUsername, KIND).catch(() => ({ status: 'denied' }));
@@ -123,7 +100,6 @@ async function main() {
     }
     data = result.data;
   } else {
-    // Owner with no username → direct load fallback (no share URL)
     data = await loadOwnerFallback();
   }
 
@@ -160,9 +136,24 @@ async function main() {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Owner extras (annotations + custom-sort detection)
-// ─────────────────────────────────────────────────────────────
+function showLoginPromptModal() {
+  const modal = document.createElement('div');
+  modal.className = 'vr-share-menu open';
+  modal.innerHTML = `
+    <div>
+      <h3>Sign in required</h3>
+      <p>Create an account or sign in to save your own bookmarks, highlights, and notes. You can continue viewing this shared collection.</p>
+      <div style="margin-top:16px; display:flex; gap:8px;">
+        <button type="button" id="continue-view">Continue Viewing</button>
+        <a href="/registration.html" style="text-decoration:none; padding:9px 14px; background:#4285F4; color:white; border-radius:8px; font-weight:600; font-size:12px;">Sign In</a>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  
+  modal.querySelector('#continue-view').addEventListener('click', () => modal.remove());
+}
+
 async function loadOwnerExtras() {
   try {
     allRows = await allAnnotations();
@@ -183,9 +174,6 @@ async function loadOwnerExtras() {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Owner fallback — direct load when no username exists
-// ─────────────────────────────────────────────────────────────
 async function loadOwnerFallback() {
   const profile = await ownerProfile().catch(() => ({}));
   let items = [];
@@ -214,7 +202,6 @@ async function loadOwnerFallback() {
     items = [...byLesson.values()];
   }
 
-  // Apply custom order if present
   try {
     const orders = await customOrder(KIND);
     const ranks = new Map();
@@ -244,9 +231,6 @@ async function loadOwnerFallback() {
   };
 }
 
-// ─────────────────────────────────────────────────────────────
-// DOM helpers
-// ─────────────────────────────────────────────────────────────
 const $ = sel => document.querySelector(sel);
 const tbody = $('#rows');
 const statusEl = $('#status');
@@ -280,9 +264,6 @@ function renderDenied() {
   showStatus('');
 }
 
-// ─────────────────────────────────────────────────────────────
-// Rendering
-// ─────────────────────────────────────────────────────────────
 function render() {
   tbody.innerHTML = '';
   const byline = $('#byline');
@@ -291,7 +272,6 @@ function render() {
     if (isOwner) {
       byline.textContent = `${ownerUsername || 'You'} · ${items.length} ${items.length === 1 ? 'lesson' : 'lessons'}`;
     } else {
-      const ownerLabel = items.length ? (byline.dataset.ownerName || 'Shared collection') : 'Shared collection';
       byline.textContent = `Read-only · ${items.length} ${items.length === 1 ? 'lesson' : 'lessons'}`;
     }
   }
@@ -310,12 +290,10 @@ function render() {
 function buildRow(item, index) {
   const tr = document.createElement('tr');
 
-  // # column
   const numCell = document.createElement('td');
   numCell.textContent = String(index + 1);
   tr.append(numCell);
 
-  // Title column
   const titleCell = document.createElement('td');
   const topic = document.createElement('div');
   topic.className = 'topic';
@@ -334,22 +312,18 @@ function buildRow(item, index) {
   titleCell.append(topic);
   tr.append(titleCell);
 
-  // Course
   const courseCell = document.createElement('td');
   courseCell.textContent = courseTitles[item.course_id] || item.course_id;
   tr.append(courseCell);
 
-  // Chapter
   const chapterCell = document.createElement('td');
   chapterCell.textContent = item.meta.chapter || '—';
   tr.append(chapterCell);
 
-  // Date
   const dateCell = document.createElement('td');
   dateCell.textContent = formatDate(item.updated_at);
   tr.append(dateCell);
 
-  // Order (arrows only in custom mode for owner)
   const orderCell = document.createElement('td');
   if (isOwner && sortMode === 'custom') {
     const pair = document.createElement('div');
@@ -373,7 +347,6 @@ function buildRow(item, index) {
   }
   tr.append(orderCell);
 
-  // Actions
   const actionCell = document.createElement('td');
   actionCell.className = 'dotmenu';
   const trigger = document.createElement('button');
@@ -399,9 +372,6 @@ function formatDate(iso) {
   } catch { return '—'; }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Custom sort
-// ─────────────────────────────────────────────────────────────
 async function reorder(index, direction) {
   const target = index + direction;
   if (target < 0 || target >= items.length) return;
@@ -427,13 +397,10 @@ async function clearSortOrder(kind) {
       .eq('owner_id', uid);
     if (error) throw Error(error.message);
   } else {
-    await saveOrder(kind, []); // deletes all rows for highlights/notes
+    await saveOrder(kind, []);
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Row menu
-// ─────────────────────────────────────────────────────────────
 function openRowMenu(trigger, item) {
   if (openMenu) {
     const sameTrigger = activeDotTrigger === trigger;
@@ -526,9 +493,6 @@ function outsideMenuClick(e) {
   if (openMenu && !openMenu.contains(e.target) && !e.target.closest('.dots')) closeMenu();
 }
 
-// ─────────────────────────────────────────────────────────────
-// Share helpers
-// ─────────────────────────────────────────────────────────────
 async function ownerShareURL(course, lesson) {
   const hasAnnotations = allRows.some(a => a.course_id === course && a.lesson_id === lesson);
   if (!hasAnnotations) return lessonURL(course, lesson);
@@ -583,9 +547,6 @@ async function presentShare(title, url) {
   dialogBody.append(wrap);
 }
 
-// ─────────────────────────────────────────────────────────────
-// Modal
-// ─────────────────────────────────────────────────────────────
 function openModal(title) {
   dialogTitle.textContent = title;
   dialogBody.replaceChildren();
@@ -599,19 +560,11 @@ function closeModal() {
   dialogBody.replaceChildren();
 }
 
-// ─────────────────────────────────────────────────────────────
-// Reload helper
-// ─────────────────────────────────────────────────────────────
 async function reload() {
-  // Simple, guaranteed-fresh reload preserves state via cache-busting
   location.reload();
 }
 
-// ─────────────────────────────────────────────────────────────
-// Page-level actions
-// ─────────────────────────────────────────────────────────────
 function installActions() {
-  // Close dialog
   const closeBtn = $('#close-dialog');
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
   if (dialog) dialog.addEventListener('click', e => { if (e.target === dialog) closeModal(); });
@@ -619,7 +572,6 @@ function installActions() {
     if (e.key === 'Escape') { closeModal(); closeMenu(); }
   });
 
-  // Share collection
   const shareBtn = $('#share');
   if (shareBtn) {
     shareBtn.addEventListener('click', async () => {
@@ -638,7 +590,6 @@ function installActions() {
     });
   }
 
-  // Download collection
   const downloadBtn = $('#download');
   if (downloadBtn) {
     downloadBtn.addEventListener('click', async () => {
@@ -660,7 +611,6 @@ function installActions() {
     });
   }
 
-  // Sort toggle
   const sortBtn = $('#sort');
   if (sortBtn) {
     sortBtn.addEventListener('click', async () => {
@@ -688,7 +638,6 @@ function installActions() {
     });
   }
 
-  // Add (bookmarks: shows Add buttons; highlights/notes: opens reading page)
   const addBtn = $('#add');
   if (addBtn) {
     addBtn.addEventListener('click', () => {
@@ -696,14 +645,8 @@ function installActions() {
       openAddModal();
     });
   }
-
-  // Bookmark the newly opened collection page in history is handled by
-  // the URL path — nothing else to install.
 }
 
-// ─────────────────────────────────────────────────────────────
-// Add modal — course browser
-// ─────────────────────────────────────────────────────────────
 async function openAddModal() {
   openModal(KIND === 'bookmarks' ? 'Add Topics' : KIND === 'highlights' ? 'Add Highlights' : 'Add Notes');
 
@@ -801,17 +744,14 @@ async function openAddModal() {
 
               chapEl.append(row);
             }
-
             unitEl.append(chapEl);
           }
-
           tocBody.append(unitEl);
         }
       } catch (e) {
         tocBody.append(Object.assign(document.createElement('p'), { textContent: e.message }));
       }
     });
-
     dialogBody.append(courseWrap);
   }
 }
